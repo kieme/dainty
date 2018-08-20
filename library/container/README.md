@@ -12,11 +12,16 @@ The dainty containers offers functionality not available in &lt;std> containers.
 6. container implementations are simple to understand and debug.
 
 current containers:
-1. t_freelist
-2. t_list
-3. t_pushlist
-4. t_map
-5. t_valuestore - required to manage contruction & destruction
+1.  t_freelist
+2.  t_list
+3.  t_pushlist
+4.  t_map
+5.  t_valuestore - required to manage contruction & destruction
+6.  t_any
+7.  t_maybe
+8.  t_passable_ptr
+9.  t_holder
+10. t_ptrlist
 
 many containers to follow (they must still be ported from another framework)
 1. t_linked_queue
