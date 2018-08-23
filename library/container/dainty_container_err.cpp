@@ -33,19 +33,18 @@ namespace container
   namespace
   {
     using namespace oops;
-    using named::P_cstr;
 
     const t_def err_tbl_[] = {
       /* CATEGORY                 MESSAGE               NEXT CODE      */
-      {v_category_unrecoverable, P_cstr("-"),            E_INVALID_IX},
-      {v_category_ignore,        P_cstr("invalid ix"),   E_NO_SPACE},
-      {v_category_ignore,        P_cstr("no space"),     E_NO_POP},
-      {v_category_ignore,        P_cstr("no pop"),       E_INVALID_ID},
-      {v_category_ignore,        P_cstr("invalid id"),   E_UNUSED_ID},
-      {v_category_ignore,        P_cstr("unused id"),    E_INVALID_INST},
-      {v_category_ignore,        P_cstr("invalid inst"), E_NOT_UNIQUE},
-      {v_category_ignore,        P_cstr("not unique"),   E_NO_ERASE},
-      {v_category_ignore,        P_cstr("no erase"),     0}
+      {UNRECOVERABLE, P_cstr("-"),            E_INVALID_IX},
+      {IGNORE,        P_cstr("invalid ix"),   E_NO_SPACE},
+      {IGNORE,        P_cstr("no space"),     E_NO_POP},
+      {IGNORE,        P_cstr("no pop"),       E_INVALID_ID},
+      {IGNORE,        P_cstr("invalid id"),   E_UNUSED_ID},
+      {IGNORE,        P_cstr("unused id"),    E_INVALID_INST},
+      {IGNORE,        P_cstr("invalid inst"), E_NOT_UNIQUE},
+      {IGNORE,        P_cstr("not unique"),   E_NO_ERASE},
+      {IGNORE,        P_cstr("no erase"),     0}
     };
   }
 
