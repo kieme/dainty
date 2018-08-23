@@ -33,12 +33,11 @@ namespace mt
   namespace
   {
     using namespace oops;
-    using named::P_cstr;
 
     const t_def err_tbl_[] = {
       /* CATEGORY                 MESSAGE               NEXT CODE      */
-      { v_category_ignore, P_cstr{"mt: bad"},             E_XXX   },
-      { v_category_ignore, P_cstr{"mt::undefined"},       0       }
+      { IGNORE, P_cstr{"mt: bad"},             E_XXX   },
+      { IGNORE, P_cstr{"mt::undefined"},       0       }
     };
   }
 
