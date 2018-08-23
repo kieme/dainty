@@ -36,9 +36,9 @@ namespace oops
 ////////////////////////////////////////////////////////////////////////////////
 
   enum t_category {
-    v_category_unrecoverable = 0,
-    v_category_recoverable   = 1,
-    v_category_ignore        = 2
+    UNRECOVERABLE = 0,
+    RECOVERABLE   = 1,
+    IGNORE        = 2
   };
 
   using named::t_bool;

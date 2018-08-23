@@ -57,9 +57,9 @@ namespace other
 
   oops::t_def errors_what(oops::t_id id) {
     static const oops::t_def tbl[] = {
-      { oops::v_category_ignore,      P_cstr("other undefined error"), E1 },
-      { oops::v_category_ignore,      P_cstr("other error 1"),         E2 },//E1
-      { oops::v_category_recoverable, P_cstr("other error 2"),         0  } //E2
+      { oops::IGNORE,      P_cstr("other undefined error"), E1 },
+      { oops::IGNORE,      P_cstr("other error 1"),         E2 },//E1
+      { oops::RECOVERABLE, P_cstr("other error 2"),         0  } //E2
     };
     return tbl[id <= E2 ? id : 0];
   }
@@ -96,11 +96,11 @@ enum errors {
 
 oops::t_def errors_what(oops::t_id id) {
   static const oops::t_def tbl[] = {
-    { oops::v_category_ignore, P_cstr("undefined error"), E1 },
-    { oops::v_category_ignore, P_cstr("error 1"),         E2 }, //E1
-    { oops::v_category_ignore, P_cstr("error 2"),         E3 }, //E2
-    { oops::v_category_ignore, P_cstr("error 3"),         E4 }, //E3
-    { oops::v_category_ignore, P_cstr("error 4"),         0  }  //E4
+    { oops::IGNORE, P_cstr("undefined error"), E1 },
+    { oops::IGNORE, P_cstr("error 1"),         E2 }, //E1
+    { oops::IGNORE, P_cstr("error 2"),         E3 }, //E2
+    { oops::IGNORE, P_cstr("error 3"),         E4 }, //E3
+    { oops::IGNORE, P_cstr("error 4"),         0  }  //E4
   };
   return tbl[id <= E4 ? id : 0];
 }
@@ -305,14 +305,14 @@ namespace asystem {
   void error_policy(const oops::t_info& info) {
     oops::t_def def(info.what_(info.id_));
     switch (def.category_) {
-      case oops::v_category_unrecoverable:
+      case oops::UNRECOVERABLE:
         assert(0);
 
-      case oops::v_category_recoverable:
+      case oops::RECOVERABLE:
         std::cout << "throw exception" << std::endl;
         throw t_error_except(info.ctxt_);
 
-      case oops::v_category_ignore:
+      case oops::IGNORE:
         break;
     }
   }
