@@ -33,12 +33,11 @@ namespace tracing
   namespace
   {
     using namespace oops;
-    using named::P_cstr;
 
     const t_def err_tbl_[] = {
       /* CATEGORY                 MESSAGE               NEXT CODE      */
-      {v_category_unrecoverable, P_cstr("-"),           E_XXX},
-      {v_category_ignore,        P_cstr("undefined"),   0}
+      {UNRECOVERABLE, P_cstr("-"),           E_XXX},
+      {IGNORE,        P_cstr("undefined"),   0}
     };
   }
 
