@@ -33,19 +33,18 @@ namespace os
   namespace
   {
     using namespace oops;
-    using named::P_cstr;
 
     const t_def err_tbl_[] = {
      /* CATEGORY           MESSAGE                NEXT CODE      */
-      { v_category_ignore, P_cstr{"os: bad"},             E_TIMEOUT            },
-      { v_category_ignore, P_cstr{"os::timeout"},         E_INVALID_INST       },
-      { v_category_ignore, P_cstr{"os::invalid inst"},    E_VALID_INST         },
-      { v_category_ignore, P_cstr{"os::existing inst"},   E_INIT_FAIL          },
-      { v_category_ignore, P_cstr{"os::init failed"},     E_DESTROY_FAIL       },
-      { v_category_ignore, P_cstr{"os::destroy failed"},  E_ATTR_NOT_RECURSIVE },
-      { v_category_ignore, P_cstr{"os::not recursive"},   E_ATTR_NOT_MONOTONIC },
-      { v_category_ignore, P_cstr{"os::not monotonic"},   E_XXX                },
-      { v_category_ignore, P_cstr{"os::undefined error"}, 0                    }
+      { IGNORE, P_cstr{"os: bad"},             E_TIMEOUT            },
+      { IGNORE, P_cstr{"os::timeout"},         E_INVALID_INST       },
+      { IGNORE, P_cstr{"os::invalid inst"},    E_VALID_INST         },
+      { IGNORE, P_cstr{"os::existing inst"},   E_INIT_FAIL          },
+      { IGNORE, P_cstr{"os::init failed"},     E_DESTROY_FAIL       },
+      { IGNORE, P_cstr{"os::destroy failed"},  E_ATTR_NOT_RECURSIVE },
+      { IGNORE, P_cstr{"os::not recursive"},   E_ATTR_NOT_MONOTONIC },
+      { IGNORE, P_cstr{"os::not monotonic"},   E_XXX                },
+      { IGNORE, P_cstr{"os::undefined error"}, 0                    }
     };
   }
 
