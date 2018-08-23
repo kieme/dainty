@@ -32,18 +32,18 @@ namespace dainty
 namespace oops
 {
   t_def default_what(t_id) {
-    return t_def(v_category_unrecoverable, P_cstr{"unspecified oops"});
+    return t_def(UNRECOVERABLE, P_cstr{"unspecified oops"});
   }
 
   void default_policy(R_info info) {
     t_def def(info.what_(info.id_));
     switch (def.category_) {
-      case v_category_unrecoverable:
+      case UNRECOVERABLE:
         printf("policy assert unrecoverable oops = %d, %s\n", info.id_,
                get(def.string_));
         assert_now(P_cstr{"oops->default_policy_assert"});
         break;
-      case v_category_recoverable:
+      case RECOVERABLE:
         printf("policy ignore recoverable oops = %d, %s\n", info.id_,
                get(def.string_));
         break;
