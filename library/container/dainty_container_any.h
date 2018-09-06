@@ -74,11 +74,11 @@ namespace any
              value_ == static_cast<const t_store_<T>&>(it).value_;
     };
 
-    virtual t_void copy(const t_it_& it) {
+    virtual t_void copy(const t_it_& it) override {
       value_ = static_cast<const t_store_<T>&>(it).value_;
     };
 
-    virtual t_it_* clone() const {
+    virtual t_it_* clone() const override {
       return new t_store_<T>(value_);
     };
   };
