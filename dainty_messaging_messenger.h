@@ -27,11 +27,12 @@
 #ifndef _DAINTY_MESSAGING_MESSENGER_H_
 #define _DAINTY_MESSAGING_MESSENGER_H_
 
+#include <map>
 #include "dainty_named.h"
 #include "dainty_named_string.h"
 #include "dainty_container_list.h"
 #include "dainty_messaging_err.h"
-#include "dainty_messaging_messages.h"
+#include "dainty_messaging_message.h"
 
 namespace dainty
 {
@@ -39,174 +40,221 @@ namespace messaging
 {
 namespace messenger
 {
+  using named::t_bool;
+  using named::t_void;
+  using named::t_n;
+  using named::t_validity;
+  using named::t_prefix;
+  using named::string::t_string;
+  using named::VALID;
+  using named::INVALID;
+  using named::t_fd;
+  using err::t_err;
+  using message::t_message;
+  using message::r_message;
+  using message::t_multiple_of_100ms;
+
+  using t_user     = message::t_messenger_user;
+  using t_key      = message::t_messenger_key;
+  using t_name     = message::t_messenger_name;
+  using t_prio     = message::t_messenger_prio;
+  using R_key      = t_prefix<t_key>::R_;
+  using r_name     = t_prefix<t_name>::r_;
+  using R_name     = t_prefix<t_name>::R_;
+  using p_user     = t_prefix<t_user>::p_;
+  using t_messages = container::list::t_list<t_message>;
+  using r_messages = t_prefix<t_messages>::r_;
+
 ///////////////////////////////////////////////////////////////////////////////
 
-  using library::types::fd_t;
-  using library::types::errorid_t;
-  using library::types::npushlist_t;
-  using library::string::nstring_t;
-
-  using messages_t = npushlist_t<message_t, 0>;
-
-  enum password_tag_t { };
-  typedef nstring_t<32, password_tag_t> password_t;
+  enum  t_password_tag_ { };
+  using t_password = t_string<t_password_tag_, 16>;
+  using R_password = t_prefix<t_password>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   enum t_visibility {
-    visibility_off,
-    visibility_process,
-    visibility_node,
-    visibility_system
+    VISIBILITY_OFF,
+    VISIBILITY_PROCESS,
+    VISIBILITY_NODE,
+    VISIBILITY_SYSTEM
   };
 
-  enum visibility_string_tag_t { };
-  typedef nstring_t<14, visibility_string_tag_t>
-    visibility_string_t;
+  enum  t_visibility_name_tag_ { };
+  using t_visibility_name = t_string<t_visibility_name_tag_, 14>;
 
-  visibility_string_t to_string(t_visibility);
+  t_visibility_name to_name(t_visibility);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  struct t_timer_params {
-    multiple_of_100ms_t factor_;
-    bool_t              periodic_;
-    messenger_prio_t    prio_;
-    messenger_user_t    user_;
+  class t_timer_params {
+  public:
+    t_multiple_of_100ms factor;
+    t_bool              periodic;
+    t_prio              prio;
+    t_user              user;
 
-    t_timer_params(multiple_of_100ms_t factor
-                               = multiple_of_100ms_t(0),
-                             bool_t periodic = false,
-                             messenger_prio_t prio = messenger_prio_t(0),
-                             messenger_user_t user = messenger_user_t())
-      : factor_(factor), periodic_(periodic), prio_(prio), user_(user) { }
+    inline
+    t_timer_params(t_multiple_of_100ms _factor   = t_multiple_of_100ms(0),
+                   t_bool              _periodic = false,
+                   t_prio              _prio     = t_prio(0),
+                   t_user              _user     = t_user(0L))
+      : factor(_factor), periodic(_periodic), prio(_prio), user(_user) {
+    }
   };
+  using r_timer_params = t_prefix<t_timer_params>::r_;
+  using R_timer_params = t_prefix<t_timer_params>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  struct t_create_params {
-    t_visibility   visibility_;
-    multiple_of_100ms_t      alive_factor_;
-    t_timer_params timer_params_;
-    t_create_params()
-      : visibility_(visibility_process), alive_factor_(0) { }
-    t_create_params(t_visibility visibility,
-                              multiple_of_100ms_t alive_factor
-                                = multiple_of_100ms_t(0),
-                              const t_timer_params& timer_params
-                                = t_timer_params())
-      : visibility_(visibility), alive_factor_(alive_factor),
-        timer_params_(timer_params) { }
-  };
+  class t_group {
+  public:
+    t_name     name;
+    t_password password;
+    t_prio     prio;
+    t_user     user;
 
-  struct t_params {
-    t_visibility   visibility_;   // visibility of messenger
-    multiple_of_100ms_t      alive_factor_; // zero - disable
-    t_timer_params timer_params_; // timer properties
-    messenger_memberlist_t   groups_;       // belong to these groups
-    messenger_memberlist_t   monitor_;      // monitor these
+    inline
+    t_group() : prio(0), user(0L) {
+    }
 
-    t_params(t_visibility visibility
-                         = visibility_process, // share threads
-                       multiple_of_100ms_t alive_factor
-                         = multiple_of_100ms_t(0),       // disabled - 0
-                       const t_timer_params& timer_params
-                         = t_timer_params(),   // disabled
-                       const messenger_memberlist_t& groups
-                         = messenger_memberlist_t(),     // none
-                       const messenger_memberlist_t& monitor
-                         = messenger_memberlist_t())     // none
-      : visibility_(visibility), alive_factor_(alive_factor),
-        timer_params_(timer_params), groups_(groups), monitor_(monitor) {
+    inline
+    t_group(R_name _name, R_password _password, t_prio _prio, t_user _user)
+      : name(_name), password(_password), prio(_prio), user(_user) {
     }
   };
+  using R_group = t_prefix<t_group>::R_;
+
+  using t_group_list = std::map<t_name, t_group>;
+  using r_group_list = t_prefix<t_group_list>::r_;
+  using R_group_list = t_prefix<t_group_list>::R_;
+  using p_group_list = t_prefix<t_group_list>::p_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  struct t_id {
-    typedef t_key key_t;
+  class t_monitor {
+  public:
+    t_name name;
+    t_prio prio;
+    t_user user;
+    t_key  key;
 
-    t_id() : key_(0), fd_(-1) { }
-    t_id(key_t key, fd_t fd) : key_(key), fd_(fd) { }
-
-    inline operator bool_t() const {
-      return get(key_) != 0 && get(fd_) != -1;
+    inline
+    t_monitor() : prio{0}, user{0L}, key{0} {
     }
 
-    inline key_t get_key() const {
-      return key_;
+    inline
+    t_monitor(R_name _name, t_prio _prio, t_user _user, t_key _key)
+      : name{_name}, prio{_prio}, user{_user}, key{_key} {
     }
-
-    t_id release() {
-      t_id tmp(*this);
-      set(key_) = 0;
-      set(fd_)  = -1;
-      return tmp;
-    }
-
-    key_t  key_;
-    fd_t   fd_;
   };
 
+  using t_monitor_list = std::map<t_name, t_monitor>;
+  using r_monitor_list = t_prefix<t_monitor_list>::r_;
+  using R_monitor_list = t_prefix<t_monitor_list>::R_;
+  using p_monitor_list = t_prefix<t_monitor_list>::p_;
+
 ///////////////////////////////////////////////////////////////////////////////
+
+  class t_params {
+  public:
+    // queue size
+    t_visibility        visibility;
+    t_multiple_of_100ms alive_factor;
+    t_timer_params      timer_params;
+    t_group_list        group_list;
+    t_monitor_list      monitor_list;
+
+    inline
+    t_params(t_visibility        _visibility   = VISIBILITY_PROCESS,
+             t_multiple_of_100ms _alive_factor = t_multiple_of_100ms(0),
+             R_timer_params      _timer_params = t_timer_params())
+      : visibility(_visibility), alive_factor(_alive_factor),
+        timer_params(_timer_params) {
+    }
+
+    inline
+    t_params(t_visibility        _visibility,
+             t_multiple_of_100ms _alive_factor,
+             R_timer_params      _timer_params,
+             R_group_list        _group_list,
+             R_monitor_list      _monitor_list)
+      : visibility(_visibility), alive_factor(_alive_factor),
+        timer_params(_timer_params), group_list(_group_list),
+        monitor_list(_monitor_list) {
+    }
+  };
+  using r_params = t_prefix<t_params>::r_;
+  using R_params = t_prefix<t_params>::R_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  class t_id {
+  public:
+    t_key key;
+    t_fd  fd;
+
+    inline t_id() : key(0), fd(-1) {
+    }
+
+    inline t_id(R_key _key, t_fd _fd) : key(_key), fd(_fd) {
+    }
+
+    inline operator t_validity() const {
+      return get(key) && get(fd) != -1 ? VALID : INVALID;
+    }
+  };
+  using R_id = t_prefix<t_id>::R_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  class t_messenger;
+  using r_messenger = t_prefix<t_messenger>::r_;
+  using R_messenger = t_prefix<t_messenger>::R_;
+  using x_messenger = t_prefix<t_messenger>::x_;
 
   class t_messenger {
   public:
-    typedef t_key           key_t;
-    typedef messenger_name_t          name_t;
-    typedef t_params        params_t;
-    typedef t_timer_params  timer_params_t;
-    typedef t_visibility    t_visibility;
-    typedef messenger_prio_t          prio_t;
-    typedef messenger_user_t          user_t;
-    typedef messenger_memberlist_t    list_t;
-    typedef messenger_memberkeylist_t keylist_t;
-
-    t_messenger() { }
-    t_messenger(const t_messenger&);             // fake move
-    t_messenger& operator=(const t_messenger&);  // fake move
+     t_messenger(x_messenger);
+     t_messenger(R_messenger)           = delete;
+     r_messenger operator=(R_messenger) = delete;
+     r_messenger operator=(x_messenger) = delete;
     ~t_messenger();
 
-    operator bool_t () const                                 { return id_; }
+    operator t_validity() const;
 
-    fd_t   get_fd    () const                            { return id_.fd_; }
-    key_t  get_key   () const                      { return id_.get_key(); }
-    name_t get_name  () const;
-    bool_t get_params(params_t&) const;
+    t_fd   get_fd    () const;
+    t_key  get_key   () const;
+    t_name get_name  (t_err) const;
+    t_void get_params(t_err, r_params) const;
 
-    bool_t update_visibility(t_visibility);
-    bool_t update_alive_period(multiple_of_100ms_t);
+    t_void update_visibility  (t_err, t_visibility);
+    t_void update_alive_period(t_err, t_multiple_of_100ms);
 
-    bool_t post_message (const key_t&, message_t&) const;
-    bool_t wait_message (messages_t&) const;
-    bool_t check_message(messages_t&) const;
+    t_void post_message (t_err, R_key, r_message) const;
+    t_void wait_message (t_err, r_messages) const;
 
-    bool_t start_timer(const timer_params_t&);
-    bool_t stop_timer ();
-    bool_t query_timer(timer_params_t&) const;
+    t_void start_timer(t_err, R_timer_params);
+    t_void stop_timer (t_err);
+    t_void query_timer(t_err, r_timer_params) const;
 
-    bool_t add_to_group(const password_t&, const name_t&,
-                        prio_t = prio_t(0), user_t = user_t());
-    bool_t remove_from_group(const password_t&, const name_t&, user_t* = 0);
-    bool_t is_in_group (const name_t&, user_t* = 0) const;
-    bool_t get_groups  (list_t&) const; // maybe keylist
+    t_void add_to_group     (t_err, R_password, R_name, t_prio = t_prio(0),
+                                    t_user = t_user());
+    t_void remove_from_group(t_err, R_password, R_name, p_user = nullptr);
+    t_bool is_in_group      (t_err, R_name, p_user = nullptr) const;
+    t_void get_groups       (t_err, r_group_list) const;
 
-    bool_t add_monitor   (const name_t&, prio_t = prio_t(0),
-                          user_t = user_t());
-    bool_t remove_monitor(const name_t&, user_t* = 0);
-    key_t  is_monitored  (const name_t&, user_t* = 0) const;
-    bool_t get_monitored (keylist_t&) const;
+    t_void add_monitor   (t_err, R_name, t_prio = t_prio(0), t_user = t_user());
+    t_void remove_monitor(t_err, R_name, p_user = nullptr);
+    t_key  is_monitored  (t_err, R_name, p_user = nullptr) const;
+    t_void get_monitored (t_err, r_monitor_list) const;
 
-  private: // only messaging service can create a messenger
-    typedef t_id id_t;
-    typedef t_create_params create_params_t;
-    t_messenger(const id_t& id) : id_(id) { }
-    mutable id_t id_;
+  private:
+    friend t_messenger mk_(R_id);
+    inline t_messenger(R_id id) : id_(id) {
+    }
 
-    friend t_messenger create_messenger(errorid_t&,
-                                              const name_t&,
-                                              const create_params_t&);
-    friend bool_t destroy_messenger(t_messenger);
+    t_id id_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -34,109 +34,195 @@ namespace dainty
 {
 namespace messaging
 {
-  using library::types::void_t;
+  using named::t_bool;
+  using named::t_void;
+  using named::t_n_;
+  using named::t_n;
+  using named::t_validity;
+  using named::string::t_string;
+  using named::t_prefix;
+  using named::VALID;
+  using named::INVALID;
+  using err::t_err;
+  using messenger::t_multiple_of_100ms;
+  using messenger::t_messenger;
+  using messenger::r_message;
+
+  using t_messenger_params        = messenger::t_params;
+  using r_messenger_params        = messenger::r_params;
+  using t_messenger_visibility    = messenger::t_visibility;
+  using t_messenger_prio          = messenger::t_prio;
+  using t_messenger_key           = messenger::t_key;
+  using R_messenger_key           = messenger::R_key;
+  using t_messenger_user          = messenger::t_user;
+  using t_messenger_name          = messenger::t_name;
+  using r_messenger_name          = messenger::r_name;
+  using R_messenger_name          = messenger::R_name;
+  using R_messenger_password      = messenger::R_password;
+  using r_messenger_monitor_list  = messenger::r_monitor_list;
+  using p_messenger_monitor_list  = messenger::p_monitor_list;
+  using p_messenger_group_list    = messenger::p_group_list;
+  using r_messenger_group_list    = messenger::r_group_list;
+  using t_messenger_timer_params  = messenger::t_timer_params;
+  using R_messenger_timer_params  = messenger::R_timer_params;
+  using r_messenger_visibility    = t_prefix<t_messenger_visibility>::r_;
+  using p_messenger_user          = t_prefix<t_messenger_user>::p_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum remote_visibility_t {
-    remote_visibility_off,
-    remote_visibility_local,
-    remote_visibility_slave,
-    remote_visibility_master
+  class t_messenger_create_params {
+  public:
+    t_messenger_visibility   visibility;
+    t_multiple_of_100ms      alive_factor;
+    t_messenger_timer_params timer_params;
+
+    inline
+    t_messenger_create_params()
+      : visibility(messenger::VISIBILITY_PROCESS), alive_factor(0) {
+    }
+
+    inline
+    t_messenger_create_params(t_messenger_visibility _visibility)
+      : visibility(_visibility), alive_factor(0) {
+    }
+
+    inline
+    t_messenger_create_params(t_messenger_visibility   _visibility,
+                              t_multiple_of_100ms      _alive_factor,
+                              R_messenger_timer_params _timer_params)
+      : visibility(_visibility), alive_factor(_alive_factor),
+        timer_params(_timer_params) {
+    }
+  };
+  using R_messenger_create_params = t_prefix<t_messenger_create_params>::R_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  enum  t_password_tag_ { };
+  using t_password = t_string<t_password_tag_, 16>;
+  using R_password = t_prefix<t_password>::R_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  enum t_visibility {
+    VISIBILITY_OFF,
+    VISIBILITY_LOCAL,
+    VISIBILITY_SLAVE,
+    VISIBILITY_MASTER
   };
 
-  enum remotename_tag_t { };
-  typedef nstring_t<16, remotename_tag_t> remotename_t;
+  enum  t_visibility_name_tag_ { };
+  using t_visibility_name = t_string<t_visibility_name_tag_, 14>;
 
-  struct params_t {
-    remote_visibility_t visibility_;
-    remotename_t        name_;
-    params_t() : visibility_(remote_visibility_off) { }
-    params_t(remote_visibility_t visibility) : visibility_(visibility) { }
-    params_t(remote_visibility_t visibility, const remotename_t& name)
-      : visibility_(visibility), name_(name) { }
+  t_visibility_name to_name(t_visibility);
+
+///////////////////////////////////////////////////////////////////////////////
+
+  enum  t_name_tag_ { };
+  using t_name = t_string<t_name_tag_, 16>;
+  using R_name = t_prefix<t_name>::R_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  class t_params {
+  public:
+    t_visibility visibility;
+    t_name       name;
+    t_n          queuesize = t_n{4000};
+
+    inline
+    t_params() : visibility{VISIBILITY_OFF} {
+    }
+
+    inline
+    t_params(t_visibility _visibility) : visibility{_visibility} {
+    }
+
+    inline
+    t_params(t_visibility _visibility, R_name _name, t_n _queuesize)
+      : visibility{_visibility}, name{_name}, queuesize{_queuesize} {
+    }
+  };
+  using r_params = t_prefix<t_params>::r_;
+  using R_params = t_prefix<t_params>::R_;
+  using P_params = t_prefix<t_params>::P_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  class t_messenger_stats {
+  public:
+    t_void reset() {
+      // XXX
+    }
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  struct messenger_stats_t {
-    void_t reset() { }
+  class t_messenger_info {
+  public:
+    t_messenger_key    key;
+    t_messenger_name   name;
+    t_messenger_params params;
+    t_messenger_stats  stats;
+
+    inline
+    t_messenger_info() : key{0} {
+    }
   };
+  using r_messenger_info = t_prefix<t_messenger_info>::r_;
 
-  struct messenger_info_t {
-    messenger_key_t    key_;
-    messenger_name_t   name_;
-    messenger_params_t params_;
-    messenger_stats_t  stats_;
-    messenger_info_t() : key_(0) { }
-  };
-
-  typedef std::vector<messenger_info_t> messenger_infos_t;
+  using t_messenger_infos = std::vector<t_messenger_info>;
+  using r_messenger_infos = t_prefix<t_messenger_infos>::r_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  bool_t is_running();
+  t_bool is_running();
 
-  void_t update_params(const params_t&);
-  void_t fetch_params (params_t&);
-
-///////////////////////////////////////////////////////////////////////////////
-
-  messenger_create_params_t default_messenger_create_params();
+  t_void start (t_err, P_params = nullptr);
+  t_void update(t_err, R_params);
+  t_void fetch (t_err, r_params);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_messenger create_messenger(const messenger_name_t&,
-                               const messenger_create_params_t&
-                                   = default_messenger_create_params());
-
-  t_messenger create_messenger(errorid_t&,
-                               const messenger_name_t&,
-                               const messenger_create_params_t&
-                                   = default_messenger_create_params());
-
-  bool_t fetch_messenger(const messenger_name_t&, messenger_params_t&);
-  bool_t fetch_messenger(const messenger_name_t&, messenger_info_t&,
-                         bool_t clearstats = false);
-
-  bool_t fetch_messengers(messenger_infos_t&, bool_t clearstats = false);
-
-  bool_t destroy_messenger(t_messenger);
+  t_messenger_create_params default_messenger_create_params();
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  // group - individual, chained, chained_revert
-  bool_t create_group(const password_t&, const messenger_name_t&,
-                      messenger_visibility_t);
-  bool_t destroy_group(const password_t&, const messenger_name_t&);
-  bool_t fetch_group(const messenger_name_t&, messenger_visibility_t&,
-                     messenger_memberlist_t* = 0);
-
-  bool_t add_messenger_to_group(const password_t&,
-                                const messenger_name_t& name,
-                                const messenger_name_t& group,
-                                messenger_prio_t =
-                                  messenger_prio_t(0),
-                                messenger_user_t =
-                                  messenger_user_t());
-  bool_t remove_messenger_from_group(const password_t&,
-                                     const messenger_name_t& name,
-                                     const messenger_name_t& group,
-                                     messenger_user_t* = 0);
-  bool_t is_messenger_in_group (const messenger_name_t& name,
-                                const messenger_name_t& group,
-                                messenger_user_t* = 0);
-  bool_t fetch_messenger_groups(const messenger_name_t& name,
-                                messenger_memberlist_t&);
+  t_messenger create_messenger(t_err, R_messenger_name,
+                                      R_messenger_create_params
+                                        = default_messenger_create_params());
+  t_bool is_messenger(t_err, R_messenger_name, r_messenger_params);
+  t_bool is_messenger(t_err, R_messenger_name, r_messenger_info,
+                             t_bool clearstats = false);
+  t_void fetch_messengers(t_err, r_messenger_infos, t_bool clearstats = false);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  bool_t who_is(const messenger_key_t&, messenger_name_t&,
-                bool_t* group = 0, bool_t* local = 0);
+  t_void create_group (t_err, R_password, R_messenger_name,
+                              t_messenger_visibility);
+  t_void destroy_group(t_err, R_password, R_messenger_name);
+  t_bool is_group     (t_err, R_messenger_name, r_messenger_visibility,
+                              p_messenger_group_list = nullptr);
+
+  t_void add_messenger_to_group(t_err, R_messenger_password,
+                                       R_messenger_name name,
+                                       R_messenger_name group,
+                                       t_messenger_prio = t_messenger_prio(0),
+                                       t_messenger_user = t_messenger_user());
+  t_void remove_messenger_from_group(t_err, R_messenger_password,
+                                            R_messenger_name name,
+                                            R_messenger_name group,
+                                            p_messenger_user = nullptr);
+  t_bool is_messenger_in_group (t_err, R_messenger_name name,
+                                       R_messenger_name group,
+                                       p_messenger_user = nullptr);
+  t_void fetch_messenger_groups(t_err, R_messenger_name name,
+                                       r_messenger_group_list);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  bool_t post_message(const messenger_key_t&, message_t&);
+  t_bool who_is(t_err, R_messenger_key, r_messenger_name,
+                       t_bool* group = nullptr, t_bool* local = nullptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 }
