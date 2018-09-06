@@ -90,7 +90,7 @@ namespace valuestore
     using x_value = typename named::t_prefix<T>::x_;
 
     constexpr static t_n get_size() {
-      return sizeof(T);
+      return t_n{sizeof(T)};
     }
 
     inline
