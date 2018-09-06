@@ -351,6 +351,7 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  enum t_fd_tag_       {};
   enum t_n_tag_        {};
   enum t_ix_tag_       {};
   enum t_bix_tag_      {};
@@ -358,6 +359,7 @@ namespace named
   enum t_validity_tag_ {};
   enum t_cstr_tag_     {};
 
+  using t_fd_       = t_int32;
   using t_n_        = t_uint32;
   using t_ix_       = t_n_;
   using t_bix_      = t_ix_;
@@ -366,10 +368,11 @@ namespace named
   using p_cstr_     = t_prefix<char>::p_;
   using P_cstr_     = t_prefix<char>::P_;
 
-  using t_n        = t_explicit<t_n_,        t_n_tag_>;   // n, number
-  using t_ix       = t_explicit<t_ix_,       t_ix_tag_>;  // general index
-  using t_bix      = t_explicit<t_ix_,       t_bix_tag_>; // begin index
-  using t_eix      = t_explicit<t_ix_,       t_eix_tag_>; // end index
+  using t_fd       = t_explicit<t_fd_,       t_fd_tag_>;
+  using t_n        = t_explicit<t_n_,        t_n_tag_>;
+  using t_ix       = t_explicit<t_ix_,       t_ix_tag_>;
+  using t_bix      = t_explicit<t_ix_,       t_bix_tag_>;
+  using t_eix      = t_explicit<t_ix_,       t_eix_tag_>;
   using t_validity = t_explicit<t_validity_, t_validity_tag_>;
   using p_cstr     = t_explicit<p_cstr_,     t_cstr_tag_>;
   using P_cstr     = t_explicit<P_cstr_,     t_cstr_tag_>;
@@ -383,10 +386,14 @@ namespace named
   constexpr t_bool operator< (t_n lh, t_n rh)  { return get(lh) < get(rh);  }
   constexpr t_bool operator<=(t_n lh, t_n rh)  { return get(lh) <= get(rh); }
 
+  constexpr t_bool operator==(t_fd lh, t_fd rh) { return get(lh) == get(rh); }
+  constexpr t_bool operator!=(t_fd lh, t_fd rh) { return !(lh == rh);        }
+
 ///////////////////////////////////////////////////////////////////////////////
 
   constexpr t_validity   VALID{true};
   constexpr t_validity INVALID{false};
+  constexpr t_fd       BAD_FD {-1};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -440,6 +447,26 @@ namespace named
     t_verifiable(T _value, t_errn _errn) : value(_value), errn(_errn) {
     }
   };
+
+  template<typename T>
+  constexpr const T& get(const t_verifiable<T>& verifiable) {
+    return verifiable.value;
+  }
+
+  template<typename T>
+  constexpr T& set(t_verifiable<T>& verifiable) {
+    return verifiable.value;
+  }
+
+  template<class T, class TAG, class V>
+  constexpr T get(const t_verifiable<t_explicit<T, TAG, V>>& verifiable) {
+    return get(verifiable.value);
+  }
+
+  template<class T, class TAG, class V>
+  constexpr T& set(t_verifiable<t_explicit<T, TAG, V>>& verifiable) {
+    return set(verifiable.value);
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -523,6 +550,11 @@ namespace named
   template<class T, class TAG>
   constexpr T reset(t_explicit<T, TAG>& t, T value) {
     return reset(set(t), value);
+  }
+
+  template<class T, class TAG>
+  constexpr T reset(t_explicit<T, TAG>& t, t_explicit<T, TAG> value) {
+    return reset(set(t), get(value));
   }
 
   template<class TAG>
