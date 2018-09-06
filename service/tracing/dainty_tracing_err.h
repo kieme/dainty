@@ -33,6 +33,8 @@ namespace dainty
 {
 namespace tracing
 {
+namespace err
+{
   enum t_err_codes {
     E_XXX = 1
   };
@@ -42,8 +44,9 @@ namespace tracing
   using t_err = oops::t_oops<err_what, t_err_codes>;
 }
 }
+}
 
-#define T_ERR_GUARD_TAG(err, tagid) if DAINTY_OOPS_BLOCK_GUARD_TAG(err, tagid)
-#define T_ERR_GUARD(err)            if DAINTY_OOPS_BLOCK_GUARD(err)
+#define ERR_GUARD_TAG(err, tagid) if DAINTY_OOPS_BLOCK_GUARD_TAG(err, tagid)
+#define ERR_GUARD(err)            if DAINTY_OOPS_BLOCK_GUARD(err)
 
 #endif

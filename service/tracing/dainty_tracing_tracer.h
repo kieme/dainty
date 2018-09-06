@@ -59,9 +59,12 @@ namespace tracing
 {
 namespace tracer
 {
+  using err::t_err;
   using named::string::t_string;
   using named::t_void;
   using named::t_bool;
+  using named::t_prefix;
+  using named::t_errn;
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
@@ -74,11 +77,11 @@ namespace tracer
 
   enum  t_name_tag_ {};
   using t_name = t_string<t_name_tag_, 32>;
-  using R_name = named::t_prefix<t_name>::R_;
+  using R_name = t_prefix<t_name>::R_;
 
   enum  t_text_tag_ {};
   using t_text = t_string<t_text_tag_, 80>;
-  using R_text = named::t_prefix<t_text>::R_;
+  using R_text = t_prefix<t_text>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +98,7 @@ namespace tracer
 
   enum  t_levelname_tag_ { };
   using t_levelname = t_string<t_levelname_tag_, 10>;
-  using R_levelname = named::t_prefix<t_levelname>::R_;
+  using R_levelname = t_prefix<t_levelname>::R_;
 
   t_levelname to_name(t_level);
 
@@ -115,9 +118,8 @@ namespace tracer
         credit(_credit) {
     }
   };
-
-  using r_params = named::t_prefix<t_params>::r_;
-  using R_params = named::t_prefix<t_params>::R_;
+  using r_params = t_prefix<t_params>::r_;
+  using R_params = t_prefix<t_params>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -142,28 +144,34 @@ namespace tracer
     t_seq      seq_;
     t_impl_id_ id_;
   };
-
-  using R_id = named::t_prefix<t_id>::R_;
+  using R_id = t_prefix<t_id>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  class t_point;
+  using r_point = t_prefix<t_point>::r_;
+  using R_point = t_prefix<t_point>::R_;
+  using p_point = t_prefix<t_point>::p_;
+  using P_point = t_prefix<t_point>::P_;
+  using x_point = t_prefix<t_point>::x_;
 
   class t_point {
   public:
     t_point() = default;
-    t_point(t_point&&);
-    t_point& operator=(t_point&&);
+    t_point(x_point);
+    t_point(R_point) = delete;
 
-    t_point& operator=(const t_point&) = delete;
-    t_point(const t_point&)            = delete;
+    r_point operator=(x_point);
+    r_point operator=(R_point) = delete;
 
-    t_validity post(       t_level, R_text) const;
-    t_validity post(t_err, t_level, R_text) const;
+    t_errn post(       t_level, R_text) const;
+    t_void post(t_err, t_level, R_text) const;
 
-    t_validity waitable_post(       t_level, R_text) const;
-    t_validity waitable_post(t_err, t_level, R_text) const;
+    t_errn waitable_post(       t_level, R_text) const;
+    t_void waitable_post(t_err, t_level, R_text) const;
 
-    t_name  get_name () const;
-    t_level get_level() const;
+    t_name  get_name (t_err) const;
+    t_level get_level(t_err) const;
 
     operator t_validity() const;
 
@@ -176,23 +184,22 @@ namespace tracer
     t_name name_;
   };
 
-  using r_point = named::t_prefix<t_point>::r_;
-  using R_point = named::t_prefix<t_point>::R_;
-  using p_point = named::t_prefix<t_point>::p_;
-  using P_point = named::t_prefix<t_point>::P_;
-  using x_point = named::t_prefix<t_point>::x_;
-
 ////////////////////////////////////////////////////////////////////////////////
+
+  class t_tracer;
+  using r_tracer = named::t_prefix<t_tracer>::r_;
+  using R_tracer = named::t_prefix<t_tracer>::R_;
+  using x_tracer = named::t_prefix<t_tracer>::x_;
 
   class t_tracer {
   public:
-    t_tracer() = default;
-    t_tracer(t_tracer&&);
-    t_tracer& operator=(t_tracer&&);
+     t_tracer() = default;
+     t_tracer(x_tracer);
+     t_tracer(R_tracer) = delete;
     ~t_tracer();
 
-    t_tracer(const t_tracer&)            = delete;
-    t_tracer& operator=(const t_tracer&) = delete;
+    r_tracer operator=(x_tracer);
+    r_tracer operator=(R_tracer) = delete;
 
     operator t_validity() const;
 
@@ -211,14 +218,10 @@ namespace tracer
     t_point point_;
   };
 
-  using r_tracer = named::t_prefix<t_tracer>::r_;
-  using R_tracer = named::t_prefix<t_tracer>::R_;
-  using x_tracer = named::t_prefix<t_tracer>::x_;
-
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_validity shared_trace(       t_level, R_text);
-  t_validity shared_trace(t_err, t_level, R_text);
+  t_errn shared_trace(       t_level, R_text);
+  t_void shared_trace(t_err, t_level, R_text);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -262,7 +265,7 @@ namespace tracer
   }
 
   inline
-  t_point& t_point::operator=(x_point point) { // note: nothing to delete
+  r_point t_point::operator=(x_point point) { // note: nothing to delete
     id_   = point.id_.release();
     name_ = std::move(point.name_);
     return *this;
