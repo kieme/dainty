@@ -30,6 +30,8 @@ namespace dainty
 {
 namespace tracing
 {
+namespace err
+{
   namespace
   {
     using namespace oops;
@@ -44,5 +46,6 @@ namespace tracing
   t_def err_what(t_id id) {
     return err_tbl_[id <= E_XXX ? id : 0];
   }
+}
 }
 }
