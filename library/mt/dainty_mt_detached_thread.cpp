@@ -35,6 +35,7 @@ namespace mt
 {
 namespace detached_thread
 {
+  using err::r_err;
   using namespace dainty::os;
   using dainty::os::threading::t_mutex_lock;
   using dainty::os::threading::t_cond_var;
@@ -58,25 +59,28 @@ namespace detached_thread
           ready_(false) {
       }
     };
+    using p_data_ = t_prefix<t_data_>::p_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
     p_void start_(p_void arg) {
-      using p_logic = t_thread::t_logic*;
-      t_data_* data = reinterpret_cast<t_data_*>(arg);
+      using p_logic = t_thread::p_logic;
+      p_data_ data = reinterpret_cast<p_data_>(arg);
 
-      t_err&  err       = data->err_;
+      r_err   err       = data->err_;
       p_logic logic     = reinterpret_cast<p_logic>(data->logic_);
       t_bool  del_logic = data->del_logic_;
 
       t_os_thread::set_name(err, t_os_thread::get_self(), data->name_);
       <% auto scope = data->lock_.make_locked_scope(err);
-        data->ready_ = logic->prepare(err) == VALID;
+        logic->prepare(err);
+        data->ready_ = !err;
       %>
 
       if (!err) {
         data->cond_.signal(err);
-        logic->run();
+        if (!err)
+          logic->run();
       } else
         data->cond_.signal();
 
@@ -91,38 +95,32 @@ namespace detached_thread
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_validity t_thread::t_logic::update(t_err err,
-                                       ::pthread_attr_t& attr) noexcept {
-    T_ERR_GUARD(err) {
-      if ((!::pthread_attr_setstacksize   (&attr, (128*1024)))             &&
-          (!::pthread_attr_setguardsize   (&attr, (4 * 1024)))             &&
-          (!::pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) &&
-          (!::pthread_attr_setschedpolicy (&attr, SCHED_OTHER)))
-        return VALID;
-      else
-        err = E_XXX;
+  t_void t_thread::t_logic::update(t_err err,
+                                   ::pthread_attr_t& attr) noexcept {
+    ERR_GUARD(err) {
+      if ((::pthread_attr_setstacksize   (&attr, (128*1024)))             ||
+          (::pthread_attr_setguardsize   (&attr, (4 * 1024)))             ||
+          (::pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) ||
+          (::pthread_attr_setschedpolicy (&attr, SCHED_OTHER)))
+        err = err::E_XXX;
     }
-    return INVALID;
   }
 
-  t_validity t_thread::t_logic::prepare(t_err err) noexcept {
-    T_ERR_GUARD(err) {
-      return VALID;
+  t_void t_thread::t_logic::prepare(t_err err) noexcept {
+    ERR_GUARD(err) {
     }
-    return INVALID;
   }
 
   t_thread::t_thread(t_err err, P_cstr name, p_logic logic,
                      t_bool del_logic) noexcept {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       t_data_ data{err, name, logic, del_logic};
       if (get(name) && logic && data.cond_ == VALID && data.lock_ == VALID) {
         pthread_attr_t attr;
         if ((!::pthread_attr_init(&attr)) &&
-            (!::pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED)) &&
-            (logic->update (err, attr) == VALID) &&
-            /* must check that it is not made joinable */
-            (thread_.create(err, start_, &data, attr) == VALID)) {
+            (!::pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED))) {
+          logic->update(err, attr);
+          thread_.create(err, start_, &data, attr);
           <% auto scope = data.lock_.make_locked_scope(err);
              while (!err && !data.ready_)
                data.cond_.wait(err, data.lock_);

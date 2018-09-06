@@ -30,6 +30,8 @@ namespace dainty
 {
 namespace mt
 {
+namespace err
+{
   namespace
   {
     using namespace oops;
@@ -44,6 +46,7 @@ namespace mt
   t_def err_what(t_id id) {
     return err_tbl_[id <= E_XXX ? id : 0];
   }
+}
 }
 }
 

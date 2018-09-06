@@ -33,9 +33,9 @@ namespace mt
 {
 namespace condvar_chained_queue
 {
+  using err::r_err;
   using named::t_n_;
   using namespace dainty::os::threading;
-
   using t_queue = container::chained_queue::t_chained_queue<t_any>;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,9 +43,9 @@ namespace condvar_chained_queue
   class t_impl_ {
   public:
     using t_chain = t_queue::t_chain;
-    using t_logic = t_processor::t_logic;
+    using r_logic = t_processor::r_logic;
 
-    t_impl_(t_err& err, t_n max) noexcept :
+    t_impl_(r_err err, t_n max) noexcept :
       queue_{max}, cond_{err}, lock1_{err}, lock2_{err} {
     }
 
@@ -56,7 +56,7 @@ namespace condvar_chained_queue
               lock2_ == VALID) ? VALID : INVALID;
     }
 
-    t_validity process(t_err& err, t_logic& logic, t_n max) noexcept {
+    t_void process(r_err err, r_logic logic, t_n max) noexcept {
       for (t_n_ n = get(max); !err && n; --n) {
         t_chain chain;
         <% auto scope = lock2_.make_locked_scope(err);
@@ -71,7 +71,6 @@ namespace condvar_chained_queue
           %>
         }
       }
-      return !err ? VALID : INVALID;
     }
 
     t_chain acquire(t_user, t_n n) noexcept {
@@ -82,31 +81,31 @@ namespace condvar_chained_queue
       return {};
     }
 
-    t_chain acquire(t_err& err, t_user, t_n n) noexcept {
+    t_chain acquire(r_err err, t_user, t_n n) noexcept {
       <% auto scope = lock1_.make_locked_scope(err);
         return queue_.acquire(err, n);
       %>
       return {};
     }
 
-    t_validity insert(t_user, t_chain& chain) noexcept {
-      t_validity validity = INVALID;
+    t_errn insert(t_user, t_chain& chain) noexcept {
+      t_errn errn{-1};
       if (get(chain.cnt)) {
         t_bool send = false;
         <% auto scope = lock2_.make_locked_scope();
           if (scope == VALID) {
-            validity = VALID;
             send = queue_.is_empty();
             queue_.insert(chain);
+            set(errn) = 0;
           }
         %>
-        if (send && validity == VALID && cond_.signal() == INVALID)
-          validity = INVALID;
+        if (send && errn == VALID)
+          errn = cond_.signal();
       }
-      return validity;
+      return errn;
     }
 
-    t_validity insert(t_err& err, t_user, t_chain& chain) noexcept {
+    t_void insert(r_err err, t_user, t_chain& chain) noexcept {
       if (get(chain.cnt)) {
         t_bool send = false;
         <% auto scope = lock2_.make_locked_scope(err);
@@ -116,8 +115,7 @@ namespace condvar_chained_queue
         if (send)
           cond_.signal(err);
       } else
-        err = E_XXX;
-      return !err ? VALID : INVALID;
+        err = err::E_XXX;
     }
 
     t_client make_client(t_user user) noexcept {
@@ -125,7 +123,7 @@ namespace condvar_chained_queue
       return {this, user};
     }
 
-    t_client make_client(t_err&, t_user user) noexcept {
+    t_client make_client(r_err, t_user user) noexcept {
       // NOTE: future, we have information on clients.
       return {this, user};
     }
@@ -146,41 +144,39 @@ namespace condvar_chained_queue
   }
 
   t_client::t_chain t_client::acquire(t_err err, t_n cnt) noexcept {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
         return impl_->acquire(err, user_, cnt);
-      err = E_XXX;
+      err = err::E_XXX;
     }
     return {};
   }
 
-  t_validity t_client::insert(t_chain chain) noexcept {
+  t_errn t_client::insert(t_chain chain) noexcept {
     if (impl_)
       return impl_->insert(user_, chain);
-    return INVALID;
+    return t_errn{-1};
   }
 
-  t_validity t_client::insert(t_err err, t_chain chain) noexcept {
-    T_ERR_GUARD(err) {
+  t_void t_client::insert(t_err err, t_chain chain) noexcept {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
-        return impl_->insert(err, user_, chain);
-      err = E_XXX;
+        impl_->insert(err, user_, chain);
+      else
+        err = err::E_XXX;
     }
-    return INVALID;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   t_processor::t_processor(t_err err, t_n max) noexcept {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       impl_ = new t_impl_(err, max);
       if (impl_) {
-        if (err) {
-          delete impl_;
-          impl_ = nullptr;
-        }
+        if (err)
+          delete named::reset(impl_);
       } else
-        err = E_XXX;
+        err = err::E_XXX;
     }
   }
 
@@ -197,22 +193,21 @@ namespace condvar_chained_queue
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
         return impl_->make_client(err, user);
-      err = E_XXX;
+      err = err::E_XXX;
     }
     return {};
   }
 
-  t_validity t_processor::process(t_err err, t_logic& logic,
-                                  t_n max) noexcept {
-    T_ERR_GUARD(err) {
+  t_void t_processor::process(t_err err, r_logic logic, t_n max) noexcept {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
-        return impl_->process(err, logic, max);
-      err = E_XXX;
+        impl_->process(err, logic, max);
+      else
+        err = err::E_XXX;
     }
-    return INVALID;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

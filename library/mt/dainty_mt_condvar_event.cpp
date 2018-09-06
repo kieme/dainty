@@ -34,15 +34,16 @@ namespace mt
 namespace condvar_event
 {
   using named::t_n_;
+  using err::r_err;
   using namespace dainty::os::threading;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_impl_ {
   public:
-    using t_logic = t_processor::t_logic;
+    using r_logic = t_processor::r_logic;
 
-    t_impl_(t_err& err) noexcept : lock_{err}, cond_{err} {
+    t_impl_(r_err err) noexcept : lock_{err}, cond_{err} {
     }
 
     operator t_validity() const noexcept {
@@ -58,70 +59,63 @@ namespace condvar_event
       return cnt;
     }
 
-    t_validity process(t_err& err, t_logic& logic, t_n max) noexcept {
+    t_void process(r_err err, r_logic logic, t_n max) noexcept {
       for (t_n_ n = get(max); !err && n; --n) {
         t_cnt cnt{0};
         <% auto scope = lock_.make_locked_scope(err);
-          if (scope == VALID) {
+          if (!err) {
             if (!cnt_) {
               do {
                 cond_.wait(err, lock_);
-              } while (!cnt_);
+              } while (!err && !cnt_);
             }
-            set(cnt) = cnt_;
-            cnt_ = 0;
+            set(cnt) = named::reset(cnt_);
           }
         %>
         if (!err)
           logic.async_process(cnt);
       }
-      return !err ? VALID : INVALID;
     }
 
-    t_validity reset_then_process(t_err err, t_logic& logic,
-                                  t_n max) noexcept {
+    t_void reset_then_process(r_err err, r_logic logic, t_n max) noexcept {
       for (t_n_ n = get(max); !err && n; --n) {
         t_cnt cnt{0};
         <% auto scope = lock_.make_locked_scope(err);
-          if (scope == VALID) {
-            cnt_ = 0;
+          if (!err) {
+            named::reset(cnt_);
             do {
               cond_.wait(err, lock_);
-            } while (!cnt_);
-            set(cnt) = cnt_;
-            cnt_ = 0;
+            } while (!err && !cnt_);
+            set(cnt) = named::reset(cnt_);
           }
         %>
         if (!err)
           logic.async_process(cnt);
       }
-      return !err ? VALID : INVALID;
     }
 
-    t_validity post(t_user, t_cnt cnt) noexcept {
-      t_validity validity = INVALID;
+    t_errn post(t_user, t_cnt cnt) noexcept {
+      t_errn errn{-1};
       <% auto scope = lock_.make_locked_scope();
         if (scope == VALID) {
           const t_bool signal = !cnt_;
           cnt_ += get(cnt);
-          validity = VALID;
-          if (signal && cond_.signal() == INVALID)
-            validity = INVALID;
+          if (signal)
+            errn = cond_.signal();
         }
       %>
-      return validity;
+      return errn;
     }
 
-    t_validity post(t_err& err, t_user, t_cnt cnt) noexcept {
+    t_void post(r_err err, t_user, t_cnt cnt) noexcept {
       <% auto scope = lock_.make_locked_scope(err);
-        if (scope == VALID) {
+        if (!err) {
           const t_bool signal = !cnt_;
           cnt_ += get(cnt);
           if (signal)
             cond_.signal(err);
         }
       %>
-      return !err ? VALID : INVALID;
     }
 
     t_client make_client(t_user user) noexcept {
@@ -129,7 +123,7 @@ namespace condvar_event
       return {this, user};
     }
 
-    t_client make_client(t_err&, t_user user) noexcept {
+    t_client make_client(r_err, t_user user) noexcept {
       // NOTE: future, we have information on clients.
       return {this, user};
     }
@@ -142,33 +136,31 @@ namespace condvar_event
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_validity t_client::post(t_cnt cnt) noexcept {
+  t_errn t_client::post(t_cnt cnt) noexcept {
     if (impl_)
       return impl_->post(user_, cnt);
-    return INVALID;
+    return t_errn{-1};
   }
 
-  t_validity t_client::post(t_err err, t_cnt cnt) noexcept {
-    T_ERR_GUARD(err) {
+  t_void t_client::post(t_err err, t_cnt cnt) noexcept {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
-        return impl_->post(err, user_, cnt);
-      err = E_XXX;
+        impl_->post(err, user_, cnt);
+      else
+        err = err::E_XXX;
     }
-    return INVALID;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   t_processor::t_processor(t_err err) noexcept {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       impl_ = new t_impl_(err);
       if (impl_) {
-        if (err) {
-          delete impl_;
-          impl_ = nullptr;
-        }
+        if (err)
+          delete named::reset(impl_);
       } else
-        err = E_XXX;
+        err = err::E_XXX;
     }
   }
 
@@ -179,10 +171,10 @@ namespace condvar_event
   }
 
   t_cnt t_processor::get_cnt(t_err err) {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
         return impl_->get_cnt(err);
-      err = E_XXX;
+      err = err::E_XXX;
     }
     return t_cnt{0};
   }
@@ -194,32 +186,31 @@ namespace condvar_event
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
         return impl_->make_client(err, user);
-      err = E_XXX;
+      err = err::E_XXX;
     }
     return {};
   }
 
-  t_validity t_processor::process(t_err err, t_logic& logic,
-                                  t_n max) noexcept {
-    T_ERR_GUARD(err) {
+  t_void t_processor::process(t_err err, r_logic logic, t_n max) noexcept {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
-        return impl_->process(err, logic, max);
-      err = E_XXX;
+        impl_->process(err, logic, max);
+      else
+        err = err::E_XXX;
     }
-    return INVALID;
   }
 
-  t_validity t_processor::reset_then_process(t_err err, t_logic& logic,
-                                             t_n max) noexcept {
-    T_ERR_GUARD(err) {
+  t_void t_processor::reset_then_process(t_err err, r_logic logic,
+                                         t_n max) noexcept {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
-        return impl_->reset_then_process(err, logic, max);
-      err = E_XXX;
+        impl_->reset_then_process(err, logic, max);
+      else
+        err = err::E_XXX;
     }
-    return INVALID;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -41,10 +41,18 @@ namespace thread
   using named::t_bool;
   using named::P_cstr;
   using named::t_validity;
+  using named::t_errn;
+  using named::t_prefix;
   using named::VALID;
   using named::INVALID;
+  using err::t_err;
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  class t_thread;
+  using r_thread = t_prefix<t_thread>::r_;
+  using x_thread = t_prefix<t_thread>::x_;
+  using R_thread = t_prefix<t_thread>::R_;
 
   class t_thread {
   public:
@@ -53,27 +61,27 @@ namespace thread
       using t_err = oops::t_oops<>;
 
       virtual ~t_logic() { }
-      virtual t_validity update (t_err, ::pthread_attr_t&) noexcept;
-      virtual t_validity prepare(t_err)                    noexcept;
-      virtual p_void     run    ()                         noexcept = 0;
+      virtual t_void update (t_err, os::r_pthread_attr) noexcept;
+      virtual t_void prepare(t_err)                     noexcept;
+      virtual p_void run    ()                          noexcept = 0;
     };
 
     using p_logic = named::t_prefix<t_logic>::p_;
 
     t_thread(t_err, P_cstr name, p_logic, t_bool del_logic) noexcept;
 
-    t_thread(const t_thread&)            = delete;
-    t_thread(t_thread&&)                 = delete;
-    t_thread& operator=(const t_thread&) = delete;
-    t_thread& operator=(t_thread&&)      = delete;
+    t_thread(R_thread)           = delete;
+    t_thread(x_thread)           = delete;
+    r_thread operator=(R_thread) = delete;
+    r_thread operator=(x_thread) = delete;
 
     operator t_validity() const noexcept;
 
-    t_validity join()      noexcept;
-    t_validity join(t_err) noexcept;
+    t_errn join()      noexcept;
+    t_void join(t_err) noexcept;
 
-    t_validity join(       p_void&) noexcept;
-    t_validity join(t_err, p_void&) noexcept;
+    t_errn join(       p_void&) noexcept;
+    t_void join(t_err, p_void&) noexcept;
 
   private:
     os::threading::t_thread thread_;

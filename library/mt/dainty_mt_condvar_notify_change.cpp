@@ -34,15 +34,16 @@ namespace mt
 namespace condvar_notify_change
 {
   using named::t_n_;
+  using err::r_err;
   using namespace dainty::os::threading;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_impl_ {
   public:
-    using t_logic = t_processor::t_logic;
+    using r_logic = t_processor::r_logic;
 
-    t_impl_(t_err& err, t_any&& any) noexcept
+    t_impl_(r_err err, t_any&& any) noexcept
       : lock_(err), cond_(err), any_(std::move(any)) {
     }
 
@@ -50,7 +51,7 @@ namespace condvar_notify_change
       return (lock_ == VALID && cond_ == VALID) ? VALID : INVALID;
     }
 
-    t_validity process(t_err& err, t_logic& logic, t_n max) noexcept {
+    t_void process(r_err err, r_logic logic, t_n max) noexcept {
       for (t_n_ n = get(max); !err && n; --n) {
         t_any  any;
         t_user user;
@@ -68,34 +69,34 @@ namespace condvar_notify_change
         if (!err)
           logic.process(user, std::move(any));
       }
-      return !err ? VALID : INVALID;
     }
 
-    t_validity post(t_user user, t_any&& any) noexcept {
-      t_validity validity = INVALID;
+    t_errn post(t_user user, t_any&& any) noexcept {
+      t_errn errn{-1};
       <% auto scope = lock_.make_locked_scope();
         if (scope == VALID && any != any_) {
-          user_    = user;
-          any_     = std::move(any);
-          changed_ = true;
-          validity = VALID;
-          if (cond_.signal() == INVALID)
-            validity = INVALID;
+          errn = cond_.signal();
+          if (errn == VALID) {
+            user_    = user;
+            any_     = std::move(any);
+            changed_ = true;
+          }
         }
       %>
-      return validity;
+      return errn;
     }
 
-    t_validity post(t_err& err, t_user user, t_any&& any) noexcept {
+    t_void post(r_err err, t_user user, t_any&& any) noexcept {
       <% auto scope = lock_.make_locked_scope(err);
-        if (scope == VALID && any != any_) {
-          user_    = user;
-          any_     = std::move(any);
-          changed_ = true;
+        if (!err && any != any_) {
           cond_.signal(err);
+          if (!err) {
+            user_    = user;
+            any_     = std::move(any);
+            changed_ = true;
+          }
         }
       %>
-      return !err ? VALID : INVALID;
     }
 
     t_client make_client(t_user user) noexcept {
@@ -103,7 +104,7 @@ namespace condvar_notify_change
       return {this, user};
     }
 
-    t_client make_client(t_err&, t_user user) noexcept {
+    t_client make_client(r_err, t_user user) noexcept {
       // NOTE: future, we have information on clients.
       return {this, user};
     }
@@ -118,40 +119,37 @@ namespace condvar_notify_change
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_validity t_client::post(t_any&& any) noexcept {
+  t_errn t_client::post(t_any&& any) noexcept {
     if (impl_)
       return impl_->post(user_, std::move(any));
-    return INVALID;
+    return t_errn{-1};
   }
 
-  t_validity t_client::post(t_err err, t_any&& any) noexcept {
-    T_ERR_GUARD(err) {
+  t_void t_client::post(t_err err, t_any&& any) noexcept {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
-        return impl_->post(err, user_, std::move(any));
-      err = E_XXX;
+        impl_->post(err, user_, std::move(any));
+      else
+        err = err::E_XXX;
     }
-    return INVALID;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   t_processor::t_processor(t_err err, t_any&& any) noexcept {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       impl_ = new t_impl_(err, std::move(any));
       if (impl_) {
-        if (err) {
-          delete impl_;
-          impl_ = nullptr;
-        }
+        if (err)
+          delete named::reset(impl_);
       } else
-        err = E_XXX;
+        err = err::E_XXX;
     }
   }
 
   t_processor::~t_processor() {
-    if (impl_) { // NOTE: can check to see if clients exists
+    if (impl_) // NOTE: can check to see if clients exists
       delete impl_;
-    }
   }
 
   t_client t_processor::make_client(t_user user) noexcept {
@@ -161,22 +159,21 @@ namespace condvar_notify_change
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
         return impl_->make_client(err, user);
-      err = E_XXX;
+      err = err::E_XXX;
     }
     return {};
   }
 
-  t_validity t_processor::process(t_err err, t_logic& logic,
-                                  t_n max) noexcept {
-    T_ERR_GUARD(err) {
+  t_void t_processor::process(t_err err, r_logic logic, t_n max) noexcept {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
-        return impl_->process(err, logic, max);
-      err = E_XXX;
+        impl_->process(err, logic, max);
+      else
+        err = err::E_XXX;
     }
-    return INVALID;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
