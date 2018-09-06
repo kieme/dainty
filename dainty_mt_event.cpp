@@ -24,6 +24,7 @@
 
 ******************************************************************************/
 
+#include "dainty_os_fdbased.h"
 #include "dainty_os_threading.h"
 #include "dainty_mt_event.h"
 
@@ -36,41 +37,40 @@ namespace event
   using namespace dainty::os::threading;
   using namespace dainty::os::fdbased;
 
+  using err::r_err;
+
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_impl_ {
   public:
-    using t_logic = t_processor::t_logic;
+    using r_logic = t_processor::r_logic;
 
-    t_impl_(t_err& err) noexcept : eventfd_(err, t_n{0}) {
+    t_impl_(r_err err) noexcept : eventfd_(err, t_n{0}) {
     }
 
     operator t_validity() const noexcept {
       return (eventfd_ == VALID) ?  VALID : INVALID;
     }
 
-    t_validity process(t_err& err, t_logic& logic, t_n max) noexcept {
-      T_ERR_GUARD(err) {
+    t_void process(r_err err, r_logic logic, t_n max) noexcept {
+      ERR_GUARD(err) {
         for (t_n_ n = get(max); !err && n; --n) {
           t_cnt cnt{0};
-          if (eventfd_.read(err, set(cnt)) == VALID)
+          eventfd_.read(err, set(cnt));
+          if (!err)
             logic.async_process(cnt);
         }
       }
-      return !err ? VALID : INVALID;
     }
 
-    t_validity post(t_user, t_cnt cnt) noexcept {
-      if (eventfd_.write(get(cnt)) == VALID)
-        return VALID;
-      return INVALID;
+    t_errn post(t_user, t_cnt cnt) noexcept {
+      return eventfd_.write(get(cnt));
     }
 
-    t_validity post(t_err& err, t_user, t_cnt cnt) noexcept {
-      T_ERR_GUARD(err) {
-        return eventfd_.write(err, get(cnt));
+    t_void post(r_err err, t_user, t_cnt cnt) noexcept {
+      ERR_GUARD(err) {
+        eventfd_.write(err, get(cnt));
       }
-      return INVALID;
     }
 
     t_fd get_fd() const noexcept {
@@ -82,7 +82,7 @@ namespace event
       return {this, user};
     }
 
-    t_client make_client(t_err&, t_user user) noexcept {
+    t_client make_client(r_err, t_user user) noexcept {
       // NOTE: future, we have information on clients.
       return {this, user};
     }
@@ -93,33 +93,31 @@ namespace event
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_validity t_client::post(t_cnt cnt) noexcept {
+  t_errn t_client::post(t_cnt cnt) noexcept {
     if (impl_)
       return impl_->post(user_, cnt);
-    return INVALID;
+    return t_errn{-1};
   }
 
-  t_validity t_client::post(t_err err, t_cnt cnt) noexcept {
-    T_ERR_GUARD(err) {
+  t_void t_client::post(t_err err, t_cnt cnt) noexcept {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
-        return impl_->post(err, user_, cnt);
-      err = E_XXX;
+        impl_->post(err, user_, cnt);
+      else
+        err = err::E_XXX;
     }
-    return INVALID;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   t_processor::t_processor(t_err err) noexcept {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       impl_ = new t_impl_(err);
       if (impl_) {
-        if (err) {
-          delete impl_;
-          impl_ = nullptr;
-        }
+        if (err)
+          delete named::reset(impl_);
       } else
-        err = E_XXX;
+        err = err::E_XXX;
     }
   }
 
@@ -136,22 +134,21 @@ namespace event
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
         return impl_->make_client(err, user);
-      err = E_XXX;
+      err = err::E_XXX;
     }
     return {};
   }
 
-  t_validity t_processor::process(t_err err, t_logic& logic,
-                                  t_n max) noexcept {
-    T_ERR_GUARD(err) {
+  t_void t_processor::process(t_err err, t_logic& logic, t_n max) noexcept {
+    ERR_GUARD(err) {
       if (impl_ && *impl_ == VALID)
-        return impl_->process(err, logic, max);
-      err = E_XXX;
+        impl_->process(err, logic, max);
+      else
+        err = err::E_XXX;
     }
-    return INVALID;
   }
 
   t_fd t_processor::get_fd() const noexcept {

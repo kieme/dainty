@@ -28,7 +28,6 @@
 #define _DAINTY_MT_EVENT_DISPATCHER_H_
 
 #include <vector>
-#include "dainty_os_fdbased.h"
 #include "dainty_container_freelist.h"
 #include "dainty_named_string.h"
 #include "dainty_mt_err.h"
@@ -41,6 +40,7 @@ namespace event_dispatcher
 {
 ///////////////////////////////////////////////////////////////////////////////
 
+  using named::t_fd;
   using named::t_void;
   using named::t_bool;
   using named::t_n;
@@ -49,11 +49,12 @@ namespace event_dispatcher
   using named::string::t_string;
   using named::string::FMT;
   using named::t_validity;
+  using named::t_errn;
+  using named::t_prefix;
   using named::VALID;
   using named::INVALID;
-  using os::t_errn;
-  using os::t_fd;
-  using os::BAD_FD;
+  using named::BAD_FD;
+  using err::t_err;
 
   using container::freelist::t_id;
   using t_ids = std::vector<t_id>;
@@ -73,6 +74,9 @@ namespace event_dispatcher
   using t_quit         = named::t_bool;
   enum  t_event_type { RD, WR };
   enum  t_cmd        { QUIT_EVENT_LOOP, REMOVE_EVENT, CONTINUE };
+
+  class t_impl_;
+  using p_impl_ = named::t_prefix<t_impl_>::p_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -143,7 +147,6 @@ namespace event_dispatcher
       : logic(_logic), params(_params) {
     }
   };
-
   using r_event_info = named::t_prefix<t_event_info>::r_;
   using P_event_info = named::t_prefix<t_event_info>::P_;
 
@@ -161,13 +164,14 @@ namespace event_dispatcher
     t_params(t_n _max, R_service_name _name) : max(_max), service_name(_name) {
     }
   };
-
   using R_params = named::t_prefix<t_params>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_impl_;
-  using p_impl_ = named::t_prefix<t_impl_>::p_;
+  class t_dispatcher;
+  using r_dispatcher = t_prefix<t_dispatcher>::r_;
+  using x_dispatcher = t_prefix<t_dispatcher>::x_;
+  using R_dispatcher = t_prefix<t_dispatcher>::R_;
 
   class t_dispatcher {
   public:
@@ -191,13 +195,13 @@ namespace event_dispatcher
 
     t_dispatcher(       R_params);
     t_dispatcher(t_err, R_params);
-    t_dispatcher(t_dispatcher&&);
+    t_dispatcher(x_dispatcher);
    ~t_dispatcher();
 
-    t_dispatcher()                                = delete;
-    t_dispatcher(const t_dispatcher&)             = delete;
-    t_dispatcher& operator=(t_dispatcher&&)       = delete;
-    t_dispatcher& operator=(const t_dispatcher&)  = delete;
+    t_dispatcher()                        = delete;
+    t_dispatcher(R_dispatcher)            = delete;
+    r_dispatcher operator=(x_dispatcher)  = delete;
+    r_dispatcher operator=(R_dispatcher)  = delete;
 
     operator t_validity() const;
     t_params get_params() const;

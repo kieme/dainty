@@ -27,7 +27,6 @@
 #ifndef _DAINTY_MT_COMMAND_H_
 #define _DAINTY_MT_COMMAND_H_
 
-#include "dainty_os_fdbased.h"
 #include "dainty_mt_err.h"
 
 namespace dainty
@@ -36,15 +35,21 @@ namespace mt
 {
 namespace command
 {
-  using os::fdbased::t_fd;
   using named::t_n;
   using named::t_void;
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
+  using named::t_prefix;
+  using named::t_errn;
+  using named::t_fd;
+  using err::t_err;
 
   enum  t_user_tag_ { };
   using t_user = named::t_user<t_user_tag_>;
+
+  class t_impl_;
+  using p_impl_ = t_prefix<t_impl_>::p_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -57,38 +62,46 @@ namespace command
 
     const t_id id;
   };
+  using r_command = t_prefix<t_command>::r_;
+  using p_command = t_prefix<t_command>::p_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_impl_;
+  class t_client;
+  using r_client = t_prefix<t_client>::r_;
+  using x_client = t_prefix<t_client>::x_;
+  using R_client = t_prefix<t_client>::R_;
 
   class t_client {
   public:
-    t_client(t_client&& client) noexcept;
+    t_client(x_client client) noexcept;
 
-    t_client& operator=(const t_client&) = delete;
-    t_client& operator=(t_client&&)      = delete;
+    r_client operator=(R_client) = delete;
+    r_client operator=(x_client) = delete;
 
     operator t_validity() const noexcept;
 
-    t_validity       request(       t_command&) noexcept;
-    t_validity       request(t_err, t_command&) noexcept;
-
-    t_validity async_request(       t_command*) noexcept;
-    t_validity async_request(t_err, t_command*) noexcept;
+    t_void request      (t_err, r_command) noexcept;
+    t_errn async_request(       p_command) noexcept;
+    t_void async_request(t_err, p_command) noexcept;
 
   private:
     friend class t_processor;
     friend class t_impl_;
     t_client() = default;
-    t_client(t_impl_* impl, t_user user) noexcept : impl_(impl), user_(user) {
+    t_client(p_impl_ impl, t_user user) noexcept : impl_(impl), user_(user) {
     }
 
-    t_impl_* impl_ = nullptr;
-    t_user   user_ = t_user{0L};
+    p_impl_ impl_ = nullptr;
+    t_user  user_ = t_user{0L};
   };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  class t_processor;
+  using r_processor = t_prefix<t_processor>::r_;
+  using x_processor = t_prefix<t_processor>::x_;
+  using R_processor = t_prefix<t_processor>::R_;
 
   class t_processor {
   public:
@@ -96,9 +109,9 @@ namespace command
     public:
       using t_err     = oops::t_oops<>;
       using t_user    = command::t_user;
-      using t_command = named::t_prefix<command::t_command>::t_;
-      using p_command = named::t_prefix<command::t_command>::p_;
-      using r_command = named::t_prefix<command::t_command>::r_;
+      using t_command = command::t_command;
+      using p_command = command::p_command;
+      using r_command = command::r_command;
 
       virtual ~t_logic() { }
       virtual t_void       process(t_err, t_user, r_command) noexcept = 0;
@@ -107,34 +120,33 @@ namespace command
 
     using r_logic = named::t_prefix<t_logic>::r_;
 
-     t_processor(t_err)         noexcept;
-     t_processor(t_processor&&) noexcept;
+     t_processor(t_err)       noexcept;
+     t_processor(x_processor) noexcept;
     ~t_processor();
 
-    t_processor(const t_processor&)            = delete;
-    t_processor& operator=(t_processor&&)      = delete;
-    t_processor& operator=(const t_processor&) = delete;
+    t_processor(R_processor)           = delete;
+    r_processor operator=(x_processor) = delete;
+    r_processor operator=(R_processor) = delete;
 
     operator t_validity () const noexcept;
 
     t_fd get_fd() const noexcept;
 
-    t_validity process(t_err, r_logic, t_n max = t_n{1}) noexcept;
+    t_void process(t_err, r_logic, t_n max = t_n{1}) noexcept;
 
     t_client make_client(       t_user) noexcept;
     t_client make_client(t_err, t_user) noexcept;
 
   private:
-    t_impl_* impl_ = nullptr;
+    p_impl_ impl_ = nullptr;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
   inline
-  t_client::t_client(t_client&& client) noexcept
-      : impl_(client.impl_), user_(client.user_) {
-    client.impl_ = nullptr;
-    client.user_ = t_user{0L};
+  t_client::t_client(x_client client) noexcept
+      : impl_(named::reset(client.impl_)),
+        user_(named::reset(client.user_, 0L)) {
   }
 
   inline
@@ -145,9 +157,8 @@ namespace command
 ///////////////////////////////////////////////////////////////////////////////
 
   inline
-  t_processor::t_processor(t_processor&& processor) noexcept
-      : impl_(processor.impl_) {
-    processor.impl_ = nullptr;
+  t_processor::t_processor(x_processor processor) noexcept
+      : impl_(named::reset(processor.impl_)) {
   }
 
   inline
