@@ -42,11 +42,10 @@ namespace clock
   }
 
   t_time monotonic_now(t_err err) {
-    if (!err) {
+    ERR_GUARD(err) {
       t_time time;
-      if (call_clock_gettime_monotonic(err, to_(time)) == VALID)
-        return time;
-      err = E_XXX;
+      call_clock_gettime_monotonic(err, to_(time));
+      return time;
     }
     return {};
   }
@@ -60,11 +59,10 @@ namespace clock
   }
 
   t_time realtime_now(t_err err) {
-    if (!err) {
+    ERR_GUARD(err) {
       t_time time;
-      if (call_clock_gettime_realtime(err, to_(time)) == VALID)
-        return time;
-      err = E_XXX;
+      call_clock_gettime_realtime(err, to_(time));
+      return time;
     }
     return {};
   }

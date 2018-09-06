@@ -169,30 +169,30 @@ namespace threading
 
     operator t_validity() const noexcept;
 
-    t_errn     signal()      noexcept;
-    t_validity signal(t_err) noexcept;
+    t_errn signal()      noexcept;
+    t_void signal(t_err) noexcept;
 
-    t_errn     broadcast()      noexcept;
-    t_validity broadcast(t_err) noexcept;
+    t_errn broadcast()      noexcept;
+    t_void broadcast(t_err) noexcept;
 
-    t_errn     wait(       t_mutex_lock&) noexcept;
-    t_validity wait(t_err, t_mutex_lock&) noexcept;
+    t_errn wait(       t_mutex_lock&) noexcept;
+    t_void wait(t_err, t_mutex_lock&) noexcept;
 
-    t_errn     wait_until(       t_mutex_lock&, t_time) noexcept;
-    t_validity wait_until(t_err, t_mutex_lock&, t_time) noexcept;
+    t_errn wait_until(       t_mutex_lock&, t_time) noexcept;
+    t_void wait_until(t_err, t_mutex_lock&, t_time) noexcept;
 
-    t_errn     wait(       t_recursive_mutex_lock&) noexcept;
-    t_validity wait(t_err, t_recursive_mutex_lock&) noexcept;
+    t_errn wait(       t_recursive_mutex_lock&) noexcept;
+    t_void wait(t_err, t_recursive_mutex_lock&) noexcept;
 
-    t_errn     wait_until(       t_recursive_mutex_lock&, t_time) noexcept;
-    t_validity wait_until(t_err, t_recursive_mutex_lock&, t_time) noexcept;
+    t_errn wait_until(       t_recursive_mutex_lock&, t_time) noexcept;
+    t_void wait_until(t_err, t_recursive_mutex_lock&, t_time) noexcept;
 
   private:
-    t_errn     wait_(       r_pthread_mutex) noexcept;
-    t_validity wait_(t_err, r_pthread_mutex) noexcept;
+    t_errn wait_(       r_pthread_mutex) noexcept;
+    t_void wait_(t_err, r_pthread_mutex) noexcept;
 
-    t_errn     wait_until_(       r_pthread_mutex, t_time) noexcept;
-    t_validity wait_until_(t_err, r_pthread_mutex, t_time) noexcept;
+    t_errn wait_until_(       r_pthread_mutex, t_time) noexcept;
+    t_void wait_until_(t_err, r_pthread_mutex, t_time) noexcept;
 
     t_pthread_cond cond_;
     t_validity     valid_ = INVALID;
@@ -215,30 +215,30 @@ namespace threading
 
     operator t_validity() const noexcept;
 
-    t_errn     signal()      noexcept;
-    t_validity signal(t_err) noexcept;
+    t_errn signal()      noexcept;
+    t_void signal(t_err) noexcept;
 
-    t_errn     broadcast()      noexcept;
-    t_validity broadcast(t_err) noexcept;
+    t_errn broadcast()      noexcept;
+    t_void broadcast(t_err) noexcept;
 
-    t_errn     wait(       t_mutex_lock&) noexcept;
-    t_validity wait(t_err, t_mutex_lock&) noexcept;
+    t_errn wait(       t_mutex_lock&) noexcept;
+    t_void wait(t_err, t_mutex_lock&) noexcept;
 
-    t_errn     wait_for(       t_mutex_lock&, t_time) noexcept;
-    t_validity wait_for(t_err, t_mutex_lock&, t_time) noexcept;
+    t_errn wait_for(       t_mutex_lock&, t_time) noexcept;
+    t_void wait_for(t_err, t_mutex_lock&, t_time) noexcept;
 
-    t_errn     wait(       t_recursive_mutex_lock&) noexcept;
-    t_validity wait(t_err, t_recursive_mutex_lock&) noexcept;
+    t_errn wait(       t_recursive_mutex_lock&) noexcept;
+    t_void wait(t_err, t_recursive_mutex_lock&) noexcept;
 
-    t_errn     wait_for(       t_recursive_mutex_lock&, t_time) noexcept;
-    t_validity wait_for(t_err, t_recursive_mutex_lock&, t_time) noexcept;
+    t_errn wait_for(       t_recursive_mutex_lock&, t_time) noexcept;
+    t_void wait_for(t_err, t_recursive_mutex_lock&, t_time) noexcept;
 
   private:
-    t_errn     wait_(       r_pthread_mutex) noexcept;
-    t_validity wait_(t_err, r_pthread_mutex) noexcept;
+    t_errn wait_(       r_pthread_mutex) noexcept;
+    t_void wait_(t_err, r_pthread_mutex) noexcept;
 
-    t_errn     wait_for_(       r_pthread_mutex, t_time) noexcept;
-    t_validity wait_for_(t_err, r_pthread_mutex, t_time) noexcept;
+    t_errn wait_for_(       r_pthread_mutex, t_time) noexcept;
+    t_void wait_for_(t_err, r_pthread_mutex, t_time) noexcept;
 
     t_pthread_cond cond_;
     t_validity     valid_ = INVALID;
@@ -294,30 +294,30 @@ namespace threading
 
     operator t_validity() const noexcept;
 
-    t_bool   is_joinable() const noexcept;
+    t_bool is_joinable() const noexcept;
 
-    t_errn     create(       p_run, p_void) noexcept;
-    t_validity create(t_err, p_run, p_void) noexcept;
+    t_errn create(       p_run, p_void) noexcept;
+    t_void create(t_err, p_run, p_void) noexcept;
 
-    t_errn     create(       p_run, p_void, R_pthread_attr) noexcept;
-    t_validity create(t_err, p_run, p_void, R_pthread_attr) noexcept;
+    t_errn create(       p_run, p_void, R_pthread_attr) noexcept;
+    t_void create(t_err, p_run, p_void, R_pthread_attr) noexcept;
 
-    t_errn     detach()      noexcept;
-    t_validity detach(t_err) noexcept;
+    t_errn detach()      noexcept;
+    t_void detach(t_err) noexcept;
 
-    t_errn     join()      noexcept;
-    t_validity join(t_err) noexcept;
+    t_errn join()      noexcept;
+    t_void join(t_err) noexcept;
 
-    t_errn     join(       p_void&) noexcept;
-    t_validity join(t_err, p_void&) noexcept;
+    t_errn join(       p_void&) noexcept;
+    t_void join(t_err, p_void&) noexcept;
 
-    t_errn     cancel()      noexcept;
-    t_validity cancel(t_err) noexcept;
+    t_errn cancel()      noexcept;
+    t_void cancel(t_err) noexcept;
 
-    t_errn     set_name(       P_cstr name) noexcept;
-    t_validity set_name(t_err, P_cstr name) noexcept;
-    t_errn     get_name(       p_cstr  name, t_n) noexcept;
-    t_validity get_name(t_err, p_cstr  name, t_n) noexcept;
+    t_errn set_name(       P_cstr name) noexcept;
+    t_void set_name(t_err, P_cstr name) noexcept;
+    t_errn get_name(       p_cstr  name, t_n) noexcept;
+    t_void get_name(t_err, p_cstr  name, t_n) noexcept;
 
     t_bool is_equal(       const t_thread&) noexcept;
     t_bool is_equal(t_err, const t_thread&) noexcept;
@@ -331,10 +331,10 @@ namespace threading
     static t_void exit(       p_void) noexcept;
     static t_void exit(t_err, p_void) noexcept;
 
-    static t_errn     set_name(       t_pthread, P_cstr) noexcept;
-    static t_validity set_name(t_err, t_pthread, P_cstr) noexcept;
-    static t_errn     get_name(       t_pthread, p_cstr, t_n) noexcept;
-    static t_validity get_name(t_err, t_pthread, p_cstr, t_n) noexcept;
+    static t_errn set_name(       t_pthread, P_cstr) noexcept;
+    static t_void set_name(t_err, t_pthread, P_cstr) noexcept;
+    static t_errn get_name(       t_pthread, p_cstr, t_n) noexcept;
+    static t_void get_name(t_err, t_pthread, p_cstr, t_n) noexcept;
 
   private:
     t_pthread   thread_;
@@ -413,8 +413,8 @@ namespace threading
   }
 
   inline
-  t_validity t_cond_var::wait(t_err err, t_mutex_lock& lock) noexcept {
-    return wait_(err, lock.mutex_);
+  t_void t_cond_var::wait(t_err err, t_mutex_lock& lock) noexcept {
+    wait_(err, lock.mutex_);
   }
 
   inline
@@ -423,9 +423,9 @@ namespace threading
   }
 
   inline
-  t_validity t_cond_var::wait_until(t_err err, t_mutex_lock& lock,
-                                    t_time time) noexcept {
-    return wait_until_(err, lock.mutex_, time);
+  t_void t_cond_var::wait_until(t_err err, t_mutex_lock& lock,
+                                t_time time) noexcept {
+    wait_until_(err, lock.mutex_, time);
   }
 
   inline
@@ -434,9 +434,8 @@ namespace threading
   }
 
   inline
-  t_validity t_cond_var::wait(t_err err,
-                              t_recursive_mutex_lock& lock) noexcept {
-    return wait_(err, lock.mutex_);
+  t_void t_cond_var::wait(t_err err, t_recursive_mutex_lock& lock) noexcept {
+    wait_(err, lock.mutex_);
   }
 
   inline
@@ -446,9 +445,9 @@ namespace threading
   }
 
   inline
-  t_validity t_cond_var::wait_until(t_err err, t_recursive_mutex_lock& lock,
-                                    t_time time) noexcept {
-    return wait_until_(err, lock.mutex_, time);
+  t_void t_cond_var::wait_until(t_err err, t_recursive_mutex_lock& lock,
+                                t_time time) noexcept {
+    wait_until_(err, lock.mutex_, time);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -464,9 +463,8 @@ namespace threading
   }
 
   inline
-  t_validity t_monotonic_cond_var::wait(t_err err,
-                                        t_mutex_lock& lock) noexcept {
-    return wait_(err, lock.mutex_);
+  t_void t_monotonic_cond_var::wait(t_err err, t_mutex_lock& lock) noexcept {
+    wait_(err, lock.mutex_);
   }
 
   inline
@@ -476,9 +474,9 @@ namespace threading
   }
 
   inline
-  t_validity t_monotonic_cond_var::wait_for(t_err err, t_mutex_lock& lock,
-                                            t_time time) noexcept {
-    return wait_for_(err, lock.mutex_, time);
+  t_void t_monotonic_cond_var::wait_for(t_err err, t_mutex_lock& lock,
+                                        t_time time) noexcept {
+    wait_for_(err, lock.mutex_, time);
   }
 
   inline
@@ -487,9 +485,9 @@ namespace threading
   }
 
   inline
-  t_validity t_monotonic_cond_var::wait(t_err err,
-                                        t_recursive_mutex_lock& lock) noexcept {
-    return wait_(err, lock.mutex_);
+  t_void t_monotonic_cond_var::wait(t_err err,
+                                    t_recursive_mutex_lock& lock) noexcept {
+    wait_(err, lock.mutex_);
   }
 
   inline
@@ -499,9 +497,9 @@ namespace threading
   }
 
   inline
-  t_validity t_monotonic_cond_var::wait_for(t_err err,
-                                            t_recursive_mutex_lock& lock,
-                                            t_time time) noexcept {
+  t_void t_monotonic_cond_var::wait_for(t_err err,
+                                        t_recursive_mutex_lock& lock,
+                                        t_time time) noexcept {
     return wait_for_(err, lock.mutex_, time);
   }
 
