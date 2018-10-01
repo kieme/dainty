@@ -95,8 +95,9 @@ namespace oops
 
   void trace_step_in(R_info info, p_what what, P_void context,
                      R_data1 data) {
-    printf("step_in-> code = %u, data-%p, context = %p\n", info.id_, &data,
-           context);
+    printf("step_in-> code = %u, data-%p, context = %p\n", info.id_,
+           static_cast<P_void>(&data), context);
+
     for (t_id id = what(0).next_; id; ) {
       t_def def = what(id);
       printf("  -> has code = %u, %s\n", id, get(def.string_));
@@ -107,7 +108,8 @@ namespace oops
   void trace_step_in(R_info info, p_what what, P_void context,
                      R_data2 data) {
     printf("step_in-> code = %u, data-%p, depth = %d, context = %p\n",
-           info.id_, &data, data.depth_, context);
+           info.id_, static_cast<P_void>(&data), data.depth_, context);
+
     for (t_id id = what(0).next_; id; ) {
       t_def def = what(id);
       printf("  -> has code = %u, %s\n", id, get(def.string_));
@@ -115,40 +117,38 @@ namespace oops
     }
   }
 
-  void trace_step_out(R_info info, p_what what, P_void context,
+  void trace_step_out(R_info info, p_what, P_void context,
                       R_data1 data) {
     printf("step_out-> code = %u, data-%p, context = %p\n",
-           info.id_, &data, context);
+           info.id_, static_cast<P_void>(&data), context);
   }
 
-  void trace_step_out(R_info info, p_what what, P_void context,
+  void trace_step_out(R_info info, p_what, P_void context,
                       R_data2 data) {
     auto data_file = get(data.file_);
     if (data_file)
       printf("step_out-> code = %u, data-%p, depth = %d, context = %p, "
-             "file = %s, line = %d\n", info.id_, &data, data.depth_, context,
-             data_file, data.line_);
+             "file = %s, line = %d\n", info.id_, static_cast<P_void>(&data),
+             data.depth_, context, data_file, data.line_);
     else
       printf("step_out-> code = %u, data-%p, depth = %d, context = %p\n",
-             info.id_, &data, data.depth_, context);
+             info.id_, static_cast<P_void>(&data), data.depth_, context);
   }
 
-  void trace_step_do(R_info info, p_what what, P_void context,
-                     R_data1 data) {
+  void trace_step_do(R_info info, p_what, P_void context, R_data1 data) {
     printf("step_do-> code = %u, data-%p, context = %p\n", info.id_,
-           &data, context);
+           static_cast<P_void>(&data), context);
   }
 
-  void trace_step_do(R_info info, p_what what, P_void context,
-                     R_data2 data) {
+  void trace_step_do(R_info info, p_what, P_void context, R_data2 data) {
     auto data_file = get(data.file_);
     if (data_file)
       printf("step_do-> code = %u, data-%p, depth = %d, context = %p, "
-             "file = %s, line = %d\n", info.id_, &data, data.depth_, context,
-             data_file, data.line_);
+             "file = %s, line = %d\n", info.id_, static_cast<P_void>(&data),
+             data.depth_, context, data_file, data.line_);
     else
       printf("step_do-> code = %u, data-%p, depth = %d, context = %p\n",
-             info.id_, &data, data.depth_, context);
+             info.id_, static_cast<P_void>(&data), data.depth_, context);
   }
 }
 }
