@@ -35,9 +35,11 @@ namespace dainty
 namespace messaging
 {
   using named::t_bool;
+  using named::p_bool;
   using named::t_void;
   using named::t_n_;
   using named::t_n;
+  using named::P_cstr;
   using named::t_validity;
   using named::string::t_string;
   using named::t_prefix;
@@ -46,27 +48,26 @@ namespace messaging
   using err::t_err;
   using messenger::t_multiple_of_100ms;
   using messenger::t_messenger;
-  using messenger::r_message;
 
-  using t_messenger_params        = messenger::t_params;
-  using r_messenger_params        = messenger::r_params;
-  using t_messenger_visibility    = messenger::t_visibility;
-  using t_messenger_prio          = messenger::t_prio;
-  using t_messenger_key           = messenger::t_key;
-  using R_messenger_key           = messenger::R_key;
-  using t_messenger_user          = messenger::t_user;
-  using t_messenger_name          = messenger::t_name;
-  using r_messenger_name          = messenger::r_name;
-  using R_messenger_name          = messenger::R_name;
-  using R_messenger_password      = messenger::R_password;
-  using r_messenger_monitor_list  = messenger::r_monitor_list;
-  using p_messenger_monitor_list  = messenger::p_monitor_list;
-  using p_messenger_group_list    = messenger::p_group_list;
-  using r_messenger_group_list    = messenger::r_group_list;
-  using t_messenger_timer_params  = messenger::t_timer_params;
-  using R_messenger_timer_params  = messenger::R_timer_params;
-  using r_messenger_visibility    = t_prefix<t_messenger_visibility>::r_;
-  using p_messenger_user          = t_prefix<t_messenger_user>::p_;
+  using t_messenger_params       = messenger::t_params;
+  using r_messenger_params       = messenger::r_params;
+  using t_messenger_visibility   = messenger::t_visibility;
+  using t_messenger_prio         = messenger::t_prio;
+  using t_messenger_key          = messenger::t_key;
+  using R_messenger_key          = messenger::R_key;
+  using t_messenger_user         = messenger::t_user;
+  using t_messenger_name         = messenger::t_name;
+  using r_messenger_name         = messenger::r_name;
+  using R_messenger_name         = messenger::R_name;
+  using R_messenger_password     = messenger::R_password;
+  using r_messenger_monitor_list = messenger::r_monitor_list;
+  using p_messenger_monitor_list = messenger::p_monitor_list;
+  using p_messenger_group_list   = messenger::p_group_list;
+  using r_messenger_group_list   = messenger::r_group_list;
+  using t_messenger_timer_params = messenger::t_timer_params;
+  using R_messenger_timer_params = messenger::R_timer_params;
+  using r_messenger_visibility   = t_prefix<t_messenger_visibility>::r_;
+  using p_messenger_user         = t_prefix<t_messenger_user>::p_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -76,20 +77,17 @@ namespace messaging
     t_multiple_of_100ms      alive_factor;
     t_messenger_timer_params timer_params;
 
-    inline
-    t_messenger_create_params()
+    inline t_messenger_create_params()
       : visibility(messenger::VISIBILITY_PROCESS), alive_factor(0) {
     }
 
-    inline
-    t_messenger_create_params(t_messenger_visibility _visibility)
+    inline t_messenger_create_params(t_messenger_visibility _visibility)
       : visibility(_visibility), alive_factor(0) {
     }
 
-    inline
-    t_messenger_create_params(t_messenger_visibility   _visibility,
-                              t_multiple_of_100ms      _alive_factor,
-                              R_messenger_timer_params _timer_params)
+    inline t_messenger_create_params(t_messenger_visibility   _visibility,
+                                     t_multiple_of_100ms      _alive_factor,
+                                     R_messenger_timer_params _timer_params)
       : visibility(_visibility), alive_factor(_alive_factor),
         timer_params(_timer_params) {
     }
@@ -127,20 +125,16 @@ namespace messaging
   class t_params {
   public:
     t_visibility visibility;
-    t_name       name;
     t_n          queuesize = t_n{4000};
 
-    inline
-    t_params() : visibility{VISIBILITY_OFF} {
+    inline t_params() : visibility{VISIBILITY_OFF} {
     }
 
-    inline
-    t_params(t_visibility _visibility) : visibility{_visibility} {
+    inline t_params(t_visibility _visibility) : visibility{_visibility} {
     }
 
-    inline
-    t_params(t_visibility _visibility, R_name _name, t_n _queuesize)
-      : visibility{_visibility}, name{_name}, queuesize{_queuesize} {
+    inline t_params(t_visibility _visibility, t_n _queuesize)
+      : visibility{_visibility}, queuesize{_queuesize} {
     }
   };
   using r_params = t_prefix<t_params>::r_;
@@ -165,8 +159,7 @@ namespace messaging
     t_messenger_params params;
     t_messenger_stats  stats;
 
-    inline
-    t_messenger_info() : key{0} {
+    inline t_messenger_info() : key{0} {
     }
   };
   using r_messenger_info = t_prefix<t_messenger_info>::r_;
@@ -178,7 +171,7 @@ namespace messaging
 
   t_bool is_running();
 
-  t_void start (t_err, P_params = nullptr);
+  t_void start (t_err, R_name, P_params = nullptr);
   t_void update(t_err, R_params);
   t_void fetch (t_err, r_params);
 
@@ -222,7 +215,7 @@ namespace messaging
 ///////////////////////////////////////////////////////////////////////////////
 
   t_bool who_is(t_err, R_messenger_key, r_messenger_name,
-                       t_bool* group = nullptr, t_bool* local = nullptr);
+                       p_bool group = nullptr, p_bool local = nullptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 }
