@@ -36,6 +36,7 @@ namespace container
 {
 namespace maybe
 {
+  using named::t_bool;
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
@@ -70,6 +71,8 @@ namespace maybe
     r_maybe emplace(Args&&...);
 
     operator t_validity() const;
+
+    t_bool release();
 
   private:
     template<typename T1> friend       T1& set(t_maybe<T1>&);
@@ -132,6 +135,7 @@ namespace maybe
   t_maybe<T>::t_maybe(x_maybe maybe) : valid_{maybe.valid_} {
     if (valid_ == VALID)
       store_.move_construct(std::move(maybe.store_.ref()));
+    maybe.release();
   }
 
   template<typename T>
@@ -187,7 +191,7 @@ namespace maybe
         store_.move_construct(std::move(maybe.store_.ref()));
     } else if (valid_ == VALID)
       store_.destruct();
-    valid_ = maybe.valid_;
+    valid_ = maybe.release() ? VALID : INVALID;
     return *this;
   }
 
@@ -206,6 +210,17 @@ namespace maybe
   inline
   t_maybe<T>::operator t_validity() const {
     return valid_;
+  }
+
+  template<typename T>
+  inline
+  t_bool t_maybe<T>::release() {
+    if (valid_ == VALID) {
+      store_.destruct();
+      valid_ = INVALID;
+      return true;
+    }
+    return false;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
