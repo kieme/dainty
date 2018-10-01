@@ -56,7 +56,7 @@ namespace bytebuf
   using r_byte = named::t_prefix<t_byte>::r_;
   using R_byte = named::t_prefix<t_byte>::R_;
 
-  enum t_view_tag_ { };
+  enum  t_view_tag_ { };
   using t_view  = named::range::t_range <t_byte, t_view_tag_>;
   using t_cview = named::range::t_crange<t_byte, t_view_tag_>;
 

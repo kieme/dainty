@@ -275,7 +275,7 @@ namespace chained_queue
       return store.get_capacity();
     }
 
-    t_n get_size(R_store store) const {
+    t_n get_size(R_store) const {
       return chain_.cnt;
     }
 
