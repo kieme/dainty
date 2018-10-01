@@ -27,6 +27,7 @@
 #ifndef _DAINTY_MT_THREAD_H_
 #define _DAINTY_MT_THREAD_H_
 
+#include "dainty_container_ptr.h"
 #include "dainty_os_threading.h"
 #include "dainty_mt_err.h"
 
@@ -45,6 +46,7 @@ namespace thread
   using named::t_prefix;
   using named::VALID;
   using named::INVALID;
+  using container::ptr::t_passable_ptr;
   using err::t_err;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,9 +68,9 @@ namespace thread
       virtual p_void run    ()                          noexcept = 0;
     };
 
-    using p_logic = named::t_prefix<t_logic>::p_;
+    using t_logic_ptr = t_passable_ptr<t_logic>;
 
-    t_thread(t_err, P_cstr name, p_logic, t_bool del_logic) noexcept;
+    t_thread(t_err, P_cstr name, t_logic_ptr) noexcept;
 
     t_thread(R_thread)           = delete;
     t_thread(x_thread)           = delete;

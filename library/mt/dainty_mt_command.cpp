@@ -157,7 +157,7 @@ namespace command
       return {this, user};
     }
 
-    t_client make_client(r_err err, t_user user) noexcept {
+    t_client make_client(r_err, t_user user) noexcept {
       // NOTE: future, we have information on clients.
       return {this, user};
     }
