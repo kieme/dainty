@@ -642,12 +642,12 @@ namespace threading
     return {nullptr};
   }
 
-  named::t_void t_monotonic_lock::enter_scope_(t_locked_scope* lock) noexcept {
-     // debugging
+  named::t_void t_monotonic_lock::enter_scope_(t_locked_scope*) noexcept {
+    // XXX debugging
   }
 
-  named::t_void t_monotonic_lock::leave_scope_(t_locked_scope* lock) noexcept {
-    if (*this == VALID) {
+  named::t_void t_monotonic_lock::leave_scope_(t_locked_scope* scope) noexcept {
+    if (*scope == VALID && *this == VALID) {
       ::pthread_t th = call_pthread_self();
       <% auto scope = mutex_.make_locked_scope();
         if (scope == VALID) {

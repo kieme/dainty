@@ -88,26 +88,6 @@ namespace clock
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_time operator"" _nsec(unsigned long long value) {
-    return {t_nsec(value)};
-  }
-
-  constexpr t_time operator"" _usec(unsigned long long value) {
-    return {t_usec(value)};
-  }
-
-  constexpr t_time operator"" _msec(unsigned long long value) {
-    return {t_msec(value)};
-  }
-
-  constexpr t_time operator"" _sec (unsigned long long value) {
-    return {t_sec(value)};
-  }
-
-  constexpr t_time operator"" _min (unsigned long long value) {
-    return {t_min(value)};
-  }
-
   template<typename T>
   constexpr t_time add(T t) { return {t}; }
 
@@ -120,62 +100,6 @@ namespace clock
   t_time monotonic_now(t_err);
   t_time realtime_now ();
   t_time realtime_now (t_err);
-
-///////////////////////////////////////////////////////////////////////////////
-
-  struct t_timed_scope {
-    t_time& time;
-
-    inline
-    t_timed_scope(t_time& t) noexcept : time(t) { time = monotonic_now(); }
-    inline
-    ~t_timed_scope() noexcept         { time = (monotonic_now() -= time); }
-  };
-
-  class t_timer {
-  public:
-    enum t_start_tag_ { START };
-
-    inline
-    static t_time get_now() noexcept {
-      return monotonic_now();
-    }
-
-    inline
-    t_timer() noexcept : last_ {} {
-    }
-
-    inline
-    t_timer(t_start_tag_) noexcept : last_(monotonic_now()) {
-    }
-
-    inline
-    t_time get_last() const noexcept {
-      return last_;
-    }
-
-    inline
-    t_void restart() noexcept {
-      last_ = get_now();
-    }
-
-    inline
-    t_time elapsed() const noexcept {
-      return (get_now() -= get_last());
-    }
-
-    inline
-    t_time elapsed_restart() noexcept {
-      t_time now{get_now()};
-      t_time elapse{now};
-      elapse -= last_;
-      last_ = now;
-      return elapse;
-    };
-
-  private:
-    t_time last_;
-  };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -267,15 +191,15 @@ namespace clock
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_bool overflow_(const t_time& time,
-                             const ::timespec& spec) noexcept {
+  constexpr t_bool overflow_(const t_time&,
+                             const ::timespec&) noexcept {
     return true; // impl later - XXX
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_bool underflow_(const t_time& time,
-                              const ::timespec& spec) noexcept {
+  constexpr t_bool underflow_(const t_time&,
+                              const ::timespec&) noexcept {
     return true; // impl later - XXX
   }
 
@@ -309,7 +233,7 @@ namespace clock
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_time::t_time() noexcept : spec_{to_(0_nsec)} {
+  constexpr t_time::t_time() noexcept : spec_{to_(t_nsec{0})} {
   }
 
   template<typename T, typename>
@@ -345,6 +269,85 @@ namespace clock
   }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  constexpr t_time operator"" _nsec(unsigned long long value) {
+    return {t_nsec(value)};
+  }
+
+  constexpr t_time operator"" _usec(unsigned long long value) {
+    return {t_usec(value)};
+  }
+
+  constexpr t_time operator"" _msec(unsigned long long value) {
+    return {t_msec(value)};
+  }
+
+  constexpr t_time operator"" _sec (unsigned long long value) {
+    return {t_sec(value)};
+  }
+
+  constexpr t_time operator"" _min (unsigned long long value) {
+    return {t_min(value)};
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  struct t_timed_scope {
+    t_time& time;
+
+    inline
+    t_timed_scope(t_time& t) noexcept : time(t) { time = monotonic_now(); }
+    inline
+    ~t_timed_scope() noexcept         { time = (monotonic_now() -= time); }
+  };
+
+  class t_timer {
+  public:
+    enum t_start_tag_ { START };
+
+    inline
+    static t_time get_now() noexcept {
+      return monotonic_now();
+    }
+
+    inline
+    t_timer() noexcept : last_ {} {
+    }
+
+    inline
+    t_timer(t_start_tag_) noexcept : last_(monotonic_now()) {
+    }
+
+    inline
+    t_time get_last() const noexcept {
+      return last_;
+    }
+
+    inline
+    t_void restart() noexcept {
+      last_ = get_now();
+    }
+
+    inline
+    t_time elapsed() const noexcept {
+      return (get_now() -= get_last());
+    }
+
+    inline
+    t_time elapsed_restart() noexcept {
+      t_time now{get_now()};
+      t_time elapse{now};
+      elapse -= last_;
+      last_ = now;
+      return elapse;
+    };
+
+  private:
+    t_time last_;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
 }
 }
 }
