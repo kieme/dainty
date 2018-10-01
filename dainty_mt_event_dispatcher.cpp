@@ -56,8 +56,10 @@ namespace event_dispatcher
     }
 
     t_impl_(r_err err, R_params _params)
-        : params(_params), events_{params.max} {
-      infos_.reserve(get(params.max));
+      : params(_params), events_{params.max} {
+      ERR_GUARD(err) {
+        infos_.reserve(get(params.max));
+      }
     }
 
     virtual ~t_impl_() {
@@ -151,9 +153,9 @@ namespace event_dispatcher
       events_.clear();
     }
 
-    t_void clear_events(r_err err) {
-      events_.each([this](t_id, r_event_info& info) { //XXX
-        del_event(info);
+    t_void clear_events(r_err) {
+      events_.each([this](t_id, r_event_info& info) { //XXX - do you need err?
+        del_event(info); // XXX this version may be removed
       });
       events_.clear();
     }
@@ -178,6 +180,7 @@ namespace event_dispatcher
               return true;
           }
         }
+        return logic->notify_events_processed();
       }
       return false;
     }

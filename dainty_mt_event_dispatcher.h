@@ -185,10 +185,11 @@ namespace event_dispatcher
 
       virtual ~t_logic() { }
 
-      virtual t_void may_reorder_events (r_event_infos) = 0;
-      virtual t_void notify_event_remove(r_event_info)  = 0;
-      virtual t_quit notify_timeout     (t_usec)        = 0;
-      virtual t_quit notify_error       (t_errn)        = 0;
+      virtual t_void may_reorder_events     (r_event_infos) = 0;
+      virtual t_void notify_event_remove    (r_event_info)  = 0;
+      virtual t_quit notify_timeout         (t_usec) = 0;
+      virtual t_quit notify_error           (t_errn) = 0;
+      virtual t_quit notify_events_processed()       = 0;
     };
 
     using p_logic = named::t_prefix<t_logic>::p_;
