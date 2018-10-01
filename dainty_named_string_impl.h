@@ -65,15 +65,15 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  t_n_ build_  (p_cstr_, t_n_, P_cstr_, va_list);
-  t_n_ build_  (p_cstr_, t_n_, P_cstr_, va_list, t_overflow_assert);
-  t_n_ build_  (p_cstr_, t_n_, P_cstr_, va_list, t_overflow_truncate);
-  t_n_ copy_   (p_cstr_, t_n_, P_cstr_, t_n_,    t_overflow_assert);
-  t_n_ copy_   (p_cstr_, t_n_, P_cstr_, t_n_,    t_overflow_truncate);
-  t_n_ copy_   (p_cstr_, t_n_, P_cstr_,          t_overflow_assert);
-  t_n_ copy_   (p_cstr_, t_n_, P_cstr_,          t_overflow_truncate);
-  t_n_ fill_   (p_cstr_, t_n_, R_block,          t_overflow_assert);
-  t_n_ fill_   (p_cstr_, t_n_, R_block,          t_overflow_truncate);
+  t_n_ build_(p_cstr_, t_n_, P_cstr_, va_list);
+  t_n_ build_(p_cstr_, t_n_, P_cstr_, va_list, t_overflow_assert);
+  t_n_ build_(p_cstr_, t_n_, P_cstr_, va_list, t_overflow_truncate);
+  t_n_ copy_ (p_cstr_, t_n_, P_cstr_, t_n_,    t_overflow_assert);
+  t_n_ copy_ (p_cstr_, t_n_, P_cstr_, t_n_,    t_overflow_truncate);
+  t_n_ copy_ (p_cstr_, t_n_, P_cstr_,          t_overflow_assert);
+  t_n_ copy_ (p_cstr_, t_n_, P_cstr_,          t_overflow_truncate);
+  t_n_ fill_ (p_cstr_, t_n_, R_block,          t_overflow_assert);
+  t_n_ fill_ (p_cstr_, t_n_, R_block,          t_overflow_truncate);
 
   t_n_    calc_chr_(t_n_, t_n_);
   p_cstr_ alloc_   (t_n_);
@@ -81,12 +81,12 @@ namespace string
   p_cstr_ realloc_ (p_cstr_, t_n_);
   t_bool  prepare_ (p_cstr_&, t_n_, t_n_);
 
-  t_void display_ (P_cstr_);
-  t_int  compare_ (P_cstr_, P_cstr_);
-  t_bool match_   (P_cstr_, P_cstr_ pattern);
-  t_n_   count_   (t_char,  P_cstr_);
-  t_n_   length_  (P_cstr_);
-  t_n_   length_  (P_cstr_, va_list);
+  t_void display_(P_cstr_);
+  t_int  compare_(P_cstr_, P_cstr_);
+  t_bool match_  (P_cstr_, P_cstr_ pattern);
+  t_n_   count_  (t_char,  P_cstr_);
+  t_n_   length_ (P_cstr_);
+  t_n_   length_ (P_cstr_, va_list);
 
 ////////////////////////////////////////////////////////////////////////////////
 

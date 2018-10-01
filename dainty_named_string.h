@@ -92,12 +92,13 @@ namespace string
     template<class TAG1, t_n_ N1, class I1>
     t_bool match(const t_string<TAG1, N1, I1>& pattern) const;
 
-    t_void clear();
-    P_cstr c_str () const;
-    t_n    get_length  () const;
-    t_n    get_capacity() const;
+    constexpr static
+    t_n    get_capacity();
     t_n    count       (t_char) const;
+    P_cstr c_str       () const;
+    t_n    get_length  () const;
 
+    t_void clear();
     t_char front() const;
     t_char back () const;
 
@@ -213,7 +214,7 @@ namespace string
 
   template<class TAG, t_n_ N, class I>
   inline
-  t_string<TAG, N, I>::t_string(t_fmt, P_cstr_ fmt, ...) : impl_{0U} {
+  t_string<TAG, N, I>::t_string(t_fmt, P_cstr_ fmt, ...) : impl_{store_} {
     va_list vars;
     va_start(vars, fmt);
     impl_.va_assign(store_, N, fmt, vars);
@@ -407,8 +408,8 @@ namespace string
   }
 
   template<class TAG, t_n_ N, class I>
-  inline
-  t_n t_string<TAG, N, I>::get_capacity() const {
+  constexpr
+  t_n t_string<TAG, N, I>::get_capacity() {
     return t_n{N};
   }
 
@@ -683,7 +684,7 @@ namespace string
   inline
   t_string<TAG, 0, I>& t_string<TAG, 0, I>::va_append(P_cstr_ fmt,
                                                       va_list vars) {
-#if 2
+#if 1
   readjust_(length_(fmt, vars));
   impl_.va_append(store_, max_, fmt, vars);
 #else
