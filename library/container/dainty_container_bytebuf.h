@@ -135,11 +135,11 @@ namespace bytebuf
     using P_value = typename t_prefix<t_value>::P_;
 
     t_ptr() = default;
-    t_ptr(t_view view) : ptr_(resolve_<t_value, p_value>(view.item, view.n)) {
+    t_ptr(t_view view) : ptr_(resolve_<t_value, p_value>(begin(view), view.n)) {
     }
 
     t_ptr& operator=(const t_view& view) {
-      ptr_ = resolve_<t_value, p_value>(view.item, view.n);
+      ptr_ = resolve_<t_value, p_value>(begin(view), view.n);
       return *this;
     }
 
@@ -165,11 +165,12 @@ namespace bytebuf
     using P_value = typename t_prefix<t_value>::P_;
 
     t_cptr() = default;
-    t_cptr(t_cview view) : ptr_(resolve_<t_value, P_value>(view.item, view.n)) {
+    t_cptr(t_cview view)
+      : ptr_(resolve_<t_value, P_value>(begin(view), view.n)) {
     }
 
     t_cptr& operator=(const t_cview& view) {
-      ptr_ = resolve_<t_value, P_value>(view.item, view.n);
+      ptr_ = resolve_<t_value, P_value>(begin(view), view.n);
       return *this;
     }
 

@@ -29,6 +29,7 @@
 
 #include <utility>
 #include "dainty_named.h"
+#include "dainty_named_ptr.h"
 
 namespace dainty
 {
@@ -36,6 +37,7 @@ namespace container
 {
 namespace any
 {
+  using named::t_prefix;
   using named::t_void;
   using named::t_bool;
   using named::t_validity;
@@ -47,84 +49,96 @@ namespace any
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  struct t_it_ {
-    virtual ~t_it_() {}
-    virtual t_bool is_equal(const t_it_&) const = 0;
-    virtual t_void copy(const t_it_&) = 0;
-    virtual t_it_* clone() const = 0;
+  class t_type_;
+  using R_type_ = t_prefix<t_type_>::R_;
+
+  class t_type_ {
+  public:
+    using t_ptr_ = named::ptr::t_ptr<t_type_, t_type_, named::ptr::t_deleter>;
+
+    virtual ~t_type_() {}
+    virtual t_bool is_equal(R_type_) const = 0;
+    virtual t_void copy(R_type_) = 0;
+    virtual t_ptr_ clone() const = 0;
   };
 
-  t_bool same_type_(const t_it_&, const t_it_& it);
+  t_bool same_type_(R_type_, R_type_);
 
   template<class T>
-  struct t_store_ final : t_it_ {
+  struct t_store_ final : public t_type_ {
+    using R_store_ = typename t_prefix<t_store_>::R_;
+    using x_store_ = typename t_prefix<t_store_>::x_;
+    using r_store_ = typename t_prefix<t_store_>::r_;
+
     T value_;
 
     template<class... Args> t_store_(Args&&... args)
       : value_(std::forward<Args>(args)...) {
     }
 
-    t_store_(const t_store_&)            = delete;
-    t_store_& operator=(const t_store_&) = delete;
-    t_store_(t_store_&&)                 = delete;
-    t_store_& operator=(t_store_&&)      = delete;
+    t_store_(R_store_)           = delete;
+    r_store_ operator=(R_store_) = delete;
+    t_store_(x_store_)           = delete;
+    r_store_ operator=(x_store_) = delete;
 
-    virtual t_bool is_equal(const t_it_& it) const override {
+    virtual t_bool is_equal(R_type_ it) const override {
       return same_type_(*this, it) &&
-             value_ == static_cast<const t_store_<T>&>(it).value_;
-    };
+             value_ == static_cast<R_store_>(it).value_;
+    }
 
-    virtual t_void copy(const t_it_& it) override {
-      value_ = static_cast<const t_store_<T>&>(it).value_;
-    };
+    virtual t_void copy(R_type_ it) override {
+      value_ = static_cast<R_store_>(it).value_;
+    }
 
-    virtual t_it_* clone() const override {
-      return new t_store_<T>(value_);
-    };
+    virtual t_ptr_ clone() const override {
+      return {new t_store_<T>(value_)};
+    }
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  class t_any;
+  using r_any = t_prefix<t_any>::r_;
+  using x_any = t_prefix<t_any>::x_;
+  using R_any = t_prefix<t_any>::R_;
+
   class t_any final {
   public:
-     t_any() = default;
-     t_any(const t_any&);
-     t_any(t_any&&);
-     explicit t_any(t_user);
-     template<typename T> t_any(t_user, T&&);
-    ~t_any();
+    t_any() = default;
+    t_any(R_any);
+    t_any(x_any);
+    t_any(t_user);
+    template<typename T> t_any(t_user, T&&);
 
-    t_any& operator=(const t_any&);
-    t_any& operator=(t_any&&);
+    r_any operator=(R_any);
+    r_any operator=(x_any);
 
-    t_any& assign(t_user);
+    r_any assign(t_user);
 
     template<typename T, typename... Args>
     T& emplace(t_user, Args&&... args);
 
     operator t_validity() const;
     t_user   get_user  () const;
-    t_bool   same_type (const t_any&) const;
-    t_bool   is_equal  (const t_any&) const;
+    t_bool   same_type (R_any) const;
+    t_bool   is_equal  (R_any) const;
 
     template<class T> T&        ref();
     template<class T> const T&  ref() const;
     template<class T> const T& cref() const;
 
   private:
-    t_user user_  = t_user{0L};
-    t_it_* store_ = nullptr;
+    t_user          user_  = t_user{0L};
+    t_type_::t_ptr_ store_;
   };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  inline
-  t_bool operator==(const t_any& lh, const t_any& rh) {
+  inline t_bool operator==(R_any lh, R_any rh) {
     return lh.is_equal(rh);
   }
 
-  inline
-  t_bool operator!=(const t_any& lh, const t_any& rh) {
+  inline t_bool operator!=(R_any lh, R_any rh) {
     return !lh.is_equal(rh);
   }
 
@@ -137,24 +151,23 @@ namespace any
   template<typename T>
   inline
   t_any::t_any(t_user user, T&& value)
-    : user_{user}, store_(new t_store_<T>(std::forward<T>(value))) {
+    : user_{user}, store_{new t_store_<T>(std::forward<T>(value))} {
   }
 
   inline
-  t_any::t_any(const t_any& any) : user_{any.user_}, store_{any.store_} {
-    if (store_)
-      store_ = store_->clone();
+  t_any::t_any(R_any any)
+    : user_{any.user_},
+      store_{any.store_ == VALID ? any.store_->clone() : nullptr} {
   }
 
   inline
-  t_any::t_any(t_any&& any) : user_{any.user_}, store_{any.store_} {
-    any.store_   = nullptr;
-    any.user_.id = 0;
+  t_any::t_any(x_any any) : user_{any.user_}, store_{std::move(any.store_)} {
+    any.user_.id = 0L; // reset
   }
 
   inline
   t_any::operator t_validity () const {
-    return store_ ? VALID : INVALID;
+    return store_;
   }
 
   inline
@@ -165,8 +178,7 @@ namespace any
   template<typename T, typename... Args>
   inline
   T& t_any::emplace(t_user user, Args&&... args) {
-    if (store_)
-      delete store_;
+    store_.clear();
     user_  = user;
     store_ = new t_store_<T>(std::forward<Args>(args)...);
     return ref<T>();
@@ -175,19 +187,19 @@ namespace any
   template<typename T>
   inline
   T& t_any::ref() {
-    return (static_cast<t_store_<T>*>(store_))->value_;
+    return (static_cast<t_store_<T>*>(store_.get()))->value_;
   }
 
   template<typename T>
   inline
   const T& t_any::ref() const {
-    return (static_cast<const t_store_<T>*>(store_))->value_;
+    return (static_cast<const t_store_<T>*>(store_.get()))->value_;
   }
 
   template<typename T>
   inline
   const T& t_any::cref() const {
-    return (static_cast<const t_store_<T>*>(store_))->value_;
+    return (static_cast<const t_store_<T>*>(store_.get()))->value_;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
