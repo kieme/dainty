@@ -42,8 +42,29 @@ namespace ptr
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template<typename D>
+  struct t_del_ {
+    t_del_() = default;
+    template<typename E>
+    t_del_(E&& _deleter) : deleter{std::forward<E>(_deleter)}   { }
+    t_void swap(t_del_& del)   { std::swap(del.deleter, deleter); }
+    D deleter;
+  };
+
+  template<typename D>
+  struct t_del_<D*> {
+    t_del_(D* _deleter) : deleter(_deleter) {
+    }
+    t_void swap(t_del_& del)   { std::swap(del.deleter, deleter); } // XXX
+    D* deleter = nullptr; // address must be the same
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
   enum t_deleter    {};
   enum t_no_deleter {};
+
+///////////////////////////////////////////////////////////////////////////////
 
   template<typename T, typename TAG, typename D = t_no_deleter>
   class t_ptr {
@@ -57,8 +78,11 @@ namespace ptr
     using x_ptr   = typename t_prefix<t_ptr>::x_;
 
      t_ptr() = default;
-     t_ptr(p_value value) : ptr_{value}           { }
-     t_ptr(x_ptr ptr)     : ptr_{reset(ptr.ptr_)} { }
+     t_ptr(p_value value) : ptr_{value}              { }
+     template<typename E>
+     t_ptr(p_value value, E&& deleter)
+       : ptr_{value}, del_{std::forward<E>(deleter)} { }
+     t_ptr(x_ptr ptr)     : ptr_{reset(ptr.ptr_)}    { }
     ~t_ptr();
 
     r_ptr operator=(p_value);
@@ -78,7 +102,8 @@ namespace ptr
     R_value operator* () const  { return *ptr_; }
 
   private:
-    p_value ptr_ = nullptr;
+    p_value   ptr_ = nullptr;
+    t_del_<D> del_;
   };
 
   template<typename T, typename TAG>
@@ -182,7 +207,8 @@ namespace ptr
     R_value operator* () const  { return *ptr_; }
 
   private:
-    P_value ptr_ = nullptr;
+    P_value   ptr_ = nullptr;
+    t_del_<D> del_;
   };
 
   template<typename T, typename TAG>
@@ -279,7 +305,8 @@ namespace ptr
     R_value operator[](t_ix ix) const { return  ptr_[get(ix)]; }
 
   private:
-    p_value ptr_ = nullptr;
+    p_value   ptr_ = nullptr;
+    t_del_<D> del_;
   };
 
   template<typename T, typename TAG>
@@ -378,7 +405,8 @@ namespace ptr
     R_value operator[](t_ix ix) const { return  ptr_[named::get(ix)]; }
 
   private:
-    P_value ptr_ = nullptr;
+    P_value   ptr_ = nullptr;
+    t_del_<D> del_;
   };
 
   template<typename T, typename TAG>
@@ -452,10 +480,9 @@ namespace ptr
   inline
   typename t_ptr<T, TAG, D>::r_ptr
       t_ptr<T, TAG, D>::operator=(p_value value) {
-    if (ptr_) {
-      D d;
-      d(reset(ptr_, value));
-    } else
+    if (ptr_)
+      del_.deleter(reset(ptr_, value));
+    else
       ptr_ = value;
     return *this;
   }
@@ -463,22 +490,22 @@ namespace ptr
   template<typename T, typename TAG, typename D>
   inline
   typename t_ptr<T, TAG, D>::r_ptr t_ptr<T, TAG, D>::operator=(x_ptr ptr) {
-    if (ptr_) {
-      D d;
-      d(reset(ptr_, reset(ptr.ptr_)));
-    } else
+    if (ptr_)
+      del_.deleter(reset(ptr_, reset(ptr.ptr_)));
+    else
       ptr_ = reset(ptr.ptr_);
+    del_.swap(ptr.del_);
     return *this;
   }
 
   template<typename T, typename TAG, typename D>
   inline
   t_void t_ptr<T, TAG, D>::clear() {
-    if (ptr_) {
-      D d;
-      d(reset(ptr_));
-    }
+    if (ptr_)
+      del_.deleter(reset(ptr_));
   }
+
+///////////////////////////////////////////////////////////////////////////////
 
   template<typename T, typename TAG>
   inline
@@ -527,10 +554,9 @@ namespace ptr
   inline
   typename t_cptr<T, TAG, D>::r_cptr
       t_cptr<T, TAG, D>::operator=(P_value value) {
-    if (ptr_) {
-      D d;
-      d(reset(ptr_, value));
-    } else
+    if (ptr_)
+      del_.deleter(reset(ptr_, value));
+    else
       ptr_ = value;
     return *this;
   }
@@ -539,11 +565,11 @@ namespace ptr
   inline
   typename t_cptr<T, TAG, D>::r_cptr
       t_cptr<T, TAG, D>::operator=(x_cptr ptr) {
-    if (ptr_) {
-      D d;
-      d(reset(ptr_, reset(ptr.ptr_)));
-    } else
+    if (ptr_)
+      del_.deleter(reset(ptr_, reset(ptr.ptr_)));
+    else
       ptr_ = reset(ptr.ptr_);
+    XXX -here unfinished
     return *this;
   }
 
