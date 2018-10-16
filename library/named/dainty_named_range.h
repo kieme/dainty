@@ -27,7 +27,9 @@
 #ifndef _DAINTY_NAMED_RANGE_H_
 #define _DAINTY_NAMED_RANGE_H_
 
-#include "dainty_named_assert.h"
+#include "dainty_named.h"
+
+// DAINTY_NAMED_RANGE_CHECK
 
 namespace dainty
 {
@@ -48,15 +50,6 @@ namespace range
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_void check_(        t_n_, t_ix_);
-  t_void check_(        t_n_, t_ix_, t_ix_);
-  t_void check_(P_void, t_n_);
-  t_void check_(P_void, t_n_, t_ix_);
-  t_void check_(P_void, t_n_, t_ix_, t_ix_);
-  t_void check_(P_void, t_n_, P_void, t_n_);
-
-///////////////////////////////////////////////////////////////////////////////
-
   template<typename T, typename TAG>
   class t_crange;
 
@@ -65,7 +58,10 @@ namespace range
   public:
     using t_tag  = TAG;
     using t_item = T;
+    using r_item = typename t_prefix<T>::r_;
+    using R_item = typename t_prefix<T>::R_;
     using p_item = typename t_prefix<T>::p_;
+    using P_item = typename t_prefix<T>::P_;
 
     t_range(p_item, t_n);
 
@@ -74,12 +70,18 @@ namespace range
 
     operator t_validity() const;
 
+    r_item operator[](t_ix);
+    R_item operator[](t_ix) const;
+
+    p_item get(t_ix);
+    P_item get(t_ix) const;
+
     template<typename F> t_void  each(F);
     template<typename F> t_void  each(F) const;
     template<typename F> t_void ceach(F) const;
 
-    p_item const item;
-    const t_n n;
+    p_item const ptr;
+    const t_n    n;
   };
 
   template<typename T, typename TAG>
@@ -87,6 +89,7 @@ namespace range
   public:
     using t_tag  = TAG;
     using t_item = T;
+    using R_item = typename t_prefix<T>::R_;
     using P_item = typename t_prefix<T>::P_;
 
     t_crange(P_item, t_n);
@@ -94,11 +97,15 @@ namespace range
 
     operator t_validity() const;
 
+    R_item operator[](t_ix) const;
+
+    P_item get(t_ix) const;
+
     template<typename F> t_void  each(F);
     template<typename F> t_void  each(F) const;
     template<typename F> t_void ceach(F) const;
 
-    P_item const item;
+    P_item const ptr;
     const t_n n;
   };
 
@@ -106,124 +113,10 @@ namespace range
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename TAG, typename T, t_n_ N>
-  inline
-  t_range<T, TAG> mk_range(T (&arr)[N]) {
-    return {arr, t_n{N}};
-  }
-
-  template<typename TAG, typename T, t_n_ N>
-  inline
-  t_crange<T, TAG> mk_crange(T (&arr)[N]) {
-    return {arr, t_n{N}};
-  }
-
-  template<typename TAG, typename T, t_n_ N>
-  inline
-  t_crange<T, TAG> mk_crange(const T (&arr)[N]) {
-    return {arr, t_n{N}};
-  }
-
-  template<typename TAG, typename T, t_n_ N>
-  inline
-  t_range<T, TAG> mk_range(T (&arr)[N], t_ix begin) {
-    // check_(N, get(begin));
-    const auto n = N - get(begin);
-    return {arr + get(begin), t_n{n}};
-  }
-
-  template<typename TAG, typename T, t_n_ N>
-  inline
-  t_crange<T, TAG> mk_crange(T (&arr)[N], t_ix begin) {
-    // check_(N, get(begin));
-    const auto n = N - get(begin);
-    return {arr + get(begin), t_n{n}};
-  }
-
-  template<typename TAG, typename T, t_n_ N>
-  inline
-  t_crange<T, TAG> mk_crange(const T (&arr)[N], t_ix begin) {
-    // check_(N, get(begin));
-    const auto n = N - get(begin);
-    return {arr + get(begin), t_n{n}};
-  }
-
-  template<typename TAG, typename T, t_n_ N>
-  inline
-  t_range<T, TAG> mk_range(T (&arr)[N], t_ix begin, t_ix end) {
-    // check_(N, get(begin), get(end));
-    const auto n = get(end) - get(begin);
-    return {arr + get(begin), t_n{n}};
-  }
-
-  template<typename TAG, typename T, t_n_ N>
-  inline
-  t_crange<T, TAG> mk_crange(T (&arr)[N], t_ix begin, t_ix end) {
-    // check_(N, get(begin), get(end));
-    const auto n = get(end) - get(begin);
-    return {arr + get(begin), t_n{n}};
-  }
-
-  template<typename TAG, typename T, t_n_ N>
-  inline
-  t_crange<T, TAG> mk_crange(const T (&arr)[N], t_ix begin, t_ix end) {
-    // check_(N, get(begin), get(end));
-    const auto n = get(end) - get(begin);
-    return {arr + get(begin), t_n{n}};
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename TAG1, typename TAG, typename T>
-  inline
-  t_range<T, TAG1> mk_range(t_range<T, TAG> range) {
-    return {range.item, range.n};
-  }
-
-  template<typename TAG1, typename TAG, typename T>
-  inline
-  t_crange<T, TAG1> mk_crange(t_crange<T, TAG> range) {
-    return {range.item, range.n};
-  }
-
-  template<typename TAG1, typename TAG, typename T>
-  inline
-  t_range<T, TAG1> mk_range(t_range<T, TAG> range, t_ix begin) {
-    // check_(range.item, get(range.n), get(begin));
-    const auto n = get(range.n) - get(begin);
-    return {range.item + get(begin), t_n{n}};
-  }
-
-  template<typename TAG1, typename TAG, typename T>
-  inline
-  t_crange<T, TAG1> mk_crange(t_crange<T, TAG> range, t_ix begin) {
-    // check_(range.item, get(range.n), get(begin));
-    const auto n = get(range.n) - get(begin);
-    return {range.item + get(begin), t_n{n}};
-  }
-
-  template<typename TAG1, typename TAG, typename T>
-  inline
-  t_range<T, TAG1> mk_range(t_range<T, TAG> range, t_ix begin, t_ix end) {
-    // check_(range.item, get(range.n), get(begin), get(end));
-    const auto n = get(end) - get(begin);
-    return {range.item + get(begin), t_n{n}};
-  }
-
-  template<typename TAG1, typename TAG, typename T>
-  inline
-  t_crange<T, TAG1> mk_crange(t_crange<T, TAG> range, t_ix begin, t_ix end) {
-    // check_(range.item, get(range.n), get(begin), get(end));
-    const auto n = get(end) - get(begin);
-    return {range.item + get(begin), t_n{n}};
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
   template<typename T, typename TAG>
   inline
   typename t_range<T, TAG>::p_item begin(t_range<T, TAG> range) {
-    return range.item;
+    return range.ptr;
   }
 
   template<typename T, typename TAG>
@@ -235,7 +128,7 @@ namespace range
   template<typename T, typename TAG>
   inline
   typename t_crange<T, TAG>::P_item cbegin(t_range<T, TAG> range) {
-    return range.item;
+    return range.ptr;
   }
 
   template<typename T, typename TAG>
@@ -249,7 +142,7 @@ namespace range
   template<typename T, typename TAG>
   inline
   typename t_crange<T, TAG>::P_item begin(t_crange<T, TAG> range) {
-    return range.item;
+    return range.ptr;
   }
 
   template<typename T, typename TAG>
@@ -261,7 +154,7 @@ namespace range
   template<typename T, typename TAG>
   inline
   typename t_crange<T, TAG>::P_item cbegin(t_crange<T, TAG> range) {
-    return range.item;
+    return range.ptr;
   }
 
   template<typename T, typename TAG>
@@ -274,114 +167,12 @@ namespace range
 
   template<typename T, typename TAG>
   inline
-  t_range<T, TAG>::t_range(p_item _item, t_n _n) : item{_item}, n{_n} {
-    // check_(_item, get(n));
-  }
-
-  template<typename T, typename TAG>
-  inline
-  t_range<T, TAG>& t_range<T, TAG>::operator=(const t_range<T, TAG>& range) {
-    // check_(item, get(n), range.item, get(range.n));
-    auto n = get(range.n);
-    for (t_n_ i = 0; i < n; ++i)
-      item[i] = range.item[i];
-    return *this;
-  }
-
-  template<typename T, typename TAG>
-  inline
-  t_range<T, TAG>& t_range<T, TAG>::operator=(const t_crange<T, TAG>& range) {
-    // check_(item, get(n), range.item, get(range.n));
-    auto n = get(range.n);
-    for (t_n_ i = 0; i < n; ++i)
-      item[i] = range.item[i];
-    return *this;
-  }
-
-  template<typename T, typename TAG>
-  inline
-  t_range<T, TAG>::operator t_validity() const {
-    return item ? VALID : INVALID;
-  }
-
-  template<typename T, typename TAG>
-  template<typename F>
-  inline
-  t_void  t_range<T, TAG>::each(F f) {
-    for (auto&& i : *this)
-      f(i);
-  }
-
-  template<typename T, typename TAG>
-  template<typename F>
-  inline
-  t_void  t_range<T, TAG>::each(F f) const {
-    for (auto&& i : *this)
-      f(i);
-  }
-
-  template<typename T, typename TAG>
-  template<typename F>
-  inline
-  t_void t_range<T, TAG>::ceach(F f) const {
-    for (auto&& i : *this)
-      f(i);
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename T, typename TAG>
-  inline
-  t_crange<T, TAG>::t_crange(const t_range<T, TAG>& range)
-    : item{range.item}, n{range.n} {
-  }
-
-  template<typename T, typename TAG>
-  inline
-  t_crange<T, TAG>::t_crange(P_item _item, t_n _n) : item{_item}, n{_n} {
-    // check_(_item, get(n));
-  }
-
-  template<typename T, typename TAG>
-  inline
-  t_crange<T, TAG>::operator t_validity() const {
-    return item ? VALID : INVALID;
-  }
-
-  template<typename T, typename TAG>
-  template<typename F>
-  inline
-  t_void t_crange<T, TAG>::each(F f) {
-    for (auto&& i : *this)
-      f(i);
-  }
-
-  template<typename T, typename TAG>
-  template<typename F>
-  inline
-  t_void t_crange<T, TAG>::each(F f) const {
-    for (auto&& i : *this)
-      f(i);
-  }
-
-  template<typename T, typename TAG>
-  template<typename F>
-  inline
-  t_void t_crange<T, TAG>::ceach(F f) const {
-    for (auto&& i : *this)
-      f(i);
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename T, typename TAG>
-  inline
   t_bool operator==(t_crange<T, TAG> lh, t_crange<T, TAG> rh) {
     if (lh.n == rh.n) {
-      if (lh.item != rh.item) {
+      if (lh.ptr != rh.ptr) {
         t_n_ i = 0, n = get(lh.n);
         for (; i < n; ++i)
-          if (lh.item[i] != rh.item[i])
+          if (lh.ptr[i] != rh.ptr[i])
             break;
         return i == n;
       }
@@ -436,56 +227,310 @@ namespace range
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_void check_(        t_n_, t_ix_);
+  t_void check_(        t_n_, t_ix_, t_ix_);
+  t_void check_(P_void, t_n_);
+  t_void check_(P_void, t_n_, t_ix_);
+  t_void check_(P_void, t_n_, t_ix_, t_ix_);
+  t_void check_(P_void, t_n_, P_void, t_n_);
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename TAG, typename T, t_n_ N>
   inline
-  t_void check_(t_n_ n, t_ix_ begin) {
-#ifndef DAINTY_RANGE_NOCHECK
-    if (begin >= n)
-      assert_now(P_cstr{"range: overflow 1"});
+  t_range<T, TAG> mk_range(T (&arr)[N]) {
+    return {arr, t_n{N}};
+  }
+
+  template<typename TAG, typename T, t_n_ N>
+  inline
+  t_crange<T, TAG> mk_crange(T (&arr)[N]) {
+    return {arr, t_n{N}};
+  }
+
+  template<typename TAG, typename T, t_n_ N>
+  inline
+  t_crange<T, TAG> mk_crange(const T (&arr)[N]) {
+    return {arr, t_n{N}};
+  }
+
+  template<typename TAG, typename T, t_n_ N>
+  inline
+  t_range<T, TAG> mk_range(T (&arr)[N], t_ix begin) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(N, get(begin));
+#endif
+    const auto n = N - get(begin);
+    return {arr + get(begin), t_n{n}};
+  }
+
+  template<typename TAG, typename T, t_n_ N>
+  inline
+  t_crange<T, TAG> mk_crange(T (&arr)[N], t_ix begin) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(N, get(begin));
+#endif
+    const auto n = N - get(begin);
+    return {arr + get(begin), t_n{n}};
+  }
+
+  template<typename TAG, typename T, t_n_ N>
+  inline
+  t_crange<T, TAG> mk_crange(const T (&arr)[N], t_ix begin) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(N, get(begin));
+#endif
+    const auto n = N - get(begin);
+    return {arr + get(begin), t_n{n}};
+  }
+
+  template<typename TAG, typename T, t_n_ N>
+  inline
+  t_range<T, TAG> mk_range(T (&arr)[N], t_ix begin, t_ix end) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(N, get(begin), get(end));
+#endif
+    const auto n = get(end) - get(begin);
+    return {arr + get(begin), t_n{n}};
+  }
+
+  template<typename TAG, typename T, t_n_ N>
+  inline
+  t_crange<T, TAG> mk_crange(T (&arr)[N], t_ix begin, t_ix end) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(N, get(begin), get(end));
+#endif
+    const auto n = get(end) - get(begin);
+    return {arr + get(begin), t_n{n}};
+  }
+
+  template<typename TAG, typename T, t_n_ N>
+  inline
+  t_crange<T, TAG> mk_crange(const T (&arr)[N], t_ix begin, t_ix end) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(N, get(begin), get(end));
+#endif
+    const auto n = get(end) - get(begin);
+    return {arr + get(begin), t_n{n}};
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename TAG1, typename TAG, typename T>
+  inline
+  t_range<T, TAG1> mk_range(t_range<T, TAG> range) {
+    return {range.ptr, range.n};
+  }
+
+  template<typename TAG1, typename TAG, typename T>
+  inline
+  t_crange<T, TAG1> mk_crange(t_crange<T, TAG> range) {
+    return {range.ptr, range.n};
+  }
+
+  template<typename TAG1, typename TAG, typename T>
+  inline
+  t_range<T, TAG1> mk_range(t_range<T, TAG> range, t_ix begin) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(range.ptr, get(range.n), get(begin));
+#endif
+    const auto n = get(range.n) - get(begin);
+    return {range.ptr + get(begin), t_n{n}};
+  }
+
+  template<typename TAG1, typename TAG, typename T>
+  inline
+  t_crange<T, TAG1> mk_crange(t_crange<T, TAG> range, t_ix begin) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(range.ptr, get(range.n), get(begin));
+#endif
+    const auto n = get(range.n) - get(begin);
+    return {range.ptr + get(begin), t_n{n}};
+  }
+
+  template<typename TAG1, typename TAG, typename T>
+  inline
+  t_range<T, TAG1> mk_range(t_range<T, TAG> range, t_ix begin, t_ix end) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(range.ptr, get(range.n), get(begin), get(end));
+#endif
+    const auto n = get(end) - get(begin);
+    return {range.ptr + get(begin), t_n{n}};
+  }
+
+  template<typename TAG1, typename TAG, typename T>
+  inline
+  t_crange<T, TAG1> mk_crange(t_crange<T, TAG> range, t_ix begin, t_ix end) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(range.ptr, get(range.n), get(begin), get(end));
+#endif
+    const auto n = get(end) - get(begin);
+    return {range.ptr + get(begin), t_n{n}};
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename TAG>
+  inline
+  t_range<T, TAG>::t_range(p_item _ptr, t_n _n) : ptr{_ptr}, n{_n} {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(ptr, named::get(n));
 #endif
   }
 
+  template<typename T, typename TAG>
   inline
-  t_void check_(t_n_ n, t_ix_ begin, t_ix_ end) {
-#ifndef DAINTY_RANGE_NOCHECK
-    if (begin >= n || begin >= end || end - begin >= n)
-      assert_now(P_cstr{"range: overflow 2"});
+  t_range<T, TAG>& t_range<T, TAG>::operator=(const t_range<T, TAG>& range) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(ptr, named::get(n), range.ptr, named::get(range.n));
+#endif
+    auto n = named::get(range.n);
+    for (t_n_ i = 0; i < n; ++i)
+      ptr[i] = range.ptr[i];
+    return *this;
+  }
+
+  template<typename T, typename TAG>
+  inline
+  t_range<T, TAG>& t_range<T, TAG>::operator=(const t_crange<T, TAG>& range) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(ptr, named::get(n), range.ptr, named::get(range.n));
+#endif
+    auto n = named::get(range.n);
+    for (t_n_ i = 0; i < n; ++i)
+      ptr[i] = range.ptr[i];
+    return *this;
+  }
+
+  template<typename T, typename TAG>
+  inline
+  typename t_range<T, TAG>::r_item t_range<T, TAG>::operator[](t_ix ix) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(ptr, named::get(n), named::get(ix));
+#endif
+    return ptr[named::get(ix)];
+  }
+
+  template<typename T, typename TAG>
+  inline
+  typename t_range<T, TAG>::R_item t_range<T, TAG>::operator[](t_ix ix) const {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(ptr, named::get(n), named::get(ix));
+#endif
+    return ptr[named::get(ix)];
+  }
+
+  template<typename T, typename TAG>
+  inline
+  typename t_range<T, TAG>::p_item t_range<T, TAG>::get(t_ix ix) {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(ptr, named::get(n), named::get(ix));
+#endif
+    return ptr + named::get(ix);
+  }
+
+  template<typename T, typename TAG>
+  inline
+  typename t_range<T, TAG>::P_item t_range<T, TAG>::get(t_ix ix) const {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(ptr, named::get(n), named::get(ix));
+#endif
+    return ptr + named::get(ix);
+  }
+
+  template<typename T, typename TAG>
+  inline
+  t_range<T, TAG>::operator t_validity() const {
+    return ptr ? VALID : INVALID;
+  }
+
+  template<typename T, typename TAG>
+  template<typename F>
+  inline
+  t_void  t_range<T, TAG>::each(F f) {
+    for (auto&& i : *this)
+      f(i);
+  }
+
+  template<typename T, typename TAG>
+  template<typename F>
+  inline
+  t_void  t_range<T, TAG>::each(F f) const {
+    for (auto&& i : *this)
+      f(i);
+  }
+
+  template<typename T, typename TAG>
+  template<typename F>
+  inline
+  t_void t_range<T, TAG>::ceach(F f) const {
+    for (auto&& i : *this)
+      f(i);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename TAG>
+  inline
+  t_crange<T, TAG>::t_crange(const t_range<T, TAG>& range)
+    : ptr{range.ptr}, n{range.n} {
+  }
+
+  template<typename T, typename TAG>
+  inline
+  t_crange<T, TAG>::t_crange(P_item _ptr, t_n _n) : ptr{_ptr}, n{_n} {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(_ptr, named::get(n));
 #endif
   }
 
+  template<typename T, typename TAG>
   inline
-  t_void check_(P_void item, t_n_ n) {
-#ifndef DAINTY_RANGE_NOCHECK
-    if (!item || !n)
-      assert_now(P_cstr{"range: init error"});
-#endif
+  t_crange<T, TAG>::operator t_validity() const {
+    return ptr ? VALID : INVALID;
   }
 
+  template<typename T, typename TAG>
   inline
-  t_void check_(P_void item, t_n_ n, t_ix_ begin) {
-#ifndef DAINTY_RANGE_NOCHECK
-    if (!item)
-      assert_now(P_cstr{"range: invalid range"});
-    check_(n, begin);
+  typename t_crange<T, TAG>::R_item
+      t_crange<T, TAG>::operator[](t_ix ix) const {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(ptr, named::get(n), named::get(ix));
 #endif
+    return ptr[named::get(ix)];
   }
 
+  template<typename T, typename TAG>
   inline
-  t_void check_(P_void item, t_n_ n, t_ix_ begin, t_ix_ end) {
-#ifndef DAINTY_RANGE_NOCHECK
-    if (!item)
-      assert_now(P_cstr{"range: invalid range"});
-    check_(n, begin, end);
+  typename t_crange<T, TAG>::P_item t_crange<T, TAG>::get(t_ix ix) const {
+#ifdef DAINTY_NAMED_RANGE_CHECK
+    check_(ptr, named::get(n), named::get(ix));
 #endif
+    return ptr + named::get(ix);
   }
 
+  template<typename T, typename TAG>
+  template<typename F>
   inline
-  t_void check_(P_void item1, t_n_ n1, P_void item2, t_n_ n2) {
-#ifndef DAINTY_RANGE_NOCHECK
-    if (n1 != n2)
-      assert_now(P_cstr{"range: not same size"});
-    check_(item1, n1);
-    check_(item2, n2);
-#endif
+  t_void t_crange<T, TAG>::each(F f) {
+    for (auto&& i : *this)
+      f(i);
+  }
+
+  template<typename T, typename TAG>
+  template<typename F>
+  inline
+  t_void t_crange<T, TAG>::each(F f) const {
+    for (auto&& i : *this)
+      f(i);
+  }
+
+  template<typename T, typename TAG>
+  template<typename F>
+  inline
+  t_void t_crange<T, TAG>::ceach(F f) const {
+    for (auto&& i : *this)
+      f(i);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

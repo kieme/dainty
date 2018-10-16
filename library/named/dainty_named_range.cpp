@@ -24,33 +24,52 @@
 
 ******************************************************************************/
 
-#include <execinfo.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <assert.h>
-#include <stdio.h>
-#include "dainty_named_terminal.h"
 #include "dainty_named_assert.h"
+#include "dainty_named_range.h"
 
 namespace dainty
 {
 namespace named
 {
-  using namespace terminal;
+namespace range
+{
+///////////////////////////////////////////////////////////////////////////////
 
-  t_void assert_now(P_cstr reason) {
-    t_out{FMT, "assert: %s\n", get(reason)};
-
-    p_void array[20];
-    auto size = backtrace(array, 20);
-
-    backtrace_symbols_fd(array, size, STDERR_FILENO);
-
-    fflush(stdout);
-    fflush(stderr);
-
-    assert(0);
+  t_void check_(t_n_ n, t_ix_ begin) {
+    if (begin >= n)
+      assert_now(P_cstr{"range: overflow 1"});
   }
-}
-}
 
+  t_void check_(t_n_ n, t_ix_ begin, t_ix_ end) {
+    if (begin >= n || begin >= end || end - begin >= n)
+      assert_now(P_cstr{"range: overflow 2"});
+  }
+
+  t_void check_(P_void item, t_n_ n) {
+    if (!item || !n)
+      assert_now(P_cstr{"range: init error"});
+  }
+
+  t_void check_(P_void item, t_n_ n, t_ix_ begin) {
+    if (!item)
+      assert_now(P_cstr{"range: invalid range"});
+    check_(n, begin);
+  }
+
+  t_void check_(P_void item, t_n_ n, t_ix_ begin, t_ix_ end) {
+    if (!item)
+      assert_now(P_cstr{"range: invalid range"});
+    check_(n, begin, end);
+  }
+
+  t_void check_(P_void item1, t_n_ n1, P_void item2, t_n_ n2) {
+    if (n1 != n2)
+      assert_now(P_cstr{"range: not same size"});
+    check_(item1, n1);
+    check_(item2, n2);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+}
+}
+}

@@ -36,29 +36,31 @@
 //   (reason for not using type traits, constexpr, etc.). The API will
 //   be changed to support c++17 features.
 //
-//   naming convention:
+//   basic naming convention:
 //
-//     N01. functions, method names must be verbs.
-//     N02. classes, struct, types names must be nouns.
-//     N03. literal and constant values should be written in capital letters.
-//     N04. specialization of type named names & identifier are prefixed.
-//     N05. types must be prefixed with t_.
+//     N01. use lowercase characters except for a few cases mentioned below.
+//     N02. functions, method names must be verbs.
+//     N03. classes, struct, types names must be nouns.
+//     N04. literal and constant values should be written in capital letters.
+//     N05. all types names are prefixed. (t_prefix<xxx>)
+//     N06. types must be prefixed with t_.
 //          (avoid conflict with std:: convention).
-//     N06. pointer definitions must be prefixed p_.
-//     N07. reference definitions must be prefixed r_.
-//     N08. internal functions, methods, variables, types must have an
+//     N07. pointer definitions must be prefixed p_/P_.
+//     N08. lvalue reference definitions must be prefixed r_/R_.
+//     N09. rvalue reference definitions must be prefixed x_.
+//     N10. a capital prefix indicates the content is const.
+//     N11. internal functions, methods, variables, types must have an
 //          postfix _. API users should never use these.
-//     N09. when using <dainty::named> builtin types on interfaces, use
+//     N12. when using <dainty::named> builtin types on interfaces, use
 //          specializations of t_explicit, to assign purpose to a type.
-//     N10. use printable lowercase characters that are c++ identifiers.
-//     N11. use '_' within long names to improve readability.
-//     N12. use <dainty::named> builtin types instead of <std>.
-//     N13. use qualified names or "using " when using <dainty::named>.
-//     N14. prefix a const "type" name with c but not the parameter itself.
+//     N13. use '_' as delimiter within long names to improve readability.
+//     N14. use <dainty::named> builtin types instead of <std>.
+//     N15. use qualified names or "using " when using <dainty::named>.
+//     N16. prefix a const "type" name with c but not the parameter itself.
 //           e.g. t_id  id; -> non-const id.
 //                t_cid id; -> const id. but const is not identifyable with
 //                             the variable name.
-//     N15. when writing classes/structs using the following naming convention
+//     N17. when writing classes/structs using the following naming convention
 //          for function parameters, data memebers and types.
 //          // -> t_param, param, param_
 //          e.g class t_class {
@@ -68,18 +70,18 @@
 //                  param_ = param;
 //                }
 //              private:
-//                t_param param_;
+//                t_param param_; // param_ is internal
 //              };
-//     N15.1 when a naming conflict exit, prefix a variable with _.
+//     N18.1 when a naming conflict exit, prefix a variable with _.
 //           struct t_pair {
-//             t_first  first;
-//             t_second second; // not postfixed with _ because not internal.
+//             t_first  first;   // first is not internal
+//             t_second second;
 //             t_pair(t_first _first, t_second _second)
 //               : first(_first), second{_second) {
 //             }
 //           };
 //
-//   specialization of t_explicit for interface use:
+//   predefined t_explicit types for interface use:
 //
 //      Z01: use type t_ix that is intended to index into something.
 //      Z02: use type t_n that is intended to represent a number of elements.
@@ -96,6 +98,23 @@
 //      F05: test cpp files use the name of the functionality.
 //           dainty_oops.cpp then dainty_oops_test<n>.cpp
 //
+//   design naming: <xxx> is a functionality.
+//
+//     data:
+//
+//      D01: t_<xxx>_params - this is the params of a
+//      D02: t_<xxx>_stats  - counter statit
+//      D03: t_<xxx>_info   - both runtime, params and other visible properties.
+//      D04: t_<xxx>_ctxt   - embeds info and containers private runtime properties.
+//      D05: t_<xxx>_data   - encapculates all internal data and provide methods
+//                       to consistently manipulate that data.
+//
+//     operations:
+//
+//      D10: t_<xxx>_logic - where specific logic is located.
+//                           it typically embeds t_<xxx>_data.
+//
+
 // should set be allowed. its meant only to transfer data through an interface.
 //
 // t_explicit:
