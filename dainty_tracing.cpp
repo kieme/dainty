@@ -24,12 +24,12 @@
 
 ******************************************************************************/
 
-#include <stdio.h>
 #include <syslog.h>
 #include <memory>
 #include <map>
 #include <algorithm>
 #include <limits>
+#include "dainty_named_terminal.h"
 #include "dainty_container_ptr.h"
 #include "dainty_mt_event_dispatcher.h"
 #include "dainty_mt_waitable_chained_queue.h"
@@ -41,6 +41,7 @@
 
 using namespace dainty::container;
 using namespace dainty::named;
+using namespace dainty::named::terminal;
 using namespace dainty::mt;
 using namespace dainty::os;
 using namespace dainty::tracing::tracer;
@@ -175,7 +176,7 @@ namespace tracer
   using p_output_impl_     = t_prefix<t_output_impl_>::p_;
   using t_output_impls_    = std::vector<p_output_impl_>;
   using p_output_impls_    = t_prefix<t_output_impls_>::p_;
-  using t_output_impl_ptr_ = ptr::t_passable_ptr<t_output_impl_>;
+  using t_output_impl_ptr_ = container::ptr::t_passable_ptr<t_output_impl_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -183,7 +184,7 @@ namespace tracer
   public:
     virtual t_void notify(R_observer_name name, t_level level, R_date,
                           R_line line) override {
-      P_cstr_ who = get(name.c_str()), msg = get(line.c_str());
+      P_cstr_ who = get(name.get_cstr()), msg = get(line.get_cstr());
       switch (level) {
         case EMERG:    ::syslog(LOG_EMERG,   "[%s] %s", who, msg); break;
         case ALERT:    ::syslog(LOG_ALERT,   "[%s] %s", who, msg); break;
@@ -626,7 +627,7 @@ namespace tracer
                          t_level level) {
       t_bool found = false; // XXX r_err not used - why have it in call
       for (auto&& tracer : tracers_) {
-        if (tracer.first.match(wildcard_name)) {
+        if (tracer.first.is_match(wildcard_name)) {
           if (tracer.second.data) {
             tracer.second.data->info.params.level = level;
             found = true;
@@ -760,7 +761,7 @@ namespace tracer
       auto observer = is_observer(name);
       if (observer) {
         for (auto&& tracer : tracers_) {
-          if (tracer.first.match(wildcard_name)) {
+          if (tracer.first.is_match(wildcard_name)) {
             if (std::find(std::cbegin(tracer.second.observers),
                           std::cend  (tracer.second.observers), observer) ==
                 std::end(tracer.second.observers)) {
@@ -780,7 +781,7 @@ namespace tracer
         for (auto i = observer->info.tracers.begin();
              i != observer->info.tracers.end(); ) {
           t_tracer_name& tracer_name = *i;
-          if (tracer_name.match(wildcard_name)) {
+          if (tracer_name.is_match(wildcard_name)) {
             auto tracer = tracers_.find(tracer_name);
             tracer->second.observers.erase(
               std::find(std::cbegin(tracer->second.observers),
@@ -848,15 +849,15 @@ namespace tracer
 ///////////////////////////////////////////////////////////////////////////////
 
     virtual t_void update(t_thd_err, r_pthread_attr) noexcept override {
-      printf("tracing: update\n");
+      t_out{"tracing: update"};
     }
 
     virtual t_void prepare(t_thd_err) noexcept override {
-      printf("tracing: prepare\n");
+      t_out{"tracing: prepare"};
     }
 
     virtual p_void run() noexcept override {
-      printf("tracing: run\n");
+      t_out{"tracing: run"};
 
       err::t_err err;
       {
@@ -880,27 +881,25 @@ namespace tracer
 ///////////////////////////////////////////////////////////////////////////////
 
     virtual t_void may_reorder_events (r_event_infos) override {
-      printf("tracing: may_reorder_events\n");
-      //printf("events received = %lu\n", infos.size());
+      t_out{"tracing: may_reorder_events"};
     }
 
     virtual t_void notify_event_remove(r_event_info) override {
-      printf("tracing: notify_event_remove\n");
-      // not required
+      t_out{"tracing: notify_event_remove"};
     }
 
     virtual t_quit notify_timeout(t_usec) override {
-      printf("tracing: notify_timeout\n");
+      t_out{"tracing: notify_timeout"};
       return true; // not required
     }
 
     virtual t_quit notify_error(t_errn)  override {
-      printf("tracing: notify_error\n");
+      t_out{"tracing: notify_error"};
       return true; // die
     }
 
     virtual t_quit notify_events_processed()  override {
-      printf("tracing: notify_events_processed\n");
+      t_out{"tracing: notify_events_processed"};
       return false; // die
     }
 
@@ -920,7 +919,7 @@ namespace tracer
 
           case ALL: {
             if (data_.params.to_terminal)
-              printf("%s %s\n", get(date.c_str()), get(line.c_str()));
+              t_out{FMT, "%s %s", get(date.get_cstr()), get(line.get_cstr())};
             if (data_.params.to_observers)
               for (auto observer : *data->observers)
                 if (level <= observer->info.params.level)
@@ -931,7 +930,8 @@ namespace tracer
           case CONFIG: {
             if (level <= data->info.params.level) {
               if (data_.params.to_terminal)
-                printf("%s %s\n", get(date.c_str()), get(line.c_str()));
+                t_out{FMT, "%s %s", get(date.get_cstr()),
+                           get(line.get_cstr())};
               if (data_.params.to_observers)
                 for (auto observer : *data->observers)
                   if (level <= observer->info.params.level)
@@ -941,7 +941,8 @@ namespace tracer
           } break;
         }
       } else
-        printf("tracing: tracer(%s) died already\n", get(item.point.c_str()));
+        t_out{FMT, "tracing: tracer(%s) died already",
+                   get(item.point.get_cstr())};
     }
 
     t_void process_chain(t_chain& chain) {
@@ -950,24 +951,24 @@ namespace tracer
     }
 
     virtual t_void async_process(t_chain chain) noexcept override {
-      printf("tracing: recv trace\n");
+      t_out{"tracing: recv trace"};
       process_chain(chain);
     }
 
     virtual t_void async_process(t_user, p_command) noexcept override {
-      printf("tracing: p_command\n");
+      t_out{"tracing: p_command"};
       // not used
     }
 
 ///////////////////////////////////////////////////////////////////////////////
 
     t_void process(err::t_err, r_do_chain_cmd_ cmd) noexcept {
-      printf("tracing: r_do_chain_cmd_\n"); // XXX - what about err
+      t_out{"tracing: r_do_chain_cmd_"}; // XXX - what about err
       process_chain(cmd.chain);
     }
 
     t_void process(err::t_err err, r_update_params_cmd_ cmd) noexcept {
-      printf("tracing: r_update_params_cmd_\n");
+      t_out{"tracing: r_update_params_cmd_"};
       if (get(data_.params.queuesize)   == get(cmd.params.queuesize) &&
           get(data_.params.max_tracers) == get(cmd.params.max_tracers)) {
         data_.params.to_terminal  = cmd.params.to_terminal;
@@ -980,12 +981,12 @@ namespace tracer
     }
 
     t_void process(err::t_err, r_fetch_params_cmd_ cmd) noexcept {
-      printf("tracing: r_fetch_params_cmd_\n"); // what about err?
+      t_out{"tracing: r_fetch_params_cmd_"}; // what about err?
       cmd.params = data_.params;
     }
 
     t_void process(err::t_err err, r_get_point_name_cmd_ cmd) noexcept {
-      printf("tracing: r_get_point_name_cmd_\n");
+      t_out{"tracing: r_get_point_name_cmd_"};
       auto tracer = data_.is_tracer(cmd.id);
       if (tracer) {
         cmd.name = tracer->info.name;
@@ -994,7 +995,7 @@ namespace tracer
     }
 
     t_void process(err::t_err err, r_get_point_level_cmd_ cmd) noexcept {
-      printf("tracing: r_get_point_level_cmd_\n");
+      t_out{"tracing: r_get_point_level_cmd_"};
       auto tracer = data_.is_tracer(cmd.id);
       if (tracer) {
         cmd.level = tracer->info.params.level;
@@ -1003,23 +1004,23 @@ namespace tracer
     }
 
     t_void process(err::t_err err, r_make_tracer_cmd_ cmd) noexcept {
-      printf("tracing: r_make_tracer_cmd_\n");
+      t_out{"tracing: r_make_tracer_cmd_"};
       cmd.id = data_.add_tracer(err, cmd.name, cmd.params);
     }
 
     t_void process(err::t_err err, r_update_tracer_cmd_ cmd) noexcept {
-      printf("tracing: r_update_tracer_cmd_\n");
+      t_out{"tracing: r_update_tracer_cmd_"};
       data_.update_tracer(err, cmd.name, cmd.level);
     }
 
     t_void process(err::t_err err,
                    r_update_tracer_params_cmd_ cmd) noexcept {
-      printf("tracing: r_update_tracer_params_cmd_\n");
+      t_out{"tracing: r_update_tracer_params_cmd_"};
       data_.update_tracer(err, cmd.name, cmd.params);
     }
 
     t_void process(err::t_err err, r_is_tracer_params_cmd_ cmd) noexcept {
-      printf("tracing: r_is_tracer_params_cmd_\n");
+      t_out{"tracing: r_is_tracer_params_cmd_"};
       cmd.found = false;
       auto tracer = data_.is_tracer(cmd.name);
       if (tracer) {
@@ -1030,7 +1031,7 @@ namespace tracer
     }
 
     t_void process(err::t_err err, r_is_tracer_info_cmd_ cmd) noexcept {
-      printf("tracing: r_is_tracer_info_cmd_\n");
+      t_out{"tracing: r_is_tracer_info_cmd_"};
       cmd.found = false;
       auto tracer = data_.is_tracer(cmd.name);
       if (tracer) {
@@ -1043,12 +1044,12 @@ namespace tracer
     }
 
     t_void process(err::t_err, r_fetch_tracers_cmd_) noexcept {
-      printf("tracing: r_fetch_tracers_cmd_\n"); //XXX what about err
+      t_out{"tracing: r_fetch_tracers_cmd_"}; //XXX what about err
       // XXX-1 - unfinished
     }
 
     t_void process(err::t_err err, r_create_observer_cmd_ cmd) noexcept {
-      printf("tracing: r_create_observer_cmd_\n");
+      t_out{"tracing: r_create_observer_cmd_"};
       t_output_impl_ptr_ impl;
       switch (cmd.params.output) {
         case LOGGER:
@@ -1065,17 +1066,17 @@ namespace tracer
     }
 
     t_void process(err::t_err err, r_destroy_observer_cmd_ cmd) noexcept {
-      printf("tracing: r_destroy_observer_cmd_\n");
+      t_out{"tracing: r_destroy_observer_cmd_"};
       data_.del_observer(err, cmd.name);
     }
 
     t_void process(err::t_err, r_update_observer_cmd_) noexcept {
-      printf("tracing: r_update_observer_cmd_\n");
+      t_out{"tracing: r_update_observer_cmd_"};
       // XXX-4
     }
 
     t_void process(err::t_err, r_is_observer_cmd_ cmd) noexcept {
-      printf("tracing: r_is_observer_cmd_\n"); // XXX - err not needed.
+      t_out{"tracing: r_is_observer_cmd_"}; // XXX - err not needed.
       auto observer = data_.is_observer(cmd.name);
       if (observer) {
         cmd.params = observer->info.params;
@@ -1085,7 +1086,7 @@ namespace tracer
     }
 
     t_void process(err::t_err, r_is_observer_info_cmd_ cmd) noexcept {
-      printf("tracing: r_is_observer_info_cmd_\n"); //XXX  - err not needed?
+      t_out{"tracing: r_is_observer_info_cmd_"}; //XXX  - err not needed?
       auto observer = data_.is_observer(cmd.name);
       if (observer) {
         cmd.info = observer->info;
@@ -1095,47 +1096,47 @@ namespace tracer
     }
 
     t_void process(err::t_err, r_fetch_observers_cmd_) noexcept {
-      printf("tracing: r_fetch_observers_cmd_\n");
+      t_out{"tracing: r_fetch_observers_cmd_"};
       // XXX - must be implemented
     }
 
     t_void process(err::t_err err, r_bind_tracer_cmd_ cmd) noexcept {
-      printf("tracing: r_bind_tracer_cmd_\n");
+      t_out{"tracing: r_bind_tracer_cmd_"};
       data_.bind_tracer(err, cmd.name, cmd.tracer_name);
     }
 
     t_void process(err::t_err err, r_bind_tracers_cmd_ cmd) noexcept {
-      printf("tracing: r_bind_tracers_cmd_\n");
+      t_out{"tracing: r_bind_tracers_cmd_"};
       data_.bind_tracers(err, cmd.name, cmd.wildcard_name);
     }
 
     t_void process(err::t_err err, r_unbind_tracers_cmd_ cmd) noexcept {
-      printf("tracing: r_unbind_tracers_cmd_\n");
+      t_out{"tracing: r_unbind_tracers_cmd_"};
       data_.unbind_tracers(err, cmd.name, cmd.wildcard_name);
     }
 
     t_void process(err::t_err, r_is_tracer_bound_cmd_ cmd) noexcept {
-      printf("tracing: r_is_tracer_bound_cmd_\n"); // XXX err not needed?
+      t_out{"tracing: r_is_tracer_bound_cmd_"}; // XXX err not needed?
       cmd.found = data_.is_tracer_bound(cmd.name, cmd.tracer_name);
     }
 
     t_void process(err::t_err err, r_fetch_bound_tracers_cmd_ cmd) noexcept {
-      printf("tracing: r_fetch_bound_tracers_cmd_\n");
+      t_out{"tracing: r_fetch_bound_tracers_cmd_"};
       data_.fetch_bound_tracers(err, cmd.name, cmd.tracer_names);
     }
 
     t_void process(err::t_err err, r_fetch_bound_observers_cmd_ cmd) noexcept {
-      printf("tracing: r_fetch_bound_observers_cmd_\n");
+      t_out{"tracing: r_fetch_bound_observers_cmd_"};
       data_.fetch_bound_observers(err, cmd.name, cmd.observer_names);
     }
 
     t_void process(err::t_err, r_destroy_tracer_cmd_ cmd) noexcept {
-      printf("tracing: r_destroy_tracer_cmd_\n"); // XXX - err not needed
+      t_out{"tracing: r_destroy_tracer_cmd_"}; // XXX - err not needed
       data_.del_tracer(cmd.id);
     }
 
     t_void process(err::t_err, r_clean_death_cmd_) noexcept {
-      printf("tracing: r_clean_death_cmd_\n"); // XXX - err not needed?
+      t_out{"tracing: r_clean_death_cmd_"}; // XXX - err not needed?
       action_.cmd = QUIT_EVENT_LOOP;
     }
 
