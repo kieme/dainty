@@ -45,12 +45,12 @@ namespace string
     return n;
   }
 
-  t_n_ calc_chr_(t_n_ chars, t_n_ blks) {
+  t_n_ calc_n_(t_n_ chars, t_n_ blks) {
     return blks*64 + multiple_of_64_(chars + 1);
   }
 
   p_cstr_ alloc_(t_n_ n) {
-    p_cstr_ str = (p_cstr_)std::malloc(n + 1);
+    p_cstr_ str = (p_cstr_)std::malloc(n);
     if (!str)
       assert_now(P_cstr("malloc failed to allocate"));
     return str;
@@ -62,41 +62,31 @@ namespace string
   }
 
   p_cstr_ realloc_(p_cstr_ str, t_n_ n) {
-    str = (p_cstr_)std::realloc(str, n + 1);
+    str = (p_cstr_)std::realloc(str, n);
     if (!str)
       assert_now(P_cstr("realloc failed to allocate"));
     return str;
   }
 
-  t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars) {
-    if (max)
-      ++max;
-    t_int n = std::vsnprintf(dst, max, fmt, vars);
-    assert_if_false(n > 0,
-                   P_cstr("failed to build, std::vsnprintf failed"));
-    return n;
-  }
-
   t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars,
               t_overflow_assert) {
-    t_int n = std::vsnprintf(dst, max + 1, fmt, vars);
-    assert_if_false(n > 0 && (t_n_)n <= max,
+    auto n = std::vsnprintf(dst, max, fmt, vars);
+    assert_if_false(n > 0 && (t_n_)n < max,
                     P_cstr("failed to build, buffer might be too small"));
     return n;
   }
 
   t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars,
               t_overflow_truncate) {
-    t_int n = std::vsnprintf(dst, max + 1, fmt, vars);
-    assert_if_false(n > 0,
-                    P_cstr("failed to build, std::vsnprintf failed"));
-    if ((t_n_)n > max)
-      n = max;
+    auto n = std::vsnprintf(dst, max, fmt, vars);
+    assert_if_false(n > 0, P_cstr("failed to build, std::vsnprintf failed"));
+    if ((t_n_)n >= max)
+      n = max - 1;
     return n;
   }
 
   t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n, t_overflow_assert) {
-    t_n_ cnt = 0, min = max < n ? max : n;
+    t_n_ cnt = 0, min = max - 1 < n ? max - 1 : n;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
     if (src[cnt] && cnt != n)
@@ -106,7 +96,7 @@ namespace string
   }
 
   t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n, t_overflow_truncate) {
-    t_n_ cnt = 0, min = max < n ? max : n;
+    t_n_ cnt = 0, min = max - 1 < n ? max - 1 : n;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
     dst[cnt] = '\0';
@@ -114,8 +104,8 @@ namespace string
   }
 
   t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_overflow_assert) {
-    t_n_ cnt = 0;
-    for (; cnt < max && src[cnt]; ++cnt)
+    t_n_ cnt = 0, min = max - 1;
+    for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
     if (src[cnt])
       assert_now(P_cstr("buffer not big enough"));
@@ -124,8 +114,8 @@ namespace string
   }
 
   t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_overflow_truncate) {
-    t_n_ cnt = 0;
-    for (; cnt < max && src[cnt]; ++cnt)
+    t_n_ cnt = 0, min = max - 1;
+    for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
     dst[cnt] = '\0';
     return cnt;
@@ -133,7 +123,7 @@ namespace string
 
   t_n_ fill_(p_cstr_ dst, t_n_ max, R_block block, t_overflow_assert) {
     auto bmax = get(block.max);
-    if (bmax > max)
+    if (bmax > max - 1)
       assert_now(P_cstr("buffer not big enough"));
     for (t_n_ cnt = 0; cnt < bmax; ++cnt)
       dst[cnt] = block.c;
@@ -143,7 +133,7 @@ namespace string
 
   t_n_ fill_(p_cstr_ dst, t_n_ max, R_block block, t_overflow_truncate) {
     auto bmax = get(block.max);
-    t_n_ min = max < bmax ? max : bmax;
+    t_n_ min = max - 1 < bmax ? max - 1 : bmax;
     for (t_n_ cnt = 0; cnt < min; ++cnt)
       dst[cnt] = block.c;
     dst[min] = '\0';
@@ -151,7 +141,7 @@ namespace string
   }
 
   t_void display_(P_cstr_ str) {
-    std::printf("%s\n", str);
+    std::printf("%s", str);
   }
 
   t_int compare_(P_cstr_ lh, P_cstr_ rh) {
