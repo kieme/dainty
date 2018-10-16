@@ -80,17 +80,17 @@ namespace messenger
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum t_visibility {
-    VISIBILITY_OFF,
-    VISIBILITY_PROCESS,
-    VISIBILITY_NODE,
-    VISIBILITY_SYSTEM
+  enum t_scope {
+    SCOPE_OFF,
+    SCOPE_PROCESS,
+    SCOPE_NODE,
+    SCOPE_SYSTEM
   };
 
-  enum  t_visibility_name_tag_ { };
-  using t_visibility_name = t_string<t_visibility_name_tag_, 14>;
+  enum  t_scope_name_tag_ { };
+  using t_scope_name = t_string<t_scope_name_tag_, 14>;
 
-  t_visibility_name to_name(t_visibility);
+  t_scope_name to_name(t_scope);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -161,27 +161,29 @@ namespace messenger
 
   class t_params {
   public:
-    // queue size
-    t_visibility        visibility;
+    t_scope             scope;
+    t_n                 queuesize;
     t_multiple_of_100ms alive_factor;
     t_timer_params      timer_params;
     t_group_list        group_list;
     t_monitor_list      monitor_list;
 
-    inline t_params(t_visibility        _visibility   = VISIBILITY_PROCESS,
-                    t_multiple_of_100ms _alive_factor = t_multiple_of_100ms(0),
+    inline t_params(t_scope             _scope        = SCOPE_PROCESS,
+                    t_n                 _queuesize    = t_n{50},
+                    t_multiple_of_100ms _alive_factor = t_multiple_of_100ms{0},
                     R_timer_params      _timer_params = t_timer_params())
-      : visibility(_visibility), alive_factor(_alive_factor),
-        timer_params(_timer_params) {
+      : scope{_scope}, queuesize{_queuesize}, alive_factor{_alive_factor},
+        timer_params{_timer_params} {
     }
 
-    inline t_params(t_visibility        _visibility,
+    inline t_params(t_scope             _scope,
+                    t_n                 _queuesize,
                     t_multiple_of_100ms _alive_factor,
                     R_timer_params      _timer_params,
                     R_group_list        _group_list,
                     R_monitor_list      _monitor_list)
-      : visibility(_visibility), alive_factor(_alive_factor),
-        timer_params(_timer_params), group_list(_group_list),
+      : scope{_scope}, queuesize{_queuesize}, alive_factor{_alive_factor},
+        timer_params{_timer_params}, group_list(_group_list),
         monitor_list(_monitor_list) {
     }
   };
@@ -210,7 +212,7 @@ namespace messenger
     t_name get_name  (t_err) const;
     t_void get_params(t_err, r_params) const;
 
-    t_void update_visibility  (t_err, t_visibility);
+    t_void update_scope       (t_err, t_scope);
     t_void update_alive_period(t_err, t_multiple_of_100ms);
 
     t_void post_message (t_err, R_key, x_message);
