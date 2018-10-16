@@ -133,8 +133,14 @@ namespace message
 
   class t_message {
   public:
-    using t_key   = t_messenger_key;
-    using r_key   = r_messenger_key;
+    using t_key     = t_messenger_key;
+    using r_key     = r_messenger_key;
+    using t_n       = message::t_n;
+    using t_uint16  = message::t_uint16;
+    using t_id      = message::t_id;
+    using t_domain  = message::t_domain;
+    using t_user    = message::t_user;
+    using t_version = message::t_version;
 
     t_message();
     t_message(t_n);
