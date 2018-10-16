@@ -79,12 +79,12 @@ namespace bytebuf
 
   inline
   t_bool operator==(const t_cview& lh, const t_cview& rh) {
-    return lh.n == rh.n && is_equal_(lh.item, rh.item, get(rh.n));
+    return lh.n == rh.n && is_equal_(begin(lh), begin(rh), get(rh.n));
   }
 
   inline
   t_bool operator!=(const t_cview& lh, const t_cview& rh) {
-    return lh.n != rh.n || !is_equal_(lh.item, rh.item, get(rh.n));
+    return lh.n != rh.n || !is_equal_(begin(lh), begin(rh), get(rh.n));
   }
 
 ///////////////////////////////////////////////////////////////////////////////

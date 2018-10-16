@@ -33,60 +33,50 @@ namespace container
 {
 namespace any
 {
-  t_bool same_type_(const t_it_& it1, const t_it_& it2) {
-    return typeid(it1) == typeid(it2);
+  t_bool same_type_(R_type_ lh, R_type_ rh) {
+    return typeid(lh) == typeid(rh);
   }
 
-  t_any& t_any::operator=(const t_any& any) {
-    if (store_ && any.store_ && same_type_(*store_, *any.store_))
+  r_any t_any::operator=(R_any any) {
+    if (store_ == VALID && any.store_ == VALID &&
+        same_type_(*store_, *any.store_))
       store_->copy(*any.store_);
     else {
-      if (store_)
-        delete store_;
-      user_  = any.user_;
-      store_ = any.store_;
-      if (store_)
-        store_ = store_->clone();
+      store_.clear();
+      if (any.store_ == VALID) {
+        user_  = any.user_;
+        store_ = any.store_->clone();
+      }
     }
     return *this;
   }
 
-  t_any& t_any::operator=(t_any&& any) {
-    if (store_)
-      delete store_;
+  r_any t_any::operator=(x_any any) {
+    store_.clear();
     user_  = any.user_;
-    store_ = any.store_;
-    any.store_   = nullptr;
+    store_ = std::move(any.store_);
     any.user_.id = 0;
     return *this;
   }
 
-  t_any::~t_any() {
-    if (store_)
-      delete store_;
-  }
-
-  t_bool t_any::same_type(const t_any& any) const {
+  t_bool t_any::same_type(R_any any) const {
     if (user_.id == any.user_.id) {
-       if (store_ && any.store_)
+       if (store_ == VALID && any.store_ == VALID)
          return same_type_(*store_, *any.store_);
-       if (!store_ && !any.store_)
+       if (store_ == INVALID && any.store_ == INVALID)
          return true;
     }
     return false;
   }
 
-  t_bool t_any::is_equal(const t_any& any) const {
-    if (same_type(any) && store_)
+  t_bool t_any::is_equal(R_any any) const {
+    if (same_type(any) && store_ == VALID)
       return store_->is_equal(*any.store_);
     return false;
   }
 
-  t_any& t_any::assign(t_user user) {
-    if (store_) {
-      delete store_;
-      store_ = nullptr;
-    }
+  r_any t_any::assign(t_user user) {
+    store_.clear();
     user_ = user;
     return *this;
   }
