@@ -1,0 +1,144 @@
+/******************************************************************************
+
+ MIT License
+
+ Copyright (c) 2018 kieme, frits.germs@gmx.net
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+******************************************************************************/
+
+#ifndef _DAINTY_NAMED_UTILITY_H_
+#define _DAINTY_NAMED_UTILITY_H_
+
+#include "dainty_named.h"
+
+namespace dainty
+{
+namespace named
+{
+///////////////////////////////////////////////////////////////////////////////
+
+  constexpr t_bool reset(t_bool& t) {
+    t_bool tmp = t;
+    t = false;
+    return tmp;
+  }
+
+  template<class T>
+  constexpr T reset(T& t) {
+    T tmp = t;
+    t = 0;
+    return tmp;
+  }
+
+  template<class T>
+  constexpr T* reset(T*& t) {
+    T* tmp = t;
+    t = nullptr;
+    return tmp;
+  }
+
+  template<class T, class TAG>
+  constexpr T reset(t_explicit<T, TAG>& t) {
+    return reset(set(t));
+  }
+
+  template<class TAG>
+  constexpr t_int64 reset(t_user<TAG>& t) {
+    return reset(t.id);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  constexpr t_bool reset(t_bool& t, t_bool value) {
+    t_bool tmp = t;
+    t = value;
+    return tmp;
+  }
+
+  template<class T>
+  constexpr T reset(T& t, T value) {
+    T tmp = t;
+    t = value;
+    return tmp;
+  }
+
+  template<class T>
+  constexpr T* reset(T*& t, T* value) {
+    T* tmp = t;
+    t = value;
+    return tmp;
+  }
+
+  template<class T, class TAG>
+  constexpr T reset(t_explicit<T, TAG>& t, T value) {
+    return reset(set(t), value);
+  }
+
+  template<class T, class TAG>
+  constexpr T reset(t_explicit<T, TAG>& t, t_explicit<T, TAG> value) {
+    return reset(set(t), get(value));
+  }
+
+  template<class TAG>
+  constexpr t_int64 reset(t_user<TAG>& t, t_int64 value) {
+    return reset(t.id, value);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  struct t_remove_ref {
+    using t_ = T;
+  };
+
+  template<typename T>
+  struct t_remove_ref<T&> {
+    using t_ = T;
+  };
+
+  template<typename T>
+  struct t_remove_ref<T&&> {
+    using t_ = T;
+  };
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  constexpr auto x_cast(T&& in) -> typename t_remove_ref<T>::t_&& {
+    return static_cast<typename t_remove_ref<T>::t_&&>(in);
+  }
+
+  template<typename T>
+  constexpr T&& preserve(typename t_remove_ref<T>::t_& in) {
+    return static_cast<T&&>(in);
+  }
+
+  template<typename T>
+  constexpr T&& preserve(typename t_remove_ref<T>::t_&& in) {
+    return x_cast(in);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+}
+}
+
+#endif

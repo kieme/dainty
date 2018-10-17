@@ -29,6 +29,7 @@
 
 #include <stdarg.h>
 #include "dainty_named.h"
+#include "dainty_named_utility.h"
 #include "dainty_named_range.h"
 #include "dainty_named_ptr.h"
 #include "dainty_named_assert.h"

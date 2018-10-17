@@ -29,6 +29,7 @@
 
 #include <utility>
 #include "dainty_named.h"
+#include "dainty_named_utility.h"
 
 namespace dainty
 {
