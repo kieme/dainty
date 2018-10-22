@@ -25,6 +25,7 @@
 ******************************************************************************/
 
 #include <iostream>
+#include "dainty_named_utility.h"
 #include "dainty_mt_event_dispatcher.h"
 #include "dainty_sandbox.h"
 
@@ -34,6 +35,7 @@ namespace dainty
 {
 namespace sandbox
 {
+  using namespace named::utility;
   using named::P_cstr;
   using messaging::t_messenger;
   using messaging::message::t_message;;
@@ -127,7 +129,7 @@ namespace sandbox
     }
 
     t_void post_message(r_err err, R_messenger_key key, x_message msg) {
-      msgr_.post_message(err, key, std::move(msg));
+      msgr_.post_message(err, key, x_cast(msg));
     }
 
     t_void update_scope(r_err err, t_messenger_scope scope) {
@@ -369,7 +371,7 @@ namespace sandbox
   t_void t_logic::post_message(t_err err, R_messenger_key key, x_message msg) {
     ERR_GUARD(err) {
       if (impl_ == VALID && *impl_ == VALID)
-        impl_->post_message(err, key, std::move(msg));
+        impl_->post_message(err, key, x_cast(msg));
       else
         err = err::E_XXX;
     }
@@ -690,7 +692,7 @@ namespace sandbox
         key_ = ptr->get_key();
         t_thread_ thread{err, name.get_cstr(), {ptr.release()}};
         if (err)
-          named::reset(key_);
+          reset(key_);
       } else
         err = err::E_XXX;
     }
@@ -698,7 +700,7 @@ namespace sandbox
 
   t_sandbox::t_sandbox(x_sandbox sandbox) {
     if (sandbox == VALID)
-      named::reset(key_ ,named::reset(sandbox.key_));
+      reset(key_ ,reset(sandbox.key_));
   }
 
   t_sandbox::~t_sandbox() {
@@ -706,7 +708,7 @@ namespace sandbox
   }
 
   r_sandbox t_sandbox::operator=(x_sandbox sandbox) {
-    send_killmsg(t_key{named::reset(key_, named::reset(sandbox.key_))});
+    send_killmsg(t_key{reset(key_, reset(sandbox.key_))});
   }
 
   t_sandbox::operator t_validity() const {
@@ -723,7 +725,7 @@ namespace sandbox
         if (!err)
           ptr->run();
         else
-          named::reset(key_);
+          reset(key_);
       } else
         err = err::E_XXX;
     }

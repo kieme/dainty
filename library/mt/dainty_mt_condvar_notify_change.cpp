@@ -45,10 +45,12 @@ namespace condvar_notify_change
 
     t_impl_(r_err err, t_any&& any) noexcept
       : lock_(err), cond_(err), any_(std::move(any)) {
+      if (lock_ == VALID && cond_ == VALID)
+        valid_ = VALID;
     }
 
     operator t_validity() const noexcept {
-      return (lock_ == VALID && cond_ == VALID) ? VALID : INVALID;
+      return valid_;
     }
 
     t_void process(r_err err, r_logic logic, t_n max) noexcept {
@@ -110,6 +112,7 @@ namespace condvar_notify_change
     }
 
   private:
+    t_validity   valid_ = INVALID;
     t_mutex_lock lock_;
     t_cond_var   cond_;
     t_any        any_;
@@ -120,14 +123,14 @@ namespace condvar_notify_change
 ///////////////////////////////////////////////////////////////////////////////
 
   t_errn t_client::post(t_any&& any) noexcept {
-    if (impl_)
+    if (impl_ == VALID && *impl_ == VALID)
       return impl_->post(user_, std::move(any));
     return t_errn{-1};
   }
 
   t_void t_client::post(t_err err, t_any&& any) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         impl_->post(err, user_, std::move(any));
       else
         err = err::E_XXX;
@@ -139,28 +142,27 @@ namespace condvar_notify_change
   t_processor::t_processor(t_err err, t_any&& any) noexcept {
     ERR_GUARD(err) {
       impl_ = new t_impl_(err, std::move(any));
-      if (impl_) {
+      if (impl_ == VALID) {
         if (err)
-          delete named::reset(impl_);
+          impl_.release();
       } else
         err = err::E_XXX;
     }
   }
 
   t_processor::~t_processor() {
-    if (impl_) // NOTE: can check to see if clients exists
-      delete impl_;
+    impl_.clear();
   }
 
   t_client t_processor::make_client(t_user user) noexcept {
-    if (impl_)
+    if (impl_ == VALID && *impl_ == VALID)
       return impl_->make_client(user);
     return {};
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         return impl_->make_client(err, user);
       err = err::E_XXX;
     }
@@ -169,7 +171,7 @@ namespace condvar_notify_change
 
   t_void t_processor::process(t_err err, r_logic logic, t_n max) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         impl_->process(err, logic, max);
       else
         err = err::E_XXX;

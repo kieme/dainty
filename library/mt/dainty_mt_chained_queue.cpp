@@ -36,8 +36,8 @@ namespace chained_queue
 {
   using err::r_err;
   using named::t_n_;
-  using namespace dainty::os::threading;
-  using namespace dainty::os::fdbased;
+  using namespace os::threading;
+  using namespace os::fdbased;
   using t_queue = container::chained_queue::t_chained_queue<t_any>;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -48,14 +48,14 @@ namespace chained_queue
     using r_logic = t_processor::r_logic;
 
     t_impl_(r_err err, t_n max) noexcept
-      : queue_{max}, eventfd_(err, t_n{0}), lock1_{err}, lock2_{err} {
+      : queue_{err, max}, eventfd_(err, t_n{0}), lock1_{err}, lock2_{err} {
+      if (queue_ == VALID && eventfd_ == VALID && lock1_ == VALID &&
+          lock2_ == VALID)
+        valid_ = VALID;
     }
 
     operator t_validity() const noexcept {
-      return (queue_   == VALID &&
-              eventfd_ == VALID &&
-              lock1_   == VALID &&
-              lock2_   == VALID) ? VALID : INVALID;
+      return valid_;
     }
 
     t_void process(r_err err, r_logic logic, t_n max) noexcept {
@@ -157,6 +157,7 @@ namespace chained_queue
     }
 
   private:
+    t_validity   valid_ = INVALID;
     t_queue      queue_;
     t_eventfd    eventfd_;
     t_mutex_lock lock1_;
@@ -166,14 +167,14 @@ namespace chained_queue
 ///////////////////////////////////////////////////////////////////////////////
 
   t_client::t_chain t_client::acquire(t_n cnt) noexcept {
-    if (impl_)
+    if (impl_ == VALID && *impl_ == VALID)
       return impl_->acquire(user_, cnt);
     return {};
   }
 
   t_client::t_chain t_client::acquire(t_err err, t_n cnt) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         return impl_->acquire(err, user_, cnt);
       err = err::E_XXX;
     }
@@ -181,14 +182,14 @@ namespace chained_queue
   }
 
   t_errn t_client::insert(t_chain chain) noexcept {
-    if (impl_)
+    if (impl_ == VALID && *impl_ == VALID)
       return impl_->insert(user_, chain);
     return t_errn{-1};
   }
 
   t_void t_client::insert(t_err err, t_chain chain) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_  == VALID && *impl_ == VALID)
         impl_->insert(err, user_, chain);
       else
         err = err::E_XXX;
@@ -200,29 +201,29 @@ namespace chained_queue
   t_processor::t_processor(t_err err, t_n max) noexcept {
     ERR_GUARD(err) {
       impl_ = new t_impl_(err, max);
-      if (impl_) {
+      if (impl_ == VALID) {
         if (err)
-          delete named::reset(impl_);
+          impl_.clear();
       } else
         err = err::E_XXX;
     }
   }
 
   t_processor::~t_processor() {
-    if (impl_) {
-      delete impl_;
+    if (impl_ == VALID) {
+      impl_.clear();
     }
   }
 
   t_client t_processor::make_client(t_user user) noexcept {
-    if (impl_)
+    if (impl_ == VALID && *impl_ == VALID)
       return impl_->make_client(user);
     return {};
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_  == VALID && *impl_ == VALID)
         return impl_->make_client(err, user);
       err = err::E_XXX;
     }
@@ -231,7 +232,7 @@ namespace chained_queue
 
   t_void t_processor::process(t_err err, r_logic logic, t_n max) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_  == VALID && *impl_ == VALID)
         impl_->process(err, logic, max);
       else
         err = err::E_XXX;
@@ -240,7 +241,7 @@ namespace chained_queue
 
   t_void t_processor::process_available(t_err err, r_logic logic) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_  == VALID && *impl_ == VALID)
         impl_->process_available(err, logic);
       else
         err = err::E_XXX;
@@ -248,7 +249,7 @@ namespace chained_queue
   }
 
   t_fd t_processor::get_fd() const noexcept {
-    if (impl_)
+    if (impl_ == VALID && *impl_ == VALID)
       return impl_->get_fd();
     return BAD_FD;
   }

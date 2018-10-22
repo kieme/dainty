@@ -242,7 +242,7 @@ namespace string
 
     inline
     t_n_ reset(t_n_ len = 0) {
-      return named::reset(len_, len);
+      return utility::reset(len_, len);
     }
 
     inline

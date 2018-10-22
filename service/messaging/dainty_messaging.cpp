@@ -26,6 +26,7 @@
 
 #include <map>
 #include "dainty_named_terminal.h"
+#include "dainty_named_utility.h"
 #include "dainty_container_maybe.h"
 #include "dainty_container_freelist.h"
 #include "dainty_os_threading.h"
@@ -40,9 +41,10 @@
 #include "dainty_messaging.h"
 
 using namespace dainty;
-using namespace dainty::container;
 using namespace dainty::named;
 using namespace dainty::named::terminal;
+using namespace dainty::named::utility;
+using namespace dainty::container;
 using namespace dainty::mt;
 using namespace dainty::os;
 using namespace dainty::tracing;
@@ -368,14 +370,14 @@ namespace message
   t_message::t_message(R_bytebuf buf) : buf_{buf} {
   }
 
-  t_message::t_message(x_message msg) : buf_{std::move(msg.buf_)} {
+  t_message::t_message(x_message msg) : buf_{x_cast(msg.buf_)} {
   }
 
   t_message::t_message(R_message msg) : buf_{msg.buf_} {
   }
 
   r_message t_message::operator=(x_message msg) {
-    buf_ = std::move(msg.buf_);
+    buf_ = x_cast(msg.buf_);
     return *this;
   }
 
@@ -649,7 +651,7 @@ namespace message
 
       if (fail_msg == INVALID || len > get(fail_msg.get_capacity())) {
         t_message tmp{t_n{len}};
-        fail_msg = std::move(tmp);
+        fail_msg = x_cast(tmp);
       }
       if (fail_msg == VALID) {
         fail_msg.mk_view() = msg.mk_view(t_ix{sizeof(t_hdr_)}, t_ix{len});
@@ -1159,7 +1161,7 @@ namespace message
     t_alive_info_      alive;
     t_messenger_info   info;
 
-    t_msgr_ctxt_(x_messenger_client _client) : client{std::move(_client)} {
+    t_msgr_ctxt_(x_messenger_client _client) : client{x_cast(_client)} {
     }
   };
   using r_msgr_ctxt_  = t_prefix<t_msgr_ctxt_>::r_;
@@ -1238,7 +1240,7 @@ namespace message
                                    ctxt->key,
                                    member.prio,
                                    member.user);
-        msgs.insert(t_msgs_entry_{member.prio, std::move(msg)});
+        msgs.insert(t_msgs_entry_{member.prio, x_cast(msg)});
       } else {
         auto ctxt = grp_ctxts_.get(key_params.id);
         if (ctxt && is_valid(ctxt->key))
@@ -1263,7 +1265,7 @@ namespace message
                                  monitored.key,
                                  monitor.prio,
                                  monitor.user);
-      msgs.insert(t_msgs_entry_{monitor.prio, std::move(msg)});
+      msgs.insert(t_msgs_entry_{monitor.prio, x_cast(msg)});
     }
 
     t_void update_msgs(r_msgs_ msgs, R_messenger_name name,
@@ -1499,7 +1501,7 @@ namespace message
                                            t_grp_member_{password,
                                                          msgr->second, prio,
                                                          user}};
-          auto pair = ctxt->members.insert(std::move(entry));
+          auto pair = ctxt->members.insert(x_cast(entry));
           if (!pair.second)
             err = err::E_XXX;
           else if (is_valid(ctxt->key))
@@ -1573,7 +1575,7 @@ namespace message
           if (!err) {
             messenger::t_group_list::value_type
               entry{group, messenger::t_group{group, password, prio, user}};
-            ctxt->info.params.group_list.insert(std::move(entry));
+            ctxt->info.params.group_list.insert(x_cast(entry));
           }
         } else
           err = err::E_XXX;
@@ -1606,15 +1608,15 @@ namespace message
         if (ctxt) {
           messenger::t_monitor_list::value_type
             tmp{name, messenger::t_monitor{name, prio, user}};
-          auto mpair = ctxt->info.params.monitor_list.insert(std::move(tmp));
+          auto mpair = ctxt->info.params.monitor_list.insert(x_cast(tmp));
           if (mpair.second) {
             t_monitored_lookup_entry_ tmp{name, t_monitored_{}};
-            auto pair = monitored_.insert(std::move(tmp));
+            auto pair = monitored_.insert(x_cast(tmp));
             if (pair.second || pair.first != monitored_.end()) {
               auto& monitored = pair.first->second;
               t_monitored_by_lookup_entry_
                 tmp{ctxt->info.name, t_monitored_by_{key, prio, user}};
-              auto member = monitored.by.insert(std::move(tmp));
+              auto member = monitored.by.insert(x_cast(tmp));
               if (member.second) {
                 auto lk = lookup_.find(name);
                 if (lk != lookup_.end()) {
@@ -1731,8 +1733,7 @@ namespace message
             auto ctxt = msgr_ctxts_.get(key_params.id);
             if (ctxt) { // XXX - seq not checked
               auto chain = ctxt->client.acquire();
-              chain.head->ref().emplace<t_message>({0L},
-                                                   std::move(msg.second));
+              chain.head->ref().emplace<t_message>({0L}, x_cast(msg.second));
               auto errn = ctxt->client.insert(chain);
               if (errn == INVALID) {
               }
@@ -1838,7 +1839,7 @@ namespace message
       for (auto item = chain.head; item; item = item->next())
         msgs_.insert(
           t_msgs_entry_{t_messenger_prio{0},
-                        std::move(item->ref().any.ref<t_message>())});
+                        x_cast(item->ref().any.ref<t_message>())});
     }
 
     virtual t_void async_process(t_chain chain) noexcept override {
@@ -2189,7 +2190,7 @@ namespace messenger
   }
 
   inline t_messenger mk_(R_key id, x_maybe_processor_ processor) {
-    return t_messenger{id, std::move(processor)};
+    return t_messenger{id, x_cast(processor)};
   }
 }
 
@@ -2218,7 +2219,7 @@ namespace messenger
                                  R_messenger_create_params params) {
       t_create_messenger_cmd_ cmd{name, params};
       cmd_client_.request(err, cmd);
-      return messenger::mk_(cmd.id, std::move(cmd.processor));
+      return messenger::mk_(cmd.id, x_cast(cmd.processor));
     }
 
     t_void destroy_messenger(R_messenger_key id) {
@@ -2341,7 +2342,7 @@ namespace messenger
       t_que_chain chain = que_client_.waitable_acquire(err);
       if (!err) {
         // XXX-now
-        chain.head->ref().any.emplace<t_message>({0L}, std::move(msg));
+        chain.head->ref().any.emplace<t_message>({0L}, x_cast(msg));
         que_client_.insert(err, chain);
       }
     }
@@ -2453,11 +2454,11 @@ namespace messenger
   }
 
   t_messenger::t_messenger(R_key id, x_maybe_processor_ processor)
-    : id_(id), processor_{std::move(processor)} {
+    : id_(id), processor_{x_cast(processor)} {
   }
 
   t_messenger::t_messenger(x_messenger messenger)
-    : id_{messenger.id_}, processor_{std::move(messenger.processor_)} {
+    : id_{messenger.id_}, processor_{x_cast(messenger.processor_)} {
     set(messenger.id_) = 0;
   }
 
@@ -2520,7 +2521,7 @@ namespace messenger
   t_void t_messenger::post_message(t_err err, R_key key, x_message message) {
     ERR_GUARD(err) {
       if (mr_)
-        mr_->post_message(err, id_, key, std::move(message));
+        mr_->post_message(err, id_, key, x_cast(message));
       else
         err = err::E_XXX;
     }
@@ -2534,7 +2535,7 @@ namespace messenger
 
     t_void async_process(t_chain chain) noexcept {
       for (auto item = chain.head; item; item = item->next()) {
-        //messages.push_back(std::move(ref.msg));
+        //messages.push_back(x_cast(ref.msg));
       }
     }
   };
@@ -2677,7 +2678,7 @@ namespace messenger
           if (mr_ == nullptr) {
             mr_ = new t_messaging_{err, name, params ? *params : t_params{}};
             if (err)
-              delete named::reset(mr_);
+              delete reset(mr_);
           }
         }
       %>
@@ -2687,7 +2688,7 @@ namespace messenger
   t_void destroy() {
     if (mr_) {
       mr_->clean_death();
-      delete named::reset(mr_);
+      delete reset(mr_);
     }
   }
 
@@ -2842,7 +2843,7 @@ namespace messenger
   t_void post_message(t_err err, R_messenger_key key, x_message msg) {
     ERR_GUARD(err) {
       if (mr_)
-        mr_->post_message(err, key, std::move(msg));
+        mr_->post_message(err, key, x_cast(msg));
       else
         err = err::E_XXX;
     }

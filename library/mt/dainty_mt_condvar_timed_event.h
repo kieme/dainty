@@ -27,7 +27,8 @@
 #ifndef _DAINTY_MT_TIMED_CONDVAR_EVENT_H_
 #define _DAINTY_MT_TIMED_CONDVAR_EVENT_H_
 
-#include "dainty_named.h"
+#include "dainty_named_ptr.h"
+#include "dainty_named_utility.h"
 #include "dainty_os_clock.h"
 #include "dainty_mt_err.h"
 
@@ -55,8 +56,15 @@ namespace condvar_timed_event
   using t_cnt_ = named::t_uint64;
   using t_cnt  = named::t_explicit<t_cnt_, t_cnt_tag_>;
 
+///////////////////////////////////////////////////////////////////////////////
+
   class t_impl_;
-  using p_impl_ = named::t_prefix<t_impl_>::p_;
+  enum  t_impl_user_tag_ { };
+  using t_impl_user_ = named::ptr::t_ptr<t_impl_, t_impl_user_tag_,
+                                         named::ptr::t_no_deleter>;
+  enum  t_impl_owner_tag_ { };
+  using t_impl_owner_ = named::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
+                                          named::ptr::t_deleter>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -81,11 +89,12 @@ namespace condvar_timed_event
     friend class t_processor;
     friend class t_impl_;
     t_client() = default;
-    t_client(p_impl_ impl, t_user user) noexcept : impl_(impl), user_(user) {
+    t_client(t_impl_user_ impl, t_user user) noexcept
+      : impl_{impl}, user_{user} {
     }
 
-    p_impl_ impl_ = nullptr;
-    t_user  user_ = t_user{0L};
+    t_impl_user_ impl_;
+    t_user       user_ = t_user{0L};
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -132,32 +141,32 @@ namespace condvar_timed_event
     t_client make_client(t_err, t_user) noexcept;
 
   private:
-    p_impl_ impl_ = nullptr;
+    t_impl_owner_ impl_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
   inline
   t_client::t_client(x_client client) noexcept
-    : impl_(named::reset(client.impl_)),
-      user_(named::reset(client.user_, 0L)) {
+    : impl_{client.impl_.release()},
+      user_{named::utility::reset(client.user_)} {
   }
 
   inline
   t_client::operator t_validity() const noexcept {
-    return impl_ ? VALID : INVALID;
+    return impl_;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   inline
   t_processor::t_processor(x_processor processor) noexcept
-      : impl_(named::reset(processor.impl_)) {
+    : impl_{processor.impl_.release()} {
   }
 
   inline
   t_processor::operator t_validity() const noexcept {
-    return impl_ ? VALID : INVALID;
+    return impl_;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

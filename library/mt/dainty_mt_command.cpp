@@ -46,13 +46,13 @@ namespace command
 
     t_impl_(r_err err) noexcept
       : cmdlock_(err), condlock_(err), cond_(err), eventfd_(err, t_n{0}) {
+      if (cmdlock_ == VALID && condlock_ == VALID && cond_ == VALID &&
+          eventfd_ == VALID)
+        valid_ = VALID;
     }
 
     operator t_validity() const noexcept {
-      return (cmdlock_  == VALID &&
-              condlock_ == VALID &&
-              cond_     == VALID &&
-              eventfd_  == VALID) ?  VALID : INVALID;
+      return valid_;
     }
 
     t_void process(r_err err, r_logic logic, t_n max) noexcept {
@@ -63,13 +63,13 @@ namespace command
           if (!err) {
             if (wait_) {
               if (async_) {
-                p_command cmd = named::reset(cmd_);
+                p_command cmd = named::utility::reset(cmd_);
                 t_user user = user_;
                 cond_.signal(err);
                 logic.async_process(user, cmd);
               } else {
                 logic.process(err, user_, *cmd_);
-                named::reset(cmd_);
+                named::utility::reset(cmd_);
                 cond_.signal();
               }
             } else {
@@ -163,6 +163,7 @@ namespace command
     }
 
   private:
+    t_validity   valid_ = INVALID;
     t_mutex_lock cmdlock_;
     t_mutex_lock condlock_;
     t_cond_var   cond_;
@@ -177,7 +178,7 @@ namespace command
 
   t_void t_client::request(t_err err, r_command cmd) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         impl_->request(err, user_, cmd);
       else
         err = err::E_XXX;
@@ -185,14 +186,14 @@ namespace command
   }
 
   t_errn t_client::async_request(p_command cmd) noexcept {
-    if (impl_)
+    if (impl_ == VALID && *impl_ == VALID)
       return impl_->async_request(user_, cmd);
     return t_errn{-1};
   }
 
   t_void t_client::async_request(t_err err, p_command cmd) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         impl_->async_request(err, user_, cmd);
       else
         err = err::E_XXX;
@@ -204,29 +205,27 @@ namespace command
   t_processor::t_processor(t_err err) noexcept {
     ERR_GUARD(err) {
       impl_ = new t_impl_(err);
-      if (impl_) {
+      if (impl_ == VALID) {
         if (err)
-          delete named::reset(impl_);
+          impl_.clear();
       } else
         err = err::E_XXX;
     }
   }
 
   t_processor::~t_processor() {
-    if (impl_) { // NOTE: can check to see if clients exists
-      delete impl_;
-    }
+    impl_.clear();
   }
 
   t_client t_processor::make_client(t_user user) noexcept {
-    if (impl_)
+    if (impl_ == VALID && *impl_ == VALID)
       return impl_->make_client(user);
     return {};
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         return impl_->make_client(err, user);
       err = err::E_XXX;
     }
@@ -235,7 +234,7 @@ namespace command
 
   t_void t_processor::process(t_err err, r_logic logic, t_n max) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         impl_->process(err, logic, max);
       else
         err = err::E_XXX;
@@ -243,7 +242,7 @@ namespace command
   }
 
   t_fd t_processor::get_fd() const noexcept {
-    if (impl_)
+    if (impl_ == VALID && *impl_ == VALID)
       return impl_->get_fd();
     return BAD_FD;
   }

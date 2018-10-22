@@ -44,11 +44,12 @@ namespace condvar_event
     using r_logic = t_processor::r_logic;
 
     t_impl_(r_err err) noexcept : lock_{err}, cond_{err} {
+      if (lock_ == VALID && cond_ == VALID)
+        valid_ = VALID;
     }
 
     operator t_validity() const noexcept {
-      return (lock_ == VALID &&
-              cond_ == VALID) ?  VALID : INVALID;
+      return valid_;
     }
 
     t_cnt get_cnt(t_err err) {
@@ -69,7 +70,7 @@ namespace condvar_event
                 cond_.wait(err, lock_);
               } while (!err && !cnt_);
             }
-            set(cnt) = named::reset(cnt_);
+            set(cnt) = named::utility::reset(cnt_);
           }
         %>
         if (!err)
@@ -82,11 +83,11 @@ namespace condvar_event
         t_cnt cnt{0};
         <% auto scope = lock_.make_locked_scope(err);
           if (!err) {
-            named::reset(cnt_);
+            named::utility::reset(cnt_);
             do {
               cond_.wait(err, lock_);
             } while (!err && !cnt_);
-            set(cnt) = named::reset(cnt_);
+            set(cnt) = named::utility::reset(cnt_);
           }
         %>
         if (!err)
@@ -129,6 +130,7 @@ namespace condvar_event
     }
 
   private:
+    t_validity   valid_ = INVALID;
     t_mutex_lock lock_;
     t_cond_var   cond_;
     t_cnt_       cnt_ = 0;
@@ -137,14 +139,14 @@ namespace condvar_event
 ///////////////////////////////////////////////////////////////////////////////
 
   t_errn t_client::post(t_cnt cnt) noexcept {
-    if (impl_)
+    if (impl_ == VALID && *impl_ == VALID)
       return impl_->post(user_, cnt);
     return t_errn{-1};
   }
 
   t_void t_client::post(t_err err, t_cnt cnt) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         impl_->post(err, user_, cnt);
       else
         err = err::E_XXX;
@@ -156,23 +158,21 @@ namespace condvar_event
   t_processor::t_processor(t_err err) noexcept {
     ERR_GUARD(err) {
       impl_ = new t_impl_(err);
-      if (impl_) {
+      if (impl_ == VALID) {
         if (err)
-          delete named::reset(impl_);
+          impl_.clear();
       } else
         err = err::E_XXX;
     }
   }
 
   t_processor::~t_processor() {
-    if (impl_) { // NOTE: can check to see if clients exists
-      delete impl_;
-    }
+    impl_.clear();
   }
 
   t_cnt t_processor::get_cnt(t_err err) {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         return impl_->get_cnt(err);
       err = err::E_XXX;
     }
@@ -180,14 +180,14 @@ namespace condvar_event
   }
 
   t_client t_processor::make_client(t_user user) noexcept {
-    if (impl_)
+    if (impl_ == VALID && *impl_ == VALID)
       return impl_->make_client(user);
     return {};
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         return impl_->make_client(err, user);
       err = err::E_XXX;
     }
@@ -196,7 +196,7 @@ namespace condvar_event
 
   t_void t_processor::process(t_err err, r_logic logic, t_n max) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         impl_->process(err, logic, max);
       else
         err = err::E_XXX;
@@ -206,7 +206,7 @@ namespace condvar_event
   t_void t_processor::reset_then_process(t_err err, r_logic logic,
                                          t_n max) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (impl_ == VALID && *impl_ == VALID)
         impl_->reset_then_process(err, logic, max);
       else
         err = err::E_XXX;
