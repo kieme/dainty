@@ -155,9 +155,22 @@ namespace condvar_command
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_client::t_client(t_impl_user_ impl, t_user user) noexcept
+    : impl_{impl}, user_{user} {
+  }
+
+  t_client::t_client(x_client client) noexcept
+    : impl_{client.impl_.release()},
+      user_{named::utility::reset(client.user_)} {
+  }
+
+  t_client::operator t_validity() const noexcept {
+    return impl_ == VALID && *impl_ == VALID ? VALID : INVALID;
+  }
+
   t_void t_client::request(t_err err, r_command cmd) noexcept {
     ERR_GUARD(err) {
-      if (impl_ == VALID && *impl_ == VALID)
+      if (*this == VALID)
         impl_->request(err, user_, cmd);
       else
         err = err::E_XXX;
@@ -165,14 +178,14 @@ namespace condvar_command
   }
 
   t_errn t_client::async_request(p_command cmd) noexcept {
-    if (impl_ == VALID && *impl_ == VALID)
+    if (*this == VALID)
       return impl_->async_request(user_, cmd);
     return t_errn{-1};
   }
 
   t_void t_client::async_request(t_err err, p_command cmd) noexcept {
     ERR_GUARD(err) {
-      if (impl_ == VALID && *impl_ == VALID)
+      if (*this == VALID)
         impl_->async_request(err, user_, cmd);
       else
         err = err::E_XXX;
@@ -192,19 +205,27 @@ namespace condvar_command
     }
   }
 
+  t_processor::t_processor(x_processor processor) noexcept
+    : impl_{processor.impl_.release()} {
+  }
+
   t_processor::~t_processor() {
     impl_.clear();
   }
 
+  t_processor::operator t_validity() const noexcept {
+    return impl_ == VALID && *impl_ == VALID ? VALID : INVALID;
+  }
+
   t_client t_processor::make_client(t_user user) noexcept {
-    if (impl_ == VALID && *impl_ == VALID)
+    if (*this == VALID)
       return impl_->make_client(user);
     return {};
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
     ERR_GUARD(err) {
-      if (impl_ == VALID && *impl_ == VALID)
+      if (*this == VALID)
         return impl_->make_client(err, user);
       err = err::E_XXX;
     }
@@ -213,7 +234,7 @@ namespace condvar_command
 
   t_void t_processor::process(t_err err, r_logic logic, t_n max) noexcept {
     ERR_GUARD(err) {
-      if (impl_ == VALID && *impl_ == VALID)
+      if (*this == VALID)
         impl_->process(err, logic, max);
       else
         err = err::E_XXX;

@@ -130,15 +130,28 @@ namespace notify_change
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_client::t_client(t_impl_user_ impl, t_user user) noexcept
+    : impl_{impl}, user_{user} {
+  }
+
+  t_client::t_client(x_client client) noexcept
+    : impl_{client.impl_.release()},
+      user_{named::utility::reset(client.user_)} {
+  }
+
+  t_client::operator t_validity() const noexcept {
+    return impl_ == VALID && *impl_ == VALID ? VALID: INVALID;
+  }
+
   t_errn t_client::post(t_any&& any) noexcept {
-    if (impl_ == VALID && *impl_ == VALID)
+    if (*this == VALID)
       return impl_->post(user_, std::move(any));
     return t_errn{-1};
   }
 
   t_void t_client::post(t_err err, t_any&& any) noexcept {
     ERR_GUARD(err) {
-      if (impl_ == VALID && *impl_ == VALID)
+      if (*this == VALID)
         impl_->post(err, user_, std::move(any));
       else
         err = err::E_XXX;
@@ -158,19 +171,27 @@ namespace notify_change
     }
   }
 
+  t_processor::t_processor(x_processor processor) noexcept
+    : impl_{processor.impl_.release()} {
+  }
+
   t_processor::~t_processor() {
     impl_.clear();
   }
 
+  t_processor::operator t_validity() const noexcept {
+    return impl_ == VALID && *impl_ == VALID ? VALID: INVALID;
+  }
+
   t_client t_processor::make_client(t_user user) noexcept {
-    if (impl_ == VALID && *impl_ == VALID)
+    if (*this == VALID)
       return impl_->make_client(user);
     return {};
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
     ERR_GUARD(err) {
-      if (impl_ == VALID && *impl_ == VALID)
+      if (*this == VALID)
         return impl_->make_client(err, user);
       err = err::E_XXX;
     }
@@ -179,7 +200,7 @@ namespace notify_change
 
   t_void t_processor::process(t_err err, t_logic& logic, t_n max) noexcept {
     ERR_GUARD(err) {
-      if (impl_ == VALID && *impl_ == VALID)
+      if (*this == VALID)
         impl_->process(err, logic, max);
       else
         err = err::E_XXX;
@@ -187,7 +208,7 @@ namespace notify_change
   }
 
   t_fd t_processor::get_fd() const noexcept {
-    if (impl_ == VALID && *impl_ == VALID)
+    if (*this == VALID)
       return impl_->get_fd();
     return BAD_FD;
   }

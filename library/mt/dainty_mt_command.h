@@ -98,9 +98,7 @@ namespace command
     friend class t_processor;
     friend class t_impl_;
     t_client() = default;
-    t_client(t_impl_user_ impl, t_user user) noexcept
-      : impl_(impl), user_(user) {
-    }
+    t_client(t_impl_user_, t_user) noexcept;
 
     t_impl_user_ impl_;
     t_user       user_ = t_user{0L};
@@ -153,30 +151,6 @@ namespace command
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  inline
-  t_client::t_client(x_client client) noexcept
-      : impl_{client.impl_.release()},
-        user_{named::utility::reset(client.user_)} {
-  }
-
-  inline
-  t_client::operator t_validity() const noexcept {
-    return impl_;
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
-  inline
-  t_processor::t_processor(x_processor processor) noexcept
-      : impl_(processor.impl_.release()) {
-  }
-
-  inline
-  t_processor::operator t_validity() const noexcept {
-    return impl_;
-  }
-
-///////////////////////////////////////////////////////////////////////////////
 }
 }
 }

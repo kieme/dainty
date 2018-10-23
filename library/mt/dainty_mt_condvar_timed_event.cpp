@@ -150,15 +150,28 @@ namespace condvar_timed_event
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_client::t_client(t_impl_user_ impl, t_user user) noexcept
+    : impl_{impl}, user_{user} {
+  }
+
+  t_client::t_client(x_client client) noexcept
+    : impl_{client.impl_.release()},
+      user_{named::utility::reset(client.user_)} {
+  }
+
+  t_client::operator t_validity() const noexcept {
+    return impl_ == VALID && *impl_ == VALID ? VALID : INVALID;
+  }
+
   t_errn t_client::post(t_cnt cnt) noexcept {
-    if (impl_ == VALID && *impl_ == VALID)
+    if (*this == VALID)
       return impl_->post(user_, cnt);
     return t_errn{-1};
   }
 
   t_void t_client::post(t_err err, t_cnt cnt) noexcept {
     ERR_GUARD(err) {
-      if (impl_ == VALID && *impl_ == VALID)
+      if (*this == VALID)
         impl_->post(err, user_, cnt);
       else
         err = err::E_XXX;
@@ -178,13 +191,21 @@ namespace condvar_timed_event
     }
   }
 
+  t_processor::t_processor(x_processor processor) noexcept
+    : impl_{processor.impl_.release()} {
+  }
+
   t_processor::~t_processor() {
     impl_.clear();
   }
 
+  t_processor::operator t_validity() const noexcept {
+    return impl_ == VALID && *impl_ == VALID ? VALID : INVALID;
+  }
+
   t_cnt t_processor::get_cnt(t_err err) {
     ERR_GUARD(err) {
-      if (impl_ == VALID && *impl_ == VALID)
+      if (*this == VALID)
         return impl_->get_cnt(err);
       err = err::E_XXX;
     }
@@ -192,14 +213,14 @@ namespace condvar_timed_event
   }
 
   t_client t_processor::make_client(t_user user) noexcept {
-    if (impl_ == VALID && *impl_ == VALID)
+    if (*this == VALID)
       return impl_->make_client(user);
     return {};
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
     ERR_GUARD(err) {
-      if (impl_ == VALID && *impl_ == VALID)
+      if (*this == VALID)
         return impl_->make_client(err, user);
       err = err::E_XXX;
     }
@@ -209,7 +230,7 @@ namespace condvar_timed_event
   t_void t_processor::process(t_err err, r_logic logic, R_time time,
                               t_n max) noexcept {
     ERR_GUARD(err) {
-      if (impl_ == VALID && *impl_ == VALID)
+      if (*this == VALID)
         impl_->process(err, logic, time, max);
       else
         err = err::E_XXX;
@@ -219,7 +240,7 @@ namespace condvar_timed_event
   t_void t_processor::reset_then_process(t_err err, r_logic logic,
                                          R_time time, t_n max) noexcept {
     ERR_GUARD(err) {
-      if (impl_ == VALID && *impl_ == VALID)
+      if (*this == VALID)
         impl_->reset_then_process(err, logic, time, max);
       else
         err = err::E_XXX;
