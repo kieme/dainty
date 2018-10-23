@@ -38,7 +38,7 @@ namespace sandbox
   using namespace named::utility;
   using named::P_cstr;
   using messaging::t_messenger;
-  using messaging::message::t_message;;
+  using messaging::message::t_message;
   using mt::event_dispatcher::RD;
   using mt::event_dispatcher::QUIT_EVENT_LOOP;
   using t_key                     = t_logic::t_messenger_key;
@@ -709,6 +709,7 @@ namespace sandbox
 
   r_sandbox t_sandbox::operator=(x_sandbox sandbox) {
     send_killmsg(t_key{reset(key_, reset(sandbox.key_))});
+    return *this;
   }
 
   t_sandbox::operator t_validity() const {
