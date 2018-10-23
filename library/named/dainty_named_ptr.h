@@ -42,8 +42,8 @@ namespace ptr
   using named::INVALID;
 
  // XXX
+ // all must be made explicit
  // t_cptr must be able to copy t_ptr
- // t_no_deleter class must be able to copy t_dleter and D.
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +85,7 @@ namespace ptr
      template<typename E>
      t_ptr(p_value value, E&& deleter)
        : ptr_{value}, del_{utility::preserve<E>(deleter)}     { }
-     t_ptr(x_ptr ptr)     : ptr_{utility::reset(ptr.ptr_)}    { }
+     t_ptr(x_ptr ptr)     : ptr_{utility::reset(ptr.ptr_)}    { } // XXX
     ~t_ptr();
 
     r_ptr operator=(p_value);
@@ -157,13 +157,14 @@ namespace ptr
     using R_ptr   = typename t_prefix<t_ptr>::R_;
 
     t_ptr() = default;
-    t_ptr(p_value value) : ptr_{value}    { }
-    t_ptr(R_ptr ptr)     : ptr_{ptr.ptr_} { }
-    template<typename D> //XXX
+    t_ptr(p_value value) : ptr_{value}                            { }
+    t_ptr(R_ptr ptr)     : ptr_{ptr.ptr_}                         { }
+    template<typename D>
     t_ptr(const t_ptr<T, TAG, D>& ptr) : ptr_{ptr.ptr_}           { }
 
     r_ptr operator=(p_value value) { ptr_ = value;    return *this; }
     r_ptr operator=(R_ptr ptr)     { ptr_ = ptr.ptr_; return *this; }
+
     template<typename D>
     r_ptr operator=(const t_ptr<T, TAG, D>& ptr) {
       ptr_ = ptr.ptr_;
@@ -197,13 +198,15 @@ namespace ptr
     using R_value = typename t_prefix<T>::R_;
     using r_cptr  = typename t_prefix<t_cptr>::r_;
     using x_cptr  = typename t_prefix<t_cptr>::x_;
+    using x_ptr   = typename t_prefix<t_ptr<T,TAG,D>>::x_;
 
      t_cptr() = default;
-     t_cptr(P_value value) : ptr_{value}                  { }
+     t_cptr(P_value value) : ptr_{value}                   { }
      template<typename E>
      t_cptr(P_value value, E&& deleter)
-       : ptr_{value}, del_{utility::preserve<E>(deleter)} { }
-     t_cptr(x_cptr ptr) : ptr_{utility::reset(ptr.ptr_)}  { }
+       : ptr_{value}, del_{utility::preserve<E>(deleter)}  { }
+     t_cptr(x_cptr ptr) : ptr_{utility::reset(ptr.ptr_)}   { }
+     t_cptr(x_ptr  ptr) : ptr_{utility::reset(ptr.ptr_)}   { }
     ~t_cptr();
 
     r_cptr operator=(P_value);
@@ -234,8 +237,8 @@ namespace ptr
     using x_cptr  = typename t_prefix<t_cptr>::x_;
 
      t_cptr() = default;
-     t_cptr(P_value value) : ptr_{value}                 { }
-     t_cptr(x_cptr ptr) : ptr_{utility::reset(ptr.ptr_)} { }
+     t_cptr(P_value value) : ptr_{value}                    { }
+     t_cptr(x_cptr ptr)    : ptr_{utility::reset(ptr.ptr_)} { }
     ~t_cptr();
 
     r_cptr operator=(P_value);
@@ -265,11 +268,19 @@ namespace ptr
     using R_cptr  = typename t_prefix<t_cptr>::R_;
 
     t_cptr() = default;
-    t_cptr(P_value value) : ptr_{value} { }
-    t_cptr(R_cptr ptr) : ptr_{ptr.ptr_} { }
+    t_cptr(P_value value) : ptr_{value}                       { }
+    t_cptr(R_cptr ptr)    : ptr_{ptr.ptr_}                    { }
+    template<typename D>
+    t_cptr(const t_cptr<T, TAG, D>& ptr) : ptr_{ptr.ptr_}     { }
 
     r_cptr operator=(P_value value)     { ptr_ = value;    return *this; }
     r_cptr operator=(R_cptr ptr)        { ptr_ = ptr.ptr_; return *this; }
+
+    template<typename D>
+    r_cptr operator=(const t_cptr<T, TAG, D>& ptr) {
+      ptr_ = ptr.ptr_;
+      return *this;
+    }
 
     P_value release()                   { return utility::reset(ptr_); }
     t_void  clear()                     { utility::reset(ptr_); }
@@ -371,11 +382,19 @@ namespace ptr
     using R_ptr   = typename t_prefix<t_ptr>::R_;
 
     t_ptr() = default;
-    t_ptr(p_value value) : ptr_{value}    { }
-    t_ptr(R_ptr ptr)     : ptr_{ptr.ptr_} { }
+    t_ptr(p_value value) : ptr_{value}                               { }
+    t_ptr(R_ptr ptr)     : ptr_{ptr.ptr_}                            { }
+    template<typename D>
+    t_ptr(const t_ptr<T[], TAG, D>& ptr) : ptr_{ptr.ptr_}            { }
 
     r_ptr operator=(p_value value)    { ptr_ = value;    return *this; }
     r_ptr operator=(R_ptr ptr)        { ptr_ = ptr.ptr_; return *this; }
+
+    template<typename D>
+    r_ptr operator=(const t_ptr<T[], TAG, D>& ptr) {
+      ptr_ = ptr.ptr_;
+      return *this;
+    }
 
     p_value release()                 { return utility::reset(ptr_); }
     t_void  clear()                   { utility::reset(ptr_); }
@@ -438,7 +457,7 @@ namespace ptr
     using x_cptr  = typename t_prefix<t_cptr>::x_;
 
      t_cptr() = default;
-     t_cptr(P_value value) : ptr_{value}           { }
+     t_cptr(P_value value) : ptr_{value}                    { }
      t_cptr(x_cptr ptr)    : ptr_{utility::reset(ptr.ptr_)} { }
     ~t_cptr();
 
@@ -470,9 +489,17 @@ namespace ptr
     t_cptr() = default;
     t_cptr(P_value value) : ptr_{value}    { }
     t_cptr(R_cptr ptr)    : ptr_{ptr.ptr_} { }
+    template<typename D>
+    t_cptr(const t_cptr<T[], TAG, D>& ptr) : ptr_{ptr.ptr_}          { }
 
     r_cptr operator=(P_value value)   { ptr_ = value;    return *this; }
     r_cptr operator=(R_cptr ptr)      { ptr_ = ptr.ptr_; return *this; }
+
+    template<typename D>
+    r_cptr operator=(const t_cptr<T[], TAG, D>& ptr) {
+      ptr_ = ptr.ptr_;
+      return *this;
+    }
 
     P_value release()                 { return utility::reset(ptr_); }
     t_void  clear()                   { utility::reset(ptr_); }

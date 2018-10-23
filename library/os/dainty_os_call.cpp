@@ -32,8 +32,6 @@ namespace dainty
 {
 namespace os
 {
-  using named::utility::reset;
-
 ///////////////////////////////////////////////////////////////////////////////
 
   t_errn call_pthread_init(r_pthread_mutexattr attr) noexcept {
@@ -654,14 +652,14 @@ namespace os
 
   t_errn call_close(t_fd& fd) noexcept {
     if (fd != BAD_FD)
-      return t_errn{::close(reset(fd, BAD_FD))};
+      return t_errn{::close(get(named::utility::reset(fd, BAD_FD)))};
     return t_errn{-1};
   }
 
   t_void call_close(t_err err, t_fd& fd) noexcept {
     ERR_GUARD(err) {
       if (fd != BAD_FD)
-        ::close(reset(fd, BAD_FD));
+        ::close(get(named::utility::reset(fd, BAD_FD)));
       else
         err = err::E_XXX;
     }

@@ -58,13 +58,13 @@ namespace utility
   }
 
   template<class T, class TAG>
-  constexpr T reset(t_explicit<T, TAG>& t) {
-    return reset(set(t));
+  constexpr t_explicit<T, TAG> reset(t_explicit<T, TAG>& t) {
+    return t_explicit<T, TAG>{reset(set(t))};
   }
 
   template<class TAG>
-  constexpr t_int64 reset(t_user<TAG>& t) {
-    return reset(t.id);
+  constexpr t_user<TAG> reset(t_user<TAG>& t) {
+    return t_user<TAG>{reset(t.id)};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,18 +90,19 @@ namespace utility
   }
 
   template<class T, class TAG>
-  constexpr T reset(t_explicit<T, TAG>& t, T value) {
-    return reset(set(t), value);
+  constexpr t_explicit<T, TAG>  reset(t_explicit<T, TAG>& t, T value) {
+    return t_explicit<T, TAG>{reset(set(t), value)};
   }
 
   template<class T, class TAG>
-  constexpr T reset(t_explicit<T, TAG>& t, t_explicit<T, TAG> value) {
-    return reset(set(t), get(value));
+  constexpr t_explicit<T, TAG> reset(t_explicit<T, TAG>& t,
+                                     t_explicit<T, TAG> value) {
+    return t_explicit<T, TAG>{reset(set(t), get(value))};
   }
 
   template<class TAG>
-  constexpr t_int64 reset(t_user<TAG>& t, t_int64 value) {
-    return reset(t.id, value);
+  constexpr t_user<TAG> reset(t_user<TAG>& t, t_int64 value) {
+    return t_user<TAG>{reset(t.id, value)};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
