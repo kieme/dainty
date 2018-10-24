@@ -2448,8 +2448,8 @@ namespace messenger
   t_scope_name to_name(t_scope scope) {
     const char* tbl_[] = { "scope_off",
                            "scope_process",
-                           "scope_node",
-                           "scope_system" };
+                           "scope_system",
+                           "scope_node" };
     return P_cstr{tbl_[scope]};
   }
 
@@ -2657,8 +2657,9 @@ namespace messenger
 ///////////////////////////////////////////////////////////////////////////////
 
   t_scope_name to_name(t_scope scope) {
-    const char* tbl_[] = { "scope_off",
-                           "scope_local",
+    const char* tbl_[] = { "scope_process",
+                           "scope_system",
+                           "scope_node",
                            "scope_slave",
                            "scope_master" };
     return P_cstr{tbl_[scope]};
