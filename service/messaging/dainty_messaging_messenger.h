@@ -83,8 +83,8 @@ namespace messenger
   enum t_scope {
     SCOPE_OFF,
     SCOPE_PROCESS,
-    SCOPE_NODE,
-    SCOPE_SYSTEM
+    SCOPE_SYSTEM,
+    SCOPE_NODE
   };
 
   enum  t_scope_name_tag_ { };

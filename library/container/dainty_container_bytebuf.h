@@ -28,6 +28,7 @@
 #define _DAINTY_CONTAINER_BYTEBUF_H_
 
 #include <type_traits>
+#include "dainty_named_utility.h"
 #include "dainty_container_bytebuf_impl.h"
 
 namespace dainty
@@ -38,6 +39,7 @@ namespace bytebuf
 {
   using named::t_prefix;
   using named::P_cstr;
+  using named::utility::reset;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -322,7 +324,7 @@ namespace bytebuf
   template<typename TAG>
   inline
   t_bytebuf<TAG, 0>::t_bytebuf(t_bytebuf&& buf)
-    : max_{named::reset(buf.max_)}, store_{named::reset(buf.store_)} {
+    : max_{reset(buf.max_)}, store_{reset(buf.store_)} {
   }
 
   template<typename TAG>
@@ -352,15 +354,15 @@ namespace bytebuf
   t_bytebuf<TAG, 0>& t_bytebuf<TAG, 0>::operator=(t_bytebuf&& buf) {
     if (store_)
       dealloc_(store_);
-    max_   = named::reset(buf.max_);
-    store_ = named::reset(buf.store_);
+    max_   = reset(buf.max_);
+    store_ = reset(buf.store_);
     return *this;
   }
 
   template<typename TAG>
   inline
   t_bytebuf<TAG, 0>& t_bytebuf<TAG, 0>::sized_copy_(P_byte byte, t_n_ max) {
-    t_n_ old = named::reset(max_, max);
+    t_n_ old = reset(max_, max);
     if (max_) {
       if (old < max_) {
         if (store_)
@@ -369,7 +371,7 @@ namespace bytebuf
       }
       copy_(store_, max_, byte, max_);
     } else if (store_)
-      dealloc_(named::reset(store_));
+      dealloc_(reset(store_));
     return *this;
   }
 
@@ -433,8 +435,8 @@ namespace bytebuf
   inline
   t_bool t_bytebuf<TAG, 0>::release() {
     if (store_) {
-      dealloc_(named::reset(store_));
-      named::reset(max_);
+      dealloc_(reset(store_));
+      reset(max_);
       return true;
     }
     return false;

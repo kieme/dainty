@@ -28,8 +28,9 @@
 #define _DAINTY_MT_EVENT_DISPATCHER_H_
 
 #include <vector>
-#include "dainty_container_freelist.h"
+#include "dainty_named_ptr.h"
 #include "dainty_named_string.h"
+#include "dainty_container_freelist.h"
 #include "dainty_mt_err.h"
 
 namespace dainty
@@ -75,8 +76,12 @@ namespace event_dispatcher
   enum  t_event_type { RD, WR };
   enum  t_cmd        { QUIT_EVENT_LOOP, REMOVE_EVENT, CONTINUE };
 
+///////////////////////////////////////////////////////////////////////////////
+
   class t_impl_;
-  using p_impl_ = named::t_prefix<t_impl_>::p_;
+  enum  t_impl_owner_tag_ { };
+  using t_impl_owner_ = named::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
+                                          named::ptr::t_deleter>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -228,7 +233,7 @@ namespace event_dispatcher
     t_n event_loop(t_err, p_logic, t_usec);
 
   private:
-    p_impl_ impl_ = nullptr;
+    t_impl_owner_ impl_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

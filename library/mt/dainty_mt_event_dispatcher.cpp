@@ -56,7 +56,7 @@ namespace event_dispatcher
     }
 
     t_impl_(r_err err, R_params _params)
-      : params(_params), events_{params.max} {
+      : params(_params), events_{params.max} { // XXX - no real check
       ERR_GUARD(err) {
         infos_.reserve(get(params.max));
       }
@@ -382,18 +382,15 @@ namespace event_dispatcher
   }
 
   t_dispatcher::t_dispatcher(x_dispatcher dispatcher)
-    : impl_{named::reset(dispatcher.impl_)} {
+    : impl_{dispatcher.impl_.release()} {
   }
 
   t_dispatcher::~t_dispatcher() {
-    if (impl_) {
-      // what about open fds and logics?
-      delete impl_;
-    }
+    impl_.clear();
   }
 
   t_dispatcher::operator t_validity() const {
-    return impl_ ? *impl_ : INVALID;
+    return impl_ == VALID && *impl_ == VALID ? VALID : INVALID;
   }
 
   t_params t_dispatcher::get_params() const {

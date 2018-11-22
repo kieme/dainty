@@ -29,6 +29,7 @@
 
 #include <stdarg.h>
 #include "dainty_named.h"
+#include "dainty_named_utility.h"
 #include "dainty_named_range.h"
 #include "dainty_named_ptr.h"
 #include "dainty_named_assert.h"
@@ -241,7 +242,7 @@ namespace string
 
     inline
     t_n_ reset(t_n_ len = 0) {
-      return named::reset(len_, len);
+      return utility::reset(len_, len);
     }
 
     inline

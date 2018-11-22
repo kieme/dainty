@@ -24,6 +24,7 @@
 
 ******************************************************************************/
 
+#include "dainty_named_utility.h"
 #include "dainty_os_fdbased.h"
 
 namespace dainty
@@ -33,6 +34,7 @@ namespace os
 namespace fdbased
 {
   using named::t_void;
+  using named::utility::reset;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +46,7 @@ namespace fdbased
   }
 
   t_eventfd::t_eventfd(x_eventfd event) noexcept
-    : fd_{named::reset(event.fd_, BAD_FD)} {
+    : fd_{reset(event.fd_, BAD_FD)} {
   }
 
   t_eventfd::~t_eventfd() {
@@ -130,7 +132,7 @@ namespace fdbased
   }
 
   t_epoll::t_epoll(x_epoll epoll) noexcept
-    : fd_{named::reset(epoll.fd_, BAD_FD)} {
+    : fd_{reset(epoll.fd_, BAD_FD)} {
   }
 
   t_epoll::~t_epoll() {
@@ -263,7 +265,7 @@ namespace fdbased
   }
 
   t_timerfd::t_timerfd(x_timerfd timerfd) noexcept
-    : fd_{named::reset(timerfd.fd_, BAD_FD)} {
+    : fd_{reset(timerfd.fd_, BAD_FD)} {
   }
 
   t_timerfd::~t_timerfd() {

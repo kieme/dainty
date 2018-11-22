@@ -35,8 +35,8 @@ namespace mt
 namespace notify_change
 {
   using err::r_err;
-  using namespace dainty::os::threading;
-  using namespace dainty::os::fdbased;
+  using namespace os::threading;
+  using namespace os::fdbased;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -46,10 +46,12 @@ namespace notify_change
 
     t_impl_(r_err err, t_any&& any) noexcept
       : lock_(err), eventfd_(err, t_n{0}), any_(std::move(any)) {
+      if (lock_ == VALID && eventfd_ == VALID)
+        valid_ = VALID;
     }
 
     operator t_validity() const noexcept {
-      return (lock_ == VALID && eventfd_ == VALID) ?  VALID : INVALID;
+      return valid_;
     }
 
     t_void process(r_err err, r_logic logic, t_n max) noexcept {
@@ -118,6 +120,7 @@ namespace notify_change
     }
 
   private:
+    t_validity   valid_ = INVALID;
     t_mutex_lock lock_;
     t_eventfd    eventfd_;
     t_any        any_;
@@ -127,15 +130,28 @@ namespace notify_change
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_client::t_client(t_impl_user_ impl, t_user user) noexcept
+    : impl_{impl}, user_{user} {
+  }
+
+  t_client::t_client(x_client client) noexcept
+    : impl_{client.impl_.release()},
+      user_{named::utility::reset(client.user_)} {
+  }
+
+  t_client::operator t_validity() const noexcept {
+    return impl_ == VALID && *impl_ == VALID ? VALID: INVALID;
+  }
+
   t_errn t_client::post(t_any&& any) noexcept {
-    if (impl_)
+    if (*this == VALID)
       return impl_->post(user_, std::move(any));
     return t_errn{-1};
   }
 
   t_void t_client::post(t_err err, t_any&& any) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (*this == VALID)
         impl_->post(err, user_, std::move(any));
       else
         err = err::E_XXX;
@@ -147,29 +163,35 @@ namespace notify_change
   t_processor::t_processor(t_err err, t_any&& any) noexcept {
     ERR_GUARD(err) {
       impl_ = new t_impl_(err, std::move(any));
-      if (impl_) {
+      if (impl_ == VALID) {
         if (err)
-          delete named::reset(impl_);
+          impl_.clear();
       } else
         err = err::E_XXX;
     }
   }
 
+  t_processor::t_processor(x_processor processor) noexcept
+    : impl_{processor.impl_.release()} {
+  }
+
   t_processor::~t_processor() {
-    if (impl_) { // NOTE: can check to see if clients exists
-      delete impl_;
-    }
+    impl_.clear();
+  }
+
+  t_processor::operator t_validity() const noexcept {
+    return impl_ == VALID && *impl_ == VALID ? VALID: INVALID;
   }
 
   t_client t_processor::make_client(t_user user) noexcept {
-    if (impl_)
+    if (*this == VALID)
       return impl_->make_client(user);
     return {};
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (*this == VALID)
         return impl_->make_client(err, user);
       err = err::E_XXX;
     }
@@ -178,7 +200,7 @@ namespace notify_change
 
   t_void t_processor::process(t_err err, t_logic& logic, t_n max) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (*this == VALID)
         impl_->process(err, logic, max);
       else
         err = err::E_XXX;
@@ -186,7 +208,7 @@ namespace notify_change
   }
 
   t_fd t_processor::get_fd() const noexcept {
-    if (impl_)
+    if (*this == VALID)
       return impl_->get_fd();
     return BAD_FD;
   }
