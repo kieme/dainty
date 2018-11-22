@@ -119,6 +119,7 @@ typedef enum bool { false, true } t_bool;
 typedef t_bool* p_bool;
 
 typedef enum cli_indent { I0 = 0, I1, I2, I3, I4 } t_cli_indent;
+typedef t_void (*p_cli_out_flush)(p_void ctxt);
 
 typedef enum prx_tipc_scope { PRX_TIPC_SYSTEM  = 11167,
                               PRX_TIPC_NETWORK = 31188 } t_prx_tipc_scope;
@@ -192,9 +193,10 @@ typedef struct test_ctxt {
 } t_test_ctxt;
 
 typedef struct cli_ctxt {
-  t_cli_req req;
-  t_cli_out out;
-  t_n       out_len;
+  t_cli_req       req;
+  t_cli_out       out;
+  t_n             out_len;
+  p_cli_out_flush flush;
 } t_cli_ctxt;
 
 typedef struct ctxt {
@@ -288,15 +290,20 @@ t_void cli_out_append_format(p_ctxt ctxt, P_cstr fmt, ...) {
   va_end(ap);
 }
 
-t_void cli_prompt(p_ctxt ctxt, p_bool prompt) {
-  if (*prompt)
-    cli_out_append_format(ctxt, "%s> ", ctxt->name);
+t_void cli_out_flush_stdout(p_void _ctxt) {
+  p_ctxt ctxt = (p_ctxt)_ctxt;
   if (ctxt->cli.out_len) {
     printf("%s", ctxt->cli.out);
     fflush(stdout);
     ctxt->cli.out[0]  = '\0';
     ctxt->cli.out_len = 0;
   }
+}
+
+t_void cli_prompt(p_ctxt ctxt, p_bool prompt) {
+  if (*prompt)
+    cli_out_append_format(ctxt, "%s> ", ctxt->name);
+  ctxt->cli.flush(ctxt);
 }
 
 t_void cli_event(p_ctxt ctxt, t_cli_indent indent, P_cstr fmt, ...) {
@@ -483,6 +490,7 @@ t_void init_ctxt(p_ctxt ctxt) {
     ctxt->lkups[lkup].free = 1 + lkup;
     ctxt->lkups[lkup].ctxt = ctxt;
   }
+  ctxt->cli.flush = cli_out_flush_stdout;
 }
 
 t_void init_lkup(p_lk_ctxt lk_ctxt, p_ctxt ctxt) {
