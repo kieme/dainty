@@ -135,7 +135,9 @@ typedef enum msngr_scope { MSNGR_SCOPE_NONE = 0,
                            MSNGR_SCOPE_SYSTEM,
                            MSNGR_SCOPE_NETWORK } t_msngr_scope;
 
-typedef enum msg_type { MSG_NONE = 0, MSG_USER, MSG_TEST } t_msg_type;
+typedef enum msg_type { MSG_NONE = 0, MSG_USER, MSG_TEST, MSG_CLI } t_msg_type;
+
+typedef enum cli_type { CLI_REQ, CLI_RESP, CLI_QUIT } t_cli_type;
 
 typedef enum msngr_req { MSNGR_REQ_NONE = 0,
                          MSNGR_REQ_ADD,
@@ -196,7 +198,10 @@ typedef struct cli_ctxt {
   t_cli_req       req;
   t_cli_out       out;
   t_n             out_len;
+  t_ix            req_remote;
+  t_ix            ans_remote;
   p_cli_out_flush flush;
+  t_sockaddr_tipc to_addr;
 } t_cli_ctxt;
 
 typedef struct ctxt {
@@ -239,6 +244,12 @@ typedef struct protocol_pkt {
 } t_protocol_pkt;
 typedef t_protocol_pkt* p_protocol_pkt;
 
+typedef struct cli_msg {
+  t_cli_type type;
+  t_n        len;
+  char data[MSG_BUF_SIZE];
+} t_cli_msg;
+
 typedef struct test_msg {
   t_n           hop;
   t_n           hop_depth;
@@ -258,6 +269,7 @@ typedef struct msg_pkt {
   union {
     t_user_msg user;
     t_test_msg test;
+    t_cli_msg  cli;
     char       dummy_[MSG_BUF_SIZE];
   };
 } t_msg_pkt;
@@ -301,51 +313,55 @@ t_void cli_out_flush_stdout(p_void _ctxt) {
 }
 
 t_void cli_prompt(p_ctxt ctxt, p_bool prompt) {
-  if (*prompt)
-    cli_out_append_format(ctxt, "%s> ", ctxt->name);
+  if (*prompt && !ctxt->cli.req_remote) {
+    if (!ctxt->cli.ans_remote)
+      cli_out_append_format(ctxt, "%s $> ", ctxt->name);
+    else
+      cli_out_append_format(ctxt, "remote:%s $> ", ctxt->name);
+  }
   ctxt->cli.flush(ctxt);
 }
 
 t_void cli_event(p_ctxt ctxt, t_cli_indent indent, P_cstr fmt, ...) {
   switch (indent) {
-    case I0: break;
-    case I1: cli_out_append_string(ctxt, "  ");       break;
-    case I2: cli_out_append_string(ctxt, "    ");     break;
-    case I3: cli_out_append_string(ctxt, "      ");   break;
-    case I4: cli_out_append_string(ctxt, "        "); break;
+    case I0: cli_out_append_format(ctxt, "%s ", ctxt->name);         break;
+    case I1: cli_out_append_format(ctxt, "%s   ", ctxt->name);       break;
+    case I2: cli_out_append_format(ctxt, "%s     ", ctxt->name);     break;
+    case I3: cli_out_append_format(ctxt, "%s       ", ctxt->name);   break;
+    case I4: cli_out_append_format(ctxt, "%s         ", ctxt->name); break;
   }
   va_list ap;
   va_start(ap, fmt);
   cli_out_append_format_v(ctxt, fmt, ap);
   va_end(ap);
-  cli_out_append_string(ctxt, "\n");
+  cli_out_append_format(ctxt, "\n");
 }
 
 t_void prx_event(p_ctxt ctxt, P_cstr fmt, ...) {
-  cli_out_append_string(ctxt, "\n* prx event   : ");
+  cli_out_append_format(ctxt, "%s <prx event>   : ", ctxt->name);
   va_list ap;
   va_start(ap, fmt);
   cli_out_append_format_v(ctxt, fmt, ap);
   va_end(ap);
-  cli_out_append_string(ctxt, " *\n");
+  cli_out_append_format(ctxt, "\n");
 }
 
 t_void msngr_event(p_ctxt ctxt, P_cstr fmt, ...) {
-  cli_out_append_string(ctxt, "\n* msngr event : ");
+  cli_out_append_format(ctxt, "%s <msngr event> : ", ctxt->name);
   va_list ap;
   va_start(ap, fmt);
   cli_out_append_format_v(ctxt, fmt, ap);
   va_end(ap);
-  cli_out_append_string(ctxt, " *\n");
+  cli_out_append_format(ctxt, "\n");
 }
 
 t_void test_event(p_ctxt ctxt, P_cstr fmt, ...) {
-  cli_out_append_string(ctxt, "\n* test event  : ");
+  cli_out_append_format(ctxt, "%s <test event>  : ", ctxt->name);
   va_list ap;
   va_start(ap, fmt);
   cli_out_append_format_v(ctxt, fmt, ap);
   va_end(ap);
-  cli_out_append_string(ctxt, " *\n");
+  cli_out_append_format(ctxt, "\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1013,6 +1029,19 @@ t_void remove_remote(p_ctxt ctxt, t_ix remote) {
     test_event(ctxt, "test fwd remote has left");
   }
 
+  if (ctxt->cli.req_remote && (ctxt->cli.req_remote - 1 == remote)) {
+    ctxt->cli.req_remote = 0;
+    ctxt->cli.ans_remote = 0;
+    prx_event(ctxt, "remote cli connection broken");
+  }
+
+  if (ctxt->cli.ans_remote && (ctxt->cli.ans_remote - 1 == remote)) {
+    ctxt->cli.req_remote = 0;
+    ctxt->cli.ans_remote = 0;
+    ctxt->cli.flush = cli_out_flush_stdout;
+    prx_event(ctxt, "remote cli connection broken");
+  }
+
   ctxt->remotes[remote].verified  = false;
   ctxt->remotes[remote].advertice = false;
   ctxt->remotes[remote].scope     = PRX_SCOPE_NONE;
@@ -1295,6 +1324,80 @@ t_bool do_test_msg_recv(p_ctxt ctxt, p_msg_pkt pkt, P_sockaddr_tipc src) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+t_void do_cli_msg_encode(p_msg_pkt pkt, p_ctxt ctxt, t_cli_type type,
+                         P_cstr msg,
+                         t_n len) {
+  pkt->type     = htonl(MSG_CLI);
+  pkt->cli.type = htonl(type);
+  pkt->cli.len  = htonl(len);
+  cp_msg(pkt->cli.data, msg);
+}
+
+t_void do_cli_msg_decode(p_msg_pkt pkt) {
+  pkt->cli.type = ntohl(pkt->cli.type);
+  pkt->cli.len  = ntohl(pkt->cli.len);
+}
+
+t_bool do_cli_msg_send(p_ctxt ctxt, t_ix remote, t_cli_type type, P_cstr msg,
+                       t_n len) {
+  t_msg_pkt pkt;
+  do_cli_msg_encode(&pkt, ctxt, type, msg, len);
+
+  t_sockaddr_tipc dest;
+  dest.family   = AF_TIPC;
+  dest.addrtype = TIPC_ADDR_ID;
+  dest.scope    = TIPC_CLUSTER_SCOPE;
+  cp_portid(&dest.addr.id, &ctxt->remotes[remote].msg_portid);
+
+  if (sendto(ctxt->msg_fd, &pkt, sizeof(pkt), 0, (p_sockaddr)&dest,
+      sizeof(dest)) != sizeof(pkt)) {
+    exit_program("failed to snd message");
+    return true;
+  }
+  return false;
+}
+
+t_void cli_out_flush_msg(p_void _ctxt) {
+  p_ctxt ctxt = (p_ctxt)_ctxt;
+  if (ctxt->cli.out_len) {
+    do_cli_msg_send(ctxt, ctxt->cli.ans_remote - 1, CLI_RESP, ctxt->cli.out,
+                    ctxt->cli.out_len);
+    ctxt->cli.out[0]  = '\0';
+    ctxt->cli.out_len = 0;
+  }
+}
+
+t_bool do_cli(p_ctxt);
+
+t_bool do_cli_msg_recv(p_ctxt ctxt, p_msg_pkt pkt, P_sockaddr_tipc src) {
+  do_cli_msg_decode(pkt);
+
+  switch (pkt->cli.type) {
+    case CLI_REQ: {
+      for (t_ix remote = 0; remote < MAX_REMOTES; ++remote) {
+        if (eq_portid(&src->addr.id, &ctxt->remotes[remote].msg_portid)) {
+          ctxt->cli.ans_remote = remote + 1;
+          ctxt->cli.flush  = cli_out_flush_msg;
+          memcpy(ctxt->cli.req, pkt->cli.data, pkt->cli.len);
+          ctxt->cli.req[pkt->cli.len] = '\0';
+          do_cli(ctxt);
+          return true;
+        }
+      }
+    } break;
+    case CLI_RESP:
+      cli_out_append_string(ctxt, pkt->cli.data);
+      break;
+    case CLI_QUIT: {
+      ctxt->cli.req_remote = 0;
+      return true;
+    } break;
+  }
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 t_void do_user_msg_encode(p_msg_pkt pkt, t_key src, t_key dst, P_cstr msg) {
   pkt->type      = htonl(MSG_USER);
   pkt->user.src  = htonk(src);
@@ -1419,6 +1522,9 @@ t_bool do_msg_recv(p_ctxt ctxt) {
       break;
     case MSG_TEST:
       return do_test_msg_recv(ctxt, &pkt, &src);
+    case MSG_CLI:
+      return do_cli_msg_recv(ctxt, &pkt, &src);
+	  break;
     default:
       prx_event(ctxt, "received msg with unknown type - %hhd", pkt.type);
   }
@@ -2170,49 +2276,62 @@ t_bool do_cli_test_info(p_ctxt ctxt, t_n argc, p_cstr argv[]) {
   return true;
 }
 
+t_bool do_cli_remote_cli(p_ctxt ctxt, t_n argc, p_cstr argv[]) {
+  if (argc == 1) {
+    t_ix remote = find_remote_by_name(ctxt, argv[0]);
+    if (remote < MAX_REMOTES) {
+      ctxt->cli.req_remote = remote + 1;
+    } else
+      cli_event(ctxt, I0, "could not connec to remote %s", argv[0]);
+    return false;
+  }
+  return true;
+}
+
 t_bool do_cli_help(p_ctxt ctxt, t_n argc, p_cstr argv[]) {
   if (argc == 0) {
-    cli_event(ctxt, I0,
-    "\n"
-    "supported commands:\n"
-    "  help                                :"
-      " print this message\n"
-    "  info                                :"
-      " messaging instance information\n"
-    "  quit                                :"
-      " quit by leaving the event loop\n"
-    "  change <scope>                      :"
-      " change scope=[process|system|network]\n"
-    "  msngr-add <name> <scope> [grp]      :"
-      " add messenger(or group), scope=[off|process|system|network]\n"
-    "  msngr-del <name>                    :"
-      " remove messenger(or group)\n"
-    "  msngr-chg <name> <scope>            :"
-      " change messenger scope=[off|process|system|network]\n"
-    "  msngr-snd <name> <key> <...>        :"
-      " msngr <name> sends to <key> a message within <>\n"
-    "  msngr-key <key>                     :"
-      " explain key and its association\n"
-    "  msngr-list                          :"
-      " list all messengers learned\n"
-    "  msngr-mon-add <name> <fullname>     :"
-      " <name> monitor <fullname>'s reachability\n"
-    "  msngr-mon-del <name> <fullname>     :"
-      " <name> stops to monitor <fullname>'s reachability\n"
-    "  msngr-grp-attach <key> <name>       :"
-      " <key> is attached to group <name>\n"
-    "  msngr-grp-detach <key> <name>       :"
-      " <key> is detached from group <name>\n"
-    "  msngr-grp-list                      :"
-      " list all groups with their member keys\n"
-    "  test-start <name> [<echos>]         :"
-      " send test frame(s) to <name> and echo until stop\n"
-    "  test-stop                           :"
-      " stop to echo (send frames)\n"
-    "  test-fwd <name>                     :"
-      " set PRx name that can be forwarded to\n"
-    "  test-info                           :"
-      " show test info");
+    cli_event(ctxt, I0, "");
+    cli_event(ctxt, I0, "supported commands:");
+    cli_event(ctxt, I1, "help                                : "
+                        "print this message");
+    cli_event(ctxt, I1, "info                                : "
+                        "messaging instance information");
+    cli_event(ctxt, I1, "quit                                : "
+                        "quit by leaving the event loop");
+    cli_event(ctxt, I1, "change <scope>                      : "
+                        "change scope=[process|system|network]");
+    cli_event(ctxt, I1, "msngr-add <name> <scope> [grp]      : "
+                        "add messenger(or group), scope=[off|process|system|network]");
+    cli_event(ctxt, I1, "msngr-del <name>                    : "
+                        "remove messenger(or group)");
+    cli_event(ctxt, I1, "msngr-chg <name> <scope>            : "
+                        "change messenger scope=[off|process|system|network]");
+    cli_event(ctxt, I1, "msngr-snd <name> <key> <...>        : "
+                        " msngr <name> sends to <key> a message within <>");
+    cli_event(ctxt, I1, "msngr-key <key>                     : "
+                        "explain key and its association");
+    cli_event(ctxt, I1, "msngr-list                          : "
+                        "list all messengers learned");
+    cli_event(ctxt, I1, "msngr-mon-add <name> <fullname>     : "
+                        "<name> monitor <fullname>'s reachability");
+    cli_event(ctxt, I1, "msngr-mon-del <name> <fullname>     : "
+                        "<name> stops to monitor <fullname>'s reachability");
+    cli_event(ctxt, I1, "msngr-grp-attach <key> <name>       : "
+                        "<key> is attached to group <name>");
+    cli_event(ctxt, I1, "msngr-grp-detach <key> <name>       : "
+                        "<key> is detached from group <name>");
+    cli_event(ctxt, I1, "msngr-grp-list                      : "
+                        "list all groups with their member keys");
+    cli_event(ctxt, I1, "test-start <name> [<echos>]         : "
+                        "send test frame(s) to <name> and echo until stop");
+    cli_event(ctxt, I1, "test-stop                           : "
+                        "stop to echo (send frames)");
+    cli_event(ctxt, I1, "test-fwd <name>                     : "
+                        "set PRx name that can be forwarded to");
+    cli_event(ctxt, I1, "test-info                           : "
+                        "show test info");
+    cli_event(ctxt, I1, "remote-cli <name>                   : "
+                        "connect to remote cli (exit to quit)");
     return false;
   }
   return true;
@@ -2242,7 +2361,8 @@ t_bool do_cli(p_ctxt ctxt) {
                            {"test-fwd",         16},
                            {"test-start",       17},
                            {"test-stop",        18},
-                           {"test-info",        19}};
+                           {"test-info",        19},
+                           {"remote-cli",       20}};
     switch (cli_find(argv[0], -1, opts, CLI_OPTIONS(opts))) {
       case 1: return true;
       case 2:  cli_func = do_cli_help;             break;
@@ -2263,6 +2383,7 @@ t_bool do_cli(p_ctxt ctxt) {
       case 17: cli_func = do_cli_test_start;       break;
       case 18: cli_func = do_cli_test_stop;        break;
       case 19: cli_func = do_cli_test_info;        break;
+      case 20: cli_func = do_cli_remote_cli;       break;
       default:
         if (argv[0][0] != '\0')
           cli_event(ctxt, I0, "unknown (%s). do \"help\" to see commands",
@@ -2280,7 +2401,19 @@ t_bool do_cli(p_ctxt ctxt) {
 t_bool do_cli_stdin(p_ctxt ctxt) {
   t_n n = read(STDIN_FILENO, ctxt->cli.req, sizeof(ctxt->cli.req));
   ctxt->cli.req[n-1] = '\0';
-  return  do_cli(ctxt);
+  if (ctxt->cli.req_remote) {
+    if (strcmp(ctxt->cli.req, "exit"))
+      do_cli_msg_send(ctxt, ctxt->cli.req_remote - 1, CLI_REQ, ctxt->cli.req,
+                      n-1);
+    else {
+      ctxt->cli.req_remote = 0;
+      ctxt->cli.req[0] = 0;
+      do_cli_msg_send(ctxt, ctxt->cli.ans_remote - 1, CLI_QUIT, ctxt->cli.req,
+                      0);
+    }
+    return false;
+  }
+  return do_cli(ctxt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
