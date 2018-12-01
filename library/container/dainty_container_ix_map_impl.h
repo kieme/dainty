@@ -118,110 +118,244 @@ namespace ix_map
     using t_result   = ix_map::t_result <K, T>;
     using t_cresult  = ix_map::t_cresult<K, T>;
 
+    inline
     t_ix_map_impl_(t_n max) : store_{max} {
     }
 
-    t_ix_map_impl_(t_err err, t_n max) : store_{err, max} {
+    inline
+    t_ix_map_impl_(r_err err, t_n max) : store_{err, max} {
     }
 
+    inline
     operator t_validity() const {
       return store_;
     }
 
     template<typename K1>
+    inline
     t_result insert(K1&& key) {
+      auto result = store_.insert();
+      if (result == VALID) {
+        auto pair = lk_.insert(t_lk_value_{preserve<K1>(key), result.id});
+        if (pair.second) {
+          result.ptr->key = &pair.first->first;
+          return {result.id, result.ptr->key, result.ptr};
+        }
+        store_.erase(result.id);
+      }
       return {};
     }
 
     template<typename K1>
-    t_result insert(t_err err, K1&& key) {
+    inline
+    t_result insert(r_err err, K1&& key) {
+      ERR_GUARD(err) {
+        auto result = store_.insert(err);
+        if (result == VALID) {
+          auto pair = lk_.insert(t_lk_value_{preserve<K1>(key), result.id});
+          if (pair.second) {
+            result.ptr->key = &pair.first->first;
+            return {result.id, result.ptr->key, result.ptr};
+          }
+          store_.erase(result.id);
+        }
+      }
       return {};
     }
 
     template<typename K1, typename T1>
+    inline
     t_result insert(K1&& key, T1&& value) {
+      auto result = store_.insert(preserve<T1>(value));
+      if (result == VALID) {
+        auto pair = lk_.insert(t_lk_value_{preserve<K1>(key), result.id});
+        if (pair.second) {
+          result.ptr->key = &pair.first->first;
+          return {result.id, result.ptr->key, result.ptr};
+        }
+        store_.erase(result.id);
+      }
       return {};
     }
 
     template<typename K1, typename T1>
-    t_result insert(t_err err, K1&& key, T1&& value) {
+    inline
+    t_result insert(r_err err, K1&& key, T1&& value) {
+      ERR_GUARD(err) {
+        auto result = store_.insert(err, preserve<T1>(value));
+        if (result == VALID) {
+          auto pair = lk_.insert(t_lk_value_{preserve<K1>(key), result.id});
+          if (pair.second) {
+            result.ptr->key = &pair.first->first;
+            return {result.id, result.ptr->key, result.ptr};
+          }
+          store_.erase(result.id);
+        }
+      }
       return {};
     }
 
+    inline
     t_bool erase(R_key key) {
+      auto itr = lk_.find(key);
+      if (itr != lk_.end()) {
+        store_.erase(itr->second);
+        lk_.erase(itr);
+        return true;
+      }
       return false;
     }
 
-    t_bool erase(t_err err, R_key key) {
+    inline
+    t_bool erase(r_err err, R_key key) {
+      ERR_GUARD(err) {
+        auto itr = lk_.find(key);
+        if (itr != lk_.end()) {
+          store_.erase(itr->second);
+          lk_.erase(err, itr);
+          return true;
+        }
+      }
       return false;
     }
 
+    inline
     t_bool erase(t_id id) {
+      auto entry = store_.get(id);
+      if (entry) {
+        lk_.erase(*entry->key);
+        store_.erase(id);
+        return true;
+      }
       return false;
     }
 
-    t_bool erase(t_err err, t_id id) {
+    inline
+    t_bool erase(r_err err, t_id id) {
+      ERR_GUARD(err) {
+        auto entry = store_.get(id);
+        if (entry) {
+          lk_.erase(*entry->key);
+          store_.erase(err, id);
+          return true;
+        }
+      }
       return false;
     }
 
+    inline
     t_void clear() {
+      lk_.clear();
+      store_.clear();
     }
 
-    t_void clear(t_err err) {
+    inline
+    t_void clear(r_err err) {
+      ERR_GUARD(err) {
+        lk_.clear();
+        store_.clear(err);
+      }
     }
 
+    inline
     t_result find(R_key key) {
+      auto itr = lk_.find(key);
+      if (itr != lk_.end()) {
+        auto entry = store_.get(itr->second);
+        return {itr->second, entry->key, &entry->value};
+      }
       return {};
     }
 
-    t_result find(t_err err, R_key key) {
+    inline
+    t_result find(r_err err, R_key key) {
+      ERR_GUARD(err) {
+        auto itr = lk_.find(key);
+        if (itr != lk_.end()) {
+          auto entry = store_.get(itr->second);
+          return {itr->second, entry->key, &entry->value};
+        }
+      }
       return {};
     }
 
+    inline
     t_cresult find(R_key key) const {
+      auto itr = lk_.find(key);
+      if (itr != lk_.end()) {
+        auto entry = store_.get(itr->second);
+        return {itr->second, entry->key, &entry->value};
+      }
       return {};
     }
 
-    t_cresult find(t_err err, R_key key) const {
+    inline
+    t_cresult find(r_err err, R_key key) const {
+      ERR_GUARD(err) {
+        auto itr = lk_.find(key);
+        if (itr != lk_.end()) {
+          auto entry = store_.get(itr->second);
+          return {itr->second, entry->key, &entry->value};
+        }
+      }
       return {};
     }
 
+    inline
     t_n get_size() const {
       return store_.get_size();
     }
 
+    inline
     t_n get_capacity() const {
       return store_.get_capacity();
     }
 
+    inline
     t_bool is_empty() const {
       return store_.is_empty();
     }
 
+    inline
     t_result get(t_id id) {
+      auto entry = store_.get(id);
+      return entry ? t_result{id, entry->key, &entry->value} : t_result{};
+    }
+
+    inline
+    t_result get(r_err err, t_id id) {
+      ERR_GUARD(err) {
+        auto entry = store_.get(id);
+        return entry ? t_result{id, entry->key, &entry->value} : t_result{};
+      }
       return {};
     }
 
-    t_result get(t_err err, t_id id) {
-      return {};
-    }
-
+    inline
     t_cresult cget(t_id id) const {
-      return {};
+      auto entry = store_.get(id);
+      return entry ? t_result{id, entry->key, &entry->value} : t_result{};
     }
 
-    t_cresult cget(t_err err, t_id id) const {
+    inline
+    t_cresult cget(r_err err, t_id id) const {
+      ERR_GUARD(err) {
+        auto entry = store_.get(id);
+        return entry ? t_result{id, entry->key, &entry->value} : t_result{};
+      }
       return {};
     }
 
     template<typename F>
+    inline
     t_void each(F f) {
       for (auto& e : lk_)
         f(e.key, e.value);
     }
 
     template<typename F>
-    t_void each(t_err err, F f) {
+    inline
+    t_void each(r_err err, F f) {
       ERR_GUARD(err) {
         for (auto& e : lk_)
           f(e.key, e.value);
@@ -229,13 +363,15 @@ namespace ix_map
     }
 
     template<typename F>
+    inline
     t_void ceach(F f) const {
       for (auto& e : lk_)
         f(e.key, e.value);
     }
 
     template<typename F>
-    t_void ceach(t_err err, F f) const {
+    inline
+    t_void ceach(r_err err, F f) const {
       ERR_GUARD(err) {
         for (auto& e : lk_)
           f(e.key, e.value);
@@ -247,8 +383,9 @@ namespace ix_map
       P_key   key;
       t_value value;
     };
-    using t_lk_    = std::map<K, t_id, C>;
-    using t_store_ = freelist::t_freelist<t_entry_>;
+    using t_store_    = freelist::t_freelist<t_entry_>;
+    using t_lk_       = std::map<K, t_id, C>;
+    using t_lk_value_ = typename t_lk_::value_type;
 
     t_store_ store_;
     t_lk_    lk_;
