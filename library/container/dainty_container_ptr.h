@@ -37,7 +37,7 @@ namespace container
 namespace ptr
 {
   using named::t_void;
-  using named::utility::reset;
+  using reset_ = named::utility::reset;
 
   template<typename T>
   inline t_void default_deleter(T* t) {
@@ -60,7 +60,7 @@ namespace ptr
 
     inline
     t_passable_ptr(t_passable_ptr&& ptr)
-      : ptr_(reset(ptr.ptr_)), deleter_(reset(ptr.deleter_)) {
+      : ptr_(reset_(ptr.ptr_)), deleter_(reset_(ptr.deleter_)) {
     }
 
     inline
@@ -73,8 +73,8 @@ namespace ptr
     t_passable_ptr& operator=(t_passable_ptr&& ptr) {
       if (deleter_ && ptr_)
         deleter_(ptr_);
-      ptr_     = reset(ptr.ptr_);
-      deleter_ = reset(ptr.deleter_);
+      ptr_     = reset_(ptr.ptr_);
+      deleter_ = reset_(ptr.deleter_);
       return *this;
     }
 
@@ -116,7 +116,7 @@ namespace ptr
 
     inline
     t_passable_ptr(t_passable_ptr&& ptr)
-      : ptr_(reset(ptr.ptr_)), deleter_(reset(ptr.deleter_)) {
+      : ptr_(reset_(ptr.ptr_)), deleter_(reset_(ptr.deleter_)) {
     }
 
     inline
@@ -129,8 +129,8 @@ namespace ptr
     t_passable_ptr& operator=(t_passable_ptr&& ptr) {
       if (deleter_ && ptr_)
         deleter_(ptr_);
-      ptr_     = reset(ptr.ptr_);
-      deleter_ = reset(ptr.deleter_);
+      ptr_     = reset_(ptr.ptr_);
+      deleter_ = reset_(ptr.deleter_);
       return *this;
     }
 

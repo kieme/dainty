@@ -37,6 +37,9 @@ namespace container
 {
 namespace list
 {
+  using err::t_err;
+  using err::r_err;
+
   using named::t_bool;
   using named::t_void;
   using named::t_n;
@@ -70,8 +73,8 @@ namespace list
     }
 
     inline
-    p_value push_back(t_err& err, p_store store, t_n_ max) {
-      T_ERR_GUARD(err) {
+    p_value push_back(r_err err, p_store store, t_n_ max) {
+      ERR_GUARD(err) {
         if (store) {
           if (next_ < max)
             return store[next_++].default_construct();
@@ -90,8 +93,8 @@ namespace list
     }
 
     inline
-    p_value push_back(t_err& err, p_store store, t_n_ max, R_value value) {
-      T_ERR_GUARD(err) {
+    p_value push_back(r_err err, p_store store, t_n_ max, R_value value) {
+      ERR_GUARD(err) {
         if (store) {
           if (next_ < max)
             return store[next_++].copy_construct(value);
@@ -110,8 +113,8 @@ namespace list
     }
 
     inline
-    p_value push_back(t_err& err, p_store store, t_n_ max, x_value value) {
-      T_ERR_GUARD(err) {
+    p_value push_back(r_err err, p_store store, t_n_ max, x_value value) {
+      ERR_GUARD(err) {
         if (store) {
           if (next_ < max)
             return store[next_++].move_construct(std::move(value));
@@ -135,8 +138,8 @@ namespace list
     }
 
     inline
-    p_value insert(t_err& err, p_store store, t_n_ max, t_ix_ ix) {
-      T_ERR_GUARD(err) {
+    p_value insert(r_err err, p_store store, t_n_ max, t_ix_ ix) {
+      ERR_GUARD(err) {
         if (store) {
           if (next_ < max) {
             if (ix < next_) {
@@ -166,9 +169,9 @@ namespace list
     }
 
     inline
-    p_value insert(t_err& err, p_store store, t_n_ max, t_ix_ ix,
+    p_value insert(r_err err, p_store store, t_n_ max, t_ix_ ix,
                    R_value value) {
-      T_ERR_GUARD(err) {
+      ERR_GUARD(err) {
         if (store) {
           if (next_ < max) {
             if (ix < next_) {
@@ -198,9 +201,9 @@ namespace list
     }
 
     inline
-    p_value insert(t_err& err, p_store store, t_n_ max, t_ix_ ix,
+    p_value insert(r_err err, p_store store, t_n_ max, t_ix_ ix,
                    x_value value) {
-      T_ERR_GUARD(err) {
+      ERR_GUARD(err) {
         if (store) {
           if (next_ < max) {
             if (ix < next_) {
@@ -227,8 +230,8 @@ namespace list
     }
 
     inline
-    t_bool pop_back(t_err& err, p_store store) {
-      T_ERR_GUARD(err) {
+    t_bool pop_back(r_err err, p_store store) {
+      ERR_GUARD(err) {
         if (store) {
           if (next_) {
             store[--next_].destruct();
@@ -252,8 +255,8 @@ namespace list
     }
 
     inline
-    t_bool erase(t_err& err, p_store store, t_ix_ ix) {
-      T_ERR_GUARD(err) {
+    t_bool erase(r_err err, p_store store, t_ix_ ix) {
+      ERR_GUARD(err) {
         if (store) {
           if (ix < next_) {
             store[ix].destruct();
@@ -276,8 +279,8 @@ namespace list
     }
 
     inline
-    t_void clear(t_err& err, p_store store) {
-      T_ERR_GUARD(err) {
+    t_void clear(r_err err, p_store store) {
+      ERR_GUARD(err) {
         if (store) {
           if (next_) {
             valuestore::destruct_(store, t_n{next_});
@@ -311,8 +314,8 @@ namespace list
     }
 
     inline
-    p_value get(t_err& err, p_store store, t_ix_ ix) {
-      T_ERR_GUARD(err) {
+    p_value get(r_err err, p_store store, t_ix_ ix) {
+      ERR_GUARD(err) {
         if (store) {
           if (ix < next_)
             return store[ix].ptr();
@@ -331,8 +334,8 @@ namespace list
     }
 
     inline
-    P_value get(t_err& err, P_store store, t_ix_ ix) const {
-      T_ERR_GUARD(err) {
+    P_value get(r_err err, P_store store, t_ix_ ix) const {
+      ERR_GUARD(err) {
         if (store) {
           if (ix < next_)
             return store[ix].cptr();
@@ -352,8 +355,8 @@ namespace list
 
     template<typename F>
     inline
-    t_void each(t_err& err, p_store store, F f) {
-      T_ERR_GUARD(err) {
+    t_void each(r_err err, p_store store, F f) {
+      ERR_GUARD(err) {
         if (store) {
           for (t_ix_ ix = 0; ix < next_; ++ix)
             f(store[ix].ref());
@@ -371,8 +374,8 @@ namespace list
 
     template<typename F>
     inline
-    t_void each(t_err& err, P_store store, F f) const {
-      T_ERR_GUARD(err) {
+    t_void each(r_err err, P_store store, F f) const {
+      ERR_GUARD(err) {
         if (store) {
           for (t_ix_ ix = 0; ix < next_; ++ix)
             f(store[ix].cref());

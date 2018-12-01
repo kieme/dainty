@@ -36,6 +36,7 @@ namespace container
 {
 namespace chain
 {
+  using err::t_err;
   using named::t_void;
   using named::t_n;
 
@@ -104,7 +105,7 @@ namespace chain
   template<typename F>
   inline
   t_void t_chain<T>::each(t_err err, F f) {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       for (p_item item = head; item; item = item->next)
         f(item->value);
     }
@@ -122,7 +123,7 @@ namespace chain
   template<typename F>
   inline
   t_void t_chain<T>::each(t_err err, F f) const {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       for (P_item item = head; item; item = item->next)
         f(item->value);
     }
@@ -140,7 +141,7 @@ namespace chain
   template<typename F>
   inline
   t_void t_chain<T>::ceach(t_err err, F f) const {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       for (P_item item = head; item; item = item->next)
         f(item->value);
     }

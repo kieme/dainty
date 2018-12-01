@@ -30,6 +30,8 @@ namespace dainty
 {
 namespace container
 {
+namespace err
+{
   namespace
   {
     using namespace oops;
@@ -51,6 +53,7 @@ namespace container
   t_def err_what(t_id id) {
     return err_tbl_[id <= E_NO_POP ? id : 0];
   }
+}
 }
 }
 

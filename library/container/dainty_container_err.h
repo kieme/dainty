@@ -33,6 +33,8 @@ namespace dainty
 {
 namespace container
 {
+namespace err
+{
   enum t_err_codes {
     E_INVALID_IX   = 1,
     E_NO_SPACE     = 2,
@@ -47,10 +49,12 @@ namespace container
   oops::t_def err_what(oops::t_id);
 
   using t_err = oops::t_oops<err_what, t_err_codes>;
+  using r_err = named::t_prefix<t_err>::r_;
+}
 }
 }
 
-#define T_ERR_GUARD_TAG(err, tagid) if DAINTY_OOPS_BLOCK_GUARD_TAG(err, tagid)
-#define T_ERR_GUARD(err)            if DAINTY_OOPS_BLOCK_GUARD(err)
+#define ERR_GUARD_TAG(err, tagid) if DAINTY_OOPS_BLOCK_GUARD_TAG(err, tagid)
+#define ERR_GUARD(err)            if DAINTY_OOPS_BLOCK_GUARD(err)
 
 #endif
