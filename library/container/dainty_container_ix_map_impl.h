@@ -135,11 +135,11 @@ namespace ix_map
     inline
     t_result insert(K1&& key) {
       auto result = store_.insert();
-      if (result == VALID) {
+      if (result) {
         auto pair = lk_.insert(t_lk_value_{preserve<K1>(key), result.id});
         if (pair.second) {
           result.ptr->key = &pair.first->first;
-          return {result.id, result.ptr->key, result.ptr};
+          return {result.id, result.ptr->key, &result.ptr->value};
         }
         store_.erase(result.id);
       }
@@ -151,11 +151,11 @@ namespace ix_map
     t_result insert(r_err err, K1&& key) {
       ERR_GUARD(err) {
         auto result = store_.insert(err);
-        if (result == VALID) {
+        if (result) {
           auto pair = lk_.insert(t_lk_value_{preserve<K1>(key), result.id});
           if (pair.second) {
             result.ptr->key = &pair.first->first;
-            return {result.id, result.ptr->key, result.ptr};
+            return {result.id, result.ptr->key, &result.ptr->value};
           }
           store_.erase(result.id);
         }
@@ -167,11 +167,11 @@ namespace ix_map
     inline
     t_result insert(K1&& key, T1&& value) {
       auto result = store_.insert(preserve<T1>(value));
-      if (result == VALID) {
+      if (result) {
         auto pair = lk_.insert(t_lk_value_{preserve<K1>(key), result.id});
         if (pair.second) {
           result.ptr->key = &pair.first->first;
-          return {result.id, result.ptr->key, result.ptr};
+          return {result.id, result.ptr->key, &result.ptr->value};
         }
         store_.erase(result.id);
       }
@@ -183,11 +183,11 @@ namespace ix_map
     t_result insert(r_err err, K1&& key, T1&& value) {
       ERR_GUARD(err) {
         auto result = store_.insert(err, preserve<T1>(value));
-        if (result == VALID) {
+        if (result) {
           auto pair = lk_.insert(t_lk_value_{preserve<K1>(key), result.id});
           if (pair.second) {
             result.ptr->key = &pair.first->first;
-            return {result.id, result.ptr->key, result.ptr};
+            return {result.id, result.ptr->key, &result.ptr->value};
           }
           store_.erase(result.id);
         }
