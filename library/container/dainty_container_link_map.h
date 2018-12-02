@@ -50,23 +50,23 @@ namespace link_map
   class t_link_map {
     using t_impl_ = t_link_map_impl_<K, T, C>;
   public:
-    using t_compare  = typename t_impl_::t_compare;
-    using t_key      = typename t_impl_::t_key;
-    using R_key      = typename t_impl_::R_key;
-    using t_value    = typename t_impl_::t_value;
-    using t_result   = typename t_impl_::t_result;
-    using t_cresult  = typename t_impl_::t_cresult;
+    using t_compare = typename t_impl_::t_compare;
+    using t_key     = typename t_impl_::t_key;
+    using R_key     = typename t_impl_::R_key;
+    using t_value   = typename t_impl_::t_value;
+    using t_itr     = typename t_impl_::t_itr;
+    using t_citr    = typename t_impl_::t_citr;
 
     operator t_validity() const;
 
     template<typename K1>
-    t_result insert(       K1&&);
+    t_itr insert(       K1&&);
     template<typename K1>
-    t_result insert(t_err, K1&&);
+    t_itr insert(t_err, K1&&);
     template<typename K1, typename T1>
-    t_result insert(       K1&&, T1&&);
+    t_itr insert(       K1&&, T1&&);
     template<typename K1, typename T1>
-    t_result insert(t_err, K1&&, T1&&);
+    t_itr insert(t_err, K1&&, T1&&);
 
     t_bool erase(       R_key);
     t_bool erase(t_err, R_key);
@@ -74,14 +74,22 @@ namespace link_map
     t_void clear();
     t_void clear(t_err);
 
-    t_result  find(       R_key);
-    t_result  find(t_err, R_key);
-    t_cresult find(       R_key) const;
-    t_cresult find(t_err, R_key) const;
+    t_itr  find(       R_key);
+    t_itr  find(t_err, R_key);
+    t_citr find(       R_key) const;
+    t_citr find(t_err, R_key) const;
 
     t_n    get_size() const;
     t_n    get_capacity() const;
     t_bool is_empty() const;
+
+    t_itr   begin();
+    t_citr  begin() const;
+    t_citr cbegin() const;
+
+    t_itr   rbegin();
+    t_citr  rbegin() const;
+    t_citr crbegin() const;
 
     template<typename F> t_void  each(       F);
     template<typename F> t_void  each(t_err, F);
@@ -105,7 +113,7 @@ namespace link_map
   template<typename K, typename T, typename C>
   template<typename K1>
   inline
-  typename t_link_map<K, T, C>::t_result
+  typename t_link_map<K, T, C>::t_itr
       t_link_map<K, T, C>::insert(K1&& key) {
     return impl_.insert(preserve<K1>(key));
   }
@@ -113,7 +121,7 @@ namespace link_map
   template<typename K, typename T, typename C>
   template<typename K1>
   inline
-  typename t_link_map<K, T, C>::t_result
+  typename t_link_map<K, T, C>::t_itr
       t_link_map<K, T, C>::insert(t_err err, K1&& key) {
     return impl_.insert(err, preserve<K1>(key));
   }
@@ -121,7 +129,7 @@ namespace link_map
   template<typename K, typename T, typename C>
   template<typename K1, typename T1>
   inline
-  typename t_link_map<K, T, C>::t_result
+  typename t_link_map<K, T, C>::t_itr
       t_link_map<K, T, C>::insert(K1&& key, T1&& value) {
     return impl_.insert(preserve<K1>(key), preserve<T1>(value));
   }
@@ -129,7 +137,7 @@ namespace link_map
   template<typename K, typename T, typename C>
   template<typename K1, typename T1>
   inline
-  typename t_link_map<K, T, C>::t_result
+  typename t_link_map<K, T, C>::t_itr
       t_link_map<K, T, C>::insert(t_err err, K1&& key, T1&& value) {
     return impl_.insert(err, preserve<K1>(key), preserve<T1>(value));
   }
@@ -160,28 +168,28 @@ namespace link_map
 
   template<typename K, typename T, typename C>
   inline
-  typename t_link_map<K, T, C>::t_result
+  typename t_link_map<K, T, C>::t_itr
       t_link_map<K, T, C>::find(R_key key) {
     return impl_.find(key);
   }
 
   template<typename K, typename T, typename C>
   inline
-  typename t_link_map<K, T, C>::t_result
+  typename t_link_map<K, T, C>::t_itr
       t_link_map<K, T, C>::find(t_err err, R_key key) {
     return impl_.find(err, key);
   }
 
   template<typename K, typename T, typename C>
   inline
-  typename t_link_map<K, T, C>::t_cresult
+  typename t_link_map<K, T, C>::t_citr
       t_link_map<K, T, C>::find(R_key key) const {
     return impl_.find(key);
   }
 
   template<typename K, typename T, typename C>
   inline
-  typename t_link_map<K, T, C>::t_cresult
+  typename t_link_map<K, T, C>::t_citr
       t_link_map<K, T, C>::find(t_err err, R_key key) const {
     return impl_.find(err, key);
   }
@@ -202,6 +210,42 @@ namespace link_map
   inline
   t_bool t_link_map<K, T, C>::is_empty() const {
     return impl_.is_empty();
+  }
+
+  template<typename K, typename T, typename C>
+  inline
+  typename t_link_map<K, T, C>::t_itr t_link_map<K, T, C>::begin() {
+    return impl_.begin();
+  }
+
+  template<typename K, typename T, typename C>
+  inline
+  typename t_link_map<K, T, C>::t_citr t_link_map<K, T, C>::begin() const {
+    return impl_.cbegin();
+  }
+
+  template<typename K, typename T, typename C>
+  inline
+  typename t_link_map<K, T, C>::t_citr t_link_map<K, T, C>::cbegin() const {
+    return impl_.cbegin();
+  }
+
+  template<typename K, typename T, typename C>
+  inline
+  typename t_link_map<K, T, C>::t_itr t_link_map<K, T, C>::rbegin() {
+    return impl_.rbegin();
+  }
+
+  template<typename K, typename T, typename C>
+  inline
+  typename t_link_map<K, T, C>::t_citr t_link_map<K, T, C>::rbegin() const {
+    return impl_.crbegin();
+  }
+
+  template<typename K, typename T, typename C>
+  inline
+  typename t_link_map<K, T, C>::t_citr t_link_map<K, T, C>::crbegin() const {
+    return impl_.crbegin();
   }
 
   template<typename K, typename T, typename C>

@@ -55,48 +55,93 @@ namespace link_map
   //////////////////////////////////////////////////////////////////////////
 
   template<typename K, typename T>
-  struct t_result {
-    using t_key   = K;
-    using P_key   = typename t_prefix<t_key>::P_;
+  struct t_entry_ {
+    using P_key   = typename t_prefix<K>::P_;
     using t_value = T;
-    using p_value = typename t_prefix<t_value>::p_;
+    using p_entry_ = typename t_prefix<t_entry_<K,T>>::p_;
 
-    t_id    id;
-    P_key   key;
-    p_value value;
+    P_key    key_;
+    t_value  value_;
+    p_entry_ next_;
+    p_entry_ prev_;
+  };
 
-    operator t_validity() const { return value ? VALID : INVALID; }
+  //////////////////////////////////////////////////////////////////////////
 
-    t_result()
-      : id{0}, key{nullptr}, value{nullptr} {
+  template<typename K, typename T>
+  class t_itr {
+    using p_entry_ = typename t_prefix<t_entry_<K,T>>::p_;
+  public:
+    using t_key    = K;
+    using R_key    = typename t_prefix<t_key>::R_;
+    using t_value  = T;
+    using r_value  = typename t_prefix<t_value>::r_;
+    using R_value  = typename t_prefix<t_value>::r_;
+
+    t_itr() = default;
+    t_itr(p_entry_ entry) : entry_{entry}  { }
+
+    operator t_validity() const { return entry_ ? VALID : INVALID; }
+
+    R_key   get_key()           { return *(entry_->key_); }
+    r_value get_value()         { return  entry_->value_; }
+    R_value get_value()  const  { return  entry_->value_; }
+    R_value get_cvalue() const  { return  entry_->value_; }
+
+    t_itr& operator++()    { entry_ = entry_->next_; return *this;}
+    t_itr  operator++(int) {
+      auto tmp = entry_;
+      entry_ = entry_->next_;
+      return t_itr{tmp};
     }
-    t_result(t_id _id, P_key _key, p_value _value)
-      : id{_id}, key{_key}, value{_value} {
+
+    t_itr& operator--()    { entry_ = entry_->prev_; return *this;}
+    t_itr  operator--(int) {
+      auto tmp = entry_;
+      entry_ = entry_->prev_;
+      return t_itr{tmp};
     }
+
+  private:
+    p_entry_ entry_ = nullptr;
   };
 
   template<typename K, typename T>
-  struct t_cresult {
-    using t_id     = link_map::t_id;
+  class t_citr {
+    using P_entry_ = typename t_prefix<t_entry_<K, T>>::P_;
+  public:
     using t_key    = K;
-    using P_key    = typename t_prefix<t_key>::P_;
+    using R_key    = typename t_prefix<t_key>::R_;
     using t_value  = T;
-    using P_value  = typename t_prefix<t_value>::P_;
-    using R_result = typename t_prefix<t_result<K, T>>::R_;
+    using R_value  = typename t_prefix<t_value>::R_;
+    using R_itr    = typename t_prefix<t_itr<K, T>>::R_;
 
-    t_id    id;
-    P_key   key;
-    P_value value;
+    t_citr() = default;
+    t_citr(R_itr itr) : entry_{itr.entry_} { }
+    t_citr(P_entry_ entry) : entry_{entry} { }
 
-    operator t_validity() const { return value ? VALID : INVALID; }
+    operator t_validity() const { return entry_ ? VALID : INVALID; }
 
-    t_cresult() : id{0}, key{nullptr}, value{nullptr} { }
-    t_cresult(t_id _id, P_key _key, P_value _value)
-      : id{_id}, key{_key}, value{_value} {
+    R_key   get_key()           { return *(entry_->key_); }
+    R_value get_value()  const  { return  entry_->value_; }
+    R_value get_cvalue() const  { return  entry_->value_; }
+
+    t_citr& operator++()    { entry_ = entry_->next_; return *this;}
+    t_citr  operator++(int) {
+      auto tmp = entry_;
+      entry_ = entry_->next_;
+      return t_citr{tmp};
     }
-    t_cresult(R_result result)
-      : id{result.id}, key{result.key}, value{result.value} {
+
+    t_citr& operator--()    { entry_ = entry_->prev_; return *this;}
+    t_citr  operator--(int) {
+      auto tmp = entry_;
+      entry_ = entry_->prev_;
+      return t_citr{tmp};
     }
+
+  private:
+    P_entry_ entry_ = nullptr;
   };
 
   //////////////////////////////////////////////////////////////////////////
@@ -110,26 +155,26 @@ namespace link_map
     using P_key      = typename t_prefix<K>::P_;
     using R_key      = typename t_prefix<K>::R_;
     using t_value    = T;
-    using t_result   = link_map::t_result <K, T>;
-    using t_cresult  = link_map::t_cresult<K, T>;
+    using t_itr   = link_map::t_itr <K, T>;
+    using t_citr  = link_map::t_citr<K, T>;
 
     template<typename K1>
-    t_result insert(K1&& key) {
+    t_itr insert(K1&& key) {
       return {};
     }
 
     template<typename K1>
-    t_result insert(t_err err, K1&& key) {
+    t_itr insert(t_err err, K1&& key) {
       return {};
     }
 
     template<typename K1, typename T1>
-    t_result insert(K1&& key, T1&& value) {
+    t_itr insert(K1&& key, T1&& value) {
       return {};
     }
 
     template<typename K1, typename T1>
-    t_result insert(t_err err, K1&& key, T1&& value) {
+    t_itr insert(t_err err, K1&& key, T1&& value) {
       return {};
     }
 
@@ -147,32 +192,48 @@ namespace link_map
     t_void clear(t_err err) {
     }
 
-    t_result find(R_key key) {
+    t_itr find(R_key key) {
       return {};
     }
 
-    t_result find(t_err err, R_key key) {
+    t_itr find(t_err err, R_key key) {
       return {};
     }
 
-    t_cresult find(R_key key) const {
+    t_citr find(R_key key) const {
       return {};
     }
 
-    t_cresult find(t_err err, R_key key) const {
+    t_citr find(t_err err, R_key key) const {
       return {};
     }
 
     t_n get_size() const {
-      return store_.get_size();
+      return t_n{lk_.size()};
     }
 
     t_n get_capacity() const {
-      return store_.get_capacity();
+      return t_n{lk_.capacity()};
     }
 
     t_bool is_empty() const {
-      return store_.is_empty();
+      return lk_.empty();
+    }
+
+    t_itr begin() {
+      return {};
+    }
+
+    t_citr cbegin() const {
+      return {};
+    }
+
+    t_itr rbegin() {
+      return {};
+    }
+
+    t_citr crbegin() const {
+      return {};
     }
 
     template<typename F>
@@ -204,13 +265,10 @@ namespace link_map
     }
 
   private:
-    struct t_entry_ {
-      P_key   key;
-      t_value value;
-    };
-    using t_lk_ = std::map<K, T, C>;
+    using t_entry_ = link_map::t_entry_<K, T>;
+    using t_lk_    = std::map<K, t_entry_, C>;
 
-    t_lk_    lk_;
+    t_lk_ lk_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
