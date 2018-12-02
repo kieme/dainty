@@ -382,6 +382,8 @@ namespace ix_map
     struct t_entry_ {
       P_key   key;
       t_value value;
+      template<typename T1>
+      t_entry_(T1&& _value) : value{preserve<T1>(_value)} { }
     };
     using t_store_    = freelist::t_freelist<t_entry_>;
     using t_lk_       = std::map<K, t_id, C>;
