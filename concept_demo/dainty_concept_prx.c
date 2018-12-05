@@ -195,6 +195,7 @@ typedef struct test_ctxt {
 } t_test_ctxt;
 
 typedef struct cli_ctxt {
+  t_bool          enable;
   t_cli_req       req;
   t_cli_out       out;
   t_n             out_len;
@@ -304,19 +305,20 @@ t_void cli_out_append_format(p_ctxt ctxt, P_cstr fmt, ...) {
 
 t_void cli_out_flush_stdout(p_void _ctxt) {
   p_ctxt ctxt = (p_ctxt)_ctxt;
-  if (ctxt->cli.out_len) {
+  if (ctxt->cli.enable && ctxt->cli.out_len) {
     printf("%s", ctxt->cli.out);
     fflush(stdout);
-    ctxt->cli.out[0]  = '\0';
-    ctxt->cli.out_len = 0;
   }
+  ctxt->cli.out[0]  = '\0';
+  ctxt->cli.out_len = 0;
 }
 
-t_void cli_prompt(p_ctxt ctxt, p_bool prompt) {
-  if (*prompt && !ctxt->cli.req_remote) {
-    if (!ctxt->cli.ans_remote)
-      cli_out_append_format(ctxt, "%s $> ", ctxt->name);
-    else
+t_void cli_prompt(p_ctxt ctxt, t_bool prompt) {
+  if (prompt && !ctxt->cli.req_remote) {
+    if (!ctxt->cli.ans_remote) {
+      if (ctxt->cli.enable)
+        cli_out_append_format(ctxt, "%s $> ", ctxt->name);
+    } else
       cli_out_append_format(ctxt, "remote:%s $> ", ctxt->name);
   }
   ctxt->cli.flush(ctxt);
@@ -1380,8 +1382,7 @@ t_bool do_cli_msg_recv(p_ctxt ctxt, p_msg_pkt pkt, P_sockaddr_tipc src) {
           ctxt->cli.flush  = cli_out_flush_msg;
           memcpy(ctxt->cli.req, pkt->cli.data, pkt->cli.len);
           ctxt->cli.req[pkt->cli.len] = '\0';
-          do_cli(ctxt);
-          return true;
+          return do_cli(ctxt);
         }
       }
     } break;
@@ -1390,7 +1391,6 @@ t_bool do_cli_msg_recv(p_ctxt ctxt, p_msg_pkt pkt, P_sockaddr_tipc src) {
       break;
     case CLI_QUIT: {
       ctxt->cli.req_remote = 0;
-      return true;
     } break;
   }
   return false;
@@ -1506,7 +1506,7 @@ t_void do_user_msg_recv(p_ctxt ctxt, p_msg_pkt pkt) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-t_bool do_msg_recv(p_ctxt ctxt) {
+t_bool do_msg_recv(p_ctxt ctxt, p_bool prompt) {
   t_sockaddr_tipc src;
   t_msg_pkt       pkt;
 
@@ -1519,12 +1519,14 @@ t_bool do_msg_recv(p_ctxt ctxt) {
   switch (pkt.type) {
     case MSG_USER:
       do_user_msg_recv(ctxt, &pkt);
+      *prompt = false;
       break;
     case MSG_TEST:
-      return do_test_msg_recv(ctxt, &pkt, &src);
+      *prompt = do_test_msg_recv(ctxt, &pkt, &src);
+      break;
     case MSG_CLI:
+      *prompt = true;
       return do_cli_msg_recv(ctxt, &pkt, &src);
-	  break;
     default:
       prx_event(ctxt, "received msg with unknown type - %hhd", pkt.type);
   }
@@ -2398,18 +2400,19 @@ t_bool do_cli(p_ctxt ctxt) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-t_bool do_cli_stdin(p_ctxt ctxt) {
+t_bool do_cli_stdin(p_ctxt ctxt, p_bool prompt) {
   t_n n = read(STDIN_FILENO, ctxt->cli.req, sizeof(ctxt->cli.req));
   ctxt->cli.req[n-1] = '\0';
+  *prompt = true;
   if (ctxt->cli.req_remote) {
     if (strcmp(ctxt->cli.req, "exit"))
       do_cli_msg_send(ctxt, ctxt->cli.req_remote - 1, CLI_REQ, ctxt->cli.req,
                       n-1);
     else {
+      do_cli_msg_send(ctxt, ctxt->cli.req_remote - 1, CLI_QUIT, ctxt->cli.req,
+                      0);
       ctxt->cli.req_remote = 0;
       ctxt->cli.req[0] = 0;
-      do_cli_msg_send(ctxt, ctxt->cli.ans_remote - 1, CLI_QUIT, ctxt->cli.req,
-                      0);
     }
     return false;
   }
@@ -2484,9 +2487,12 @@ t_void do_setup(p_ctxt ctxt) {
 
   t_epoll_event event;
   event.events  = EPOLLIN;
-  event.data.fd = STDIN_FILENO;
-  if (epoll_ctl(ctxt->epoll_fd, EPOLL_CTL_ADD, STDIN_FILENO, &event) == -1)
-    exit_program("could not add stdin fd to epoll");
+
+  if (ctxt->cli.enable) {
+    event.data.fd = STDIN_FILENO;
+    if (epoll_ctl(ctxt->epoll_fd, EPOLL_CTL_ADD, STDIN_FILENO, &event) == -1)
+      exit_program("could not add stdin fd to epoll");
+  }
 
   event.data.fd = ctxt->system_fd;
   if (epoll_ctl(ctxt->epoll_fd, EPOLL_CTL_ADD, ctxt->system_fd, &event) == -1)
@@ -2521,7 +2527,7 @@ t_void event_loop(p_ctxt ctxt) {
     t_fd prio_fd[] = { -1, -1, -1, -1};
     t_epoll_event events[3];
 
-    cli_prompt(ctxt, &prompt);
+    cli_prompt(ctxt, prompt);
 
     t_n num = epoll_wait(ctxt->epoll_fd, events, 3, -1);
     if (num == -1)
@@ -2542,26 +2548,27 @@ t_void event_loop(p_ctxt ctxt) {
     for (t_ix prio = 0; prio < sizeof(prio_fd)/sizeof(t_fd); ++prio) {
       if (prio_fd[prio] != -1) {
         switch (prio) {
-          case 0: do_tracking(ctxt);                        break;
-          case 1: do_protocol_recv(ctxt, prio_fd[1]);       break;
-          case 2: prompt = do_msg_recv(ctxt);               break;
-          case 3: quit = do_cli_stdin(ctxt); prompt = true; break;
+          case 0: do_tracking(ctxt);                  break;
+          case 1: do_protocol_recv(ctxt, prio_fd[1]); break;
+          case 2: quit = do_msg_recv(ctxt, &prompt);  break;
+          case 3: quit = do_cli_stdin(ctxt, &prompt); break;
         }
       }
     }
   } while (!quit);
 }
 
-t_void do_init(p_ctxt ctxt, t_prx_scope scope, P_cstr name) {
+t_void do_init(p_ctxt ctxt, t_prx_scope scope, P_cstr name, t_bool cli) {
   init_ctxt(ctxt);
-  ctxt->scope = scope;
+  ctxt->scope      = scope;
   cp_name(ctxt->name, name);
+  ctxt->cli.enable = cli;
 }
 
-t_void do_start(t_prx_scope scope, P_cstr name) {
+t_void do_start(t_prx_scope scope, P_cstr name, t_bool cli) {
   p_ctxt ctxt = (p_ctxt)malloc(sizeof(t_ctxt));
   if (ctxt) {
-    do_init(ctxt, scope, name);
+    do_init(ctxt, scope, name, cli);
     do_setup(ctxt);
 
     switch (scope) {
@@ -2590,18 +2597,19 @@ t_void do_start(t_prx_scope scope, P_cstr name) {
 ///////////////////////////////////////////////////////////////////////////////
 
 t_int main(t_n argc, P_cstr argv[]) {
-  if (argc == 3) {
+  if (argc == 3 || argc == 4) {
     t_cli_option opts[] = {{"process", PRX_SCOPE_PROCESS},
                            {"system",  PRX_SCOPE_SYSTEM},
                            {"network", PRX_SCOPE_NETWORK}};
     t_prx_scope scope = cli_find(argv[2], PRX_SCOPE_NONE, opts,
                                  CLI_OPTIONS(opts));
     if (scope != PRX_SCOPE_NONE) {
-      do_start(scope, argv[1]);
+      t_bool cli = (argc == 4 && strcmp("cli", argv[3]) == 0);
+      do_start(scope, argv[1], cli);
       return 0;
     }
   }
-  exit_program("usage: PRx <name> <[process|system|network]>");
+  exit_program("usage: PRx <name> <[process|system|network]> [cli]");
   return -1;
 }
 
