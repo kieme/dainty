@@ -135,9 +135,9 @@ typedef enum msngr_scope { MSNGR_SCOPE_NONE = 0,
                            MSNGR_SCOPE_SYSTEM,
                            MSNGR_SCOPE_NETWORK } t_msngr_scope;
 
-typedef enum msg_type { MSG_NONE = 0, MSG_USER, MSG_TEST, MSG_CLI } t_msg_type;
+typedef enum msg_type { MSG_NONE, MSG_USER, MSG_TEST, MSG_CLI } t_msg_type;
 
-typedef enum cli_type { CLI_REQ, CLI_RESP, CLI_QUIT } t_cli_type;
+typedef enum cli_type { CLI_INIT, CLI_REQ, CLI_RESP, CLI_QUIT } t_cli_type;
 
 typedef enum msngr_req { MSNGR_REQ_NONE = 0,
                          MSNGR_REQ_ADD,
@@ -1332,7 +1332,8 @@ t_void do_cli_msg_encode(p_msg_pkt pkt, p_ctxt ctxt, t_cli_type type,
   pkt->type     = htonl(MSG_CLI);
   pkt->cli.type = htonl(type);
   pkt->cli.len  = htonl(len);
-  cp_msg(pkt->cli.data, msg);
+  if (msg)
+    cp_msg(pkt->cli.data, msg);
 }
 
 t_void do_cli_msg_decode(p_msg_pkt pkt) {
@@ -1375,23 +1376,34 @@ t_bool do_cli_msg_recv(p_ctxt ctxt, p_msg_pkt pkt, P_sockaddr_tipc src) {
   do_cli_msg_decode(pkt);
 
   switch (pkt->cli.type) {
-    case CLI_REQ: {
+    case CLI_INIT:
       for (t_ix remote = 0; remote < MAX_REMOTES; ++remote) {
         if (eq_portid(&src->addr.id, &ctxt->remotes[remote].msg_portid)) {
-          ctxt->cli.ans_remote = remote + 1;
-          ctxt->cli.flush  = cli_out_flush_msg;
+          if (!ctxt->cli.ans_remote && !ctxt->cli.enable) {
+            ctxt->cli.ans_remote = remote + 1;
+            ctxt->cli.flush = cli_out_flush_msg;
+          } else
+            do_cli_msg_send(ctxt, remote, CLI_QUIT, NULL, 0);
+          break;
+        }
+      }
+      break;
+    case CLI_REQ:
+      for (t_ix remote = 0; remote < MAX_REMOTES; ++remote) {
+        if (eq_portid(&src->addr.id, &ctxt->remotes[remote].msg_portid) &&
+            ctxt->cli.ans_remote == remote + 1) {
           memcpy(ctxt->cli.req, pkt->cli.data, pkt->cli.len);
           ctxt->cli.req[pkt->cli.len] = '\0';
           return do_cli(ctxt);
         }
       }
-    } break;
+      break;
     case CLI_RESP:
       cli_out_append_string(ctxt, pkt->cli.data);
       break;
-    case CLI_QUIT: {
+    case CLI_QUIT:
       ctxt->cli.req_remote = 0;
-    } break;
+      break;
   }
   return false;
 }
@@ -2283,6 +2295,7 @@ t_bool do_cli_remote_cli(p_ctxt ctxt, t_n argc, p_cstr argv[]) {
     t_ix remote = find_remote_by_name(ctxt, argv[0]);
     if (remote < MAX_REMOTES) {
       ctxt->cli.req_remote = remote + 1;
+      do_cli_msg_send(ctxt, remote, CLI_INIT, NULL, 0);
     } else
       cli_event(ctxt, I0, "could not connec to remote %s", argv[0]);
     return false;
@@ -2406,11 +2419,10 @@ t_bool do_cli_stdin(p_ctxt ctxt, p_bool prompt) {
   *prompt = true;
   if (ctxt->cli.req_remote) {
     if (strcmp(ctxt->cli.req, "exit"))
-      do_cli_msg_send(ctxt, ctxt->cli.req_remote - 1, CLI_REQ, ctxt->cli.req,
+      do_cli_msg_send(ctxt, ctxt->cli.req_remote-1, CLI_REQ, ctxt->cli.req,
                       n-1);
     else {
-      do_cli_msg_send(ctxt, ctxt->cli.req_remote - 1, CLI_QUIT, ctxt->cli.req,
-                      0);
+      do_cli_msg_send(ctxt, ctxt->cli.req_remote-1, CLI_QUIT, NULL, 0);
       ctxt->cli.req_remote = 0;
       ctxt->cli.req[0] = 0;
     }
@@ -2530,8 +2542,11 @@ t_void event_loop(p_ctxt ctxt) {
     cli_prompt(ctxt, prompt);
 
     t_n num = epoll_wait(ctxt->epoll_fd, events, 3, -1);
-    if (num == -1)
+    if (num == -1) {
+      if (errno == EINTR)
+         continue;
       exit_program("epoll wait failed");
+    }
 
     for (t_ix n = 0; n < num; ++n) {
       t_fd fd = events[n].data.fd;
