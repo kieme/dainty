@@ -84,12 +84,18 @@ namespace link_map
     t_bool is_empty() const;
 
     t_itr   begin();
+    t_itr   end  ();
     t_citr  begin() const;
+    t_citr  end  () const;
     t_citr cbegin() const;
+    t_citr cend  () const;
 
     t_itr   rbegin();
+    t_itr   rend  ();
     t_citr  rbegin() const;
+    t_citr  rend  () const;
     t_citr crbegin() const;
+    t_citr crend  () const;
 
     template<typename F> t_void  each(       F);
     template<typename F> t_void  each(t_err, F);
@@ -220,8 +226,20 @@ namespace link_map
 
   template<typename K, typename T, typename C>
   inline
+  typename t_link_map<K, T, C>::t_itr t_link_map<K, T, C>::end() {
+    return impl_.end();
+  }
+
+  template<typename K, typename T, typename C>
+  inline
   typename t_link_map<K, T, C>::t_citr t_link_map<K, T, C>::begin() const {
     return impl_.cbegin();
+  }
+
+  template<typename K, typename T, typename C>
+  inline
+  typename t_link_map<K, T, C>::t_citr t_link_map<K, T, C>::end() const {
+    return impl_.cend();
   }
 
   template<typename K, typename T, typename C>
@@ -232,8 +250,20 @@ namespace link_map
 
   template<typename K, typename T, typename C>
   inline
+  typename t_link_map<K, T, C>::t_citr t_link_map<K, T, C>::cend() const {
+    return impl_.cend();
+  }
+
+  template<typename K, typename T, typename C>
+  inline
   typename t_link_map<K, T, C>::t_itr t_link_map<K, T, C>::rbegin() {
     return impl_.rbegin();
+  }
+
+  template<typename K, typename T, typename C>
+  inline
+  typename t_link_map<K, T, C>::t_itr t_link_map<K, T, C>::rend() {
+    return impl_.rend();
   }
 
   template<typename K, typename T, typename C>
@@ -244,8 +274,20 @@ namespace link_map
 
   template<typename K, typename T, typename C>
   inline
+  typename t_link_map<K, T, C>::t_citr t_link_map<K, T, C>::rend() const {
+    return impl_.crend();
+  }
+
+  template<typename K, typename T, typename C>
+  inline
   typename t_link_map<K, T, C>::t_citr t_link_map<K, T, C>::crbegin() const {
     return impl_.crbegin();
+  }
+
+  template<typename K, typename T, typename C>
+  inline
+  typename t_link_map<K, T, C>::t_citr t_link_map<K, T, C>::crend() const {
+    return impl_.crend();
   }
 
   template<typename K, typename T, typename C>

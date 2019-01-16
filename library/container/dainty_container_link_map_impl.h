@@ -56,14 +56,18 @@ namespace link_map
 
   template<typename K, typename T>
   struct t_entry_ {
-    using P_key   = typename t_prefix<K>::P_;
-    using t_value = T;
+    using P_key    = typename t_prefix<K>::P_;
+    using t_value  = T;
     using p_entry_ = typename t_prefix<t_entry_<K,T>>::p_;
 
-    P_key    key_;
+    t_entry_() = default;
+    template<typename T1>
+    t_entry_(T1&& value) : value_{preserve<T1>(value)} { }
+
     t_value  value_;
-    p_entry_ next_;
-    p_entry_ prev_;
+    P_key    key_  = nullptr;
+    p_entry_ next_ = nullptr;
+    p_entry_ prev_ = nullptr;
   };
 
   //////////////////////////////////////////////////////////////////////////
@@ -77,11 +81,13 @@ namespace link_map
     using t_value  = T;
     using r_value  = typename t_prefix<t_value>::r_;
     using R_value  = typename t_prefix<t_value>::r_;
+    using R_itr    = typename t_prefix<t_itr>::R_;
 
     t_itr() = default;
     t_itr(p_entry_ entry) : entry_{entry}  { }
 
     operator t_validity() const { return entry_ ? VALID : INVALID; }
+    t_itr& operator*()          { return *this; }
 
     R_key   get_key()           { return *(entry_->key_); }
     r_value get_value()         { return  entry_->value_; }
@@ -102,9 +108,25 @@ namespace link_map
       return t_itr{tmp};
     }
 
+    t_bool is_equal(R_itr itr) const {
+      return entry_ == itr.entry_;
+    }
+
   private:
     p_entry_ entry_ = nullptr;
   };
+
+  template<typename K, typename T>
+  inline
+  t_bool operator==(const t_itr<K,T>& lh, const t_itr<K,T>& rh) {
+    return lh.is_equal(rh);
+  }
+
+  template<typename K, typename T>
+  inline
+  t_bool operator!=(const t_itr<K,T>& lh, const t_itr<K,T>& rh) {
+    return !(lh == rh);
+  }
 
   template<typename K, typename T>
   class t_citr {
@@ -114,6 +136,7 @@ namespace link_map
     using R_key    = typename t_prefix<t_key>::R_;
     using t_value  = T;
     using R_value  = typename t_prefix<t_value>::R_;
+    using R_citr   = typename t_prefix<t_citr>::R_;
     using R_itr    = typename t_prefix<t_itr<K, T>>::R_;
 
     t_citr() = default;
@@ -121,6 +144,7 @@ namespace link_map
     t_citr(P_entry_ entry) : entry_{entry} { }
 
     operator t_validity() const { return entry_ ? VALID : INVALID; }
+    t_citr& operator*() const   { return *this; }
 
     R_key   get_key()           { return *(entry_->key_); }
     R_value get_value()  const  { return  entry_->value_; }
@@ -140,9 +164,25 @@ namespace link_map
       return t_citr{tmp};
     }
 
+    t_bool is_equal(R_citr itr) const {
+      return entry_ == itr.entry_;
+    }
+
   private:
     P_entry_ entry_ = nullptr;
   };
+
+  template<typename K, typename T>
+  inline
+  t_bool operator==(const t_citr<K,T>& lh, const t_citr<K,T>& rh) {
+    return lh.is_equal(rh);
+  }
+
+  template<typename K, typename T>
+  inline
+  t_bool operator!=(const t_citr<K,T>& lh, const t_citr<K,T>& rh) {
+    return !(lh == rh);
+  }
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -155,56 +195,157 @@ namespace link_map
     using P_key      = typename t_prefix<K>::P_;
     using R_key      = typename t_prefix<K>::R_;
     using t_value    = T;
-    using t_itr   = link_map::t_itr <K, T>;
-    using t_citr  = link_map::t_citr<K, T>;
+    using t_itr      = link_map::t_itr <K, T>;
+    using t_citr     = link_map::t_citr<K, T>;
 
     template<typename K1>
     t_itr insert(K1&& key) {
-      return {};
+      p_entry_ next = nullptr, entry = nullptr;
+      t_lk_itr_ itr = lk_.lower_bound(key);
+      if (itr != lk_.end()) {
+        if (key != itr->first)
+          next = &itr->second;
+        else
+          return nullptr;
+      }
+      itr = lk_.insert(itr, t_lk_value_{preserve<K1>(key), t_entry_{}});
+      if (itr != lk_.end()) {
+        entry       = &itr->second;
+        entry->key_ = &itr->first;
+        if (next) {
+          entry->next_ = next;
+          entry->prev_ = next->prev_;
+          if (head_ == next)
+            head_ = entry;
+          else
+            next->prev_->next_ = entry;
+          next->prev_  = entry;
+        } else if (tail_) {
+          entry->prev_ = tail_;
+          tail_->next_ = entry;
+          tail_        = entry;
+        } else {
+          tail_ = entry;
+          head_ = entry;
+        }
+      }
+      return entry;
     }
 
     template<typename K1>
     t_itr insert(t_err err, K1&& key) {
+      ERR_GUARD(err) {
+         auto itr = insert(preserve<K1>(key));
+         if (itr != VALID)
+           err = err::E_NOT_UNIQUE;
+         return itr;
+      }
       return {};
     }
 
     template<typename K1, typename T1>
     t_itr insert(K1&& key, T1&& value) {
-      return {};
+      p_entry_ next = nullptr, entry = nullptr;
+      t_lk_itr_ itr = lk_.lower_bound(key);
+      if (itr != lk_.end()) {
+        if (key != itr->first)
+          next = &itr->second;
+        else
+          return nullptr;
+      }
+      itr = lk_.insert(itr, t_lk_value_{preserve<K1>(key),
+                                        t_entry_{preserve<T1>(value)}});
+      if (itr != lk_.end()) {
+        entry       = &itr->second;
+        entry->key_ = &itr->first;
+        if (next) {
+          entry->next_ = next;
+          entry->prev_ = next->prev_;
+          if (head_ == next)
+            head_ = entry;
+          else
+            next->prev_->next_ = entry;
+          next->prev_  = entry;
+        } else if (tail_) {
+          entry->prev_ = tail_;
+          tail_->next_ = entry;
+          tail_        = entry;
+        } else {
+          tail_ = entry;
+          head_ = entry;
+        }
+      }
+      return entry;
     }
 
     template<typename K1, typename T1>
     t_itr insert(t_err err, K1&& key, T1&& value) {
+      ERR_GUARD(err) {
+         auto itr = insert(preserve<K1>(key), preserve<T1>(value));
+         if (itr != VALID)
+           err = err::E_NOT_UNIQUE;
+         return itr;
+      }
       return {};
     }
 
     t_bool erase(R_key key) {
+      t_lk_itr_ itr = lk_.find(key);
+      if (itr != lk_.end()) {
+        p_entry_ entry = &itr->second;
+        if (entry->prev_) entry->prev_->next_ = entry->next_;
+        else              head_ = entry->next_;
+        if (entry->next_) entry->next_->prev_ = entry->prev_;
+        else              tail_ = entry->prev_;
+        lk_.erase(itr);
+        return true;
+      }
       return false;
     }
 
     t_bool erase(t_err err, R_key key) {
+      ERR_GUARD(err) {
+        return erase(key);
+      }
       return false;
     }
 
     t_void clear() {
+      lk_.clear();
+      head_ = nullptr;
+      tail_ = nullptr;
     }
 
     t_void clear(t_err err) {
+      ERR_GUARD(err) {
+        clear();
+      }
     }
 
     t_itr find(R_key key) {
+      t_lk_itr_ itr = lk_.find(key);
+      if (itr != lk_.end())
+        return &itr->second;
       return {};
     }
 
     t_itr find(t_err err, R_key key) {
+      ERR_GUARD(err) {
+        return find(key);
+      }
       return {};
     }
 
     t_citr find(R_key key) const {
-      return {};
+      t_lk_citr_ itr = lk_.find(key);
+      if (itr != lk_.end())
+        return &itr->second;
     }
 
     t_citr find(t_err err, R_key key) const {
+      ERR_GUARD(err) {
+        return find(key);
+      }
       return {};
     }
 
@@ -221,54 +362,77 @@ namespace link_map
     }
 
     t_itr begin() {
+      return {head_};
+    }
+
+    t_itr end() {
       return {};
     }
 
     t_citr cbegin() const {
+      return {head_};
+    }
+
+    t_citr cend() const {
       return {};
     }
 
     t_itr rbegin() {
+      return {tail_};
+    }
+
+    t_itr rend() {
       return {};
     }
 
     t_citr crbegin() const {
+      return {tail_};
+    }
+
+    t_citr crend() const {
       return {};
     }
 
     template<typename F>
     t_void each(F f) {
-      for (auto& e : lk_)
-        f(e.key, e.value);
+      for (auto& e : *this)
+        f(e.get_key(), e.get_value());
     }
 
     template<typename F>
     t_void each(t_err err, F f) {
       ERR_GUARD(err) {
-        for (auto& e : lk_)
-          f(e.key, e.value);
+        for (auto& e : *this)
+          f(e.get_key(), e.get_value());
       }
     }
 
     template<typename F>
     t_void ceach(F f) const {
-      for (auto& e : lk_)
-        f(e.key, e.value);
+      for (auto& e : *this)
+        f(e.get_key(), e.get_value());
     }
 
     template<typename F>
     t_void ceach(t_err err, F f) const {
       ERR_GUARD(err) {
-        for (auto& e : lk_)
-          f(e.key, e.value);
+        for (auto& e : *this)
+          f(e.get_key(), e.get_value());
       }
     }
 
   private:
-    using t_entry_ = link_map::t_entry_<K, T>;
-    using t_lk_    = std::map<K, t_entry_, C>;
+    using t_entry_    = link_map::t_entry_<K, T>;
+    using P_entry_    = typename t_prefix<t_entry_>::P_;
+    using p_entry_    = typename t_prefix<t_entry_>::p_;
+    using t_lk_       = std::map<K, t_entry_, C>;
+    using t_lk_value_ = typename t_lk_::value_type;
+    using t_lk_itr_   = typename t_lk_::iterator;
+    using t_lk_citr_  = typename t_lk_::const_iterator;
 
-    t_lk_ lk_;
+    t_lk_    lk_;
+    p_entry_ head_ = nullptr;
+    p_entry_ tail_ = nullptr;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
