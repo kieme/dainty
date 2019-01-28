@@ -1,4 +1,4 @@
-# private_dainty_container
+# dainty_container
 &lt;dainty::container> consists of a number of container types that are used by the &lt;dainty> framework
 
 Historical context: The containers were initialy developed for a deterministic application. They are now transformed to a newer c++ version and nameing convention, which will most likely introduce bugs. This will be fixed when unit testing is introduced.
