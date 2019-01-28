@@ -91,7 +91,8 @@ namespace chained_queue
     using t_chain = typename t_impl_::t_chain;
     using p_item  = typename t_impl_::p_item;
 
-    t_chained_queue(t_n max);
+    t_chained_queue(       t_n max);
+    t_chained_queue(t_err, t_n max);
 
     t_chained_queue(const t_chained_queue&)            = delete;
     t_chained_queue(t_chained_queue&&)                 = delete;
@@ -225,6 +226,12 @@ namespace chained_queue
   template<typename T>
   inline
   t_chained_queue<T, 0>::t_chained_queue(t_n max) : store_{max} {
+  }
+
+  template<typename T>
+  inline
+  t_chained_queue<T, 0>::t_chained_queue(t_err err, t_n max)
+     : store_{err, max} {
   }
 
   template<typename T>

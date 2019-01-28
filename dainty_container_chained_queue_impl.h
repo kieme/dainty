@@ -36,6 +36,9 @@ namespace container
 {
 namespace chained_queue
 {
+  using err::t_err;
+  using err::r_err;
+
   using named::t_void;
   using named::t_bool;
   using named::t_n_;
@@ -137,8 +140,8 @@ namespace chained_queue
       return {};
     }
 
-    t_chain acquire(t_err& err, r_store store, t_n n) {
-      T_ERR_GUARD(err) {
+    t_chain acquire(r_err err, r_store store, t_n n) {
+      ERR_GUARD(err) {
         if (store == VALID) {
           auto need = get(n);
           auto free = get(store.get_capacity()) - get(store.get_size());
@@ -172,8 +175,8 @@ namespace chained_queue
       }
     }
 
-    t_void release(t_err& err, r_store store, t_chain& chain) {
-      T_ERR_GUARD(err) {
+    t_void release(r_err err, r_store store, t_chain& chain) {
+      ERR_GUARD(err) {
         if (store == VALID) {
           for (p_item item = chain.head; item; item = item->next_)
             store.erase(item->id_);
@@ -194,8 +197,8 @@ namespace chained_queue
       }
     }
 
-    t_void insert(t_err& err, r_store store, r_chain chain) {
-      T_ERR_GUARD(err) {
+    t_void insert(r_err err, r_store store, r_chain chain) {
+      ERR_GUARD(err) {
         if (store == VALID) {
           if (get(chain.cnt)) {
             if (get(chain_.cnt))
@@ -233,8 +236,8 @@ namespace chained_queue
       return {};
     }
 
-    t_chain remove(t_err& err, r_store store, t_n n) {
-      T_ERR_GUARD(err) {
+    t_chain remove(r_err err, r_store store, t_n n) {
+      ERR_GUARD(err) {
         if (store == VALID) {
           auto has_cnt = get(chain_.cnt);
           if (has_cnt) {
@@ -297,7 +300,7 @@ namespace chained_queue
   template<typename F>
   inline
   t_void t_chain<T>::each(t_err err, F f) {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       for (p_item item = head; item; item = item->next_)
         f(item->ref());
     }
@@ -315,7 +318,7 @@ namespace chained_queue
   template<typename F>
   inline
   t_void t_chain<T>::each(t_err err, F f) const {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       for (P_item item = head; item; item = item->next_)
         f(item->cref());
     }
@@ -333,7 +336,7 @@ namespace chained_queue
   template<typename F>
   inline
   t_void t_chain<T>::ceach(t_err err, F f) const {
-    T_ERR_GUARD(err) {
+    ERR_GUARD(err) {
       for (P_item item = head; item; item = item->next_)
         f(item->cref());
     }

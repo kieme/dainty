@@ -36,6 +36,9 @@ namespace container
 {
 namespace ptrlist
 {
+  using err::t_err;
+  using err::r_err;
+
   using named::t_bool;
   using named::t_void;
   using named::t_n;
@@ -67,8 +70,8 @@ namespace ptrlist
     }
 
     inline
-    t_bool push_back(t_err& err, p_store store, t_n_ max, p_value value) {
-      T_ERR_GUARD(err) {
+    t_bool push_back(r_err err, p_store store, t_n_ max, p_value value) {
+      ERR_GUARD(err) {
         if (store) {
           if (next_ < max) {
             store[next_++] = value;
@@ -95,9 +98,9 @@ namespace ptrlist
     }
 
     inline
-    t_bool insert(t_err& err, p_store store, t_n_ max, t_ix_ ix,
+    t_bool insert(r_err err, p_store store, t_n_ max, t_ix_ ix,
                   p_value value) {
-      T_ERR_GUARD(err) {
+      ERR_GUARD(err) {
         if (store) {
           if (next_ < max) {
             if (ix < next_) {
@@ -125,8 +128,8 @@ namespace ptrlist
     }
 
     inline
-    t_bool pop_back(t_err& err, p_store store) {
-      T_ERR_GUARD(err) {
+    t_bool pop_back(r_err err, p_store store) {
+      ERR_GUARD(err) {
         if (store) {
           if (next_) {
             --next_;
@@ -149,8 +152,8 @@ namespace ptrlist
     }
 
     inline
-    t_bool erase(t_err& err, p_store store, t_ix_ ix) {
-      T_ERR_GUARD(err) {
+    t_bool erase(r_err err, p_store store, t_ix_ ix) {
+      ERR_GUARD(err) {
         if (store) {
           if (ix < next_) {
             move_down_(store, ix, --next_);
@@ -170,8 +173,8 @@ namespace ptrlist
     }
 
     inline
-    t_void clear(t_err& err, p_store store) {
-      T_ERR_GUARD(err) {
+    t_void clear(r_err err, p_store store) {
+      ERR_GUARD(err) {
         if (store) {
           if (next_)
             next_ = 0;
@@ -203,8 +206,8 @@ namespace ptrlist
     }
 
     inline
-    p_value get(t_err& err, p_store store, t_ix_ ix) {
-      T_ERR_GUARD(err) {
+    p_value get(r_err err, p_store store, t_ix_ ix) {
+      ERR_GUARD(err) {
         if (store) {
           if (ix < next_)
             return store[ix];
@@ -223,8 +226,8 @@ namespace ptrlist
     }
 
     inline
-    P_value get(t_err& err, P_store store, t_ix_ ix) const {
-      T_ERR_GUARD(err) {
+    P_value get(r_err err, P_store store, t_ix_ ix) const {
+      ERR_GUARD(err) {
         if (store) {
           if (ix < next_)
             return store[ix];
@@ -244,8 +247,8 @@ namespace ptrlist
 
     template<typename F>
     inline
-    t_void each(t_err& err, p_store store, F f) {
-      T_ERR_GUARD(err) {
+    t_void each(r_err err, p_store store, F f) {
+      ERR_GUARD(err) {
         if (store) {
           for (t_ix_ ix = 0; ix < next_; ++ix)
             f(store[ix]);
@@ -263,8 +266,8 @@ namespace ptrlist
 
     template<typename F>
     inline
-    t_void each(t_err& err, P_store store, F f) const {
-      T_ERR_GUARD(err) {
+    t_void each(r_err err, P_store store, F f) const {
+      ERR_GUARD(err) {
         if (store) {
           for (t_ix_ ix = 0; ix < next_; ++ix)
             f(store[ix]);

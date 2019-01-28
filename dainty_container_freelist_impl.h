@@ -40,6 +40,9 @@ namespace freelist
 {
 ///////////////////////////////////////////////////////////////////////////////
 
+  using err::t_err;
+  using err::r_err;
+
   using named::t_void;
   using named::t_bool;
   using named::t_n_;
@@ -69,6 +72,8 @@ namespace freelist
     inline p_value operator->()                         { return  ptr; }
     inline P_value operator->() const                   { return  ptr; }
   };
+
+///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   struct t_entry {
@@ -106,16 +111,16 @@ namespace freelist
     }
 
     inline
-    t_freelist_impl_(t_err& err, p_entry _entry, t_n_ max)
+    t_freelist_impl_(r_err err, p_entry _entry, t_n_ max)
       : size_{0}, free_{0} {
-      T_ERR_GUARD(err) {
+      ERR_GUARD(err) {
         if (_entry) {
           for (t_n_ i = 0; i < max; /**/) {
             r_entry entry = _entry[i++];
             entry.free_ = i;
           }
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
     }
 
@@ -133,8 +138,8 @@ namespace freelist
     }
 
     inline
-    t_result insert(t_err& err, p_entry _entry, t_n_ max) {
-      T_ERR_GUARD(err) {
+    t_result insert(r_err err, p_entry _entry, t_n_ max) {
+      ERR_GUARD(err) {
         if (_entry) {
           if (free_ < max) {
             r_entry entry = _entry[free_];
@@ -144,9 +149,9 @@ namespace freelist
             ++size_;
             return tmp;
           } else
-            err = E_NO_SPACE;
+            err = err::E_NO_SPACE;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return {};
     }
@@ -165,8 +170,8 @@ namespace freelist
     }
 
     inline
-    t_result insert(t_err& err, p_entry _entry, t_n_ max, R_value value) {
-      T_ERR_GUARD(err) {
+    t_result insert(r_err err, p_entry _entry, t_n_ max, R_value value) {
+      ERR_GUARD(err) {
         if (_entry) {
           if (free_ < max) {
             r_entry entry = _entry[free_];
@@ -176,9 +181,9 @@ namespace freelist
             ++size_;
             return tmp;
           } else
-            err = E_NO_SPACE;
+            err = err::E_NO_SPACE;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return {};
     }
@@ -197,8 +202,8 @@ namespace freelist
     }
 
     inline
-    t_result insert(t_err& err, p_entry _entry, t_n_ max, x_value value) {
-      T_ERR_GUARD(err) {
+    t_result insert(r_err err, p_entry _entry, t_n_ max, x_value value) {
+      ERR_GUARD(err) {
         if (_entry) {
           if (free_ < max) {
             r_entry entry = _entry[free_];
@@ -208,9 +213,9 @@ namespace freelist
             ++size_;
             return tmp;
           } else
-            err = E_NO_SPACE;
+            err = err::E_NO_SPACE;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return {};
     }
@@ -232,8 +237,8 @@ namespace freelist
     }
 
     inline
-    t_bool erase(t_err& err, p_entry _entry, t_n_ max, t_id_ id) {
-      T_ERR_GUARD(err) {
+    t_bool erase(r_err err, p_entry _entry, t_n_ max, t_id_ id) {
+      ERR_GUARD(err) {
         if (_entry) {
           if (id < max) {
             r_entry entry = _entry[id];
@@ -245,11 +250,11 @@ namespace freelist
               --size_;
               return true;
             } else
-              err = E_UNUSED_ID;
+              err = err::E_UNUSED_ID;
           } else
-            err = E_INVALID_ID;
+            err = err::E_INVALID_ID;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return false;
     }
@@ -265,8 +270,8 @@ namespace freelist
     }
 
     inline
-    t_bool erase(t_err& err, p_entry entry, t_n_ max, P_value p) {
-      T_ERR_GUARD(err) {
+    t_bool erase(r_err err, p_entry entry, t_n_ max, P_value p) {
+      ERR_GUARD(err) {
         named::t_uint64 begin = (named::t_uint64)entry,
                         end   = begin + (sizeof(t_entry)*max),
                         pos   = (named::t_uint64)p;
@@ -291,8 +296,8 @@ namespace freelist
     }
 
     inline
-    t_void clear(t_err& err, p_entry _entry, t_n_ max) {
-      T_ERR_GUARD(err) {
+    t_void clear(r_err err, p_entry _entry, t_n_ max) {
+      ERR_GUARD(err) {
         if (_entry) {
           for (t_n_ i = 0; i < max; /* none */ ) {
             r_entry entry = _entry[i++];
@@ -305,7 +310,7 @@ namespace freelist
           size_ = 0;
           free_ = 0;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
     }
 
@@ -335,18 +340,18 @@ namespace freelist
     }
 
     inline
-    p_value get(t_err& err, p_entry _entry, t_n_ max, t_id_ id) {
-      T_ERR_GUARD(err) {
+    p_value get(r_err err, p_entry _entry, t_n_ max, t_id_ id) {
+      ERR_GUARD(err) {
         if (_entry) {
           if (id < max) {
             r_entry entry = _entry[id];
             if (entry.free_ == USED)
               return entry.store_.ptr();
-            err = E_UNUSED_ID;
+            err = err::E_UNUSED_ID;
           } else
-            err = E_INVALID_ID;
+            err = err::E_INVALID_ID;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return nullptr;
     }
@@ -362,18 +367,18 @@ namespace freelist
     }
 
     inline
-    P_value get(t_err err, P_entry _entry, t_n_ max, t_id_ id) const {
-      T_ERR_GUARD(err) {
+    P_value get(r_err err, P_entry _entry, t_n_ max, t_id_ id) const {
+      ERR_GUARD(err) {
         if (_entry) {
           if (id < max) {
             R_entry entry = _entry[id];
             if (entry.free_ == USED)
               return entry.store_.cptr();
-            err = E_UNUSED_ID;
+            err = err::E_UNUSED_ID;
           } else
-            err = E_INVALID_ID;
+            err = err::E_INVALID_ID;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return nullptr;
     }
@@ -390,8 +395,8 @@ namespace freelist
 
     template<typename F>
     inline
-    t_void each(t_err err, p_entry _entry, t_n_ max, F f) {
-      T_ERR_GUARD(err) {
+    t_void each(r_err err, p_entry _entry, t_n_ max, F f) {
+      ERR_GUARD(err) {
         if (_entry) {
           for (t_id_ id = 0; id < max; ++id) {
             r_entry entry = _entry[id];
@@ -399,7 +404,7 @@ namespace freelist
               f(t_id{id}, entry.store_.ref());
           }
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
     }
 
@@ -415,8 +420,8 @@ namespace freelist
 
     template<typename F>
     inline
-    t_void each(t_err err, P_entry _entry, t_n_ max, F f) const {
-      T_ERR_GUARD(err) {
+    t_void each(r_err err, P_entry _entry, t_n_ max, F f) const {
+      ERR_GUARD(err) {
         if (_entry) {
           for (t_id_ id = 0; id < max; ++id) {
             R_entry entry = _entry[id];
@@ -424,7 +429,7 @@ namespace freelist
               f(t_id{id}, entry.store_.cref());
           }
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
     }
 
