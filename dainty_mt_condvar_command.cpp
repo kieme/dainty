@@ -46,13 +46,13 @@ namespace condvar_command
 
     t_impl_(r_err err) noexcept
       : cmdlock_(err), lock_(err), reqcond_(err), ackcond_(err) {
+      if (cmdlock_ == VALID && lock_ == VALID && reqcond_ == VALID &&
+          ackcond_ == VALID)
+        valid_ = VALID;
     }
 
     operator t_validity() const noexcept {
-      return (cmdlock_ == VALID &&
-              lock_    == VALID &&
-              reqcond_ == VALID &&
-              ackcond_ == VALID) ?  VALID : INVALID;
+      return valid_;
     }
 
     t_void process(r_err err, r_logic logic, t_n max) noexcept {
@@ -142,6 +142,7 @@ namespace condvar_command
     }
 
   private:
+    t_validity   valid_ = INVALID;
     t_mutex_lock cmdlock_;
     t_mutex_lock lock_;
     t_cond_var   reqcond_;
@@ -154,9 +155,22 @@ namespace condvar_command
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_client::t_client(t_impl_user_ impl, t_user user) noexcept
+    : impl_{impl}, user_{user} {
+  }
+
+  t_client::t_client(x_client client) noexcept
+    : impl_{client.impl_.release()},
+      user_{named::utility::reset(client.user_)} {
+  }
+
+  t_client::operator t_validity() const noexcept {
+    return impl_ == VALID && *impl_ == VALID ? VALID : INVALID;
+  }
+
   t_void t_client::request(t_err err, r_command cmd) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (*this == VALID)
         impl_->request(err, user_, cmd);
       else
         err = err::E_XXX;
@@ -164,14 +178,14 @@ namespace condvar_command
   }
 
   t_errn t_client::async_request(p_command cmd) noexcept {
-    if (impl_)
+    if (*this == VALID)
       return impl_->async_request(user_, cmd);
     return t_errn{-1};
   }
 
   t_void t_client::async_request(t_err err, p_command cmd) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (*this == VALID)
         impl_->async_request(err, user_, cmd);
       else
         err = err::E_XXX;
@@ -183,28 +197,35 @@ namespace condvar_command
   t_processor::t_processor(t_err err) noexcept {
     ERR_GUARD(err) {
       impl_ = new t_impl_(err);
-      if (impl_) {
+      if (impl_ == VALID) {
         if (err)
-          delete named::reset(impl_);
+          impl_.clear();
       } else
         err = err::E_XXX;
     }
   }
 
+  t_processor::t_processor(x_processor processor) noexcept
+    : impl_{processor.impl_.release()} {
+  }
+
   t_processor::~t_processor() {
-    if (impl_) // NOTE: can check to see if clients exists
-      delete impl_;
+    impl_.clear();
+  }
+
+  t_processor::operator t_validity() const noexcept {
+    return impl_ == VALID && *impl_ == VALID ? VALID : INVALID;
   }
 
   t_client t_processor::make_client(t_user user) noexcept {
-    if (impl_)
+    if (*this == VALID)
       return impl_->make_client(user);
     return {};
   }
 
   t_client t_processor::make_client(t_err err, t_user user) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (*this == VALID)
         return impl_->make_client(err, user);
       err = err::E_XXX;
     }
@@ -213,7 +234,7 @@ namespace condvar_command
 
   t_void t_processor::process(t_err err, r_logic logic, t_n max) noexcept {
     ERR_GUARD(err) {
-      if (impl_ && *impl_ == VALID)
+      if (*this == VALID)
         impl_->process(err, logic, max);
       else
         err = err::E_XXX;

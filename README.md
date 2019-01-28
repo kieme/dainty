@@ -1,5 +1,7 @@
-# private_dainty_mt
+# dainty_mt
 &lt;dainty::mt> is a multithreading library that is used by the dainty framework
+
+under construction.
 
 *&lt;dainty::mt::thread>*
   
