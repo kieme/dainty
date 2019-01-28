@@ -1,2 +1,4 @@
-# private_dainty_tracing
-&lt;dainty::tracing> is a service that provides efficient tracing to the &lt;dainty> framwork.
+# dainty_tracing
+&lt;dainty::tracing> is a dainty service that provides efficient tracing to the &lt;dainty> framework.
+
+under construction. 
