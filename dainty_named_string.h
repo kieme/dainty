@@ -605,7 +605,7 @@ namespace string
   template<class I1>
   inline
   t_string<TAG, 0, I>::t_string(t_string<TAG, 0, I1>&& str)
-    : blks_{str.blks_}, max_{named::reset(str.max_)},
+    : blks_{str.blks_}, max_{utility::reset(str.max_)},
       store_{std::move(str.store_)}, impl_{str.impl_.reset()} {
   }
 
@@ -693,7 +693,7 @@ namespace string
       t_string<TAG, 0, I>::operator=(t_string<TAG, 0, I1>&& str) {
     dealloc_(store_.release());
     impl_.reset(str.impl_.reset());
-    max_   = named::reset(str.max_);
+    max_   = utility::reset(str.max_);
     blks_  = str.blks_;
     store_ = std::move(str.store_);
     return *this;
