@@ -41,8 +41,6 @@ namespace ptr
   using named::VALID;
   using named::INVALID;
 
-  // XXX must be made explicit
-
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename D>
