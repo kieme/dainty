@@ -27,8 +27,8 @@
 #ifndef _DAINTY_MT_THREAD_H_
 #define _DAINTY_MT_THREAD_H_
 
-#include "dainty_container_ptr.h"
 #include "dainty_os_threading.h"
+#include "dainty_container_ptr.h"
 #include "dainty_mt_err.h"
 
 namespace dainty
@@ -41,9 +41,9 @@ namespace thread
   using named::p_void;
   using named::t_bool;
   using named::P_cstr;
+  using named::t_prefix;
   using named::t_validity;
   using named::t_errn;
-  using named::t_prefix;
   using named::VALID;
   using named::INVALID;
   using container::ptr::t_passable_ptr;
@@ -60,17 +60,19 @@ namespace thread
   public:
     class t_logic {
     public:
-      using t_err = oops::t_oops<>;
+      using t_err          = oops::t_oops<>;
+      using r_pthread_attr = os::r_pthread_attr;
 
       virtual ~t_logic() { }
-      virtual t_void update (t_err, os::r_pthread_attr) noexcept;
-      virtual t_void prepare(t_err)                     noexcept;
-      virtual p_void run    ()                          noexcept = 0;
+      virtual t_void update (t_err, r_pthread_attr) noexcept;
+      virtual t_void prepare(t_err)                 noexcept;
+      virtual p_void run    ()                      noexcept = 0;
     };
 
     using t_logic_ptr = t_passable_ptr<t_logic>;
+    using x_logic_ptr = t_prefix<t_logic_ptr>::x_;
 
-    t_thread(t_err, P_cstr name, t_logic_ptr) noexcept;
+    t_thread(t_err, P_cstr name, x_logic_ptr) noexcept;
 
     t_thread(R_thread)           = delete;
     t_thread(x_thread)           = delete;

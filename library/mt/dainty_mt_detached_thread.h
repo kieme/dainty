@@ -59,17 +59,19 @@ namespace detached_thread
   public:
     class t_logic {
     public:
-      using t_err = oops::t_oops<>;
+      using t_err          = oops::t_oops<>;
+      using r_pthread_attr = os::r_pthread_attr;
 
       virtual ~t_logic() { }
-      virtual t_void update (t_err, os::r_pthread_attr) noexcept; //XXX
+      virtual t_void update (t_err, r_pthread_attr) noexcept;
       virtual t_void prepare(t_err) noexcept;
       virtual t_void run    ()      noexcept = 0;
     };
 
     using t_logic_ptr = t_passable_ptr<t_logic>;
+    using x_logic_ptr = t_prefix<t_logic_ptr>::x_;
 
-    t_thread(t_err, P_cstr name, t_logic_ptr) noexcept;
+    t_thread(t_err, P_cstr name, x_logic_ptr) noexcept;
 
     t_thread(R_thread)           = delete;
     t_thread(x_thread)           = delete;
