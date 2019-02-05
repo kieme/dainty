@@ -205,7 +205,7 @@ namespace state
     virtual t_sid request_transition(t_sid sid) const    { return sid;  }
             t_sid no_transition     ()          const    { return sid_; }
 
-    r_user  get_user ()                                 { return user_; }
+    r_user get_user ()                                  { return user_; }
     R_user get_user () const                            { return user_; }
     R_user get_cuser() const                            { return user_; }
 
