@@ -343,6 +343,73 @@ namespace os
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_errn call_pthread_init(r_pthread_attr attr) noexcept {
+    return t_errn{::pthread_attr_init(&attr)};
+  }
+
+  t_void call_pthread_init(t_err err, r_pthread_attr attr) noexcept {
+    ERR_GUARD(err) {
+      auto errn{call_pthread_init(attr)};
+      if (errn == INVALID)
+        err = err::E_XXX;
+    }
+  }
+
+  t_errn call_pthread_set_stacksize(r_pthread_attr attr,
+                                    t_pthread_attr_stacksize size) noexcept {
+    return t_errn{::pthread_attr_setstacksize(&attr, get(size))};
+  }
+
+  t_void call_pthread_set_stacksize(t_err err, r_pthread_attr attr,
+                                    t_pthread_attr_stacksize size) noexcept {
+    ERR_GUARD(err) {
+      auto errn{call_pthread_set_stacksize(attr, size)};
+      if (errn == INVALID)
+        err = err::E_XXX;
+    }
+  }
+
+  t_errn call_pthread_set_guardsize(r_pthread_attr attr,
+                                    t_pthread_attr_guardsize size) noexcept {
+    return t_errn{::pthread_attr_setguardsize(&attr, get(size))};
+  }
+
+  t_void call_pthread_set_guardsize(t_err err, r_pthread_attr attr,
+                                    t_pthread_attr_guardsize size) noexcept {
+    ERR_GUARD(err) {
+      auto errn{call_pthread_set_guardsize(attr, size)};
+      if (errn == INVALID)
+        err = err::E_XXX;
+    }
+  }
+
+  t_errn call_pthread_set_schedpolicy_other(r_pthread_attr attr) noexcept {
+    return t_errn{::pthread_attr_setschedpolicy(&attr, SCHED_OTHER)};
+  }
+
+  t_void call_pthread_set_schedpolicy_other(t_err err,
+                                            r_pthread_attr attr) noexcept {
+    ERR_GUARD(err) {
+      auto errn{call_pthread_set_schedpolicy_other(attr)};
+      if (errn == INVALID)
+        err = err::E_XXX;
+    }
+  }
+
+  t_errn call_pthread_set_inheritsched_explicit(r_pthread_attr attr) noexcept {
+    return t_errn{::pthread_attr_setinheritsched(&attr,
+                                                 PTHREAD_EXPLICIT_SCHED)};
+  }
+
+  t_void call_pthread_set_inheritsched_explicit(t_err err,
+                                                r_pthread_attr attr) noexcept {
+    ERR_GUARD(err) {
+      auto errn{call_pthread_set_inheritsched_explicit(attr)};
+      if (errn == INVALID)
+        err = err::E_XXX;
+    }
+  }
+
   t_errn call_pthread_set_detach(r_pthread_attr attr) noexcept {
     return t_errn{::pthread_attr_setdetachstate(&attr,
                                                 PTHREAD_CREATE_DETACHED)};
@@ -373,6 +440,8 @@ namespace os
     }
     return false;
   }
+
+//////////////////////////////////////////////////////////////////////////////
 
   ::pthread_t call_pthread_self() noexcept {
      return ::pthread_self();

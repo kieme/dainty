@@ -53,6 +53,7 @@ namespace os
   using named::t_n;
   using named::p_cstr;
   using named::t_prefix;
+  using named::t_explicit;
   using named::P_cstr;
   using named::VALID;
   using named::INVALID;
@@ -103,6 +104,14 @@ namespace os
   using t_itimerspec        = t_prefix<::itimerspec>::t_;
   using r_itimerspec        = t_prefix<::itimerspec>::r_;
   using R_itimerspec        = t_prefix<::itimerspec>::R_;
+
+  enum  t_pthread_attr_stacksize_tag {};
+  using t_pthread_attr_stacksize = t_explicit<::size_t,
+                                              t_pthread_attr_stacksize_tag>;
+
+  enum  t_pthread_attr_guardsize_tag {};
+  using t_pthread_attr_guardsize = t_explicit<::size_t,
+                                              t_pthread_attr_guardsize_tag>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -194,11 +203,32 @@ namespace os
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_errn call_pthread_init(       r_pthread_attr) noexcept;
+  t_void call_pthread_init(t_err, r_pthread_attr) noexcept;
+
+  t_errn call_pthread_set_stacksize(       r_pthread_attr,
+                                           t_pthread_attr_stacksize) noexcept;
+  t_void call_pthread_set_stacksize(t_err, r_pthread_attr,
+                                           t_pthread_attr_stacksize) noexcept;
+
+  t_errn call_pthread_set_guardsize(       r_pthread_attr,
+                                           t_pthread_attr_guardsize) noexcept;
+  t_void call_pthread_set_guardsize(t_err, r_pthread_attr,
+                                           t_pthread_attr_guardsize) noexcept;
+
+  t_errn call_pthread_set_schedpolicy_other(       r_pthread_attr) noexcept;
+  t_void call_pthread_set_schedpolicy_other(t_err, r_pthread_attr) noexcept;
+
+  t_errn call_pthread_set_inheritsched_explicit(       r_pthread_attr) noexcept;
+  t_void call_pthread_set_inheritsched_explicit(t_err, r_pthread_attr) noexcept;
+
   t_errn call_pthread_set_detach(       r_pthread_attr) noexcept;
   t_void call_pthread_set_detach(t_err, r_pthread_attr) noexcept;
 
   t_bool call_pthread_is_detach(       R_pthread_attr) noexcept;
   t_bool call_pthread_is_detach(t_err, R_pthread_attr) noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
 
   t_pthread call_pthread_self() noexcept;
   t_pthread call_pthread_self() noexcept;
