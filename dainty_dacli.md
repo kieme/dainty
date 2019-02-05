@@ -1,11 +1,11 @@
-# Strict Defined Command Line Interface
-## (sdcli - a notation and processing specification)
+# Defined Argument Command Line Interface
+## (dacli - a notation and processing specification)
 
-sdcli define a strict cli notation and the way it is processed. It attempts to support a set of fundamental argument types while keeping the notation simple and minimalistic.
+dacli define a strict argument based notation and the way it is processed. It attempts to support a set of fundamental argument types while keeping the notation simple and minimalistic.
 
 ## motivation
 
-sdcli is the result of converging objectives. It's main objective is: how to discover, express and use a functionality being offered through a cli.
+dacli is the result of converging objectives. It's main objective is: how to discover, express and use a functionality being offered through a cli.
 
 Another important objective is to use sdcli for different use scenarios, namely;
 
@@ -50,22 +50,22 @@ sdcli does not attempt to support everything; like an exhaustive set of argument
 
 # overview
 
-sdcli (SDCLI) can been seen as an intelligent, efficient interpreter and facilitator between what a software (SW) offers and what a user (USER) wants to use. The software express to sdcli what it supports by specifying a command definition using the sdcli notation syntax, which is known in the rest of the text as the definition notation form, or definition notation. The user can query sdcli what functionality(s) it offers. Once sdcli is queried, it will respond by providing the user with an appropriate command definition notation, which the user then can use as a sdcli command use notation form, or short use notation. sdcli is then responsible for processing the use notation, possibly responding if it is an unsupported or illegal use notation, or transforming it into a defined, accessible notation known as the result notation, which is then passed to the software. The result notation is an internal representation of the definition notation and the use notation, which is used to define what the software must receive from sdcli.
+dacli (DACLI) can been seen as an intelligent, efficient interpreter and facilitator between what a software (SW) offers and what a user (USER) wants to use. The software express to sdcli what it supports by specifying a command definition using the sdcli notation syntax, which is known in the rest of the text as the definition notation form, or definition notation. The user can query sdcli what functionality(s) it offers. Once sdcli is queried, it will respond by providing the user with an appropriate command definition notation, which the user then can use as a dacli command use notation form, or short use notation. sdcli is then responsible for processing the use notation, possibly responding if it is an unsupported or illegal use notation, or transforming it into a defined, accessible notation known as the result notation, which is then passed to the software. The result notation is an internal representation of the definition notation and the use notation, which is used to define what the software must receive from sdcli.
 
 ```sequence
 participant USER
-participant SDCLI
+participant DACLI
 participant SW
 Note over SW: knows what it can do
-SW->SDCLI: definition notation
-Note over SDCLI: interface is now defined
+SW->DACLI: definition notation
+Note over DACLI: interface is now defined
 Note over USER: don't know what SW can do
-USER->SDCLI: empty use notation (query)
-SDCLI->USER: definition notation
+USER->DACLI: empty use notation (query)
+DACLI->USER: definition notation
 Note over USER: knows what SW can do
-USER->SDCLI: use notation
-Note over SDCLI: validate using definition
-SDCLI->SW: result notation
+USER->DACLI: use notation
+Note over DACLI: validate using definition
+DACLI->SW: result notation
 Note over SW: use result
 ```
 
