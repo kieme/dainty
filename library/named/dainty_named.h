@@ -161,15 +161,14 @@ namespace named
 
   template<typename T>
   struct t_prefix {
+    using T_  = const T;
     using t_  = T;
-
     using p_  = T*;
     using P_  = const T*;
-
     using r_  = T&;
     using R_  = const T&;
-
     using x_  = T&&;
+    using X_  = const T&&;
 
     t_prefix() = delete;
   };
@@ -177,7 +176,6 @@ namespace named
   template<>
   struct t_prefix<void> {
     using t_  = void;
-
     using p_  = void*;
     using P_  = const void*;
 
@@ -191,72 +189,84 @@ namespace named
 ///////////////////////////////////////////////////////////////////////////////
 
   using t_bool         = t_prefix<bool>::t_;
+  using T_bool         = t_prefix<t_bool>::T_;
   using r_bool         = t_prefix<t_bool>::r_;
   using R_bool         = t_prefix<t_bool>::R_;
   using p_bool         = t_prefix<t_bool>::p_;
   using P_bool         = t_prefix<t_bool>::P_;
 
   using t_char         = t_prefix<char>::t_;
+  using T_char         = t_prefix<t_char>::T_;
   using r_char         = t_prefix<t_char>::r_;
   using R_char         = t_prefix<t_char>::R_;
   using p_char         = t_prefix<t_char>::p_;
   using P_char         = t_prefix<t_char>::P_;
 
   using t_uchar        = t_prefix<unsigned char>::t_;
+  using T_uchar        = t_prefix<t_uchar>::T_;
   using r_uchar        = t_prefix<t_uchar>::r_;
   using R_uchar        = t_prefix<t_uchar>::R_;
   using p_uchar        = t_prefix<t_uchar>::p_;
   using P_uchar        = t_prefix<t_uchar>::P_;
 
   using t_int          = t_prefix<int>::t_;
+  using T_int          = t_prefix<int>::T_;
   using r_int          = t_prefix<t_int>::r_;
   using R_int          = t_prefix<t_int>::R_;
   using p_int          = t_prefix<t_int>::p_;
   using P_int          = t_prefix<t_int>::P_;
 
   using t_uint         = t_prefix<unsigned int>::t_;
+  using T_uint         = t_prefix<t_uint>::T_;
   using r_uint         = t_prefix<t_uint>::r_;
   using R_uint         = t_prefix<t_uint>::R_;
   using p_uint         = t_prefix<t_uint>::p_;
   using P_uint         = t_prefix<t_uint>::P_;
 
   using t_short        = t_prefix<short>::t_;
+  using T_short        = t_prefix<t_short>::T_;
   using r_short        = t_prefix<t_short>::r_;
   using R_short        = t_prefix<t_short>::R_;
   using p_short        = t_prefix<t_short>::p_;
   using P_short        = t_prefix<t_short>::P_;
 
   using t_ushort       = t_prefix<unsigned short>::t_;
+  using T_ushort       = t_prefix<t_ushort>::T_;
   using r_ushort       = t_prefix<t_ushort>::r_;
   using R_ushort       = t_prefix<t_ushort>::R_;
   using p_ushort       = t_prefix<t_ushort>::p_;
   using P_ushort       = t_prefix<t_ushort>::P_;
 
   using t_long         = t_prefix<long int>::t_;
+  using T_long         = t_prefix<t_long>::T_;
   using r_long         = t_prefix<t_long>::r_;
   using R_long         = t_prefix<t_long>::R_;
   using p_long         = t_prefix<t_long>::p_;
   using P_long         = t_prefix<t_long>::P_;
 
   using t_ulong        = t_prefix<unsigned long int>::t_;
+  using T_ulong        = t_prefix<t_ulong>::T_;
   using r_ulong        = t_prefix<t_ulong>::r_;
   using R_ulong        = t_prefix<t_ulong>::R_;
   using p_ulong        = t_prefix<t_ulong>::p_;
   using P_ulong        = t_prefix<t_ulong>::P_;
 
   using t_llong        = t_prefix<long long int>::t_;
+  using T_llong        = t_prefix<t_llong>::T_;
   using r_llong        = t_prefix<t_llong>::r_;
   using R_llong        = t_prefix<t_llong>::R_;
   using p_llong        = t_prefix<t_llong>::p_;
   using P_llong        = t_prefix<t_llong>::P_;
 
   using t_ullong       = t_prefix<unsigned long long int>::t_;
+  using T_ullong       = t_prefix<t_ullong>::T_;
   using r_ullong       = t_prefix<t_ullong>::r_;
   using R_ullong       = t_prefix<t_ullong>::R_;
   using p_ullong       = t_prefix<t_ullong>::p_;
   using P_ullong       = t_prefix<t_ullong>::P_;
 
   using t_double       = t_prefix<double>::t_;
+  using T_double       = t_prefix<t_double>::T_;
   using r_double       = t_prefix<t_double>::r_;
   using R_double       = t_prefix<t_double>::R_;
   using p_double       = t_prefix<t_double>::p_;
@@ -267,150 +277,175 @@ namespace named
   using P_void         = t_prefix<t_void>::P_;
 
   using t_int8         = t_prefix<std::int8_t>::t_;
+  using T_int8         = t_prefix<t_int8>::T_;
   using r_int8         = t_prefix<t_int8>::r_;
   using R_int8         = t_prefix<t_int8>::R_;
   using p_int8         = t_prefix<t_int8>::p_;
   using P_int8         = t_prefix<t_int8>::P_;
 
   using t_int16        = t_prefix<std::int16_t>::t_;
+  using T_int16        = t_prefix<t_int16>::T_;
   using r_int16        = t_prefix<t_int16>::r_;
   using R_int16        = t_prefix<t_int16>::R_;
   using p_int16        = t_prefix<t_int16>::p_;
   using P_int16        = t_prefix<t_int16>::P_;
 
   using t_int32        = t_prefix<std::int32_t>::t_;
+  using T_int32        = t_prefix<t_int32>::T_;
   using r_int32        = t_prefix<t_int32>::r_;
   using R_int32        = t_prefix<t_int32>::R_;
   using p_int32        = t_prefix<t_int32>::p_;
   using P_int32        = t_prefix<t_int32>::P_;
 
   using t_int64        = t_prefix<std::int64_t>::t_;
+  using T_int64        = t_prefix<t_int64>::T_;
   using r_int64        = t_prefix<t_int64>::r_;
   using R_int64        = t_prefix<t_int64>::R_;
   using p_int64        = t_prefix<t_int64>::p_;
   using P_int64        = t_prefix<t_int64>::P_;
 
   using t_uint8        = t_prefix<std::uint8_t>::t_;
+  using T_uint8        = t_prefix<t_uint8>::T_;
   using r_uint8        = t_prefix<t_uint8>::r_;
   using R_uint8        = t_prefix<t_uint8>::R_;
   using p_uint8        = t_prefix<t_uint8>::p_;
   using P_uint8        = t_prefix<t_uint8>::P_;
 
   using t_uint16       = t_prefix<std::uint16_t>::t_;
+  using T_uint16       = t_prefix<t_uint16>::T_;
   using r_uint16       = t_prefix<t_uint16>::r_;
   using R_uint16       = t_prefix<t_uint16>::R_;
   using p_uint16       = t_prefix<t_uint16>::p_;
   using P_uint16       = t_prefix<t_uint16>::P_;
 
   using t_uint32       = t_prefix<std::uint32_t>::t_;
+  using T_uint32       = t_prefix<t_uint32>::T_;
   using r_uint32       = t_prefix<t_uint32>::r_;
   using R_uint32       = t_prefix<t_uint32>::R_;
   using p_uint32       = t_prefix<t_uint32>::p_;
   using P_uint32       = t_prefix<t_uint32>::P_;
 
   using t_uint64       = t_prefix<std::uint64_t>::t_;
+  using T_uint64       = t_prefix<t_uint64>::T_;
   using r_uint64       = t_prefix<t_uint64>::r_;
   using R_uint64       = t_prefix<t_uint64>::R_;
   using p_uint64       = t_prefix<t_uint64>::p_;
   using P_uint64       = t_prefix<t_uint64>::P_;
 
   using t_int_least8   = t_prefix<std::int_least8_t>::t_;
+  using T_int_least8   = t_prefix<t_int_least8>::T_;
   using r_int_least8   = t_prefix<t_int_least8>::r_;
   using R_int_least8   = t_prefix<t_int_least8>::R_;
   using p_int_least8   = t_prefix<t_int_least8>::p_;
   using P_int_least8   = t_prefix<t_int_least8>::P_;
 
   using t_int_least16  = t_prefix<std::int_least16_t>::t_;
+  using T_int_least16  = t_prefix<t_int_least16>::T_;
   using r_int_least16  = t_prefix<t_int_least16>::r_;
   using R_int_least16  = t_prefix<t_int_least16>::R_;
   using p_int_least16  = t_prefix<t_int_least16>::p_;
   using P_int_least16  = t_prefix<t_int_least16>::P_;
 
   using t_int_least32  = t_prefix<std::int_least32_t>::t_;
+  using T_int_least32  = t_prefix<t_int_least32>::T_;
   using r_int_least32  = t_prefix<t_int_least32>::r_;
   using R_int_least32  = t_prefix<t_int_least32>::R_;
   using p_int_least32  = t_prefix<t_int_least32>::p_;
   using P_int_least32  = t_prefix<t_int_least32>::P_;
 
   using t_int_least64  = t_prefix<std::int_least64_t>::t_;
+  using T_int_least64  = t_prefix<t_int_least64>::T_;
   using r_int_least64  = t_prefix<t_int_least64>::r_;
   using R_int_least64  = t_prefix<t_int_least64>::R_;
   using p_int_least64  = t_prefix<t_int_least64>::p_;
   using P_int_least64  = t_prefix<t_int_least64>::P_;
 
   using t_uint_least8  = t_prefix<std::uint_least8_t>::t_;
+  using T_uint_least8  = t_prefix<t_uint_least8>::T_;
   using r_uint_least8  = t_prefix<t_uint_least8>::r_;
   using R_uint_least8  = t_prefix<t_uint_least8>::R_;
   using p_uint_least8  = t_prefix<t_uint_least8>::p_;
   using P_uint_least8  = t_prefix<t_uint_least8>::P_;
 
   using t_uint_least16 = t_prefix<std::uint_least16_t>::t_;
+  using T_uint_least16 = t_prefix<t_uint_least16>::T_;
   using r_uint_least16 = t_prefix<t_uint_least16>::r_;
   using R_uint_least16 = t_prefix<t_uint_least16>::R_;
   using p_uint_least16 = t_prefix<t_uint_least16>::p_;
   using P_uint_least16 = t_prefix<t_uint_least16>::P_;
 
   using t_uint_least32 = t_prefix<std::uint_least32_t>::t_;
+  using T_uint_least32 = t_prefix<t_uint_least32>::T_;
   using r_uint_least32 = t_prefix<t_uint_least32>::r_;
   using R_uint_least32 = t_prefix<t_uint_least32>::R_;
   using p_uint_least32 = t_prefix<t_uint_least32>::p_;
   using P_uint_least32 = t_prefix<t_uint_least32>::P_;
 
   using t_uint_least64 = t_prefix<std::uint_least64_t>::t_;
+  using T_uint_least64 = t_prefix<t_uint_least64>::T_;
   using r_uint_least64 = t_prefix<t_uint_least64>::r_;
   using R_uint_least64 = t_prefix<t_uint_least64>::R_;
   using p_uint_least64 = t_prefix<t_uint_least64>::p_;
   using P_uint_least64 = t_prefix<t_uint_least64>::P_;
 
   using t_int_fast8    = t_prefix<std::int_fast8_t>::t_;
+  using T_int_fast8    = t_prefix<t_int_fast8>::T_;
   using r_int_fast8    = t_prefix<t_int_fast8>::r_;
   using R_int_fast8    = t_prefix<t_int_fast8>::R_;
   using p_int_fast8    = t_prefix<t_int_fast8>::p_;
   using P_int_fast8    = t_prefix<t_int_fast8>::P_;
 
   using t_int_fast16   = t_prefix<std::int_fast16_t>::t_;
+  using T_int_fast16   = t_prefix<t_int_fast16>::T_;
   using r_int_fast16   = t_prefix<t_int_fast16>::r_;
   using R_int_fast16   = t_prefix<t_int_fast16>::R_;
   using p_int_fast16   = t_prefix<t_int_fast16>::p_;
   using P_int_fast16   = t_prefix<t_int_fast16>::P_;
 
   using t_int_fast32   = t_prefix<std::int_fast32_t>::t_;
+  using T_int_fast32   = t_prefix<t_int_fast32>::T_;
   using r_int_fast32   = t_prefix<t_int_fast32>::r_;
   using R_int_fast32   = t_prefix<t_int_fast32>::R_;
   using p_int_fast32   = t_prefix<t_int_fast32>::p_;
   using P_int_fast32   = t_prefix<t_int_fast32>::P_;
 
   using t_int_fast64   = t_prefix<std::int_fast64_t>::t_;
+  using T_int_fast64   = t_prefix<t_int_fast64>::T_;
   using r_int_fast64   = t_prefix<t_int_fast64>::r_;
   using R_int_fast64   = t_prefix<t_int_fast64>::R_;
   using p_int_fast64   = t_prefix<t_int_fast64>::p_;
   using P_int_fast64   = t_prefix<t_int_fast64>::P_;
 
   using t_uint_fast8   = t_prefix<std::uint_fast8_t>::t_;
+  using T_uint_fast8   = t_prefix<t_uint_fast8>::T_;
   using r_uint_fast8   = t_prefix<t_uint_fast8>::r_;
   using R_uint_fast8   = t_prefix<t_uint_fast8>::R_;
   using p_uint_fast8   = t_prefix<t_uint_fast8>::p_;
   using P_uint_fast8   = t_prefix<t_uint_fast8>::P_;
 
   using t_uint_fast16  = t_prefix<std::uint_fast16_t>::t_;
+  using T_uint_fast16  = t_prefix<t_uint_fast16>::T_;
   using r_uint_fast16  = t_prefix<t_uint_fast16>::r_;
   using R_uint_fast16  = t_prefix<t_uint_fast16>::R_;
   using p_uint_fast16  = t_prefix<t_uint_fast16>::p_;
   using P_uint_fast16  = t_prefix<t_uint_fast16>::P_;
 
   using t_uint_fast32  = t_prefix<std::uint_fast32_t>::t_;
+  using T_uint_fast32  = t_prefix<t_uint_fast32>::T_;
   using r_uint_fast32  = t_prefix<t_uint_fast32>::r_;
   using R_uint_fast32  = t_prefix<t_uint_fast32>::R_;
   using p_uint_fast32  = t_prefix<t_uint_fast32>::p_;
   using P_uint_fast32  = t_prefix<t_uint_fast32>::P_;
 
   using t_uint_fast64  = t_prefix<std::uint_fast64_t>::t_;
+  using T_uint_fast64  = t_prefix<t_uint_fast64>::T_;
   using r_uint_fast64  = t_prefix<t_uint_fast64>::r_;
   using R_uint_fast64  = t_prefix<t_uint_fast64>::R_;
   using p_uint_fast64  = t_prefix<t_uint_fast64>::p_;
   using P_uint_fast64  = t_prefix<t_uint_fast64>::P_;
 
   using t_uintptr      = t_prefix<std::uintptr_t>::t_;
+  using T_uintptr      = t_prefix<t_uintptr>::T_;
   using r_uintptr      = t_prefix<t_uintptr>::r_;
   using R_uintptr      = t_prefix<t_uintptr>::R_;
   using p_uintptr      = t_prefix<t_uintptr>::p_;
@@ -522,31 +557,74 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum t_fd_tag_       {};
-  enum t_n_tag_        {};
-  enum t_ix_tag_       {};
-  enum t_bix_tag_      {};
-  enum t_eix_tag_      {};
-  enum t_validity_tag_ {};
-  enum t_cstr_tag_     {};
-
+  enum t_fd_tag_ {};
   using t_fd_       = t_int32;
-  using t_n_        = t_ulong;
-  using t_ix_       = t_n_;
-  using t_bix_      = t_ix_;
-  using t_eix_      = t_ix_;
-  using t_validity_ = t_bool;
-  using p_cstr_     = t_prefix<char>::p_;
-  using P_cstr_     = t_prefix<char>::P_;
+  using t_fd        = t_explicit<t_fd_, t_fd_tag_>;
+  using T_fd        = t_prefix<t_fd>::T_;
+  using r_fd        = t_prefix<t_fd>::r_;
+  using R_fd        = t_prefix<t_fd>::R_;
+  using p_fd        = t_prefix<t_fd>::p_;
+  using P_fd        = t_prefix<t_fd>::P_;
 
-  using t_fd       = t_explicit<t_fd_,       t_fd_tag_>;
-  using t_n        = t_explicit<t_n_,        t_n_tag_>;
-  using t_ix       = t_explicit<t_ix_,       t_ix_tag_>;
-  using t_bix      = t_explicit<t_ix_,       t_bix_tag_>;
-  using t_eix      = t_explicit<t_ix_,       t_eix_tag_>;
-  using t_validity = t_explicit<t_validity_, t_validity_tag_>;
-  using p_cstr     = t_explicit<p_cstr_,     t_cstr_tag_>;
-  using P_cstr     = t_explicit<P_cstr_,     t_cstr_tag_>;
+  enum t_n_tag_ {};
+  using t_n_        = t_ulong;
+  using t_n         = t_explicit<t_n_, t_n_tag_>;
+  using T_n         = t_prefix<t_n>::T_;
+  using r_n         = t_prefix<t_n>::r_;
+  using R_n         = t_prefix<t_n>::R_;
+  using p_n         = t_prefix<t_n>::p_;
+  using P_n         = t_prefix<t_n>::P_;
+
+  enum t_ix_tag_ {};
+  using t_ix_       = t_n_;
+  using t_ix        = t_explicit<t_ix_, t_ix_tag_>;
+  using T_ix        = t_prefix<t_ix>::T_;
+  using r_ix        = t_prefix<t_ix>::r_;
+  using R_ix        = t_prefix<t_ix>::R_;
+  using p_ix        = t_prefix<t_ix>::p_;
+  using P_ix        = t_prefix<t_ix>::P_;
+
+  enum t_bix_tag_ {};
+  using t_bix       = t_explicit<t_ix_, t_ix_tag_>;
+  using T_bix       = t_prefix<t_bix>::T_;
+  using r_bix       = t_prefix<t_bix>::r_;
+  using R_bix       = t_prefix<t_bix>::R_;
+  using p_bix       = t_prefix<t_bix>::p_;
+  using P_bix       = t_prefix<t_bix>::P_;
+
+  enum t_eix_tag_ {};
+  using t_eix       = t_explicit<t_ix_, t_ix_tag_>;
+  using T_eix       = t_prefix<t_eix>::T_;
+  using r_eix       = t_prefix<t_eix>::r_;
+  using R_eix       = t_prefix<t_eix>::R_;
+  using p_eix       = t_prefix<t_eix>::p_;
+  using P_eix       = t_prefix<t_eix>::P_;
+
+  enum t_validity_tag_ {};
+  using t_validity_ = t_bool;
+  using t_validity  = t_explicit<t_validity_, t_validity_tag_>;
+  using T_validity  = t_prefix<t_validity>::T_;
+  using r_validity  = t_prefix<t_validity>::r_;
+  using R_validity  = t_prefix<t_validity>::R_;
+  using p_validity  = t_prefix<t_validity>::p_;
+  using P_validity  = t_prefix<t_validity>::P_;
+
+  enum t_cstr_tag_ {};
+  using p_cstr_     = t_prefix<char>::p_;
+  using t_cstr_ptr  = t_explicit<p_cstr_, t_cstr_tag_>;
+  using T_cstr_ptr  = t_prefix<t_cstr_ptr>::T_;
+  using r_cstr_ptr  = t_prefix<t_cstr_ptr>::r_;
+  using R_cstr_ptr  = t_prefix<t_cstr_ptr>::R_;
+  using p_cstr_ptr  = t_prefix<t_cstr_ptr>::p_;
+  using P_cstr_ptr  = t_prefix<t_cstr_ptr>::P_;
+
+  using P_cstr_     = t_prefix<char>::P_;
+  using t_cstr_cptr = t_explicit<P_cstr_, t_cstr_tag_>;
+  using T_cstr_cptr = t_prefix<t_cstr_cptr>::T_;
+  using r_cstr_cptr = t_prefix<t_cstr_cptr>::r_;
+  using R_cstr_cptr = t_prefix<t_cstr_cptr>::R_;
+  using p_cstr_cptr = t_prefix<t_cstr_cptr>::p_;
+  using P_cstr_cptr = t_prefix<t_cstr_cptr>::P_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -584,13 +662,15 @@ namespace named
     return get(lh) == get(rh);
   }
 
-  template<int N>
-  constexpr p_cstr mk_str(char (&str)[N])         { return p_cstr{str};  }
-  constexpr p_cstr mk_str(p_cstr_ str)            { return p_cstr{str};  }
+///////////////////////////////////////////////////////////////////////////////
 
   template<int N>
-  constexpr P_cstr mk_cstr(const char (&cstr)[N]) { return P_cstr{cstr}; }
-  constexpr P_cstr mk_cstr(P_cstr_ cstr)          { return P_cstr{cstr}; }
+  constexpr t_cstr_ptr mk_ptr(t_char (&str)[N]) { return t_cstr_ptr{str};  }
+  constexpr t_cstr_ptr mk_ptr(p_cstr_ str)      { return t_cstr_ptr{str};  }
+
+  template<int N>
+  constexpr t_cstr_cptr mk_cptr(T_char (&cstr)[N]) { return t_cstr_cptr{cstr}; }
+  constexpr t_cstr_cptr mk_cptr(P_cstr_ cstr)      { return t_cstr_cptr{cstr}; }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -708,6 +788,21 @@ namespace named
   constexpr t_n multiple_of(t_multiple<N, TAG> multiple) {
     return t_n{N*get(multiple.value)};
   }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  // deprecated - should remove overtime - P_cstr and p_cstr
+
+  using p_cstr      = t_explicit<p_cstr_, t_cstr_tag_>;
+  using P_cstr      = t_explicit<P_cstr_, t_cstr_tag_>; // XXX - not sure?
+
+  template<int N>
+  constexpr p_cstr mk_str(char (&str)[N])         { return p_cstr{str};  }
+  constexpr p_cstr mk_str(p_cstr_ str)            { return p_cstr{str};  }
+
+  template<int N>
+  constexpr P_cstr mk_cstr(const char (&cstr)[N]) { return P_cstr{cstr}; }
+  constexpr P_cstr mk_cstr(P_cstr_ cstr)          { return P_cstr{cstr}; }
 
 ///////////////////////////////////////////////////////////////////////////////
 }
