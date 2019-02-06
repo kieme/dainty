@@ -585,7 +585,7 @@ namespace named
   using P_ix        = t_prefix<t_ix>::P_;
 
   enum t_bix_tag_ {};
-  using t_bix       = t_explicit<t_ix_, t_ix_tag_>;
+  using t_bix       = t_explicit<t_ix_, t_bix_tag_>;
   using T_bix       = t_prefix<t_bix>::T_;
   using r_bix       = t_prefix<t_bix>::r_;
   using R_bix       = t_prefix<t_bix>::R_;
@@ -593,7 +593,7 @@ namespace named
   using P_bix       = t_prefix<t_bix>::P_;
 
   enum t_eix_tag_ {};
-  using t_eix       = t_explicit<t_ix_, t_ix_tag_>;
+  using t_eix       = t_explicit<t_ix_, t_eix_tag_>;
   using T_eix       = t_prefix<t_eix>::T_;
   using r_eix       = t_prefix<t_eix>::r_;
   using R_eix       = t_prefix<t_eix>::R_;
@@ -630,13 +630,18 @@ namespace named
 
   // only support very limited operators for t_n because of its massive use.
 
-  constexpr t_bool operator==(t_n lh, t_n rh)  { return get(lh) == get(rh); }
-  constexpr t_bool operator!=(t_n lh, t_n rh)  { return get(lh) != get(rh); }
-  constexpr t_bool operator< (t_n lh, t_n rh)  { return get(lh) < get(rh);  }
-  constexpr t_bool operator<=(t_n lh, t_n rh)  { return get(lh) <= get(rh); }
+  constexpr t_bool operator==(t_n lh, t_n rh)    { return get(lh) == get(rh); }
+  constexpr t_bool operator!=(t_n lh, t_n rh)    { return get(lh) != get(rh); }
+  constexpr t_bool operator< (t_n lh, t_n rh)    { return get(lh) < get(rh);  }
+  constexpr t_bool operator<=(t_n lh, t_n rh)    { return get(lh) <= get(rh); }
 
-  constexpr t_bool operator==(t_fd lh, t_fd rh) { return get(lh) == get(rh); }
-  constexpr t_bool operator!=(t_fd lh, t_fd rh) { return !(lh == rh);        }
+  constexpr t_bool operator==(t_ix lh, t_ix rh)  { return get(lh) == get(rh); }
+  constexpr t_bool operator!=(t_ix lh, t_ix rh)  { return get(lh) != get(rh); }
+  constexpr t_bool operator< (t_ix lh, t_ix rh)  { return get(lh) < get(rh);  }
+  constexpr t_bool operator<=(t_ix lh, t_ix rh)  { return get(lh) <= get(rh); }
+
+  constexpr t_bool operator==(t_fd lh, t_fd rh)  { return get(lh) == get(rh); }
+  constexpr t_bool operator!=(t_fd lh, t_fd rh)  { return !(lh == rh);        }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -646,10 +651,12 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_ix  to_ix (t_n  n)  { return transform<t_ix> (n);  }
-  constexpr t_n   to_n  (t_ix ix) { return transform<t_n>  (ix); }
-  constexpr t_bix to_bix(t_ix ix) { return transform<t_bix>(ix); }
-  constexpr t_eix to_eix(t_ix ix) { return transform<t_eix>(ix); }
+  constexpr t_n   to_n  (t_ix ix)  { return transform<t_n>  (ix); }
+  constexpr t_bix to_bix(t_ix ix)  { return transform<t_bix>(ix); }
+  constexpr t_eix to_eix(t_ix ix)  { return transform<t_eix>(ix); }
+  constexpr t_ix  to_ix (t_n  n)   { return transform<t_ix> (n);  }
+  constexpr t_ix  to_ix (t_bix ix) { return transform<t_ix> (ix); }
+  constexpr t_ix  to_ix (t_eix ix) { return transform<t_ix> (ix); }
 
   constexpr t_ix  operator"" _ix (t_ullong ix) { return t_ix(ix);  }
   constexpr t_bix operator"" _bix(t_ullong ix) { return t_bix(ix); }
