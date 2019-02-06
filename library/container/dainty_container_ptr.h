@@ -84,6 +84,15 @@ namespace ptr
     operator bool() const       { return ptr_;  }
 
     inline
+    T* get()                    { return ptr_;  }
+
+    inline
+    const T*  get() const       { return ptr_;  }
+
+    inline
+    const T* cget() const       { return ptr_;  }
+
+    inline
     T& operator*()              { return *ptr_; }
 
     inline
@@ -138,6 +147,12 @@ namespace ptr
 
     inline
     operator bool() const       { return ptr_;  }
+
+    inline
+    const T*  get() const       { return ptr_;  }
+
+    inline
+    const T* cget() const       { return ptr_;  }
 
     inline
     const T& operator*()  const { return *ptr_; }

@@ -77,9 +77,9 @@ namespace ptrlist
             store[next_++] = value;
             return true;
           }
-          err =  E_NO_SPACE;
+          err =  err::E_NO_SPACE;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return false;
     }
@@ -109,11 +109,11 @@ namespace ptrlist
               return true;
             } else if ((!next_ && !ix) || (ix == next_))
               return push_back(store, max, value);
-            err = E_INVALID_IX;
+            err = err::E_INVALID_IX;
           } else
-            err = E_NO_SPACE;
+            err = err::E_NO_SPACE;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return false;
     }
@@ -135,9 +135,9 @@ namespace ptrlist
             --next_;
             return true;
           }
-          err = E_NO_POP;
+          err = err::E_NO_POP;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return false;
     }
@@ -159,9 +159,9 @@ namespace ptrlist
             move_down_(store, ix, --next_);
             return true;
           }
-          err = E_INVALID_IX;
+          err = err::E_INVALID_IX;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return false;
     }
@@ -179,7 +179,7 @@ namespace ptrlist
           if (next_)
             next_ = 0;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
     }
 
@@ -211,9 +211,9 @@ namespace ptrlist
         if (store) {
           if (ix < next_)
             return store[ix];
-          err = E_INVALID_IX;
+          err = err::E_INVALID_IX;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return nullptr;
     }
@@ -231,9 +231,9 @@ namespace ptrlist
         if (store) {
           if (ix < next_)
             return store[ix];
-          err = E_INVALID_IX;
+          err = err::E_INVALID_IX;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return nullptr;
     }
@@ -253,7 +253,7 @@ namespace ptrlist
           for (t_ix_ ix = 0; ix < next_; ++ix)
             f(store[ix]);
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
     }
 
@@ -272,7 +272,7 @@ namespace ptrlist
           for (t_ix_ ix = 0; ix < next_; ++ix)
             f(store[ix]);
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
     }
 
