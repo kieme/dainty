@@ -24,10 +24,15 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_H_
-#define _DAINTY_SANDBOX_H_
+#ifndef _DAINTY_SANDBOX_LOGIC_H_
+#define _DAINTY_SANDBOX_LOGIC_H_
 
-#include "dainty_sandbox_logic.h"
+#include "dainty_container_ptr.h"
+#include "dainty_container_ptrlist.h"
+#include "dainty_sandbox_err.h"
+#include "dainty_sandbox_logic_api.h"
+#include "dainty_sandbox_logic_ext.h"
+#include "dainty_sandbox_logic_callback.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -35,44 +40,51 @@ namespace dainty
 {
 namespace sandbox
 {
-  enum  t_thread_name_tag {};
-  using t_thread_name    = t_string<t_thread_name_tag>;
-  using R_thread_name    = t_prefix<t_thread_name>::R_;
+  using container::ptr::t_passable_ptr;
+  using container::ptrlist::t_ptrlist;
+
+  enum  t_messenger_name_tag {};
+  using t_messenger_name = t_string<t_messenger_name_tag>;
+  using T_messenger_name = t_prefix<t_messenger_name>::t_;
+  using R_messenger_name = t_prefix<t_messenger_name>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_logic_ptr = t_passable_ptr<t_logic>;
-  using x_logic_ptr = t_prefix<t_logic_ptr>::x_;
+  class t_impl_;
+  using p_impl_ = t_prefix<t_impl_>::p_;
 
-  class t_logic_ptrlist {
+///////////////////////////////////////////////////////////////////////////////
+
+  class t_logic : public t_logic_api, public t_logic_callback {
   public:
+    // api
+
+    // callbacks - virtual
+
+    t_logic(t_err, R_messenger_name) noexcept;
+    virtual ~t_logic() { }
+
+    t_logic() = delete;
+    t_logic(r_logic) = delete;
+    t_logic(x_logic) = delete;
+    r_logic operator=(r_logic) = delete;
+    r_logic operator=(x_logic) = delete;
+
   private:
+    friend t_void register_(t_err, r_logic, p_logic_ext_);
+    friend class t_thread;
+    friend class t_main;
+    friend class t_impl_;
+
+    using t_extlist_ = t_ptrlist<t_logic_ext_, 10>;
+
+    T_messenger_name name_;
+    t_extlist_       extlist_;
+    p_impl_          impl_;
   };
-  using x_logic_ptrlist = t_prefix<t_logic_ptrlist>::x_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_thread {
-  public:
-    t_thread(t_err, R_thread_name, x_logic_ptr)     noexcept;
-    t_thread(t_err, R_thread_name, x_logic_ptrlist) noexcept;
-
-  private:
-     // key
-  };
-
-  class t_main {
-  public:
-    t_main(t_err, R_thread_name, x_logic_ptr)     noexcept;
-    t_main(t_err, R_thread_name, x_logic_ptrlist) noexcept;
-
-  private:
-     // key
-  };
-
-///////////////////////////////////////////////////////////////////////////////
-  // class t_sandbox
-///////////////////////////////////////////////////////////////////////////////
 }
 }
 

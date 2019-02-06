@@ -24,10 +24,11 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_H_
-#define _DAINTY_SANDBOX_H_
+#ifndef _DAINTY_SANDBOX_LOGIC_CALLBACK_H_
+#define _DAINTY_SANDBOX_LOGIC_CALLBACK_H_
 
-#include "dainty_sandbox_logic.h"
+#include "dainty_named.h"
+#include "dainty_sandbox_err.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -35,44 +36,22 @@ namespace dainty
 {
 namespace sandbox
 {
-  enum  t_thread_name_tag {};
-  using t_thread_name    = t_string<t_thread_name_tag>;
-  using R_thread_name    = t_prefix<t_thread_name>::R_;
+  using named::t_void;
+  using t_err = err::t_err;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_logic_ptr = t_passable_ptr<t_logic>;
-  using x_logic_ptr = t_prefix<t_logic_ptr>::x_;
-
-  class t_logic_ptrlist {
+  class t_logic_callback {
   public:
-  private:
-  };
-  using x_logic_ptrlist = t_prefix<t_logic_ptrlist>::x_;
+    virtual ~t_logic_callback() { }
 
-///////////////////////////////////////////////////////////////////////////////
-
-  class t_thread {
-  public:
-    t_thread(t_err, R_thread_name, x_logic_ptr)     noexcept;
-    t_thread(t_err, R_thread_name, x_logic_ptrlist) noexcept;
-
-  private:
-     // key
-  };
-
-  class t_main {
-  public:
-    t_main(t_err, R_thread_name, x_logic_ptr)     noexcept;
-    t_main(t_err, R_thread_name, x_logic_ptrlist) noexcept;
-
-  private:
-     // key
+    virtual t_void start  (t_err) noexcept = 0;
+    virtual t_void cleanup()      noexcept = 0;
+    // add API
   };
 
 ///////////////////////////////////////////////////////////////////////////////
-  // class t_sandbox
-///////////////////////////////////////////////////////////////////////////////
+
 }
 }
 
