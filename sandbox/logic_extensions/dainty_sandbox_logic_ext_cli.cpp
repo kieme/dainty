@@ -24,72 +24,39 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_H_
-#define _DAINTY_SANDBOX_H_
-
-#include "dainty_sandbox_logic.h"
-
-///////////////////////////////////////////////////////////////////////////////
+#include "dainty_sandbox_logic_ext_cli.h"
 
 namespace dainty
 {
 namespace sandbox
 {
-  enum  t_thread_name_tag {};
-  using t_thread_name    = t_string<t_thread_name_tag>;
-  using R_thread_name    = t_prefix<t_thread_name>::R_;
+///////////////////////////////////////////////////////////////////////////////
 
-  enum t_thread_control { IN_CURRENT_THREAD, IN_NEW_THREAD };
+  t_logic_cli_ext::t_logic_cli_ext(t_err err, r_logic logic) noexcept
+    : ext_{err, logic, *this} {
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_logic_ptr = t_passable_ptr<t_logic>;
-  using x_logic_ptr = t_prefix<t_logic_ptr>::x_;
+  t_logic_cli_ext::t_ext_::t_ext_(t_err err, r_logic logic,
+                                  r_callback callback) noexcept
+      : t_logic_ext_{"cli", logic}, callback_{callback} {
+    ERR_GUARD(err) {
+      register_(err, get_logic(), this);
+    }
+  }
 
-  class t_logic_ptrlist {
-  public:
-  private:
-  };
-  using x_logic_ptrlist = t_prefix<t_logic_ptrlist>::x_;
+  t_void t_logic_cli_ext::t_ext_::start(t_err err) noexcept {
+    ERR_GUARD(err) {
+      callback_.cli_start(err);
+    }
+  }
 
-///////////////////////////////////////////////////////////////////////////////
-
-  class t_thread {
-  public:
-    t_thread(t_err, R_thread_name, x_logic_ptr)     noexcept;
-    t_thread(t_err, R_thread_name, x_logic_ptrlist) noexcept;
-
-  private:
-     // key
-  };
-
-  class t_main {
-  public:
-    t_main(t_err, R_thread_name, x_logic_ptr)     noexcept;
-    t_main(t_err, R_thread_name, x_logic_ptrlist) noexcept;
-
-  private:
-     // key
-  };
+  t_void t_logic_cli_ext::t_ext_::cleanup() noexcept {
+      callback_.cli_cleanup();
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_thread_of_control_;
-  using p_thread_of_control_ = t_prefix<t_thread_of_control_>::p_;
-
-///////////////////////////////////////////////////////////////////////////////
-
-  class t_sandbox {
-  public:
-    t_sandbox(t_err, t_thread_control, R_thread_name, x_logic_ptr)     noexcept;
-    t_sandbox(t_err, t_thread_control, R_thread_name, x_logic_ptrlist) noexcept;
-   ~t_sandbox();
-  private:
-    p_thread_of_control_ thread_of_control_ = nullptr;
-  };
-
-///////////////////////////////////////////////////////////////////////////////
 }
 }
-
-#endif

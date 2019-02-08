@@ -45,6 +45,7 @@ namespace sandbox
 
   t_impl_::t_impl_(t_err err, R_thread_name name) noexcept {
     ERR_GUARD(err) {
+      // create_event_loop
     }
   }
 
@@ -121,6 +122,22 @@ namespace sandbox
 
   // api that allow extensions - might not need it
   t_void t_shared_impl_::run() noexcept {
+    /*
+    t_err err;
+
+    for () {
+      start_extensions(err, logic_.get());
+      logic_->start(err);
+    }
+
+    t_out{"event_loop"};
+    // event loop(logic_List);
+
+    for () {
+      logic_->cleanup();
+      cleanup_extensions(logic_.get());
+    }
+    */
   }
 
 ///////////////////////////////////////////////////////////////////////////////

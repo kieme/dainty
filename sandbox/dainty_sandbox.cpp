@@ -34,6 +34,7 @@ namespace dainty
 {
 namespace sandbox
 {
+  using r_err          = t_prefix<t_err>::r_;
   using t_thread_attr_ = os::t_pthread_attr;
   using named::t_ix;
 
@@ -61,7 +62,6 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  // t_logic can call impl
   t_logic::t_logic(t_err err, R_messenger_name name) noexcept : name_{name} {
   }
 
@@ -107,6 +107,74 @@ namespace sandbox
       if (!err)
         impl.run();
     }
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  class t_thread_of_control_ {
+  public:
+    virtual ~t_thread_of_control_() { };
+  };
+
+  class t_thread_control_ : public t_thread_of_control_ {
+  public:
+    t_thread_control_(r_err err, R_thread_name name, x_logic_ptr ptr) noexcept
+      : thread_{err, name, x_cast(ptr)} {
+    }
+    t_thread_control_(r_err err, R_thread_name name,
+                      x_logic_ptrlist list) noexcept
+      : thread_{err, name, x_cast(list)} {
+    }
+  private:
+    t_thread thread_;
+  };
+
+  class t_main_control_ : public t_thread_of_control_ {
+  public:
+    t_main_control_(r_err err, R_thread_name name, x_logic_ptr ptr) noexcept
+      : main_{err, name, x_cast(ptr)} {
+    }
+    t_main_control_(r_err err, R_thread_name name,
+                    x_logic_ptrlist list) noexcept
+      : main_{err, name, x_cast(list)} {
+    }
+  private:
+    t_main main_;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_sandbox::t_sandbox(t_err err, t_thread_control control, R_thread_name name,
+                       x_logic_ptr ptr) noexcept {
+    ERR_GUARD(err) {
+      switch (control) {
+        case IN_CURRENT_THREAD:
+          thread_of_control_ = new t_main_control_  {err, name, x_cast(ptr)};
+          break;
+        case IN_NEW_THREAD:
+          thread_of_control_ = new t_thread_control_{err, name, x_cast(ptr)};
+          break;
+      }
+    }
+  }
+
+  t_sandbox::t_sandbox(t_err err, t_thread_control control, R_thread_name name,
+                       x_logic_ptrlist list) noexcept {
+    ERR_GUARD(err) {
+      switch (control) {
+        case IN_CURRENT_THREAD:
+          thread_of_control_ = new t_main_control_  {err, name, x_cast(list)};
+          break;
+        case IN_NEW_THREAD:
+          thread_of_control_ = new t_thread_control_{err, name, x_cast(list)};
+          break;
+      }
+    }
+  }
+
+  t_sandbox::~t_sandbox() {
+    if (thread_of_control_)
+      delete thread_of_control_;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
