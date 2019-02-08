@@ -29,6 +29,7 @@ SOFTWARE.
 
 #include "dainty_named.h"
 #include "dainty_mt_detached_thread.h"
+#include "dainty_mt_event_dispatcher.h"
 #include "dainty_sandbox.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,6 +39,7 @@ namespace dainty
 namespace sandbox
 {
   using t_thread_           = mt::detached_thread::t_thread;
+  using t_dispatcher_       = mt::event_dispatcher::t_dispatcher;
   using t_thread_logic_     = t_thread_::t_logic;
   using t_thread_logic_ptr_ = t_thread_::t_logic_ptr;
 
@@ -59,6 +61,7 @@ namespace sandbox
     // event_loop
   private:
     t_thread_name name_;
+    t_dispatcher_ dispatcher_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

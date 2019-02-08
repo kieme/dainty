@@ -70,19 +70,26 @@ private:
 int main() {
   {
     t_err err;
-    t_app app{err};
+    t_app app1{err.tag(1)};
+    t_app app2{err.tag(2)};
+    t_app app3{err.tag(3)};
 
     sleep(1);
 
     if (err) {
+      switch (err.tag()) {
+        case 1: { t_out{"app1 failed"}; break; }
+        case 2: { t_out{"app2 failed"}; break; }
+        case 3: { t_out{"app3 failed"}; break; }
+      }
       err.print();
       err.clear();
     }
   }
 
-  sleep(1);
+  sleep(2);
 
-  t_out{"main is existing"};
+  t_out{"main is exiting"};
 
   return 0;
 }

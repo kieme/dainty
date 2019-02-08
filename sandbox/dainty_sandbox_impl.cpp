@@ -43,7 +43,8 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_impl_::t_impl_(t_err err, R_thread_name name) noexcept {
+  t_impl_::t_impl_(t_err err, R_thread_name name) noexcept
+      : name_{name}, dispatcher_{err, {t_n{100}, "epoll_service"}}  {
     ERR_GUARD(err) {
       // create_event_loop
     }

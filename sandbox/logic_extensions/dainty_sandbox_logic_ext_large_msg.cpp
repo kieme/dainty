@@ -32,7 +32,8 @@ namespace sandbox
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_logic_large_msg_ext::t_logic_large_msg_ext(t_err err, r_logic logic) noexcept
+  t_logic_large_msg_ext::t_logic_large_msg_ext(t_err err,
+                                               r_logic logic) noexcept
     : ext_{err, logic, *this} {
   }
 
