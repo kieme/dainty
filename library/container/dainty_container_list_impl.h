@@ -78,9 +78,9 @@ namespace list
         if (store) {
           if (next_ < max)
             return store[next_++].default_construct();
-          err =  E_NO_SPACE;
+          err =  err::E_NO_SPACE;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return nullptr;
     }
@@ -98,9 +98,9 @@ namespace list
         if (store) {
           if (next_ < max)
             return store[next_++].copy_construct(value);
-          err =  E_NO_SPACE;
+          err =  err::E_NO_SPACE;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return nullptr;
     }
@@ -118,9 +118,9 @@ namespace list
         if (store) {
           if (next_ < max)
             return store[next_++].move_construct(std::move(value));
-          err =  E_NO_SPACE;
+          err =  err::E_NO_SPACE;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return nullptr;
     }
@@ -147,11 +147,11 @@ namespace list
               return store[ix].default_construct();
             } else if ((!next_ && !ix) || (ix == next_))
               return push_back(store, max);
-            err = E_INVALID_IX;
+            err = err::E_INVALID_IX;
           } else
-            err = E_NO_SPACE;
+            err = err::E_NO_SPACE;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return nullptr;
     }
@@ -179,11 +179,11 @@ namespace list
               return store[ix].copy_construct(value);
             } else if ((!next_ && !ix) || (ix == next_))
               return push_back(store, max, value);
-            err = E_INVALID_IX;
+            err = err::E_INVALID_IX;
           } else
-            err = E_NO_SPACE;
+            err = err::E_NO_SPACE;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return nullptr;
     }
@@ -211,11 +211,11 @@ namespace list
               return store[ix].move_construct(std::move(value));
             } else if ((!next_ && !ix) || (ix == next_))
               return push_back(store, max, std::move(value));
-            err = E_INVALID_IX;
+            err = err::E_INVALID_IX;
           } else
-            err = E_NO_SPACE;
+            err = err::E_NO_SPACE;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return nullptr;
     }
@@ -237,9 +237,9 @@ namespace list
             store[--next_].destruct();
             return true;
           }
-          err = E_NO_POP;
+          err = err::E_NO_POP;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return false;
     }
@@ -263,9 +263,9 @@ namespace list
             move_down_(store, ix, --next_);
             return true;
           }
-          err = E_INVALID_IX;
+          err = err::E_INVALID_IX;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return false;
     }
@@ -287,7 +287,7 @@ namespace list
             next_ = 0;
           }
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
     }
 
@@ -319,9 +319,9 @@ namespace list
         if (store) {
           if (ix < next_)
             return store[ix].ptr();
-          err = E_INVALID_IX;
+          err = err::E_INVALID_IX;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return nullptr;
     }
@@ -339,9 +339,9 @@ namespace list
         if (store) {
           if (ix < next_)
             return store[ix].cptr();
-          err = E_INVALID_IX;
+          err = err::E_INVALID_IX;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return nullptr;
     }
@@ -361,7 +361,7 @@ namespace list
           for (t_ix_ ix = 0; ix < next_; ++ix)
             f(store[ix].ref());
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
     }
 
@@ -380,7 +380,7 @@ namespace list
           for (t_ix_ ix = 0; ix < next_; ++ix)
             f(store[ix].cref());
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
     }
 

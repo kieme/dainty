@@ -161,9 +161,9 @@ namespace chained_queue
             tail->next_ = nullptr;
             return {n, head, tail};
           }
-          err = E_NO_SPACE;
+          err = err::E_NO_SPACE;
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return {};
     }
@@ -209,7 +209,7 @@ namespace chained_queue
             set(chain_.cnt) += get(chain.cnt);
           }
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
     }
 
@@ -257,7 +257,7 @@ namespace chained_queue
             return {n, head, tail};
           }
         } else
-          err = E_INVALID_INST;
+          err = err::E_INVALID_INST;
       }
       return {};
     }

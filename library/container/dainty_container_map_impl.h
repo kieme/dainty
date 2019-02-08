@@ -240,9 +240,9 @@ namespace map
             ids_.insert(ix, result.id);
             return t_result{result.id, ix, &result->keyvalue};
           }
-          err = E_NOT_UNIQUE;
+          err = err::E_NOT_UNIQUE;
         } else
-          err = E_NO_SPACE;
+          err = err::E_NO_SPACE;
       }
       return {};
     }
@@ -276,9 +276,9 @@ namespace map
             ids_.insert(ix, result.id);
             return t_result{result.id, ix, &result->keyvalue};
           }
-          err = E_NOT_UNIQUE;
+          err = err::E_NOT_UNIQUE;
         } else
-          err = E_NO_SPACE;
+          err = err::E_NO_SPACE;
       }
       return {};
     }
@@ -312,9 +312,9 @@ namespace map
             ids_.insert(ix, result.id);
             return t_result{result.id, ix, &result->keyvalue};
           }
-          err = E_NOT_UNIQUE;
+          err = err::E_NOT_UNIQUE;
         } else
-          err = E_NO_SPACE;
+          err = err::E_NO_SPACE;
       }
       return {};
     }
@@ -349,7 +349,7 @@ namespace map
             return true;
           }
         }
-        err = E_NO_ERASE;
+        err = err::E_NO_ERASE;
       }
       return false;
     }
@@ -374,7 +374,7 @@ namespace map
           ids_.erase(ix);
           return true;
         }
-        err = E_INVALID_IX;
+        err = err::E_INVALID_IX;
       }
       return false;
     }
@@ -393,7 +393,7 @@ namespace map
         auto entry = store_.get(id);
         if (entry)
           return erase(entry->ix);
-        err = E_INVALID_ID;
+        err = err::E_INVALID_ID;
       }
       return false;
     }
