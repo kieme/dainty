@@ -438,7 +438,8 @@ namespace list
   inline
   t_list<T, 0>::t_list(t_list&& list)
     : max_  {named::utility::reset(list.max_)},
-      store_{named::utility::reset(list.store_)} {
+      store_{named::utility::reset(list.store_)},
+      impl_ {list.impl_} {
   }
 
   template<typename T>
