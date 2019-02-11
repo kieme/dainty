@@ -24,42 +24,27 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_LOGIC_EXT_CLI_H_
-#define _DAINTY_SANDBOX_LOGIC_EXT_CLI_H_
+#ifndef _DAINTY_SANDBOX_LOGIC_EXT_CLI_CALLBACK_H_
+#define _DAINTY_SANDBOX_LOGIC_EXT_CLI_CALLBACK_H_
 
-#include "dainty_sandbox_logic_ext.h"
-#include "dainty_sandbox_logic_ext_cli_api.h"
-#include "dainty_sandbox_logic_ext_cli_callback.h"
+#include "dainty_named.h"
+#include "dainty_sandbox_err.h"
 
 namespace dainty
 {
 namespace sandbox
 {
+  using named::t_void;
+  using t_err = err::t_err;
+
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_cli_ext : public t_logic_cli_ext_api,
-                          public t_logic_cli_ext_callback {
+  class t_logic_cli_ext_callback {
   public:
-    t_logic_cli_ext(t_err, r_logic) noexcept;
+    virtual ~t_logic_cli_ext_callback() { }
 
-    // use api
-    // provide callback
-
-  private:
-    using r_callback = t_prefix<t_logic_cli_ext_callback>::r_;
-
-    class t_ext_ : public t_logic_ext_ {
-    public:
-      t_ext_(t_err, r_logic, r_callback) noexcept; // r_err
-
-      virtual t_void start(t_err) noexcept override final;
-      virtual t_void cleanup()    noexcept override final;
-
-    private:
-      r_callback callback_;
-    };
-
-    t_ext_ ext_;
+    virtual t_void cli_start(t_err) noexcept = 0;
+    virtual t_void cli_cleanup()    noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

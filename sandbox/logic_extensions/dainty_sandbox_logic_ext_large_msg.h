@@ -28,6 +28,8 @@ SOFTWARE.
 #define _DAINTY_SANDBOX_LOGIC_EXT_LARGE_MSG_H_
 
 #include "dainty_sandbox_logic_ext.h"
+#include "dainty_sandbox_logic_ext_large_msg_api.h"
+#include "dainty_sandbox_logic_ext_large_msg_callback.h"
 
 namespace dainty
 {
@@ -35,18 +37,16 @@ namespace sandbox
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_large_msg_ext {
+  class t_logic_large_msg_ext : public t_logic_large_msg_ext_api,
+                                public t_logic_large_msg_ext_callback {
   public:
     t_logic_large_msg_ext(t_err, r_logic) noexcept;
 
-    // add API
-  private:
-    // add callback methods
-    virtual t_void large_msg_start(t_err) noexcept = 0;
-    virtual t_void large_msg_cleanup()    noexcept = 0;
+    // use api
+    // provide callback
 
   private:
-    using r_callback = t_prefix<t_logic_large_msg_ext>::r_;
+    using r_callback = t_prefix<t_logic_large_msg_ext_callback>::r_;
 
     class t_ext_ : public t_logic_ext_ {
     public:

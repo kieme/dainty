@@ -24,12 +24,8 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_LOGIC_EXT_CLI_H_
-#define _DAINTY_SANDBOX_LOGIC_EXT_CLI_H_
-
-#include "dainty_sandbox_logic_ext.h"
-#include "dainty_sandbox_logic_ext_cli_api.h"
-#include "dainty_sandbox_logic_ext_cli_callback.h"
+#ifndef _DAINTY_SANDBOX_LOGIC_EXT_CLI_API_H_
+#define _DAINTY_SANDBOX_LOGIC_EXT_CLI_API_H_
 
 namespace dainty
 {
@@ -37,29 +33,11 @@ namespace sandbox
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_cli_ext : public t_logic_cli_ext_api,
-                          public t_logic_cli_ext_callback {
+  class t_logic_cli_ext_api {
   public:
-    t_logic_cli_ext(t_err, r_logic) noexcept;
+    virtual ~t_logic_cli_ext_api() { }
 
-    // use api
-    // provide callback
-
-  private:
-    using r_callback = t_prefix<t_logic_cli_ext_callback>::r_;
-
-    class t_ext_ : public t_logic_ext_ {
-    public:
-      t_ext_(t_err, r_logic, r_callback) noexcept; // r_err
-
-      virtual t_void start(t_err) noexcept override final;
-      virtual t_void cleanup()    noexcept override final;
-
-    private:
-      r_callback callback_;
-    };
-
-    t_ext_ ext_;
+    // provide api
   };
 
 ///////////////////////////////////////////////////////////////////////////////
