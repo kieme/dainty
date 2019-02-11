@@ -28,6 +28,7 @@
 #define _DAINTY_CONTAINER_LIST_H_
 
 #include "dainty_named.h"
+#include "dainty_named_utility.h"
 #include "dainty_container_list_impl.h"
 
 namespace dainty
@@ -127,10 +128,10 @@ namespace list
 
      t_list(       t_n max);
      t_list(t_err, t_n max);
+     t_list(t_list&&);
     ~t_list();
 
     t_list(const t_list&)            = delete;
-    t_list(t_list&&)                 = delete;
     t_list& operator=(const t_list&) = delete;
     t_list& operator=(t_list&&)      = delete;
 
@@ -435,6 +436,13 @@ namespace list
 
   template<typename T>
   inline
+  t_list<T, 0>::t_list(t_list&& list)
+    : max_  {named::utility::reset(list.max_)},
+      store_{named::utility::reset(list.store_)} {
+  }
+
+  template<typename T>
+  inline
   t_list<T, 0>::~t_list() {
     if (store_) {
       impl_.clear(store_);
@@ -587,37 +595,37 @@ namespace list
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::get(t_ix ix) {
-    return impl_.get(store_, max_, named::get(ix));
+    return impl_.get(store_, named::get(ix));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::get(t_err err, t_ix ix) {
-    return impl_.get(err, store_, max_, named::get(ix));
+    return impl_.get(err, store_, named::get(ix));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::P_value t_list<T, 0>::get(t_ix ix) const {
-    return impl_.get(store_, max_, named::get(ix));
+    return impl_.get(store_, named::get(ix));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::P_value t_list<T, 0>::get(t_err err, t_ix ix) const {
-    return impl_.get(err, store_, max_, named::get(ix));
+    return impl_.get(err, store_, named::get(ix));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::P_value t_list<T, 0>::cget(t_ix ix) const {
-    return impl_.get(store_, max_, named::get(ix));
+    return impl_.get(store_, named::get(ix));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::P_value t_list<T, 0>::cget(t_err err, t_ix ix) const {
-    return impl_.get(err, store_, ix, named::get(ix));
+    return impl_.get(err, store_, named::get(ix));
   }
 
   template<typename T>
