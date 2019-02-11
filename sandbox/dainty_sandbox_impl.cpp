@@ -98,7 +98,9 @@ namespace sandbox
                                  x_logic_ptr ptr) noexcept
     : t_impl_{err, name}, logic_{x_cast(ptr)} {
     ERR_GUARD(err) {
-      // let logic impl be set
+      p_logic logic = logic_.get();
+      t_out{FMT, "logic name - %s",
+            get(logic->get_messenger_name().get_cstr())};
     }
   }
 
@@ -121,7 +123,13 @@ namespace sandbox
                                  x_logic_ptrlist list) noexcept
     : t_impl_{err, name}, list_{x_cast(list)} {
     ERR_GUARD(err) {
-      // let logic impl be set
+      t_ix end = to_ix(list_.get_size());
+      for (t_ix ix{0}; ix < end; ++set(ix)) {
+        p_logic logic = list_.get(ix)->get();
+        t_out{FMT, "logic name - %s",
+              get(logic->get_messenger_name().get_cstr())};
+      }
+      // build messengers
     }
   }
 

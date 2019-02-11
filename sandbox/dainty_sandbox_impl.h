@@ -54,7 +54,6 @@ namespace sandbox
 
     virtual t_void update(base::t_err,
                           base::r_pthread_attr) noexcept override final;
-
     virtual t_void prepare(base::t_err) noexcept override final;
 
     t_void start_extensions(t_err, p_logic) noexcept;

@@ -27,6 +27,8 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_H_
 #define _DAINTY_SANDBOX_H_
 
+#include "dainty_container_ptr.h"
+#include "dainty_container_list.h"
 #include "dainty_sandbox_logic.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,6 +37,10 @@ namespace dainty
 {
 namespace sandbox
 {
+  using named::t_n;
+  using named::t_ix;
+  using container::ptr::t_passable_ptr;
+
   enum  t_thread_name_tag {};
   using t_thread_name    = t_string<t_thread_name_tag>;
   using R_thread_name    = t_prefix<t_thread_name>::R_;
@@ -45,10 +51,27 @@ namespace sandbox
 
   using t_logic_ptr = t_passable_ptr<t_logic>;
   using x_logic_ptr = t_prefix<t_logic_ptr>::x_;
+  using p_logic_ptr = t_prefix<t_logic_ptr>::p_;
+  using P_logic_ptr = t_prefix<t_logic_ptr>::P_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  class t_logic_ptrlist;
+  using x_logic_ptrlist = t_prefix<t_logic_ptrlist>::x_;
 
   class t_logic_ptrlist {
   public:
+    t_logic_ptrlist(t_err, t_n max);
+    t_logic_ptrlist(t_logic_ptrlist&&);
+
+    t_void      push_back(t_err, x_logic_ptr) noexcept;
+    t_n         get_size() const noexcept;
+    p_logic_ptr get(t_ix)        noexcept;
+    P_logic_ptr get(t_ix)  const noexcept;
+
   private:
+    using t_list_ = container::list::t_list<t_logic_ptr>;
+    t_list_ list_;
   };
   using x_logic_ptrlist = t_prefix<t_logic_ptrlist>::x_;
 

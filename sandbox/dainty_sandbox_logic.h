@@ -27,7 +27,6 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_LOGIC_H_
 #define _DAINTY_SANDBOX_LOGIC_H_
 
-#include "dainty_container_ptr.h"
 #include "dainty_container_ptrlist.h"
 #include "dainty_sandbox_err.h"
 #include "dainty_sandbox_logic_api.h"
@@ -40,13 +39,7 @@ namespace dainty
 {
 namespace sandbox
 {
-  using container::ptr::t_passable_ptr;
   using container::ptrlist::t_ptrlist;
-
-  enum  t_messenger_name_tag {};
-  using t_messenger_name = t_string<t_messenger_name_tag>;
-  using T_messenger_name = t_prefix<t_messenger_name>::t_;
-  using R_messenger_name = t_prefix<t_messenger_name>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -57,11 +50,6 @@ namespace sandbox
 
   class t_logic : public t_logic_api, public t_logic_notify {
   public:
-    // api
-    R_logic_stats get_logic_stats() const noexcept override final;
-
-    // all notify_<> methods are virtual
-
     t_logic(t_err, R_messenger_name) noexcept;
     virtual ~t_logic() { }
 
@@ -71,6 +59,12 @@ namespace sandbox
     r_logic operator=(r_logic) = delete;
     r_logic operator=(x_logic) = delete;
 
+    // api
+    R_logic_stats    get_logic_stats   () const noexcept override final;
+    R_messenger_name get_messenger_name() const noexcept override final;
+
+    // all notify_<> methods are virtual
+
   private:
     friend t_void register_(t_err, r_logic, p_logic_ext);
     friend class t_thread;
@@ -79,9 +73,9 @@ namespace sandbox
 
     using t_extlist_ = t_ptrlist<t_logic_ext, 10>;
 
+    p_impl_          impl_ = nullptr;
     T_messenger_name name_;
     t_extlist_       extlist_;
-    p_impl_          impl_;
     t_logic_stats    stats_;
   };
 

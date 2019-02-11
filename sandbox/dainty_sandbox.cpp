@@ -43,6 +43,34 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_logic_ptrlist::t_logic_ptrlist(t_err err, t_n max) : list_{err, max} {
+  }
+
+  t_logic_ptrlist::t_logic_ptrlist(t_logic_ptrlist&& ptrlist)
+    : list_{x_cast(ptrlist.list_)} {
+  }
+
+  t_void t_logic_ptrlist::push_back(t_err err, x_logic_ptr ptr) noexcept {
+    ERR_GUARD(err) {
+      // check the names
+      list_.push_back(err, x_cast(ptr));
+    }
+  }
+
+  t_n t_logic_ptrlist::get_size() const noexcept {
+    return list_.get_size();
+  }
+
+  p_logic_ptr t_logic_ptrlist::get(t_ix ix) noexcept {
+    return list_.get(ix);
+  }
+
+  P_logic_ptr t_logic_ptrlist::get(t_ix ix) const noexcept {
+    return list_.get(ix);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
   t_void register_(t_err err, r_logic logic, p_logic_ext ext) {
     ERR_GUARD(err) {
       if (ext) {
@@ -75,6 +103,10 @@ namespace sandbox
 ///////////////////////////////////////////////////////////////////////////////
 
   t_logic::t_logic(t_err err, R_messenger_name name) noexcept : name_{name} {
+  }
+
+  R_messenger_name t_logic::get_messenger_name() const noexcept {
+    return name_;
   }
 
   R_logic_stats t_logic::get_logic_stats() const noexcept {

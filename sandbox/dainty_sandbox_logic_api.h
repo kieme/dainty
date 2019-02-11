@@ -28,6 +28,7 @@ SOFTWARE.
 #define _DAINTY_SANDBOX_LOGIC_API_H_
 
 #include "dainty_named.h"
+#include "dainty_named_string.h"
 #include "dainty_sandbox_logic_stats.h"
 #include "dainty_sandbox_err.h"
 
@@ -38,6 +39,12 @@ namespace dainty
 namespace sandbox
 {
   using t_err = err::t_err;
+  using named::string::t_string;
+
+  enum  t_messenger_name_tag {};
+  using t_messenger_name = t_string<t_messenger_name_tag>;
+  using T_messenger_name = t_prefix<t_messenger_name>::t_;
+  using R_messenger_name = t_prefix<t_messenger_name>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -45,8 +52,8 @@ namespace sandbox
   public:
     virtual ~t_logic_api() { }
 
-    virtual R_logic_stats get_logic_stats() const noexcept = 0;
-    // add API
+    virtual R_logic_stats    get_logic_stats   () const noexcept = 0;
+    virtual R_messenger_name get_messenger_name() const noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
