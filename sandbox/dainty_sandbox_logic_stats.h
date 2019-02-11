@@ -24,15 +24,10 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_LOGIC_H_
-#define _DAINTY_SANDBOX_LOGIC_H_
+#ifndef _DAINTY_SANDBOX_LOGIC_STATS_H_
+#define _DAINTY_SANDBOX_LOGIC_STATS_H_
 
-#include "dainty_container_ptr.h"
-#include "dainty_container_ptrlist.h"
-#include "dainty_sandbox_err.h"
-#include "dainty_sandbox_logic_api.h"
-#include "dainty_sandbox_logic_ext.h"
-#include "dainty_sandbox_logic_callback.h"
+#include "dainty_named.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -40,50 +35,15 @@ namespace dainty
 {
 namespace sandbox
 {
-  using container::ptr::t_passable_ptr;
-  using container::ptrlist::t_ptrlist;
-
-  enum  t_messenger_name_tag {};
-  using t_messenger_name = t_string<t_messenger_name_tag>;
-  using T_messenger_name = t_prefix<t_messenger_name>::t_;
-  using R_messenger_name = t_prefix<t_messenger_name>::R_;
+  using named::t_prefix;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_impl_;
-  using p_impl_ = t_prefix<t_impl_>::p_;
-
-///////////////////////////////////////////////////////////////////////////////
-
-  class t_logic : public t_logic_api, public t_logic_callback {
+  class t_logic_stats {
   public:
-    // api
-    R_logic_stats get_logic_stats() const noexcept override final;
-
-    // callbacks - virtual
-
-    t_logic(t_err, R_messenger_name) noexcept;
-    virtual ~t_logic() { }
-
-    t_logic() = delete;
-    t_logic(r_logic) = delete;
-    t_logic(x_logic) = delete;
-    r_logic operator=(r_logic) = delete;
-    r_logic operator=(x_logic) = delete;
-
   private:
-    friend t_void register_(t_err, r_logic, p_logic_ext_);
-    friend class t_thread;
-    friend class t_main;
-    friend class t_impl_;
-
-    using t_extlist_ = t_ptrlist<t_logic_ext_, 10>;
-
-    T_messenger_name name_;
-    t_extlist_       extlist_;
-    p_impl_          impl_;
-    t_logic_stats    stats_;
   };
+  using R_logic_stats = t_prefix<t_logic_stats>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 

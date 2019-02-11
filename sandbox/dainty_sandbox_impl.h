@@ -50,6 +50,8 @@ namespace sandbox
   public:
     t_impl_(t_err, R_thread_name) noexcept;
 
+    // t_logic api
+
     virtual t_void update(base::t_err,
                           base::r_pthread_attr) noexcept override final;
 
@@ -58,7 +60,17 @@ namespace sandbox
     t_void start_extensions(t_err, p_logic) noexcept;
     t_void cleanup_extensions(p_logic) noexcept;
 
-    // event_loop
+    /*
+    t_void add_fdevent(t_err, t_fd, t_fdevent_type, t_fdevent_user, callback); //name it
+    t_void del_fdevent(t_err, t_fd, t_fdevent_type);
+
+    t_void event_loop(t_err);      // wakeup
+    t_void event_loop(t_err); // wakeup
+
+    t_void add_wait(t_err, );
+    t_void del_wait(t_err, );
+    */
+
   private:
     t_thread_name name_;
     t_dispatcher_ dispatcher_;
@@ -73,6 +85,7 @@ namespace sandbox
     // api that is open for t_logic
 
     // api that allow extensions - might not need it
+    // implement callbackk for messager
     virtual t_void run() noexcept override final;
 
   private:

@@ -65,6 +65,10 @@ namespace sandbox
   t_logic::t_logic(t_err err, R_messenger_name name) noexcept : name_{name} {
   }
 
+  R_logic_stats t_logic::get_logic_stats() const noexcept {
+    return stats_;
+  }
+
 ///////////////////////////////////////////////////////////////////////////////
 
   t_thread::t_thread(t_err err, R_thread_name name,

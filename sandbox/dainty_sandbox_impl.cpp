@@ -86,6 +86,10 @@ namespace sandbox
         logic->extlist_.get(ix)->cleanup();
       logic->extlist_.get(ix)->cleanup();
     }
+
+
+    //t_void event_loop(t_err err, p_logic logic) {
+    //}
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -105,7 +109,7 @@ namespace sandbox
     logic_->start(err);
 
     t_out{"event_loop"};
-    // event loop(logic_);
+    //event_loop(err, logic_.get());
 
     logic_->cleanup();
     cleanup_extensions(logic_.get());

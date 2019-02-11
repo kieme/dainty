@@ -28,6 +28,7 @@ SOFTWARE.
 #define _DAINTY_SANDBOX_LOGIC_API_H_
 
 #include "dainty_named.h"
+#include "dainty_sandbox_logic_stats.h"
 #include "dainty_sandbox_err.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,6 +44,8 @@ namespace sandbox
   class t_logic_api {
   public:
     virtual ~t_logic_api() { }
+
+    virtual R_logic_stats get_logic_stats() const noexcept = 0;
     // add API
   };
 
