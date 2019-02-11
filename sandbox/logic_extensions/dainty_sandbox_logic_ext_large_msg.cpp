@@ -34,27 +34,27 @@ namespace sandbox
 
   t_logic_large_msg_ext::t_logic_large_msg_ext(t_err err,
                                                r_logic logic) noexcept
-    : ext_{err, logic, *this} {
+    : impl_{err, logic, *this} {
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_logic_large_msg_ext::t_ext_::t_ext_(t_err err, r_logic logic,
-                                        r_callback callback) noexcept
-      : t_logic_ext_{"large_msg", logic}, callback_{callback} {
+  t_logic_large_msg_ext::t_impl_::t_impl_(t_err err, r_logic logic,
+                                          r_ext_ ext) noexcept
+      : t_logic_ext{"large_msg", logic}, ext_{ext} {
     ERR_GUARD(err) {
       register_(err, get_logic(), this);
     }
   }
 
-  t_void t_logic_large_msg_ext::t_ext_::start(t_err err) noexcept {
+  t_void t_logic_large_msg_ext::t_impl_::notify_start(t_err err) noexcept {
     ERR_GUARD(err) {
-      callback_.large_msg_start(err);
+      ext_.notify_large_msg_start(err);
     }
   }
 
-  t_void t_logic_large_msg_ext::t_ext_::cleanup() noexcept {
-      callback_.large_msg_cleanup();
+  t_void t_logic_large_msg_ext::t_impl_::notify_cleanup() noexcept {
+    ext_.notify_large_msg_cleanup();
   }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -28,8 +28,8 @@ SOFTWARE.
 #define _DAINTY_SANDBOX_LOGIC_EXT_H_
 
 #include "dainty_named.h"
-#include "dainty_named_string.h"
-#include "dainty_sandbox_err.h"
+#include "dainty_sandbox_logic_ext_api.h"
+#include "dainty_sandbox_logic_ext_notify.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -45,54 +45,37 @@ namespace sandbox
   using named::t_prefix;
   using named::string::t_string;
 
-  using t_err = err::t_err;
-
-  enum  t_extension_name_tag {};
-  using t_extension_name = t_string<t_extension_name_tag>;
-  using T_extension_name = t_prefix<t_extension_name>::T_;
-  using R_extension_name = t_prefix<t_extension_name>::R_;
+  class t_logic_ext;
+  using r_logic_ext = t_prefix<t_logic_ext>::r_;
+  using p_logic_ext = t_prefix<t_logic_ext>::p_;
+  using x_logic_ext = t_prefix<t_logic_ext>::x_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic;
-  using r_logic = t_prefix<t_logic>::r_;
-  using R_logic = t_prefix<t_logic>::R_;
-  using p_logic = t_prefix<t_logic>::p_;
-  using x_logic = t_prefix<t_logic>::x_;
-
-  class t_logic_ext_;
-  using r_logic_ext_ = t_prefix<t_logic_ext_>::r_;
-  using p_logic_ext_ = t_prefix<t_logic_ext_>::p_;
-  using x_logic_ext_ = t_prefix<t_logic_ext_>::x_;
-
-///////////////////////////////////////////////////////////////////////////////
-
-  class t_logic_ext_ {
+  class t_logic_ext : public t_logic_ext_api,
+                      public t_logic_ext_notify {
   public:
-    t_logic_ext_(R_extension_name name, r_logic logic) noexcept
+    t_logic_ext(R_extension_name name, r_logic logic) noexcept
       : name_{name}, logic_{logic} {
     }
 
-    t_logic_ext_() = delete;
-    t_logic_ext_(r_logic_ext_) = delete;
-    t_logic_ext_(x_logic_ext_) = delete;
-    r_logic_ext_ operator=(r_logic_ext_)  = delete;
-    r_logic_ext_ operator=(x_logic_ext_) = delete;
+    t_logic_ext() = delete;
+    t_logic_ext(r_logic_ext) = delete;
+    t_logic_ext(x_logic_ext) = delete;
+    r_logic_ext operator=(r_logic_ext)  = delete;
+    r_logic_ext operator=(x_logic_ext) = delete;
 
-    inline R_extension_name get_name () const noexcept { return name_;  }
-    inline r_logic          get_logic()       noexcept { return logic_; }
-    inline R_logic          get_logic() const noexcept { return logic_; }
-
-    virtual t_void start  (t_err) noexcept = 0;
-    virtual t_void cleanup()      noexcept = 0;
+    R_extension_name get_name () const noexcept override final;
+    r_logic          get_logic()       noexcept override final;
+    R_logic          get_logic() const noexcept override final;
 
   private:
     T_extension_name name_;
     r_logic          logic_;
   };
-  using p_logic_ext_ = t_prefix<t_logic_ext_>::p_;
+  using p_logic_ext = t_prefix<t_logic_ext>::p_;
 
-  t_void register_(t_err, r_logic, p_logic_ext_);
+  t_void register_(t_err, r_logic, p_logic_ext);
 
 ///////////////////////////////////////////////////////////////////////////////
 }

@@ -66,12 +66,12 @@ namespace sandbox
     ERR_GUARD(err) {
       t_ix end = to_ix(logic->extlist_.get_size());
       for (t_ix ix{0}; ix < end; set(ix)++) {
-        logic->extlist_.get(ix)->start(err);
+        logic->extlist_.get(ix)->notify_start(err);
         if (err) {
           if (get(ix)) {
             for (set(ix)--; get(ix); set(ix)--)
-              logic->extlist_.get(ix)->cleanup();
-            logic->extlist_.get(ix)->cleanup();
+              logic->extlist_.get(ix)->notify_cleanup();
+            logic->extlist_.get(ix)->notify_cleanup();
           }
           break;
         }
@@ -83,8 +83,8 @@ namespace sandbox
     t_ix ix = to_ix(logic->extlist_.get_size());
     if (get(ix)) {
       for (set(ix)--; get(ix); set(ix)--)
-        logic->extlist_.get(ix)->cleanup();
-      logic->extlist_.get(ix)->cleanup();
+        logic->extlist_.get(ix)->notify_cleanup();
+      logic->extlist_.get(ix)->notify_cleanup();
     }
 
 
@@ -106,12 +106,12 @@ namespace sandbox
     t_err err;
 
     start_extensions(err, logic_.get());
-    logic_->start(err);
+    logic_->notify_start(err);
 
     t_out{"event_loop"};
     //event_loop(err, logic_.get());
 
-    logic_->cleanup();
+    logic_->notify_cleanup();
     cleanup_extensions(logic_.get());
   }
 

@@ -32,7 +32,7 @@ SOFTWARE.
 #include "dainty_sandbox_err.h"
 #include "dainty_sandbox_logic_api.h"
 #include "dainty_sandbox_logic_ext.h"
-#include "dainty_sandbox_logic_callback.h"
+#include "dainty_sandbox_logic_notify.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -55,12 +55,12 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic : public t_logic_api, public t_logic_callback {
+  class t_logic : public t_logic_api, public t_logic_notify {
   public:
     // api
     R_logic_stats get_logic_stats() const noexcept override final;
 
-    // callbacks - virtual
+    // all notify_<> methods are virtual
 
     t_logic(t_err, R_messenger_name) noexcept;
     virtual ~t_logic() { }
@@ -72,12 +72,12 @@ namespace sandbox
     r_logic operator=(x_logic) = delete;
 
   private:
-    friend t_void register_(t_err, r_logic, p_logic_ext_);
+    friend t_void register_(t_err, r_logic, p_logic_ext);
     friend class t_thread;
     friend class t_main;
     friend class t_impl_;
 
-    using t_extlist_ = t_ptrlist<t_logic_ext_, 10>;
+    using t_extlist_ = t_ptrlist<t_logic_ext, 10>;
 
     T_messenger_name name_;
     t_extlist_       extlist_;

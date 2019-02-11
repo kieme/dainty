@@ -24,13 +24,11 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_LOGIC_CALLBACK_H_
-#define _DAINTY_SANDBOX_LOGIC_CALLBACK_H_
+#ifndef _DAINTY_SANDBOX_LOGIC_EXT_LARGE_MSG_NOTIFY_H_
+#define _DAINTY_SANDBOX_LOGIC_EXT_LARGE_MSG_NOTIFY_H_
 
 #include "dainty_named.h"
 #include "dainty_sandbox_err.h"
-
-///////////////////////////////////////////////////////////////////////////////
 
 namespace dainty
 {
@@ -41,13 +39,12 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_callback {
+  class t_logic_large_msg_ext_notify {
   public:
-    virtual ~t_logic_callback() { }
+    virtual ~t_logic_large_msg_ext_notify() { }
 
-    virtual t_void start  (t_err) noexcept = 0;
-    virtual t_void cleanup()      noexcept = 0;
-    // add API
+    virtual t_void notify_large_msg_start(t_err) noexcept = 0;
+    virtual t_void notify_large_msg_cleanup()    noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

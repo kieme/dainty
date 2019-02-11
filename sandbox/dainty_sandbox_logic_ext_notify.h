@@ -24,31 +24,33 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_LOGIC_EXT_CLI_CALLBACK_H_
-#define _DAINTY_SANDBOX_LOGIC_EXT_CLI_CALLBACK_H_
+#ifndef _DAINTY_SANDBOX_LOGIC_EXT_NOTIFY_H_
+#define _DAINTY_SANDBOX_LOGIC_EXT_NOTIFY_H_
 
 #include "dainty_named.h"
+#include "dainty_named_string.h"
 #include "dainty_sandbox_err.h"
+
+///////////////////////////////////////////////////////////////////////////////
 
 namespace dainty
 {
 namespace sandbox
 {
   using named::t_void;
+  using named::t_prefix;
+
   using t_err = err::t_err;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_cli_ext_callback {
+  class t_logic_ext_notify {
   public:
-    virtual ~t_logic_cli_ext_callback() { }
-
-    virtual t_void cli_start(t_err) noexcept = 0;
-    virtual t_void cli_cleanup()    noexcept = 0;
+    virtual t_void notify_start  (t_err) noexcept = 0;
+    virtual t_void notify_cleanup()      noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
-
 }
 }
 

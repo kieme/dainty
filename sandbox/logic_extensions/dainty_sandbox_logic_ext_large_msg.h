@@ -29,7 +29,7 @@ SOFTWARE.
 
 #include "dainty_sandbox_logic_ext.h"
 #include "dainty_sandbox_logic_ext_large_msg_api.h"
-#include "dainty_sandbox_logic_ext_large_msg_callback.h"
+#include "dainty_sandbox_logic_ext_large_msg_notify.h"
 
 namespace dainty
 {
@@ -38,28 +38,28 @@ namespace sandbox
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_logic_large_msg_ext : public t_logic_large_msg_ext_api,
-                                public t_logic_large_msg_ext_callback {
+                                public t_logic_large_msg_ext_notify {
   public:
     t_logic_large_msg_ext(t_err, r_logic) noexcept;
 
     // use api
-    // provide callback
+    // provide notify_
 
   private:
-    using r_callback = t_prefix<t_logic_large_msg_ext_callback>::r_;
+    using r_ext_ = t_prefix<t_logic_large_msg_ext>::r_;
 
-    class t_ext_ : public t_logic_ext_ {
+    class t_impl_ : public t_logic_ext {
     public:
-      t_ext_(t_err, r_logic, r_callback) noexcept; // r_err
+      t_impl_(t_err, r_logic, r_ext_) noexcept;
 
-      virtual t_void start(t_err) noexcept override final;
-      virtual t_void cleanup()    noexcept override final;
+      virtual t_void notify_start(t_err) noexcept override final;
+      virtual t_void notify_cleanup()    noexcept override final;
 
     private:
-      r_callback callback_;
+      r_ext_ ext_;
     };
 
-    t_ext_ ext_;
+    t_impl_ impl_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

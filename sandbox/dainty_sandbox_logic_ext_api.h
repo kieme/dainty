@@ -24,31 +24,52 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_LOGIC_EXT_LARGE_MSG_CALLBACK_H_
-#define _DAINTY_SANDBOX_LOGIC_EXT_LARGE_MSG_CALLBACK_H_
+#ifndef _DAINTY_SANDBOX_LOGIC_EXT_API_H_
+#define _DAINTY_SANDBOX_LOGIC_EXT_API_H_
 
 #include "dainty_named.h"
+#include "dainty_named_string.h"
 #include "dainty_sandbox_err.h"
+
+///////////////////////////////////////////////////////////////////////////////
 
 namespace dainty
 {
 namespace sandbox
 {
+  using named::VALID;
+  using named::INVALID;
   using named::t_void;
+  using named::t_bool;
+  using named::t_validity;
+  using named::t_prefix;
+  using named::string::t_string;
+
   using t_err = err::t_err;
+
+  enum  t_extension_name_tag {};
+  using t_extension_name = t_string<t_extension_name_tag>;
+  using T_extension_name = t_prefix<t_extension_name>::T_;
+  using R_extension_name = t_prefix<t_extension_name>::R_;
+
+  class t_logic;
+  using r_logic = t_prefix<t_logic>::r_;
+  using R_logic = t_prefix<t_logic>::R_;
+  using p_logic = t_prefix<t_logic>::p_;
+  using x_logic = t_prefix<t_logic>::x_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_large_msg_ext_callback {
+  class t_logic_ext_api {
   public:
-    virtual ~t_logic_large_msg_ext_callback() { }
+    virtual ~t_logic_ext_api() { }
 
-    virtual t_void large_msg_start(t_err) noexcept = 0;
-    virtual t_void large_msg_cleanup()    noexcept = 0;
+    virtual R_extension_name get_name () const noexcept = 0;
+    virtual r_logic          get_logic()       noexcept = 0;
+    virtual R_logic          get_logic() const noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
-
 }
 }
 

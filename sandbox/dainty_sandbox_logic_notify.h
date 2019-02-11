@@ -24,42 +24,29 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_LOGIC_EXT_CLI_H_
-#define _DAINTY_SANDBOX_LOGIC_EXT_CLI_H_
+#ifndef _DAINTY_SANDBOX_LOGIC_NOTIFY_H_
+#define _DAINTY_SANDBOX_LOGIC_NOTIFY_H_
 
-#include "dainty_sandbox_logic_ext.h"
-#include "dainty_sandbox_logic_ext_cli_api.h"
-#include "dainty_sandbox_logic_ext_cli_notify.h"
+#include "dainty_named.h"
+#include "dainty_sandbox_err.h"
+
+///////////////////////////////////////////////////////////////////////////////
 
 namespace dainty
 {
 namespace sandbox
 {
+  using named::t_void;
+  using t_err = err::t_err;
+
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_cli_ext : public t_logic_cli_ext_api,
-                          public t_logic_cli_ext_notify {
+  class t_logic_notify {
   public:
-    t_logic_cli_ext(t_err, r_logic) noexcept;
+    virtual ~t_logic_notify() { }
 
-    // use api
-    // provide notify_
-
-  private:
-    using r_ext_ = t_prefix<t_logic_cli_ext>::r_;
-
-    class t_impl_ : public t_logic_ext {
-    public:
-      t_impl_(t_err, r_logic, r_ext_) noexcept; // r_err
-
-      virtual t_void notify_start(t_err) noexcept override final;
-      virtual t_void notify_cleanup()    noexcept override final;
-
-    private:
-      r_ext_ ext_;
-    };
-
-    t_impl_ impl_;
+    virtual t_void notify_start  (t_err) noexcept = 0;
+    virtual t_void notify_cleanup()      noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

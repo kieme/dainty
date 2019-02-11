@@ -19,33 +19,33 @@ public:
       t_logic_large_msg_ext{err, *this} {
   }
 
-  virtual t_void large_msg_start(t_err err) noexcept override final {
+  virtual t_void notify_large_msg_start(t_err err) noexcept override final {
     ERR_GUARD(err) {
       t_out{"t_app_logic:ext_large_msg_start"};
     }
   }
 
-  virtual t_void large_msg_cleanup() noexcept override final {
+  virtual t_void notify_large_msg_cleanup() noexcept override final {
     t_out{"t_app_logic:large_msg_cleanup"};
   }
 
-  virtual t_void cli_start(t_err err) noexcept override final {
+  virtual t_void notify_cli_start(t_err err) noexcept override final {
     ERR_GUARD(err) {
       t_out{"t_app_logic:cli_start"};
     }
   }
 
-  virtual t_void cli_cleanup() noexcept override final {
+  virtual t_void notify_cli_cleanup() noexcept override final {
     t_out{"t_app_logic:cli_cleanup"};
   }
 
-  virtual t_void start(t_err err) noexcept override final {
+  virtual t_void notify_start(t_err err) noexcept override final {
     ERR_GUARD(err) {
       t_out{"t_app_logic:start"};
     }
   }
 
-  virtual t_void cleanup() noexcept override final {
+  virtual t_void notify_cleanup() noexcept override final {
     t_out{"t_app_logic:cleanup"};
   }
 

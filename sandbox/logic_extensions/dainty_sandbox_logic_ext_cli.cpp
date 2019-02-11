@@ -33,27 +33,27 @@ namespace sandbox
 ///////////////////////////////////////////////////////////////////////////////
 
   t_logic_cli_ext::t_logic_cli_ext(t_err err, r_logic logic) noexcept
-    : ext_{err, logic, *this} {
+    : impl_{err, logic, *this} {
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_logic_cli_ext::t_ext_::t_ext_(t_err err, r_logic logic,
-                                  r_callback callback) noexcept
-      : t_logic_ext_{"cli", logic}, callback_{callback} {
+  t_logic_cli_ext::t_impl_::t_impl_(t_err err, r_logic logic,
+                                    r_ext_ ext) noexcept
+      : t_logic_ext{"cli", logic}, ext_{ext} {
     ERR_GUARD(err) {
       register_(err, get_logic(), this);
     }
   }
 
-  t_void t_logic_cli_ext::t_ext_::start(t_err err) noexcept {
+  t_void t_logic_cli_ext::t_impl_::notify_start(t_err err) noexcept {
     ERR_GUARD(err) {
-      callback_.cli_start(err);
+      ext_.notify_cli_start(err);
     }
   }
 
-  t_void t_logic_cli_ext::t_ext_::cleanup() noexcept {
-      callback_.cli_cleanup();
+  t_void t_logic_cli_ext::t_impl_::notify_cleanup() noexcept {
+    ext_.notify_cli_cleanup();
   }
 
 ///////////////////////////////////////////////////////////////////////////////

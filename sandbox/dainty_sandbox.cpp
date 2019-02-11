@@ -43,12 +43,12 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_void register_(t_err err, r_logic logic, p_logic_ext_ ext) {
+  t_void register_(t_err err, r_logic logic, p_logic_ext ext) {
     ERR_GUARD(err) {
       if (ext) {
         t_ix end = to_ix(logic.extlist_.get_size());
         for (t_ix ix{0}; ix < end; set(ix)++) {
-          p_logic_ext_ ext_ptr = logic.extlist_.get(ix);
+          p_logic_ext ext_ptr = logic.extlist_.get(ix);
           if (ext == ext_ptr || ext_ptr->get_name() == ext->get_name()) {
             err = err::E_XXX; // already
             break;
@@ -58,6 +58,18 @@ namespace sandbox
       } else
         err = err::E_XXX;
     }
+  }
+
+  R_extension_name t_logic_ext::get_name() const noexcept {
+    return name_;
+  }
+
+  r_logic t_logic_ext::get_logic() noexcept {
+    return logic_;
+  }
+
+  R_logic t_logic_ext::get_logic() const noexcept {
+    return logic_;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
