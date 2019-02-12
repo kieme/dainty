@@ -79,14 +79,14 @@ namespace sandbox
 
   t_void t_impl_::start_extensions_(t_err err, p_logic logic) noexcept {
     ERR_GUARD(err) {
-      t_ix end = to_ix(logic->extlist_.get_size());
+      t_ix end = to_ix(logic->exts_.get_size());
       for (t_ix ix{0}; !err && ix < end; set(ix)++) {
-        logic->extlist_.get(ix)->notify_start(err);
+        logic->exts_.get(ix)->notify_start(err);
         if (err) {
           if (get(ix)) {
             for (set(ix)--; get(ix); set(ix)--)
-              logic->extlist_.get(ix)->notify_cleanup();
-            logic->extlist_.get(ix)->notify_cleanup();
+              logic->exts_.get(ix)->notify_cleanup();
+            logic->exts_.get(ix)->notify_cleanup();
           }
         }
       }
@@ -94,11 +94,11 @@ namespace sandbox
   }
 
   t_void t_impl_::cleanup_extensions_(p_logic logic) noexcept {
-    t_ix ix = to_ix(logic->extlist_.get_size());
+    t_ix ix = to_ix(logic->exts_.get_size());
     if (get(ix)) {
       for (set(ix)--; get(ix); set(ix)--)
-        logic->extlist_.get(ix)->notify_cleanup();
-      logic->extlist_.get(ix)->notify_cleanup();
+        logic->exts_.get(ix)->notify_cleanup();
+      logic->exts_.get(ix)->notify_cleanup();
     }
   }
 
@@ -180,22 +180,21 @@ namespace sandbox
 
   t_single_impl_::t_single_impl_(t_err err, R_thread_name name,
                                  x_logic_ptr ptr) noexcept
-    : t_impl_{err, name, t_n{1}}, logic_{x_cast(ptr)} {
+    : t_impl_{err, name, t_n{1}}, ptr_{x_cast(ptr)} {
     ERR_GUARD(err) {
-      register_logic(err, logic_.get());
+      register_logic(err, ptr_.get());
     }
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   t_shared_impl_::t_shared_impl_(t_err err, R_thread_name name,
-                                 x_logic_ptrlist list) noexcept
-    : t_impl_{err, name, list.get_size()}, list_{x_cast(list)} {
+                                 x_logic_ptrlist ptrlist) noexcept
+    : t_impl_{err, name, ptrlist.get_size()}, ptrlist_{x_cast(ptrlist)} {
     ERR_GUARD(err) {
-      t_ix end = to_ix(list_.get_size());
-      for (t_ix ix{0}; !err && ix < end; ++set(ix)) {
-        register_logic(err, list_.get(ix)->get());
-      }
+      t_ix end = to_ix(ptrlist_.get_size());
+      for (t_ix ix{0}; !err && ix < end; ++set(ix))
+        register_logic(err, ptrlist_.get(ix)->get());
     }
   }
 

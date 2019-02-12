@@ -88,7 +88,7 @@ namespace sandbox
 
   private:
     struct t_logic_entry_ {
-      p_logic logic = nullptr;
+      p_logic       logic = nullptr;
       t_logic_entry_(p_logic _logic) : logic(_logic) { }
     };
     using t_logics_ = container::list::t_list<t_logic_entry_>;
@@ -126,7 +126,7 @@ namespace sandbox
     t_single_impl_(t_err, R_thread_name, x_logic_ptr) noexcept;
 
   private:
-    t_logic_ptr logic_;
+    t_logic_ptr ptr_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -136,7 +136,7 @@ namespace sandbox
     t_shared_impl_(t_err, R_thread_name, x_logic_ptrlist) noexcept;
 
   private:
-    t_logic_ptrlist list_;
+    t_logic_ptrlist ptrlist_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

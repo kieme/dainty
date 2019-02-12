@@ -39,7 +39,9 @@ namespace dainty
 {
 namespace sandbox
 {
+  using named::t_ix;
   using container::ptrlist::t_ptrlist;
+  using t_logic_exts = t_ptrlist<t_logic_ext, 10>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -71,11 +73,10 @@ namespace sandbox
     friend class t_main;
     friend class t_impl_;
 
-    using t_extlist_ = t_ptrlist<t_logic_ext, 10>;
-
     p_impl_          impl_ = nullptr;
+    t_ix             ix_   = t_ix{0};
     T_messenger_name name_;
-    t_extlist_       extlist_;
+    t_logic_exts     exts_;
     t_logic_stats    stats_;
   };
 

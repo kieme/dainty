@@ -74,15 +74,15 @@ namespace sandbox
   t_void register_(t_err err, r_logic logic, p_logic_ext ext) {
     ERR_GUARD(err) {
       if (ext) {
-        t_ix end = to_ix(logic.extlist_.get_size());
+        t_ix end = to_ix(logic.exts_.get_size());
         for (t_ix ix{0}; ix < end; set(ix)++) {
-          p_logic_ext ext_ptr = logic.extlist_.get(ix);
+          p_logic_ext ext_ptr = logic.exts_.get(ix);
           if (ext == ext_ptr || ext_ptr->get_name() == ext->get_name()) {
             err = err::E_XXX; // already
             break;
           }
         }
-        logic.extlist_.push_back(err, ext);
+        logic.exts_.push_back(err, ext);
       } else
         err = err::E_XXX;
     }
