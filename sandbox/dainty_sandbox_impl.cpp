@@ -43,29 +43,44 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_impl_::t_impl_(t_err err, R_thread_name name) noexcept
-      : name_{name}, dispatcher_{err, {t_n{100}, "epoll_service"}}  {
+  t_impl_::t_impl_(t_err err, R_thread_name name, t_n max_logics) noexcept
+      : name_      {name},
+        dispatcher_{err, {t_n{100}, "epoll_service"}},
+        logics_    {err, max_logics}  {
     ERR_GUARD(err) {
       // create_event_loop
     }
   }
 
-  t_void t_impl_::update(base::t_err err,
-                         base::r_pthread_attr attr) noexcept {
+  t_void t_impl_::update(base1::t_err err,
+                         base1::r_pthread_attr attr) noexcept {
     ERR_GUARD(err) {
     }
   }
 
-  t_void t_impl_::prepare(base::t_err err) noexcept {
+  t_void t_impl_::prepare(base1::t_err err) noexcept {
     ERR_GUARD(err) {
         // build structures
     }
   }
 
-  t_void t_impl_::start_extensions(t_err err, p_logic logic) noexcept {
+  t_void t_impl_::run() noexcept {
+    event_loop_();
+  }
+
+  t_void t_impl_::register_logic(t_err err, p_logic logic) noexcept {
+    ERR_GUARD(err) {
+      t_out{FMT, "register logic name - %s",
+            get(logic->get_messenger_name().get_cstr())};
+      //auto entry =
+      logics_.push_back(err, logic);
+    }
+  }
+
+  t_void t_impl_::start_extensions_(t_err err, p_logic logic) noexcept {
     ERR_GUARD(err) {
       t_ix end = to_ix(logic->extlist_.get_size());
-      for (t_ix ix{0}; ix < end; set(ix)++) {
+      for (t_ix ix{0}; !err && ix < end; set(ix)++) {
         logic->extlist_.get(ix)->notify_start(err);
         if (err) {
           if (get(ix)) {
@@ -73,84 +88,115 @@ namespace sandbox
               logic->extlist_.get(ix)->notify_cleanup();
             logic->extlist_.get(ix)->notify_cleanup();
           }
-          break;
         }
       }
     }
   }
 
-  t_void t_impl_::cleanup_extensions(p_logic logic) noexcept {
+  t_void t_impl_::cleanup_extensions_(p_logic logic) noexcept {
     t_ix ix = to_ix(logic->extlist_.get_size());
     if (get(ix)) {
       for (set(ix)--; get(ix); set(ix)--)
         logic->extlist_.get(ix)->notify_cleanup();
       logic->extlist_.get(ix)->notify_cleanup();
     }
+  }
 
+  t_void t_impl_::may_reorder_events(base2::r_event_infos infos) {
+  }
 
-    //t_void event_loop(t_err err, p_logic logic) {
-    //}
+  t_void t_impl_::notify_event_remove(base2::r_event_info info) {
+    // if a fd close it will be removed
+  }
+
+  t_impl_::base2::t_quit t_impl_::notify_timeout(base2::t_usec usec) {
+    // go through all those that want to wait
+    return true;
+  }
+
+  t_impl_::base2::t_quit t_impl_::notify_error(base2::t_errn errn) {
+    //
+    return true;
+  }
+
+  t_impl_::base2::t_quit t_impl_::notify_events_processed() { // number?
+    // time to update the loop statistics
+    return true;
+  }
+
+  t_void t_impl_::start_(t_err err) noexcept {
+    ERR_GUARD(err) {
+      t_ix end = to_ix(logics_.get_size());
+      for (t_ix ix{0}; !err && ix < end; set(ix)++) {
+        auto logic = logics_.get(ix)->logic;
+        start_extensions_(err, logic);
+        logic->notify_start(err);
+        if (err) {
+          if (get(ix)) {
+            for (set(ix)--; get(ix); set(ix)--) {
+              auto logic = logics_.get(ix)->logic;
+              logic->notify_cleanup();
+              cleanup_extensions_(logic);
+            }
+            auto logic = logics_.get(ix)->logic;
+            logic->notify_cleanup();
+            cleanup_extensions_(logic);
+          }
+        }
+      }
+    }
+  }
+
+  t_void t_impl_::cleanup_(t_err err) noexcept {
+    ERR_GUARD(err) {
+      t_ix ix = to_ix(logics_.get_size());
+      if (get(ix)) {
+        for (set(ix)--; get(ix); set(ix)--) {
+          auto logic = logics_.get(ix)->logic;
+          logic->notify_cleanup();
+          cleanup_extensions_(logic);
+        }
+        auto logic = logics_.get(ix)->logic;
+        logic->notify_cleanup();
+        cleanup_extensions_(logic);
+      }
+    }
+  }
+
+  t_void t_impl_::event_loop_() noexcept {
+    t_err err;
+
+    start_(err.tag(1));
+    dispatcher_.event_loop(err.tag(2), this);
+    cleanup_(err.tag(3));
+
+    if (err) {
+      err.print();
+      err.clear();
+    }
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   t_single_impl_::t_single_impl_(t_err err, R_thread_name name,
                                  x_logic_ptr ptr) noexcept
-    : t_impl_{err, name}, logic_{x_cast(ptr)} {
+    : t_impl_{err, name, t_n{1}}, logic_{x_cast(ptr)} {
     ERR_GUARD(err) {
-      p_logic logic = logic_.get();
-      t_out{FMT, "logic name - %s",
-            get(logic->get_messenger_name().get_cstr())};
+      register_logic(err, logic_.get());
     }
-  }
-
-  t_void t_single_impl_::run() noexcept {
-    t_err err;
-
-    start_extensions(err, logic_.get());
-    logic_->notify_start(err);
-
-    t_out{"event_loop"};
-    //event_loop(err, logic_.get());
-
-    logic_->notify_cleanup();
-    cleanup_extensions(logic_.get());
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   t_shared_impl_::t_shared_impl_(t_err err, R_thread_name name,
                                  x_logic_ptrlist list) noexcept
-    : t_impl_{err, name}, list_{x_cast(list)} {
+    : t_impl_{err, name, list.get_size()}, list_{x_cast(list)} {
     ERR_GUARD(err) {
       t_ix end = to_ix(list_.get_size());
-      for (t_ix ix{0}; ix < end; ++set(ix)) {
-        p_logic logic = list_.get(ix)->get();
-        t_out{FMT, "logic name - %s",
-              get(logic->get_messenger_name().get_cstr())};
+      for (t_ix ix{0}; !err && ix < end; ++set(ix)) {
+        register_logic(err, list_.get(ix)->get());
       }
-      // build messengers
     }
-  }
-
-  // api that allow extensions - might not need it
-  t_void t_shared_impl_::run() noexcept {
-    /*
-    t_err err;
-
-    for () {
-      start_extensions(err, logic_.get());
-      logic_->start(err);
-    }
-
-    t_out{"event_loop"};
-    // event loop(logic_List);
-
-    for () {
-      logic_->cleanup();
-      cleanup_extensions(logic_.get());
-    }
-    */
   }
 
 ///////////////////////////////////////////////////////////////////////////////

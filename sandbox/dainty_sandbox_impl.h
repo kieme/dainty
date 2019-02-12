@@ -45,19 +45,32 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_impl_ : public t_thread_logic_ {
-    using base = t_thread_logic_;
+  // each thread has a timefd shared by all timers and logics.
+  // logics will store which timers belong to them, by index
+  // the logic itself gets and id(index)
+
+  class t_impl_;
+  using R_impl_ = t_prefix<t_impl_>::R_;
+  using r_impl_ = t_prefix<t_impl_>::r_;
+  using x_impl_ = t_prefix<t_impl_>::x_;
+
+  class t_impl_ : public t_thread_logic_, public t_dispatcher_::t_logic {
+    using base1 = t_thread_logic_;
+    using base2 = t_dispatcher_::t_logic;
   public:
-    t_impl_(t_err, R_thread_name) noexcept;
+    t_impl_(t_err, R_thread_name, t_n max_logics) noexcept;
+
+    t_impl_(R_impl_) = delete;
+    t_impl_(x_impl_) = delete;
+    r_impl_ operator=(R_impl_) = delete;
+    r_impl_ operator=(x_impl_) = delete;
+
+    virtual t_void update(base1::t_err,
+                          base1::r_pthread_attr) noexcept override final;
+    virtual t_void prepare(base1::t_err) noexcept override final;
+    virtual t_void run() noexcept override final;
 
     // t_logic api
-
-    virtual t_void update(base::t_err,
-                          base::r_pthread_attr) noexcept override final;
-    virtual t_void prepare(base::t_err) noexcept override final;
-
-    t_void start_extensions(t_err, p_logic) noexcept;
-    t_void cleanup_extensions(p_logic) noexcept;
 
     /*
     t_void add_fdevent(t_err, t_fd, t_fdevent_type, t_fdevent_user, callback); //name it
@@ -70,9 +83,40 @@ namespace sandbox
     t_void del_wait(t_err, );
     */
 
+  protected:
+    t_void register_logic(t_err, p_logic logic) noexcept;
+
   private:
+    struct t_logic_entry_ {
+      p_logic logic = nullptr;
+      t_logic_entry_(p_logic _logic) : logic(_logic) { }
+    };
+    using t_logics_ = container::list::t_list<t_logic_entry_>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_void start_     (t_err) noexcept;
+    t_void cleanup_   (t_err) noexcept;
+    t_void event_loop_() noexcept;
+    t_void start_extensions_  (t_err, p_logic) noexcept;
+    t_void cleanup_extensions_(p_logic) noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    virtual t_void may_reorder_events(base2::r_event_infos) override final;
+    virtual t_void notify_event_remove(base2::r_event_info) override final;
+    virtual base2::t_quit notify_timeout(base2::t_usec) override final;
+    virtual base2::t_quit notify_error(base2::t_errn) override final;
+    virtual base2::t_quit notify_events_processed() override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
     t_thread_name name_;
     t_dispatcher_ dispatcher_;
+    t_logics_     logics_;
+    // spinning_;
+    // fds_;
+    // timers_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -81,24 +125,15 @@ namespace sandbox
   public:
     t_single_impl_(t_err, R_thread_name, x_logic_ptr) noexcept;
 
-    // api that is open for t_logic
-
-    // api that allow extensions - might not need it
-    // implement callbackk for messager
-    virtual t_void run() noexcept override final;
-
   private:
     t_logic_ptr logic_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_shared_impl_ : public t_impl_ { // don't support now
+  class t_shared_impl_ : public t_impl_ {
   public:
     t_shared_impl_(t_err, R_thread_name, x_logic_ptrlist) noexcept;
-
-    // api that allow extensions - might not need it
-    virtual t_void run() noexcept override final;
 
   private:
     t_logic_ptrlist list_;

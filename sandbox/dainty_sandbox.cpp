@@ -120,7 +120,7 @@ namespace sandbox
     ERR_GUARD(err) {
       t_thread_logic_ptr_ ptr = new t_single_impl_{err, name,
                                                    x_cast(logic_ptr)};
-      t_id id = 1; // ask impl for epoll fd
+      t_id id{1}; // ask impl for epoll fd
       t_thread_ thread{err, name.get_cstr(), x_cast(ptr)};
       if (!err)
         id_ = id;
@@ -131,7 +131,7 @@ namespace sandbox
                      x_logic_ptrlist list) noexcept {
     ERR_GUARD(err) {
       t_thread_logic_ptr_ ptr = new t_shared_impl_{err, name, x_cast(list)};
-      t_id id = 1; // ask impl for epoll fd
+      t_id id{1}; // ask impl for epoll fd
       t_thread_ thread{err, name.get_cstr(), x_cast(ptr)};
       if (!err)
         id_ = id;
@@ -142,12 +142,16 @@ namespace sandbox
     return id_;
   }
 
+  t_thread::operator t_validity() const noexcept {
+    return id_ != BAD_ID ? VALID : INVALID;
+  }
+
 ///////////////////////////////////////////////////////////////////////////////
 
   t_main::t_main(t_err err, R_thread_name name, x_logic_ptr logic) noexcept {
     ERR_GUARD(err) {
       t_single_impl_ impl{err, name, x_cast(logic)};
-      t_id id = 1; // ask impl for epoll fd
+      t_id id{1}; // ask impl for epoll fd
       t_thread_attr_ attr;
       call_pthread_init(err, attr);
       impl.update(err, attr);
@@ -163,7 +167,7 @@ namespace sandbox
                  x_logic_ptrlist list) noexcept {
     ERR_GUARD(err) {
       t_shared_impl_ impl{err, name, x_cast(list)};
-      t_id id = 1; // ask impl for epoll fd
+      t_id id{1}; // ask impl for epoll fd
       t_thread_attr_ attr;
       call_pthread_init(err, attr);
       impl.update(err, attr);
@@ -177,6 +181,10 @@ namespace sandbox
 
   t_id t_main::get_id() const noexcept {
     return id_;
+  }
+
+  t_main::operator t_validity() const noexcept {
+    return id_ != BAD_ID ? VALID : INVALID;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -255,7 +263,11 @@ namespace sandbox
   }
 
   t_id t_sandbox::get_id() const noexcept {
-    return thread_of_control_ ? thread_of_control_->get_id() : -1;
+    return thread_of_control_ ? thread_of_control_->get_id() : BAD_ID;
+  }
+
+  t_sandbox::operator t_validity() const noexcept {
+    return get_id() != BAD_ID ? VALID : INVALID;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

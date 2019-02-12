@@ -39,6 +39,9 @@ namespace sandbox
 {
   using named::t_n;
   using named::t_ix;
+  using named::t_validity;
+  using named::VALID;
+  using named::INVALID;
   using container::ptr::t_passable_ptr;
 
   enum  t_thread_name_tag {};
@@ -47,7 +50,8 @@ namespace sandbox
 
   enum t_thread_control { IN_CURRENT_THREAD, IN_NEW_THREAD };
 
-  using t_id = named::t_int; // filedescriptor of eventloop
+  using t_id = named::t_fd;
+  constexpr t_id BAD_ID = named::BAD_FD;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -103,10 +107,11 @@ namespace sandbox
     r_thread operator=(R_thread) = delete;
     r_thread operator=(x_thread) = delete;
 
-    t_id get_id() const noexcept;
+    t_id     get_id    () const noexcept;
+    operator t_validity() const noexcept;
 
   private:
-    t_id id_ = -1;
+    t_id id_ = BAD_ID;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -130,10 +135,11 @@ namespace sandbox
     r_main operator=(R_main) = delete;
     r_main operator=(x_main) = delete;
 
-    t_id get_id() const noexcept;
+    t_id     get_id    () const noexcept;
+    operator t_validity() const noexcept;
 
   private:
-    t_id id_ = -1;
+    t_id id_ = BAD_ID;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -163,7 +169,8 @@ namespace sandbox
     r_sandbox operator=(R_sandbox) = delete;
     r_sandbox operator=(x_sandbox) = delete;
 
-    t_id get_id() const noexcept;
+    t_id     get_id    () const noexcept;
+    operator t_validity() const noexcept;
 
   private:
     p_thread_of_control_ thread_of_control_ = nullptr;
