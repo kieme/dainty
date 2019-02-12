@@ -37,38 +37,6 @@ namespace utility
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_bool reset(t_bool& t) {
-    t_bool tmp = t;
-    t = false;
-    return tmp;
-  }
-
-  template<class T>
-  constexpr T reset(T& t) {
-    T tmp = t;
-    t = 0;
-    return tmp;
-  }
-
-  template<class T>
-  constexpr T* reset(T*& t) {
-    T* tmp = t;
-    t = nullptr;
-    return tmp;
-  }
-
-  template<class T, class TAG>
-  constexpr t_explicit<T, TAG> reset(t_explicit<T, TAG>& t) {
-    return t_explicit<T, TAG>{reset(set(t))};
-  }
-
-  template<class TAG>
-  constexpr t_user<TAG> reset(t_user<TAG>& t) {
-    return t_user<TAG>{reset(t.id)};
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
   constexpr t_bool reset(t_bool& t, t_bool value) {
     t_bool tmp = t;
     t = value;
@@ -103,6 +71,42 @@ namespace utility
   template<class TAG>
   constexpr t_user<TAG> reset(t_user<TAG>& t, t_int64 value) {
     return t_user<TAG>{reset(t.id, value)};
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  constexpr t_bool reset(t_bool& t) {
+    t_bool tmp = t;
+    t = false;
+    return tmp;
+  }
+
+  template<class T>
+  constexpr T reset(T& t) {
+    T tmp = t;
+    t = 0;
+    return tmp;
+  }
+
+  template<class T>
+  constexpr T* reset(T*& t) {
+    T* tmp = t;
+    t = nullptr;
+    return tmp;
+  }
+
+  constexpr t_fd reset(t_fd& fd) {
+    return t_fd{reset(set(fd), get(BAD_FD))};
+  }
+
+  template<class T, class TAG>
+  constexpr t_explicit<T, TAG> reset(t_explicit<T, TAG>& t) {
+    return t_explicit<T, TAG>{reset(set(t))};
+  }
+
+  template<class TAG>
+  constexpr t_user<TAG> reset(t_user<TAG>& t) {
+    return t_user<TAG>{reset(t.id)};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
