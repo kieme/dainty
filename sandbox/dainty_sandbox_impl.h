@@ -89,6 +89,12 @@ namespace sandbox
     t_bool       stop_timer(t_ix, t_timer_id)       noexcept;
     P_timer_info get_timer (t_ix, t_timer_id) const noexcept;
 
+    t_fdevent_id        add_fdevent(t_err, t_ix, R_fdevent_name,
+                                    R_fdevent_params,
+                                    t_fdevent_logic_ptr) noexcept;
+    t_fdevent_logic_ptr del_fdevent(t_ix, t_fdevent_id)        noexcept;
+    P_fdevent_info      get_fdevent(t_ix, t_fdevent_id)  const noexcept;
+
   protected:
     t_void register_logic(t_err, p_logic logic) noexcept;
 

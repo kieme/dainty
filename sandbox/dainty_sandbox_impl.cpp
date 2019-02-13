@@ -64,6 +64,8 @@ namespace sandbox
     event_loop_();
   }
 
+///////////////////////////////////////////////////////////////////////////////
+
   t_void t_impl_::register_logic(t_err err, p_logic logic) noexcept {
     ERR_GUARD(err) {
       t_out{FMT, "register logic name - %s",
@@ -94,26 +96,46 @@ namespace sandbox
     return t_msec{0};
   }
 
-  t_timer_id t_impl_::start_timer(t_err err, t_ix, R_timer_name,
-                                  R_timer_params) noexcept {
+  t_timer_id t_impl_::start_timer(t_err err, t_ix ix, R_timer_name name,
+                                  R_timer_params params) noexcept {
     ERR_GUARD(err) {
     }
     return t_timer_id{0};
   }
 
-  t_void t_impl_::restart_timer(t_err err, t_ix, t_timer_id,
-                               R_timer_params) noexcept {
+  t_void t_impl_::restart_timer(t_err err, t_ix ix, t_timer_id id,
+                               R_timer_params params) noexcept {
     ERR_GUARD(err) {
     }
   }
 
-  t_bool t_impl_::stop_timer(t_ix, t_timer_id) noexcept {
+  t_bool t_impl_::stop_timer(t_ix ix, t_timer_id id) noexcept {
     return false;
   }
 
-  P_timer_info t_impl_::get_timer(t_ix, t_timer_id) const noexcept {
+  P_timer_info t_impl_::get_timer(t_ix ix, t_timer_id id) const noexcept {
    return nullptr;
   }
+
+  t_fdevent_id t_impl_::add_fdevent(t_err err, t_ix ix, R_fdevent_name name,
+                                    R_fdevent_params params,
+                                    t_fdevent_logic_ptr ptr) noexcept {
+    ERR_GUARD(err) {
+    }
+    return t_fdevent_id{0};
+  }
+
+  t_fdevent_logic_ptr t_impl_::del_fdevent(t_ix ix,
+                                           t_fdevent_id id) noexcept {
+    return t_fdevent_logic_ptr{};
+  }
+
+  P_fdevent_info t_impl_::get_fdevent(t_ix ix,
+                                      t_fdevent_id id)  const noexcept {
+    return nullptr;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
 
   t_void t_impl_::start_extensions_(t_err err, p_logic logic) noexcept {
     ERR_GUARD(err) {

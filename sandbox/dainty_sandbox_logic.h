@@ -78,6 +78,12 @@ namespace sandbox
     t_bool       stop_timer(t_timer_id)        noexcept override final;
     P_timer_info get_timer (t_timer_id)  const noexcept override final;
 
+    t_fdevent_id        add_fdevent(t_err, R_fdevent_name,
+                                    R_fdevent_params,
+                                    t_fdevent_logic_ptr) noexcept override final;
+    t_fdevent_logic_ptr del_fdevent(t_fdevent_id)        noexcept override final;
+    P_fdevent_info      get_fdevent(t_fdevent_id)  const noexcept override final;
+
   private:
     friend t_void register_(t_err, r_logic, p_logic_ext);
     friend class t_thread;

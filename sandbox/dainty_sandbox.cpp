@@ -173,6 +173,29 @@ namespace sandbox
     return nullptr;
   }
 
+  t_fdevent_id t_logic::add_fdevent(t_err err, R_fdevent_name name,
+                                    R_fdevent_params params,
+                                    t_fdevent_logic_ptr ptr) noexcept {
+    ERR_GUARD(err) {
+      if (impl_)
+        return impl_->add_fdevent(err, ix_, name, params, x_cast(ptr));
+      err = err::E_XXX;
+    }
+    return t_fdevent_id{0};
+  }
+
+  t_fdevent_logic_ptr t_logic::del_fdevent(t_fdevent_id id) noexcept {
+    if (impl_)
+      return impl_->del_fdevent(ix_, id);
+    return t_fdevent_logic_ptr{};
+  }
+
+  P_fdevent_info t_logic::get_fdevent(t_fdevent_id id) const noexcept {
+    if (impl_)
+      return impl_->get_fdevent(ix_, id);
+    return nullptr;
+  }
+
 ///////////////////////////////////////////////////////////////////////////////
 
   t_thread::t_thread(t_err err, R_thread_name name,

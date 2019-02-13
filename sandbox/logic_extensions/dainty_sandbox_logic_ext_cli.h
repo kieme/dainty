@@ -43,14 +43,13 @@ namespace sandbox
     t_logic_cli_ext(t_err, r_logic) noexcept;
 
     // use api
-    // provide notify_
 
   private:
     using r_ext_ = t_prefix<t_logic_cli_ext>::r_;
 
-    class t_impl_ : public t_logic_ext {
+    class t_impl_ : public t_logic_ext { // , t_fdevent_logic
     public:
-      t_impl_(t_err, r_logic, r_ext_) noexcept; // r_err
+      t_impl_(t_err, r_logic, r_ext_) noexcept;
 
       virtual t_void notify_start(t_err) noexcept override final;
       virtual t_void notify_cleanup()    noexcept override final;

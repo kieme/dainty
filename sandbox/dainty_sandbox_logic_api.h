@@ -49,9 +49,13 @@ namespace sandbox
   using T_messenger_name = t_prefix<t_messenger_name>::t_;
   using R_messenger_name = t_prefix<t_messenger_name>::R_;
 
+///////////////////////////////////////////////////////////////////////////////
+
   enum  t_spin_cnt_tag_ {};
   using t_spin_cnt_ = named::t_int;
   using t_spin_cnt  = named::t_explicit<t_spin_cnt_, t_spin_cnt_tag_>;
+
+///////////////////////////////////////////////////////////////////////////////
 
   struct t_time {
   };
@@ -71,6 +75,29 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  using t_fdevent_id   = named::t_int;
+  using t_fdevent_name = named::t_int;
+  using R_fdevent_name = t_prefix<t_fdevent_name>::R_;
+  struct t_fdevent_params {
+  };
+  using R_fdevent_params = t_prefix<t_fdevent_params>::R_;
+  struct t_fdevent_info {
+  };
+  using R_fdevent_info = t_prefix<t_fdevent_info>::R_;
+  using P_fdevent_info = t_prefix<t_fdevent_info>::P_;
+
+  struct t_fdevent_logic {
+    virtual ~t_fdevent_logic() { };
+    t_void notify_fdevent(R_fdevent_info) noexcept = 0;
+  };
+  using p_fdevent_logic = t_prefix<t_fdevent_logic>::p_;
+
+  struct t_fdevent_logic_ptr {
+    p_fdevent_logic logic = nullptr;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
   class t_logic_api {
   public:
     virtual ~t_logic_api() { }
@@ -84,11 +111,18 @@ namespace sandbox
     virtual t_msec     get_spin_period()            const noexcept = 0;
 
     virtual t_timer_id   start_timer  (t_err, R_timer_name,
-                                              R_timer_params) noexcept = 0;
+                                       R_timer_params) noexcept = 0;
     virtual t_void       restart_timer(t_err, t_timer_id,
-                                              R_timer_params) noexcept = 0;
+                                       R_timer_params) noexcept = 0;
     virtual t_bool       stop_timer   (t_timer_id)       noexcept = 0;
     virtual P_timer_info get_timer    (t_timer_id) const noexcept = 0;
+
+    virtual t_fdevent_id        add_fdevent(t_err, R_fdevent_name,
+                                            R_fdevent_params,
+                                            t_fdevent_logic_ptr) noexcept = 0;
+    virtual t_fdevent_logic_ptr del_fdevent(t_fdevent_id)        noexcept = 0;
+    virtual P_fdevent_info      get_fdevent(t_fdevent_id)  const noexcept = 0;
+
   };
 
 ///////////////////////////////////////////////////////////////////////////////
