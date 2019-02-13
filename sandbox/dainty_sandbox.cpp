@@ -105,12 +105,72 @@ namespace sandbox
   t_logic::t_logic(t_err err, R_messenger_name name) noexcept : name_{name} {
   }
 
+  t_logic::operator t_validity() const {
+    return impl_ ? VALID : INVALID;
+  }
+
   R_messenger_name t_logic::get_messenger_name() const noexcept {
     return name_;
   }
 
   R_logic_stats t_logic::get_logic_stats() const noexcept {
     return stats_;
+  }
+
+  t_void t_logic::enable_spin(t_err err, t_spin_cnt cnt) noexcept {
+    ERR_GUARD(err) {
+      if (impl_)
+        return impl_->enable_spin(err, ix_, cnt);
+      err = err::E_XXX;
+    }
+  }
+
+  t_void t_logic::disable_spin() noexcept {
+    if (impl_)
+      return impl_->disable_spin(ix_);
+  }
+
+  t_msec t_logic::get_spin_period() const noexcept {
+    if (impl_)
+      return impl_->get_spin_period(ix_);
+    return t_msec{0};
+  }
+
+  t_spin_cnt t_logic::get_spin_cnt() const noexcept {
+    if (impl_)
+      return impl_->get_spin_cnt(ix_);
+    return t_spin_cnt{0};
+  }
+
+  t_timer_id t_logic::start_timer(t_err err, R_timer_name name,
+                                  R_timer_params params) noexcept {
+    ERR_GUARD(err) {
+      if (impl_)
+        return impl_->start_timer(err, ix_, name, params);
+      err = err::E_XXX;
+    }
+    return t_timer_id{-1};
+  }
+
+  t_void t_logic::restart_timer(t_err err, t_timer_id id,
+                                R_timer_params params) noexcept {
+    ERR_GUARD(err) {
+      if (impl_)
+        return impl_->restart_timer(err, ix_, id, params);
+      err = err::E_XXX;
+    }
+  }
+
+  t_bool t_logic::stop_timer(t_timer_id id) noexcept {
+    if (impl_)
+      return impl_->stop_timer(ix_, id);
+    return false;
+  }
+
+  P_timer_info t_logic::get_timer(t_timer_id id) const noexcept {
+    if (impl_)
+      return impl_->get_timer(ix_, id);
+    return nullptr;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

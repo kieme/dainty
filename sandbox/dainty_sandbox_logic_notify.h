@@ -29,6 +29,7 @@ SOFTWARE.
 
 #include "dainty_named.h"
 #include "dainty_sandbox_err.h"
+#include "dainty_sandbox_logic_api.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -36,8 +37,9 @@ namespace dainty
 {
 namespace sandbox
 {
-  using named::t_void;
   using t_err = err::t_err;
+  using named::t_msec;
+  using named::t_void;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -45,8 +47,10 @@ namespace sandbox
   public:
     virtual ~t_logic_notify() { }
 
-    virtual t_void notify_start  (t_err) noexcept = 0;
-    virtual t_void notify_cleanup()      noexcept = 0;
+    virtual t_void notify_start  (t_err)                         noexcept = 0;
+    virtual t_void notify_cleanup()                              noexcept = 0;
+    virtual t_void notify_spin   (t_bool exipred, t_msec delta)  noexcept = 0;
+    virtual t_void notify_timer_timout(t_timer_id, R_timer_info) noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

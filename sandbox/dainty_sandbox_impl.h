@@ -65,23 +65,29 @@ namespace sandbox
     r_impl_ operator=(R_impl_) = delete;
     r_impl_ operator=(x_impl_) = delete;
 
-    virtual t_void update(base1::t_err,
-                          base1::r_pthread_attr) noexcept override final;
-    virtual t_void prepare(base1::t_err) noexcept override final;
-    virtual t_void run() noexcept override final;
+    virtual t_void update (base1::t_err,
+                           base1::r_pthread_attr) noexcept override final;
+    virtual t_void prepare(base1::t_err)          noexcept override final;
+    virtual t_void run    ()                      noexcept override final;
 
     // t_logic api
 
     /*
     t_void add_fdevent(t_err, t_fd, t_fdevent_type, t_fdevent_user, callback); //name it
     t_void del_fdevent(t_err, t_fd, t_fdevent_type);
-
-    t_void event_loop(t_err);      // wakeup
-    t_void event_loop(t_err); // wakeup
-
-    t_void add_wait(t_err, );
-    t_void del_wait(t_err, );
     */
+
+    t_void     enable_spin    (t_err, t_ix, t_spin_cnt) noexcept;
+    t_void     disable_spin   (t_ix)         noexcept;
+    t_spin_cnt get_spin_cnt   (t_ix)   const noexcept;
+    t_msec     get_spin_period(t_ix)   const noexcept;
+
+    t_timer_id   start_timer  (t_err, t_ix, R_timer_name,
+                               R_timer_params) noexcept;
+    t_void       restart_timer(t_err, t_ix, t_timer_id,
+                               R_timer_params) noexcept;
+    t_bool       stop_timer(t_ix, t_timer_id)       noexcept;
+    P_timer_info get_timer (t_ix, t_timer_id) const noexcept;
 
   protected:
     t_void register_logic(t_err, p_logic logic) noexcept;
@@ -95,19 +101,19 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_void start_     (t_err) noexcept;
-    t_void cleanup_   (t_err) noexcept;
-    t_void event_loop_() noexcept;
+    t_void start_             (t_err)          noexcept;
+    t_void cleanup_           (t_err)          noexcept;
+    t_void event_loop_        ()               noexcept;
     t_void start_extensions_  (t_err, p_logic) noexcept;
-    t_void cleanup_extensions_(p_logic) noexcept;
+    t_void cleanup_extensions_(p_logic)        noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
     virtual t_void may_reorder_events(base2::r_event_infos) override final;
     virtual t_void notify_event_remove(base2::r_event_info) override final;
-    virtual base2::t_quit notify_timeout(base2::t_usec) override final;
-    virtual base2::t_quit notify_error(base2::t_errn) override final;
-    virtual base2::t_quit notify_events_processed() override final;
+    virtual base2::t_quit notify_timeout(base2::t_usec)     override final;
+    virtual base2::t_quit notify_error(base2::t_errn)       override final;
+    virtual base2::t_quit notify_events_processed()         override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -36,9 +36,7 @@ namespace dainty
 namespace sandbox
 {
   using namespace dainty::named::terminal;
-
   using t_ix = named::t_ix;
-
   using named::utility::x_cast;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -48,7 +46,6 @@ namespace sandbox
         dispatcher_{err, {t_n{100}, "epoll_service"}},
         logics_    {err, max_logics}  {
     ERR_GUARD(err) {
-      // create_event_loop
     }
   }
 
@@ -60,7 +57,6 @@ namespace sandbox
 
   t_void t_impl_::prepare(base1::t_err err) noexcept {
     ERR_GUARD(err) {
-        // build structures
     }
   }
 
@@ -72,9 +68,51 @@ namespace sandbox
     ERR_GUARD(err) {
       t_out{FMT, "register logic name - %s",
             get(logic->get_messenger_name().get_cstr())};
-      //auto entry =
-      logics_.push_back(err, logic);
+      t_ix pos = to_ix(logics_.get_size());
+      auto entry = logics_.push_back(err, logic);
+
+      // do everything you need
+
+      entry->logic->ix_   = pos;
+      entry->logic->impl_ = this;
     }
+  }
+
+  t_void t_impl_::enable_spin(t_err err, t_ix ix, t_spin_cnt cnt) noexcept {
+    ERR_GUARD(err) {
+    }
+  }
+
+  t_void t_impl_::disable_spin(t_ix ix) noexcept {
+  }
+
+  t_spin_cnt t_impl_::get_spin_cnt(t_ix ix) const noexcept {
+    return t_spin_cnt{0};
+  }
+
+  t_msec t_impl_::get_spin_period(t_ix ix) const noexcept {
+    return t_msec{0};
+  }
+
+  t_timer_id t_impl_::start_timer(t_err err, t_ix, R_timer_name,
+                                  R_timer_params) noexcept {
+    ERR_GUARD(err) {
+    }
+    return t_timer_id{0};
+  }
+
+  t_void t_impl_::restart_timer(t_err err, t_ix, t_timer_id,
+                               R_timer_params) noexcept {
+    ERR_GUARD(err) {
+    }
+  }
+
+  t_bool t_impl_::stop_timer(t_ix, t_timer_id) noexcept {
+    return false;
+  }
+
+  P_timer_info t_impl_::get_timer(t_ix, t_timer_id) const noexcept {
+   return nullptr;
   }
 
   t_void t_impl_::start_extensions_(t_err err, p_logic logic) noexcept {
@@ -100,28 +138,6 @@ namespace sandbox
         logic->exts_.get(ix)->notify_cleanup();
       logic->exts_.get(ix)->notify_cleanup();
     }
-  }
-
-  t_void t_impl_::may_reorder_events(base2::r_event_infos infos) {
-  }
-
-  t_void t_impl_::notify_event_remove(base2::r_event_info info) {
-    // if a fd close it will be removed
-  }
-
-  t_impl_::base2::t_quit t_impl_::notify_timeout(base2::t_usec usec) {
-    // go through all those that want to wait
-    return true;
-  }
-
-  t_impl_::base2::t_quit t_impl_::notify_error(base2::t_errn errn) {
-    //
-    return true;
-  }
-
-  t_impl_::base2::t_quit t_impl_::notify_events_processed() { // number?
-    // time to update the loop statistics
-    return true;
   }
 
   t_void t_impl_::start_(t_err err) noexcept {
@@ -171,9 +187,36 @@ namespace sandbox
     cleanup_(err.tag(3));
 
     if (err) {
+      switch (err.tag()) {
+        case 1: { t_out{"failed in tag(1)"}; } break;
+        case 2: { t_out{"failed in tag(2)"}; } break;
+        case 3: { t_out{"failed in tag(3)"}; } break;
+      }
       err.print();
       err.clear();
     }
+  }
+
+  t_void t_impl_::may_reorder_events(base2::r_event_infos infos) {
+  }
+
+  t_void t_impl_::notify_event_remove(base2::r_event_info info) {
+    // if a fd close it will be removed
+  }
+
+  t_impl_::base2::t_quit t_impl_::notify_timeout(base2::t_usec usec) {
+    // go through all those that want to wait
+    return true;
+  }
+
+  t_impl_::base2::t_quit t_impl_::notify_error(base2::t_errn errn) {
+    //
+    return true;
+  }
+
+  t_impl_::base2::t_quit t_impl_::notify_events_processed() { // number?
+    // time to update the loop statistics
+    return true;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

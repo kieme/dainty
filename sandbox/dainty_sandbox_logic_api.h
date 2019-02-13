@@ -29,8 +29,8 @@ SOFTWARE.
 
 #include "dainty_named.h"
 #include "dainty_named_string.h"
-#include "dainty_sandbox_logic_stats.h"
 #include "dainty_sandbox_err.h"
+#include "dainty_sandbox_logic_stats.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -39,12 +39,35 @@ namespace dainty
 namespace sandbox
 {
   using t_err = err::t_err;
+  using named::t_msec;
+  using named::t_void;
+  using named::t_bool;
   using named::string::t_string;
 
   enum  t_messenger_name_tag {};
   using t_messenger_name = t_string<t_messenger_name_tag>;
   using T_messenger_name = t_prefix<t_messenger_name>::t_;
   using R_messenger_name = t_prefix<t_messenger_name>::R_;
+
+  enum  t_spin_cnt_tag_ {};
+  using t_spin_cnt_ = named::t_int;
+  using t_spin_cnt  = named::t_explicit<t_spin_cnt_, t_spin_cnt_tag_>;
+
+  struct t_time {
+  };
+
+  using t_timer_id   = named::t_int;
+  using t_timer_name = named::t_int;
+  using R_timer_name = t_prefix<t_timer_name>::R_;
+
+  struct t_timer_params {
+  };
+  using R_timer_params = t_prefix<t_timer_params>::R_;
+
+  struct t_timer_info {
+  };
+  using R_timer_info = t_prefix<t_timer_info>::R_;
+  using P_timer_info = t_prefix<t_timer_info>::P_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +77,18 @@ namespace sandbox
 
     virtual R_logic_stats    get_logic_stats   () const noexcept = 0;
     virtual R_messenger_name get_messenger_name() const noexcept = 0;
+
+    virtual t_void     enable_spin    (t_err, t_spin_cnt) noexcept = 0;
+    virtual t_void     disable_spin   ()                  noexcept = 0;
+    virtual t_spin_cnt get_spin_cnt   ()            const noexcept = 0;
+    virtual t_msec     get_spin_period()            const noexcept = 0;
+
+    virtual t_timer_id   start_timer  (t_err, R_timer_name,
+                                              R_timer_params) noexcept = 0;
+    virtual t_void       restart_timer(t_err, t_timer_id,
+                                              R_timer_params) noexcept = 0;
+    virtual t_bool       stop_timer   (t_timer_id)       noexcept = 0;
+    virtual P_timer_info get_timer    (t_timer_id) const noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
