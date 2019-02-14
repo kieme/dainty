@@ -152,6 +152,17 @@ namespace sandbox
     return t_timer_id{-1};
   }
 
+  t_timer_id t_logic::start_timer(t_err err, R_timer_name name,
+                                  R_timer_params params,
+                                  x_timer_notify_ptr ptr) noexcept {
+    ERR_GUARD(err) {
+      if (impl_)
+        return impl_->start_timer(err, ix_, name, params, x_cast(ptr));
+      err = err::E_XXX;
+    }
+    return t_timer_id{-1};
+  }
+
   t_void t_logic::restart_timer(t_err err, t_timer_id id,
                                 R_timer_params params) noexcept {
     ERR_GUARD(err) {
@@ -161,10 +172,10 @@ namespace sandbox
     }
   }
 
-  t_bool t_logic::stop_timer(t_timer_id id) noexcept {
+  t_timer_notify_ptr t_logic::stop_timer(t_timer_id id) noexcept {
     if (impl_)
       return impl_->stop_timer(ix_, id);
-    return false;
+    return {nullptr, nullptr};
   }
 
   P_timer_info t_logic::get_timer(t_timer_id id) const noexcept {
@@ -174,8 +185,18 @@ namespace sandbox
   }
 
   t_fdevent_id t_logic::add_fdevent(t_err err, R_fdevent_name name,
+                                    R_fdevent_params params) noexcept {
+    ERR_GUARD(err) {
+      if (impl_)
+        return impl_->add_fdevent(err, ix_, name, params);
+      err = err::E_XXX;
+    }
+    return t_fdevent_id{0};
+  }
+
+  t_fdevent_id t_logic::add_fdevent(t_err err, R_fdevent_name name,
                                     R_fdevent_params params,
-                                    t_fdevent_logic_ptr ptr) noexcept {
+                                    x_fdevent_notify_ptr ptr) noexcept {
     ERR_GUARD(err) {
       if (impl_)
         return impl_->add_fdevent(err, ix_, name, params, x_cast(ptr));
@@ -184,10 +205,10 @@ namespace sandbox
     return t_fdevent_id{0};
   }
 
-  t_fdevent_logic_ptr t_logic::del_fdevent(t_fdevent_id id) noexcept {
+  t_fdevent_notify_ptr t_logic::del_fdevent(t_fdevent_id id) noexcept {
     if (impl_)
       return impl_->del_fdevent(ix_, id);
-    return t_fdevent_logic_ptr{};
+    return t_fdevent_notify_ptr{};
   }
 
   P_fdevent_info t_logic::get_fdevent(t_fdevent_id id) const noexcept {

@@ -185,9 +185,9 @@ namespace sandbox
     using x_ptrlist = x_logic_ptrlist;
 
     t_sandbox(t_err, R_name, x_ptr,     t_control = IN_CURRENT_THREAD,
-                                        R_params = t_params()) noexcept;
+                                        R_params  = t_params()) noexcept;
     t_sandbox(t_err, R_name, x_ptrlist, t_control = IN_CURRENT_THREAD,
-                                        R_params = t_params()) noexcept;
+                                        R_params  = t_params()) noexcept;
    ~t_sandbox();
 
     t_sandbox(R_sandbox) = delete;

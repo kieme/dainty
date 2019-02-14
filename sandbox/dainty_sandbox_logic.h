@@ -63,26 +63,40 @@ namespace sandbox
 
     operator t_validity() const;
 
+///////////////////////////////////////////////////////////////////////////////
+
     R_logic_stats    get_logic_stats   () const noexcept override final;
     R_messenger_name get_messenger_name() const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
 
     t_void     enable_spin (t_err, t_spin_cnt) noexcept override final;
     t_void     disable_spin()                  noexcept override final;
     t_spin_cnt get_spin_cnt()            const noexcept override final;
     t_msec     get_spin_period()         const noexcept override final;
 
+///////////////////////////////////////////////////////////////////////////////
+
     t_timer_id   start_timer  (t_err, R_timer_name,
-                                      R_timer_params) noexcept override final;
+                               R_timer_params)       noexcept override final;
+    t_timer_id   start_timer  (t_err, R_timer_name, R_timer_params,
+                               x_timer_notify_ptr)   noexcept override final;
     t_void       restart_timer(t_err, t_timer_id,
-                                      R_timer_params) noexcept override final;
-    t_bool       stop_timer(t_timer_id)        noexcept override final;
-    P_timer_info get_timer (t_timer_id)  const noexcept override final;
+                               R_timer_params)       noexcept override final;
+    t_timer_notify_ptr stop_timer(t_timer_id)        noexcept override final;
+    P_timer_info       get_timer (t_timer_id)  const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
 
     t_fdevent_id        add_fdevent(t_err, R_fdevent_name,
+                                    R_fdevent_params)     noexcept override final;
+    t_fdevent_id        add_fdevent(t_err, R_fdevent_name,
                                     R_fdevent_params,
-                                    t_fdevent_logic_ptr) noexcept override final;
-    t_fdevent_logic_ptr del_fdevent(t_fdevent_id)        noexcept override final;
-    P_fdevent_info      get_fdevent(t_fdevent_id)  const noexcept override final;
+                                    x_fdevent_notify_ptr) noexcept override final;
+    t_fdevent_notify_ptr del_fdevent(t_fdevent_id)        noexcept override final;
+    P_fdevent_info       get_fdevent(t_fdevent_id)  const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
 
   private:
     friend t_void register_(t_err, r_logic, p_logic_ext);

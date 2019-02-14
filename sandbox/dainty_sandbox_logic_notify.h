@@ -43,14 +43,14 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_notify {
+  class t_logic_notify : public t_fdevent_notify,
+                         public t_timer_notify {
   public:
     virtual ~t_logic_notify() { }
 
     virtual t_void notify_start  (t_err)                         noexcept = 0;
     virtual t_void notify_cleanup()                              noexcept = 0;
     virtual t_void notify_spin   (t_bool exipred, t_msec delta)  noexcept = 0;
-    virtual t_void notify_timer_timout(t_timer_id, R_timer_info) noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

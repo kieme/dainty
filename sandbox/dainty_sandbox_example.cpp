@@ -79,8 +79,12 @@ public:
     t_out{"t_app_logic:notify_spin"};
   }
 
-  t_void notify_timer_timout(t_timer_id, R_timer_info) noexcept override final {
+  t_void notify_timeout(t_timer_id, R_timer_info) noexcept override final {
     t_out{"t_app_logic:notify_timer_timout"};
+  }
+
+  t_void notify_fdevent(R_fdevent_info) noexcept override final {
+    t_out{"t_app_logic:notify_fdevent"};
   }
 
 private:

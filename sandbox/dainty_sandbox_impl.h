@@ -61,28 +61,42 @@ namespace sandbox
     r_impl_ operator=(R_impl_) = delete;
     r_impl_ operator=(x_impl_) = delete;
 
+///////////////////////////////////////////////////////////////////////////////
+
     virtual t_void update (base1::t_err,
                            base1::r_pthread_attr) noexcept override final;
     virtual t_void prepare(base1::t_err)          noexcept override final;
     virtual t_void run    ()                      noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
 
     t_void     enable_spin    (t_err, t_ix, t_spin_cnt) noexcept;
     t_void     disable_spin   (t_ix)         noexcept;
     t_spin_cnt get_spin_cnt   (t_ix)   const noexcept;
     t_msec     get_spin_period(t_ix)   const noexcept;
 
+///////////////////////////////////////////////////////////////////////////////
+
     t_timer_id   start_timer  (t_err, t_ix, R_timer_name,
                                R_timer_params) noexcept;
+    t_timer_id   start_timer  (t_err, t_ix, R_timer_name, R_timer_params,
+                               x_timer_notify_ptr) noexcept;
     t_void       restart_timer(t_err, t_ix, t_timer_id,
                                R_timer_params) noexcept;
-    t_bool       stop_timer(t_ix, t_timer_id)       noexcept;
-    P_timer_info get_timer (t_ix, t_timer_id) const noexcept;
+    t_timer_notify_ptr stop_timer(t_ix, t_timer_id)       noexcept;
+    P_timer_info       get_timer (t_ix, t_timer_id) const noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
 
     t_fdevent_id        add_fdevent(t_err, t_ix, R_fdevent_name,
+                                    R_fdevent_params)           noexcept;
+    t_fdevent_id        add_fdevent(t_err, t_ix, R_fdevent_name,
                                     R_fdevent_params,
-                                    t_fdevent_logic_ptr) noexcept;
-    t_fdevent_logic_ptr del_fdevent(t_ix, t_fdevent_id)        noexcept;
-    P_fdevent_info      get_fdevent(t_ix, t_fdevent_id)  const noexcept;
+                                    t_fdevent_notify_ptr)       noexcept;
+    t_fdevent_notify_ptr del_fdevent(t_ix, t_fdevent_id)        noexcept;
+    P_fdevent_info       get_fdevent(t_ix, t_fdevent_id)  const noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
 
   protected:
     t_void register_logic(t_err, p_logic logic) noexcept;

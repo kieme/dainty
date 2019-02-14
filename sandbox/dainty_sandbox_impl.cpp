@@ -54,11 +54,13 @@ namespace sandbox
   t_void t_impl_::update(base1::t_err err,
                          base1::r_pthread_attr attr) noexcept {
     ERR_GUARD(err) {
+      // XXX - can use params_ to set attr
     }
   }
 
   t_void t_impl_::prepare(base1::t_err err) noexcept {
     ERR_GUARD(err) {
+      // XXX - can use params_ for further preparation
     }
   }
 
@@ -76,6 +78,8 @@ namespace sandbox
       auto entry = logics_.push_back(err, logic);
 
       // do everything you need
+      // tracing service   - tracer
+      // messaging service - messenger
 
       entry->logic->ix_   = pos;
       entry->logic->impl_ = this;
@@ -105,14 +109,22 @@ namespace sandbox
     return t_timer_id{0};
   }
 
+  t_timer_id t_impl_::start_timer(t_err err, t_ix ix, R_timer_name name,
+                                  R_timer_params params,
+                                  x_timer_notify_ptr ptr) noexcept {
+    ERR_GUARD(err) {
+    }
+    return t_timer_id{0};
+  }
+
   t_void t_impl_::restart_timer(t_err err, t_ix ix, t_timer_id id,
                                R_timer_params params) noexcept {
     ERR_GUARD(err) {
     }
   }
 
-  t_bool t_impl_::stop_timer(t_ix ix, t_timer_id id) noexcept {
-    return false;
+  t_timer_notify_ptr t_impl_::stop_timer(t_ix ix, t_timer_id id) noexcept {
+    return {};
   }
 
   P_timer_info t_impl_::get_timer(t_ix ix, t_timer_id id) const noexcept {
@@ -120,16 +132,23 @@ namespace sandbox
   }
 
   t_fdevent_id t_impl_::add_fdevent(t_err err, t_ix ix, R_fdevent_name name,
-                                    R_fdevent_params params,
-                                    t_fdevent_logic_ptr ptr) noexcept {
+                                    R_fdevent_params params) noexcept {
     ERR_GUARD(err) {
     }
     return t_fdevent_id{0};
   }
 
-  t_fdevent_logic_ptr t_impl_::del_fdevent(t_ix ix,
+  t_fdevent_id t_impl_::add_fdevent(t_err err, t_ix ix, R_fdevent_name name,
+                                    R_fdevent_params params,
+                                    t_fdevent_notify_ptr ptr) noexcept {
+    ERR_GUARD(err) {
+    }
+    return t_fdevent_id{0};
+  }
+
+  t_fdevent_notify_ptr t_impl_::del_fdevent(t_ix ix,
                                            t_fdevent_id id) noexcept {
-    return t_fdevent_logic_ptr{};
+    return t_fdevent_notify_ptr{};
   }
 
   P_fdevent_info t_impl_::get_fdevent(t_ix ix,
