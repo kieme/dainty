@@ -58,7 +58,9 @@ using dainty::mt::event_dispatcher::t_event_logic;
 using dainty::mt::event_dispatcher::t_action;
 using dainty::mt::event_dispatcher::CONTINUE;
 using dainty::mt::event_dispatcher::QUIT_EVENT_LOOP;
-using dainty::mt::event_dispatcher::RD;
+using dainty::mt::event_dispatcher::RD_EVENT;
+using dainty::mt::event_dispatcher::QUIT;
+using dainty::mt::event_dispatcher::DONT_QUIT;
 
 using t_thd_err       = t_thread::t_logic::t_err;
 using t_cmd_err       = command::t_processor::t_logic::t_err;
@@ -864,10 +866,12 @@ namespace tracer
       err::t_err err;
       {
         t_cmd_proxy_ cmd_proxy{err, action_, cmd_processor_, *this};
-        dispatcher_.add_event (err, {cmd_processor_.get_fd(), RD}, &cmd_proxy);
+        dispatcher_.add_event (err, {cmd_processor_.get_fd(), RD_EVENT},
+                               &cmd_proxy);
 
         t_que_proxy_ que_proxy{err, action_, que_processor_, *this};
-        dispatcher_.add_event (err, {que_processor_.get_fd(), RD}, &que_proxy);
+        dispatcher_.add_event (err, {que_processor_.get_fd(), RD_EVENT},
+                               &que_proxy);
 
         dispatcher_.event_loop(err, this);
       }
@@ -882,27 +886,27 @@ namespace tracer
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_void may_reorder_events (r_event_infos) override {
+    t_void notify_may_reorder(r_event_infos) noexcept override final {
       t_out{"tracing: may_reorder_events"};
     }
 
-    virtual t_void notify_event_remove(r_event_info) override {
+    t_void notify_removed(r_event_info) noexcept override final {
       t_out{"tracing: notify_event_remove"};
     }
 
-    virtual t_quit notify_timeout(t_usec) override {
+    t_quit notify_timeout(t_usec) noexcept override final {
       t_out{"tracing: notify_timeout"};
-      return true; // not required
+      return QUIT;
     }
 
-    virtual t_quit notify_error(t_errn)  override {
+    t_quit notify_error(t_errn) noexcept override final {
       t_out{"tracing: notify_error"};
-      return true; // die
+      return QUIT;
     }
 
-    virtual t_quit notify_events_processed()  override {
+    t_quit notify_all_processed() noexcept override final {
       t_out{"tracing: notify_events_processed"};
-      return false; // die
+      return DONT_QUIT;
     }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1239,12 +1243,8 @@ namespace tracer
         : err_(err), action_(action), processor_(processor), logic_{logic} {
       }
 
-      virtual t_name get_name() const override {
-        return {"cmd logic"};
-      }
-
-      virtual t_action notify_event(r_event_params) override {
-        action_.cmd = CONTINUE; // XXX - params not needed?
+      t_action notify_event(r_event_params) noexcept override final {
+        action_.cmd = CONTINUE;
         processor_.process(err_, logic_);
         return action_;
       }
@@ -1263,13 +1263,9 @@ namespace tracer
         : err_(err), action_(action), processor_(processor), logic_{logic} {
       }
 
-      virtual t_name get_name() const override {
-        return {"queue logic"};
-      }
-
-      virtual t_action notify_event(r_event_params) override {
+      t_action notify_event(r_event_params) noexcept override final {
         action_.cmd = CONTINUE;
-        processor_.process_available(err_, logic_); // XXX - params not needed?
+        processor_.process_available(err_, logic_);
         return action_;
       }
 
