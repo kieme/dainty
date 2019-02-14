@@ -99,7 +99,7 @@ namespace valuestore
     }
 
     inline
-    p_value copy_construct(r_value value) {
+    p_value copy_construct(R_value value) {
       return construct_(ptr(), value);
     }
 

@@ -464,37 +464,37 @@ namespace ptrlist
   template<typename T>
   inline
   typename t_ptrlist<T, 0>::p_value t_ptrlist<T, 0>::get(t_ix ix) {
-    return impl_.get(store_, max_, named::get(ix));
+    return impl_.get(store_, named::get(ix));
   }
 
   template<typename T>
   inline
   typename t_ptrlist<T, 0>::p_value t_ptrlist<T, 0>::get(t_err err, t_ix ix) {
-    return impl_.get(err, store_, max_, named::get(ix));
+    return impl_.get(err, store_, named::get(ix));
   }
 
   template<typename T>
   inline
   typename t_ptrlist<T, 0>::P_value t_ptrlist<T, 0>::get(t_ix ix) const {
-    return impl_.get(store_, max_, named::get(ix));
+    return impl_.get(store_, named::get(ix));
   }
 
   template<typename T>
   inline
   typename t_ptrlist<T, 0>::P_value t_ptrlist<T, 0>::get(t_err err, t_ix ix) const {
-    return impl_.get(err, store_, max_, named::get(ix));
+    return impl_.get(err, store_, named::get(ix));
   }
 
   template<typename T>
   inline
   typename t_ptrlist<T, 0>::P_value t_ptrlist<T, 0>::cget(t_ix ix) const {
-    return impl_.get(store_, max_, named::get(ix));
+    return impl_.get(store_, named::get(ix));
   }
 
   template<typename T>
   inline
   typename t_ptrlist<T, 0>::P_value t_ptrlist<T, 0>::cget(t_err err, t_ix ix) const {
-    return impl_.get(err, store_, ix, named::get(ix));
+    return impl_.get(err, store_, named::get(ix));
   }
 
   template<typename T>
