@@ -93,7 +93,6 @@ namespace event_dispatcher
   constexpr t_event_id BAD_EVENT_ID{-1};
 
   enum  t_cmd  { QUIT_EVENT_LOOP, REMOVE_EVENT, CONTINUE };
-  using T_cmd = t_prefix<t_cmd>::T_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -136,7 +135,7 @@ namespace event_dispatcher
     using t_cmd         = event_dispatcher::t_cmd;
     using p_event_logic = event_dispatcher::p_event_logic;
 
-    T_cmd         cmd;
+    t_cmd         cmd;
     p_event_logic next;
 
     inline
