@@ -93,41 +93,12 @@ class t_app1 {
 public:
   t_app1(t_err err)
     : logic_  {err},
-      sandbox_{err, IN_NEW_THREAD, "app_thread", {&logic_, nullptr}} {
+      sandbox_{err, "app_thread", {&logic_, nullptr}, IN_NEW_THREAD} {
   }
 private:
   t_app_logic logic_;
   t_sandbox   sandbox_;
 };
-
-class t_app2 {
-public:
-  static t_logic_ptrlist mk_(t_err err, p_app_logic logic1,
-                                        p_app_logic logic2,
-                                        p_app_logic logic3) {
-    t_logic_ptrlist ptrlist{err, t_n{3}};
-    ERR_GUARD(err) {
-      ptrlist.push_back(err, {logic1, nullptr});
-      ptrlist.push_back(err, {logic2, nullptr});
-      ptrlist.push_back(err, {logic3, nullptr});
-    }
-    return ptrlist;
-  }
-  t_app2(t_err err)
-    : logic1_ {err},
-      logic2_ {err},
-      logic3_ {err},
-      sandbox_{err, IN_NEW_THREAD, "app_thread",
-                    mk_(err, &logic1_, &logic2_, &logic3_)} {
-  }
-private:
-  t_app_logic logic1_;
-  t_app_logic logic2_;
-  t_app_logic logic3_;
-  t_sandbox   sandbox_;
-};
-
-///////////////////////////////////////////////////////////////////////////////
 
 int main1() {
   {
@@ -155,6 +126,35 @@ int main1() {
 
   return 0;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+class t_app2 {
+public:
+  static t_logic_ptrlist mk_(t_err err, p_app_logic logic1,
+                                        p_app_logic logic2,
+                                        p_app_logic logic3) {
+    t_logic_ptrlist ptrlist{err, t_n{3}};
+    ERR_GUARD(err) {
+      ptrlist.push_back(err, {logic1, nullptr});
+      ptrlist.push_back(err, {logic2, nullptr});
+      ptrlist.push_back(err, {logic3, nullptr});
+    }
+    return ptrlist;
+  }
+  t_app2(t_err err)
+    : logic1_ {err},
+      logic2_ {err},
+      logic3_ {err},
+      sandbox_{err, "app_thread", mk_(err, &logic1_, &logic2_, &logic3_),
+               IN_NEW_THREAD} {
+  }
+private:
+  t_app_logic logic1_;
+  t_app_logic logic2_;
+  t_app_logic logic3_;
+  t_sandbox   sandbox_;
+};
 
 int main2() {
   {

@@ -52,7 +52,7 @@ namespace sandbox
 
   t_void t_logic_ptrlist::push_back(t_err err, x_logic_ptr ptr) noexcept {
     ERR_GUARD(err) {
-      // check the names
+      // XXX check the names
       list_.push_back(err, x_cast(ptr));
     }
   }
@@ -198,10 +198,10 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_thread::t_thread(t_err err, R_thread_name name,
-                     x_logic_ptr logic_ptr) noexcept {
+  t_thread::t_thread(t_err err, R_name name, x_ptr logic_ptr,
+                     R_params params) noexcept {
     ERR_GUARD(err) {
-      t_thread_logic_ptr_ ptr = new t_single_impl_{err, name,
+      t_thread_logic_ptr_ ptr = new t_single_impl_{err, name, params,
                                                    x_cast(logic_ptr)};
       t_id id{1}; // ask impl for epoll fd
       t_thread_ thread{err, name.get_cstr(), x_cast(ptr)};
@@ -210,10 +210,11 @@ namespace sandbox
     }
   }
 
-  t_thread::t_thread(t_err err, R_thread_name name,
-                     x_logic_ptrlist list) noexcept {
+  t_thread::t_thread(t_err err, R_name name, x_ptrlist list,
+                     R_params params) noexcept {
     ERR_GUARD(err) {
-      t_thread_logic_ptr_ ptr = new t_shared_impl_{err, name, x_cast(list)};
+      t_thread_logic_ptr_ ptr = new t_shared_impl_{err, name, params,
+                                                   x_cast(list)};
       t_id id{1}; // ask impl for epoll fd
       t_thread_ thread{err, name.get_cstr(), x_cast(ptr)};
       if (!err)
@@ -231,9 +232,10 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_main::t_main(t_err err, R_thread_name name, x_logic_ptr logic) noexcept {
+  t_main::t_main(t_err err, R_name name, x_ptr logic,
+                 R_params params) noexcept {
     ERR_GUARD(err) {
-      t_single_impl_ impl{err, name, x_cast(logic)};
+      t_single_impl_ impl{err, name, params, x_cast(logic)};
       t_id id{1}; // ask impl for epoll fd
       t_thread_attr_ attr;
       call_pthread_init(err, attr);
@@ -246,10 +248,10 @@ namespace sandbox
     }
   }
 
-  t_main::t_main(t_err err, R_thread_name name,
-                 x_logic_ptrlist list) noexcept {
+  t_main::t_main(t_err err, R_name name, x_ptrlist list,
+                 R_params params) noexcept {
     ERR_GUARD(err) {
-      t_shared_impl_ impl{err, name, x_cast(list)};
+      t_shared_impl_ impl{err, name, params, x_cast(list)};
       t_id id{1}; // ask impl for epoll fd
       t_thread_attr_ attr;
       call_pthread_init(err, attr);
@@ -277,15 +279,22 @@ namespace sandbox
     virtual ~t_thread_of_control_() { };
     virtual t_id get_id() const noexcept = 0;
   };
+  using p_thread_of_control_ = t_prefix<t_thread_of_control_>::p_;
 
   class t_thread_control_ final : public t_thread_of_control_ {
   public:
-    t_thread_control_(r_err err, R_thread_name name, x_logic_ptr ptr) noexcept
-      : thread_{err, name, x_cast(ptr)} {
+    using R_name    = R_thread_name;
+    using R_params  = R_thread_params;
+    using x_ptr     = x_logic_ptr;
+    using x_ptrlist = x_logic_ptrlist;
+
+    t_thread_control_(r_err err, R_name name, x_ptr ptr,
+                      R_params params) noexcept
+      : thread_{err, name, x_cast(ptr), params} {
     }
-    t_thread_control_(r_err err, R_thread_name name,
-                      x_logic_ptrlist list) noexcept
-      : thread_{err, name, x_cast(list)} {
+    t_thread_control_(r_err err, R_name name, x_ptrlist ptrlist,
+                      R_params params) noexcept
+      : thread_{err, name, x_cast(ptrlist), params} {
     }
     virtual t_id get_id() const noexcept override final {
       return thread_.get_id();
@@ -296,12 +305,18 @@ namespace sandbox
 
   class t_main_control_ final : public t_thread_of_control_ {
   public:
-    t_main_control_(r_err err, R_thread_name name, x_logic_ptr ptr) noexcept
-      : main_{err, name, x_cast(ptr)} {
+    using R_name    = R_thread_name;
+    using R_params  = R_thread_params;
+    using x_ptr     = x_logic_ptr;
+    using x_ptrlist = x_logic_ptrlist;
+
+    t_main_control_(r_err err, R_name name, x_ptr ptr,
+                    R_params params) noexcept
+      : main_{err, name, x_cast(ptr), params} {
     }
-    t_main_control_(r_err err, R_thread_name name,
-                    x_logic_ptrlist list) noexcept
-      : main_{err, name, x_cast(list)} {
+    t_main_control_(r_err err, R_name name, x_ptrlist ptrlist,
+                    R_params params) noexcept
+      : main_{err, name, x_cast(ptrlist), params} {
     }
     virtual t_id get_id() const noexcept override final {
       return main_.get_id();
@@ -312,31 +327,35 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_sandbox::t_sandbox(t_err err, t_thread_control control, R_thread_name name,
-                       x_logic_ptr ptr) noexcept {
+  t_sandbox::t_sandbox(t_err err, R_name name, x_ptr ptr, t_control control,
+                       R_params params) noexcept {
     ERR_GUARD(err) {
+      p_thread_of_control_ p = nullptr;
       switch (control) {
         case IN_CURRENT_THREAD:
-          thread_of_control_ = new t_main_control_  {err, name, x_cast(ptr)};
+          p = new t_main_control_  {err, name, x_cast(ptr), params};
           break;
         case IN_NEW_THREAD:
-          thread_of_control_ = new t_thread_control_{err, name, x_cast(ptr)};
+          p = new t_thread_control_{err, name, x_cast(ptr), params};
           break;
       }
+      thread_of_control_ = p;
     }
   }
 
-  t_sandbox::t_sandbox(t_err err, t_thread_control control, R_thread_name name,
-                       x_logic_ptrlist list) noexcept {
+  t_sandbox::t_sandbox(t_err err, R_name name, x_ptrlist ptrlist,
+                       t_control control, R_params params) noexcept {
     ERR_GUARD(err) {
+      p_thread_of_control_ p = nullptr;
       switch (control) {
         case IN_CURRENT_THREAD:
-          thread_of_control_ = new t_main_control_  {err, name, x_cast(list)};
+          p = new t_main_control_  {err, name, x_cast(ptrlist), params};
           break;
         case IN_NEW_THREAD:
-          thread_of_control_ = new t_thread_control_{err, name, x_cast(list)};
+          p = new t_thread_control_{err, name, x_cast(ptrlist), params};
           break;
       }
+      thread_of_control_ = p;
     }
   }
 

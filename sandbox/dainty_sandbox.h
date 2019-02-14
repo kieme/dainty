@@ -47,11 +47,17 @@ namespace sandbox
   enum  t_thread_name_tag {};
   using t_thread_name    = t_string<t_thread_name_tag>;
   using R_thread_name    = t_prefix<t_thread_name>::R_;
+  using T_thread_name    = t_prefix<t_thread_name>::T_;
 
   enum t_thread_control { IN_CURRENT_THREAD, IN_NEW_THREAD };
 
   using t_id = named::t_fd;
   constexpr t_id BAD_ID = named::BAD_FD;
+
+  class t_thread_params {
+  };
+  using R_thread_params = t_prefix<t_thread_params>::R_;
+  using T_thread_params = t_prefix<t_thread_params>::T_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -98,8 +104,14 @@ namespace sandbox
 
   class t_thread {
   public:
-    t_thread(t_err, R_thread_name, x_logic_ptr)     noexcept;
-    t_thread(t_err, R_thread_name, x_logic_ptrlist) noexcept;
+    using R_name    = R_thread_name;
+    using t_params  = t_thread_params;
+    using R_params  = R_thread_params;
+    using x_ptr     = x_logic_ptr;
+    using x_ptrlist = x_logic_ptrlist;
+
+    t_thread(t_err, R_name, x_ptr,     R_params = t_params()) noexcept;
+    t_thread(t_err, R_name, x_ptrlist, R_params = t_params()) noexcept;
 
     t_thread(R_thread) = delete;
     t_thread(x_thread) = delete;
@@ -126,8 +138,14 @@ namespace sandbox
 
   class t_main {
   public:
-    t_main(t_err, R_thread_name, x_logic_ptr)     noexcept;
-    t_main(t_err, R_thread_name, x_logic_ptrlist) noexcept;
+    using R_name    = R_thread_name;
+    using t_params  = t_thread_params;
+    using R_params  = R_thread_params;
+    using x_ptr     = x_logic_ptr;
+    using x_ptrlist = x_logic_ptrlist;
+
+    t_main(t_err, R_name, x_ptr    , R_params = t_params()) noexcept;
+    t_main(t_err, R_name, x_ptrlist, R_params = t_params()) noexcept;
 
     t_main(R_main) = delete;
     t_main(x_main) = delete;
@@ -159,8 +177,17 @@ namespace sandbox
 
   class t_sandbox {
   public:
-    t_sandbox(t_err, t_thread_control, R_thread_name, x_logic_ptr)     noexcept;
-    t_sandbox(t_err, t_thread_control, R_thread_name, x_logic_ptrlist) noexcept;
+    using R_name    = R_thread_name;
+    using t_params  = t_thread_params;
+    using R_params  = R_thread_params;
+    using t_control = t_thread_control;
+    using x_ptr     = x_logic_ptr;
+    using x_ptrlist = x_logic_ptrlist;
+
+    t_sandbox(t_err, R_name, x_ptr,     t_control = IN_CURRENT_THREAD,
+                                        R_params = t_params()) noexcept;
+    t_sandbox(t_err, R_name, x_ptrlist, t_control = IN_CURRENT_THREAD,
+                                        R_params = t_params()) noexcept;
    ~t_sandbox();
 
     t_sandbox(R_sandbox) = delete;

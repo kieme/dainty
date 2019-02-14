@@ -45,10 +45,6 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  // each thread has a timefd shared by all timers and logics.
-  // logics will store which timers belong to them, by index
-  // the logic itself gets and id(index)
-
   class t_impl_;
   using R_impl_ = t_prefix<t_impl_>::R_;
   using r_impl_ = t_prefix<t_impl_>::r_;
@@ -58,7 +54,7 @@ namespace sandbox
     using base1 = t_thread_logic_;
     using base2 = t_dispatcher_::t_logic;
   public:
-    t_impl_(t_err, R_thread_name, t_n max_logics) noexcept;
+    t_impl_(t_err, R_thread_name, R_thread_params, t_n max_logics) noexcept;
 
     t_impl_(R_impl_) = delete;
     t_impl_(x_impl_) = delete;
@@ -69,13 +65,6 @@ namespace sandbox
                            base1::r_pthread_attr) noexcept override final;
     virtual t_void prepare(base1::t_err)          noexcept override final;
     virtual t_void run    ()                      noexcept override final;
-
-    // t_logic api
-
-    /*
-    t_void add_fdevent(t_err, t_fd, t_fdevent_type, t_fdevent_user, callback); //name it
-    t_void del_fdevent(t_err, t_fd, t_fdevent_type);
-    */
 
     t_void     enable_spin    (t_err, t_ix, t_spin_cnt) noexcept;
     t_void     disable_spin   (t_ix)         noexcept;
@@ -123,9 +112,10 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_thread_name name_;
-    t_dispatcher_ dispatcher_;
-    t_logics_     logics_;
+    T_thread_name   name_;
+    T_thread_params params_;
+    t_dispatcher_   dispatcher_;
+    t_logics_       logics_;
     // spinning_;
     // fds_;
     // timers_;
@@ -135,20 +125,30 @@ namespace sandbox
 
   class t_single_impl_ : public t_impl_ {
   public:
-    t_single_impl_(t_err, R_thread_name, x_logic_ptr) noexcept;
+    using R_name    = R_thread_name;
+    using R_params  = R_thread_params;
+    using x_ptr     = x_logic_ptr;
+    using t_ptr     = t_logic_ptr;
+
+    t_single_impl_(t_err, R_name, R_params, x_ptr) noexcept;
 
   private:
-    t_logic_ptr ptr_;
+    t_ptr ptr_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_shared_impl_ : public t_impl_ {
   public:
-    t_shared_impl_(t_err, R_thread_name, x_logic_ptrlist) noexcept;
+    using R_name    = R_thread_name;
+    using R_params  = R_thread_params;
+    using x_ptrlist = x_logic_ptrlist;
+    using t_ptrlist = t_logic_ptrlist;
+
+    t_shared_impl_(t_err, R_name, R_params, x_ptrlist) noexcept;
 
   private:
-    t_logic_ptrlist ptrlist_;
+    t_ptrlist ptrlist_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

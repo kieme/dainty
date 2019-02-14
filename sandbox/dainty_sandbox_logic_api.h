@@ -88,7 +88,7 @@ namespace sandbox
 
   struct t_fdevent_logic {
     virtual ~t_fdevent_logic() { };
-    t_void notify_fdevent(R_fdevent_info) noexcept = 0;
+    virtual t_void notify_fdevent(R_fdevent_info) noexcept = 0;
   };
   using p_fdevent_logic = t_prefix<t_fdevent_logic>::p_;
 

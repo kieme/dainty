@@ -41,8 +41,10 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_impl_::t_impl_(t_err err, R_thread_name name, t_n max_logics) noexcept
+  t_impl_::t_impl_(t_err err, R_thread_name name, R_thread_params params,
+                   t_n max_logics) noexcept
       : name_      {name},
+        params_    {params},
         dispatcher_{err, {t_n{100}, "epoll_service"}},
         logics_    {err, max_logics}  {
     ERR_GUARD(err) {
@@ -243,9 +245,10 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_single_impl_::t_single_impl_(t_err err, R_thread_name name,
-                                 x_logic_ptr ptr) noexcept
-    : t_impl_{err, name, t_n{1}}, ptr_{x_cast(ptr)} {
+  t_single_impl_::t_single_impl_(t_err err, R_name name, R_params params,
+                                 x_ptr ptr) noexcept
+    : t_impl_{err, name, params, t_n{1}},
+      ptr_{x_cast(ptr)} {
     ERR_GUARD(err) {
       register_logic(err, ptr_.get());
     }
@@ -253,9 +256,10 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_shared_impl_::t_shared_impl_(t_err err, R_thread_name name,
-                                 x_logic_ptrlist ptrlist) noexcept
-    : t_impl_{err, name, ptrlist.get_size()}, ptrlist_{x_cast(ptrlist)} {
+  t_shared_impl_::t_shared_impl_(t_err err, R_name name, R_params params,
+                                 x_ptrlist ptrlist) noexcept
+    : t_impl_{err, name, params, ptrlist.get_size()},
+      ptrlist_{x_cast(ptrlist)} {
     ERR_GUARD(err) {
       t_ix end = to_ix(ptrlist_.get_size());
       for (t_ix ix{0}; !err && ix < end; ++set(ix))
