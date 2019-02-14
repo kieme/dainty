@@ -26,6 +26,7 @@
 
 #include "dainty_os_fdbased.h"
 #include "dainty_container_list.h"
+#include "dainty_container_freelist.h"
 #include "dainty_mt_event_dispatcher.h"
 
 namespace dainty
@@ -36,125 +37,146 @@ namespace event_dispatcher
 {
   using named::t_n_;
   using named::P_cstr;
+  using named::t_uint32;
   using os::fdbased::t_epoll;
-  using os::t_epoll_event;
   using err::r_err;
 
+  using os::t_epoll_event;
+  using p_epoll_event = t_prefix<t_epoll_event>::p_;
+
+  using t_id     = container::freelist::t_id;
   using t_events = container::freelist::t_freelist<t_event_info>;
-  using r_events = named::t_prefix<t_events>::r_;
+  using r_events = t_prefix<t_events>::r_;
+  using p_logic = t_dispatcher::p_logic;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using p_logic = t_dispatcher::p_logic;
+  inline t_id to_(t_event_id id) {
+    return t_id(get(id));
+  }
+
+  inline t_id to_(t_uint32 id) {
+    return t_id(id);
+  }
+
+  inline t_event_id to_(t_id id) {
+    return t_event_id(get(id));
+  }
+
+///////////////////////////////////////////////////////////////////////////////
 
   class t_impl_ {
   public:
-    const t_params params;
+    T_params params;
 
-    t_impl_(R_params _params) : params(_params), events_{params.max} {
-      infos_.reserve(get(params.max));
+    t_impl_(R_params _params) noexcept
+      : params(_params), events_{params.max}, infos_{params.max}  {
     }
 
-    t_impl_(r_err err, R_params _params)
-      : params(_params), events_{params.max} { // XXX - no real check
-      ERR_GUARD(err) {
-        infos_.reserve(get(params.max));
-      }
+    t_impl_(r_err err, R_params _params) noexcept
+      : params(_params), events_{params.max}, infos_{err, params.max} {
     }
 
     virtual ~t_impl_() {
     }
 
     virtual operator t_validity() const {
-      return events_ == VALID ? VALID : INVALID;
+      return events_ == VALID && infos_ == VALID ? VALID : INVALID;
     }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_errn add_event(        r_event_info) = 0;
-    virtual t_void add_event(r_err,  r_event_info) = 0;
-    virtual t_errn del_event(        r_event_info) = 0;
-    virtual t_void del_event(r_err,  r_event_info) = 0;
+    virtual t_errn add_event(        r_event_info) noexcept = 0;
+    virtual t_void add_event(r_err,  r_event_info) noexcept = 0;
+    virtual t_errn del_event(        r_event_info) noexcept = 0;
+    virtual t_void del_event(r_err,  r_event_info) noexcept = 0;
 
-    virtual t_errn wait_events(       r_events, r_event_infos) = 0;
-    virtual t_void wait_events(r_err, r_events, r_event_infos) = 0;
-    virtual t_errn wait_events(       r_events, r_event_infos, t_usec) = 0;
-    virtual t_void wait_events(r_err, r_events, r_event_infos, t_usec) = 0;
+    virtual t_errn wait_events(       r_events, r_event_infos) noexcept = 0;
+    virtual t_void wait_events(r_err, r_events, r_event_infos) noexcept = 0;
+    virtual t_errn wait_events(       r_events, r_event_infos,
+                                      t_usec)                  noexcept = 0;
+    virtual t_void wait_events(r_err, r_events, r_event_infos,
+                                      t_usec)                  noexcept = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_bool fetch_events(r_ids ids) const {
-      events_.each([&ids](t_id id, const t_event_info&) mutable {
-                   ids.push_back(id); });
-      return !ids.empty();
+    t_bool get_events(r_event_ids ids) const noexcept {
+      events_.each([&ids](auto id, auto&) mutable {
+                   ids.push_back(to_(id)); });
+      return !ids.is_empty();
     }
 
-    P_event_info get_event(t_id id) const {
-      return events_.get(id);
+    P_event_info get_event(t_event_id id) const noexcept {
+      return events_.get(to_(id));
     }
 
-    P_event_info get_event (r_err err, t_id id) const {
-      P_event_info info = events_.get(id);
+    P_event_info get_event(r_err err, t_event_id id) const noexcept {
+      P_event_info info = events_.get(to_(id));
       if (info)
         return info;
       err = err::E_XXX;
       return nullptr;
     }
 
-    t_void display() const {
+    t_void display() const noexcept {
       // access events
     }
 
-    t_id add_event(R_event_params params, p_event_logic logic) {
+    t_event_id add_event(R_event_params params, p_event_logic logic) noexcept {
       auto result = events_.insert({logic, params});
       if (result) {
-        result.ptr->id = result.id;
+        auto id_ = to_(result.id);
+        result.ptr->id = id_;
         if (add_event(*result.ptr) == VALID)
-          return result.id;
+          return id_;
         events_.erase(result.id);
       }
-      return t_id{0};
+      return BAD_EVENT_ID;
     }
 
-    t_id add_event(r_err err, R_event_params params, p_event_logic logic) {
+    t_event_id add_event(r_err err, R_event_params params,
+                         p_event_logic logic) noexcept {
       auto result = events_.insert(err, {logic, params});
       if (result) {
-        result.ptr->id = result.id;
+        auto id_ = to_(result.id);
+        result.ptr->id = id_;
         add_event(err, *result.ptr);
         if (!err)
-          return result.id;
+          return id_;
         events_.erase(result.id);
       }
-      return t_id{0};
+      return BAD_EVENT_ID;
     }
 
-    p_event_logic del_event(t_id id) {
-      auto info = events_.get(id);
+    p_event_logic del_event(t_event_id id) noexcept {
+      auto id_  = to_(id);
+      auto info = events_.get(id_);
       if (info) {
         del_event(*info);
-        events_.erase(id);
+        events_.erase(id_);
       }
       return nullptr;
     }
 
-    p_event_logic del_event(r_err err, t_id id) {
-      auto info = events_.get(err, id);
+    p_event_logic del_event(r_err err, t_event_id id) noexcept {
+      auto id_  = to_(id);
+      auto info = events_.get(err, id_);
       if (info) {
         del_event(err, *info);
-        events_.erase(id);
+        events_.erase(id_);
       }
       return nullptr;
     }
 
-    t_void clear_events() {
-      events_.each([this](t_id, r_event_info& info) {
+    t_void clear_events() noexcept {
+      events_.each([this](auto, auto& info) {
         del_event(info);
       });
       events_.clear();
     }
 
-    t_void clear_events(r_err) {
-      events_.each([this](t_id, r_event_info& info) { //XXX - do you need err?
+    t_void clear_events(r_err) noexcept {
+      events_.each([this](auto, auto& info) { //XXX - do you need err?
         del_event(info); // XXX this version may be removed
       });
       events_.clear();
@@ -162,14 +184,16 @@ namespace event_dispatcher
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_quit process_events(r_event_infos infos, p_logic logic) {
-      if (!infos.empty()) {
-        logic->may_reorder_events(infos);
-        for (auto info : infos) {
+    t_quit process_events(r_event_infos infos, p_logic logic) noexcept {
+      if (!infos.is_empty()) {
+        logic->notify_may_reorder(infos);
+        t_ix end_ix = to_ix(infos.get_size());
+        for (t_ix ix{0}; ix < end_ix; ++set(ix)) {
+          auto     info   = infos.get(ix);
           t_action action = info->logic->notify_event(info->params);
           switch (action.cmd) {
             case CONTINUE: {
-              t_event_logic* next = action.next;
+              p_event_logic next = action.next;
               if (next)
                 info->logic = next;
             } break;
@@ -177,86 +201,86 @@ namespace event_dispatcher
               del_event(info->id);
               break;
             case QUIT_EVENT_LOOP:
-              return true;
+              return t_quit{true};
           }
         }
-        return logic->notify_events_processed();
+        return logic->notify_all_processed();
       }
-      return false;
+      return t_quit{false};
     }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_n event_loop(p_logic logic) {
-      t_n_ cnt = 0;
-      t_quit quit = false;
+    t_n event_loop(p_logic logic) noexcept {
+      t_n    cnt {0};
+      t_quit quit{false};
       do {
         auto errn = wait_events(events_, infos_);
         if (errn == VALID) {
-          if (!infos_.empty())
+          if (!infos_.is_empty())
             quit = process_events(infos_, logic);
           else
-            quit = true;
+            set(quit) = true;
         } else
           quit = logic->notify_error(errn);
         infos_.clear();
-        ++cnt;
-      } while (!quit);
-      return t_n{cnt};
+        ++set(cnt);
+      } while (get(quit) != true);
+      return cnt;
     }
 
-    t_n event_loop(r_err err, p_logic logic) {
-      t_n_ cnt = 0;
-      t_quit quit = false;
+    t_n event_loop(r_err err, p_logic logic) noexcept {
+      t_n    cnt {0};
+      t_quit quit{false};
       do {
         wait_events(err, events_, infos_);
         if (!err) {
-          if (!infos_.empty())
+          if (!infos_.is_empty())
             quit = process_events(infos_, logic);
           else
-            quit = true;
+            set(quit) = true;
         } else
           quit = logic->notify_error(t_errn(err.id()));
         infos_.clear();
-        ++cnt;
-      } while (!quit);
-      return t_n{cnt};
+        ++set(cnt);
+      } while (get(quit) != true);
+      return cnt;
     }
 
-    t_n event_loop(p_logic logic, t_usec usec) {
-      t_n_ cnt = 0;
-      t_quit quit = false;
+    t_n event_loop(p_logic logic, t_usec usec) noexcept {
+      t_n    cnt {0};
+      t_quit quit{false};
       do {
         t_errn errn = wait_events(events_, infos_, usec);
         if (errn == VALID) {
-          if (!infos_.empty())
+          if (!infos_.is_empty())
             quit = process_events(infos_, logic);
           else
             quit = logic->notify_timeout(usec);
         } else
           quit = logic->notify_error(errn);
         infos_.clear();
-        ++cnt;
-      } while (!quit);
-      return t_n{cnt};
+        ++set(cnt);
+      } while (get(quit) != true);
+      return cnt;
     }
 
-    t_n event_loop(r_err err, p_logic logic, t_usec usec) {
-      t_n_ cnt = 0;
-      t_quit quit = false;
+    t_n event_loop(r_err err, p_logic logic, t_usec usec) noexcept {
+      t_n    cnt {0};
+      t_quit quit{false};
       do {
         wait_events(err, events_, infos_, usec);
         if (!err) {
-          if (!infos_.empty())
+          if (!infos_.is_empty())
             quit = process_events(infos_, logic);
           else
             quit = logic->notify_timeout(usec);
         } else
           quit = logic->notify_error(t_errn(err.id()));
         infos_.clear();
-        ++cnt;
-      } while (!quit);
-      return t_n{cnt};
+        ++set(cnt);
+      } while (get(quit) != true);
+      return cnt;
     }
 
   private:
@@ -268,12 +292,12 @@ namespace event_dispatcher
 
   class t_epoll_impl_ : public t_impl_ {
   public:
-    t_epoll_impl_(R_params _params)
+    t_epoll_impl_(R_params _params) noexcept
       : t_impl_{_params}, epoll_events_{new t_epoll_event[get(_params.max)]},
         epoll_{} {
     }
 
-    t_epoll_impl_(r_err err, R_params _params)
+    t_epoll_impl_(r_err err, R_params _params) noexcept
       : t_impl_{_params}, epoll_events_{new t_epoll_event[get(_params.max)]},
         epoll_{err} {
     }
@@ -282,151 +306,155 @@ namespace event_dispatcher
       delete [] epoll_events_;
     }
 
-    virtual operator t_validity() const override {
+    operator t_validity() const noexcept override {
       return t_impl_::operator t_validity() == VALID &&
              epoll_events_ && epoll_ == VALID ? VALID : INVALID;
     }
 
-    virtual t_errn add_event(r_event_info info) override {
-     t_epoll::t_event_data data;
-     data.u32 = get(info.id);
-     return epoll_.add_event(info.params.fd,
-                             info.params.type == RD ? EPOLLIN : EPOLLOUT,
-                             data);
+    t_errn add_event(r_event_info info) noexcept override {
+      t_epoll::t_event_data data;
+      data.u32 = get(info.id);
+      return epoll_.add_event(info.params.fd,
+                              info.params.type == RD_EVENT ? EPOLLIN : EPOLLOUT,
+                              data);
     }
 
-    virtual t_void add_event(r_err err,  r_event_info info) override {
-     t_epoll::t_event_data data;
-     data.u32 = get(info.id);
-     epoll_.add_event(err, info.params.fd,
-                      info.params.type == RD ? EPOLLIN : EPOLLOUT, data);
+    t_void add_event(r_err err,  r_event_info info) noexcept override {
+      t_epoll::t_event_data data;
+      data.u32 = get(info.id);
+      epoll_.add_event(err, info.params.fd,
+                       info.params.type == RD_EVENT ? EPOLLIN : EPOLLOUT, data);
     }
 
-    virtual t_errn del_event(r_event_info info) override {
+    t_errn del_event(r_event_info info) noexcept override {
       return epoll_.del_event(info.params.fd);
     }
 
-    virtual t_void del_event(r_err err, r_event_info info) override {
+    t_void del_event(r_err err, r_event_info info) noexcept override {
       epoll_.del_event(err, info.params.fd);
     }
 
-    virtual t_errn wait_events(r_events events, r_event_infos infos) override {
+    t_errn wait_events(r_events events, r_event_infos infos) noexcept override {
       auto verify = epoll_.wait(epoll_events_, params.max);
       if (verify == VALID) {
         for (t_n_ cnt = 0; cnt < get(verify); ++cnt)
-          infos.push_back(events.get(t_id{epoll_events_[0].data.u32}));
+          infos.push_back(events.get(to_(epoll_events_[0].data.u32)));
       }
       return verify.errn;
     }
 
-    virtual t_void wait_events(r_err err, r_events events,
-                               r_event_infos infos) override {
+    t_void wait_events(r_err err, r_events events,
+                       r_event_infos infos) noexcept override {
       t_n_ n = get(epoll_.wait(err, epoll_events_, params.max));
       if (!err) {
         for (t_n_ cnt = 0; cnt < n; ++cnt)
-          infos.push_back(events.get(t_id{epoll_events_[0].data.u32}));
+          infos.push_back(events.get(to_(epoll_events_[0].data.u32)));
       }
     }
 
-    virtual t_errn wait_events(r_events events, r_event_infos infos,
-                               t_usec usec) override {
+    t_errn wait_events(r_events events, r_event_infos infos,
+                       t_usec usec) noexcept override {
       auto verify = epoll_.wait(epoll_events_, params.max, usec);
       if (verify == VALID) {
         for (t_n_ cnt = 0; cnt < get(verify); ++cnt)
-          infos.push_back(events.get(t_id{epoll_events_[0].data.u32}));
+          infos.push_back(events.get(to_(epoll_events_[0].data.u32)));
       }
       return verify.errn;
     }
 
-    virtual t_void wait_events(r_err err, r_events events,
-                               r_event_infos infos, t_usec usec) override {
+    t_void wait_events(r_err err, r_events events,
+                       r_event_infos infos, t_usec usec) noexcept override {
       t_n_ n = get(epoll_.wait(err, epoll_events_, params.max, usec));
       if (!err) {
         for (t_n_ cnt = 0; cnt < n; ++cnt)
-          infos.push_back(events.get(t_id{epoll_events_[0].data.u32}));
+          infos.push_back(events.get(to_(epoll_events_[0].data.u32)));
       }
     }
 
   private:
-    t_epoll_event* epoll_events_;
-    t_epoll        epoll_;
+    p_epoll_event epoll_events_;
+    t_epoll       epoll_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_n get_supported_services() {
+  t_n get_supported_services() noexcept {
      return t_n{1};
   }
 
-  t_service_name get_supported_service(t_ix) {
+  t_service_name get_supported_service(t_ix) noexcept {
     return "epoll_service";
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_dispatcher::t_dispatcher(R_params params) {
+  t_dispatcher::t_dispatcher(R_params params) noexcept {
     if (params.service_name == P_cstr("epoll_service"))
       impl_ = new t_epoll_impl_(params);
     else if (params.service_name == P_cstr("select_service")) {
+      // not yet supported - required for non-linux systems
     }
   }
 
-  t_dispatcher::t_dispatcher(t_err err, R_params params) {
+  t_dispatcher::t_dispatcher(t_err err, R_params params) noexcept {
     ERR_GUARD(err) {
       if (params.service_name == P_cstr("epoll_service"))
         impl_ = new t_epoll_impl_(err, params);
       else if (params.service_name == P_cstr("select_service")) {
+        // not yet supported - required for non-linux systems
+        err = err::E_XXX;
       } else
         err = err::E_XXX;
     }
   }
 
-  t_dispatcher::t_dispatcher(x_dispatcher dispatcher)
+  t_dispatcher::t_dispatcher(x_dispatcher dispatcher) noexcept
     : impl_{dispatcher.impl_.release()} {
   }
 
-  t_dispatcher::~t_dispatcher() {
+  t_dispatcher::~t_dispatcher() noexcept {
     impl_.clear();
   }
 
-  t_dispatcher::operator t_validity() const {
+  t_dispatcher::operator t_validity() const noexcept {
     return impl_ == VALID && *impl_ == VALID ? VALID : INVALID;
   }
 
-  t_params t_dispatcher::get_params() const {
+  t_params t_dispatcher::get_params() const noexcept {
     if (*this == VALID)
       return impl_->params;
     return t_params{t_n{0}, ""};
   }
 
-  t_void t_dispatcher::display() const {
+  t_void t_dispatcher::display() const noexcept {
     if (*this == VALID)
       impl_->display();
   }
 
-  t_id t_dispatcher::add_event(R_event_params params, p_event_logic logic) {
+  t_event_id t_dispatcher::add_event(R_event_params params,
+                                     p_event_logic logic) noexcept {
     if (*this == VALID)
       return impl_->add_event(params, logic);
-    return t_id{0};
+    return t_event_id{0};
   }
 
-  t_id t_dispatcher::add_event(t_err err, R_event_params params,
-                               p_event_logic logic) {
+  t_event_id t_dispatcher::add_event(t_err err, R_event_params params,
+                                     p_event_logic logic) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
         return impl_->add_event(err, params, logic);
       err = err::E_XXX;
     }
-    return t_id{0};
+    return t_event_id{0};
   }
 
-  p_event_logic t_dispatcher::del_event(t_id id) {
+  p_event_logic t_dispatcher::del_event(t_event_id id) noexcept {
     if (*this == VALID)
       return impl_->del_event(id);
     return nullptr;
   }
 
-  p_event_logic t_dispatcher::del_event(t_err err, t_id id) {
+  p_event_logic t_dispatcher::del_event(t_err err, t_event_id id) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
         return impl_->del_event(err, id);
@@ -435,12 +463,12 @@ namespace event_dispatcher
     return nullptr;
   }
 
-  t_void t_dispatcher::clear_events() {
+  t_void t_dispatcher::clear_events() noexcept {
     if (*this == VALID)
       impl_->clear_events();
   }
 
-  t_void t_dispatcher::clear_events(t_err err) {
+  t_void t_dispatcher::clear_events(t_err err) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
         impl_->clear_events(err);
@@ -449,13 +477,14 @@ namespace event_dispatcher
     }
   }
 
-  P_event_info t_dispatcher::get_event(t_id id) const {
+  P_event_info t_dispatcher::get_event(t_event_id id) const noexcept {
     if (*this == VALID)
       return impl_->get_event(id);
     return nullptr;
   }
 
-  P_event_info t_dispatcher::get_event(t_err err, t_id id) const {
+  P_event_info t_dispatcher::get_event(t_err err,
+                                       t_event_id id) const noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
         return impl_->get_event(err, id);
@@ -464,19 +493,19 @@ namespace event_dispatcher
     return nullptr;
   }
 
-  t_bool t_dispatcher::fetch_events(r_ids ids) const {
+  t_bool t_dispatcher::get_events(r_event_ids ids) const noexcept {
     if (*this == VALID)
-      return impl_->fetch_events(ids);
+      return impl_->get_events(ids);
     return false;
   }
 
-  t_n t_dispatcher::event_loop(p_logic logic) {
+  t_n t_dispatcher::event_loop(p_logic logic) noexcept {
     if (*this == VALID)
       return impl_->event_loop(logic);
     return t_n{0};
   }
 
-  t_n t_dispatcher::event_loop(t_err err, p_logic logic) {
+  t_n t_dispatcher::event_loop(t_err err, p_logic logic) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
         return impl_->event_loop(err, logic);
@@ -485,13 +514,13 @@ namespace event_dispatcher
     return t_n{0};
   }
 
-  t_n t_dispatcher::event_loop(p_logic logic, t_usec usec) {
+  t_n t_dispatcher::event_loop(p_logic logic, t_usec usec) noexcept {
     if (*this == VALID)
       return impl_->event_loop(logic, usec);
     return t_n{0};
   }
 
-  t_n t_dispatcher::event_loop(t_err err, p_logic logic, t_usec usec) {
+  t_n t_dispatcher::event_loop(t_err err, p_logic logic, t_usec usec) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
         return impl_->event_loop(err, logic, usec);
