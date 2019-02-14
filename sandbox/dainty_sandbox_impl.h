@@ -77,22 +77,23 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_timer_id   start_timer  (t_err, t_ix, R_timer_name,
-                               R_timer_params) noexcept;
-    t_timer_id   start_timer  (t_err, t_ix, R_timer_name, R_timer_params,
-                               x_timer_notify_ptr) noexcept;
-    t_void       restart_timer(t_err, t_ix, t_timer_id,
-                               R_timer_params) noexcept;
-    t_timer_notify_ptr stop_timer(t_ix, t_timer_id)       noexcept;
-    P_timer_info       get_timer (t_ix, t_timer_id) const noexcept;
+    t_timer_id         start_timer  (t_err, t_ix, R_timer_name,
+                                     R_timer_params)         noexcept;
+    t_timer_id         start_timer  (t_err, t_ix, R_timer_name,
+                                     R_timer_params,
+                                     x_timer_notify_ptr)     noexcept;
+    t_void             restart_timer(t_err, t_ix, t_timer_id,
+                                     R_timer_params)         noexcept;
+    t_timer_notify_ptr stop_timer   (t_ix, t_timer_id)       noexcept;
+    P_timer_info       get_timer    (t_ix, t_timer_id) const noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_fdevent_id        add_fdevent(t_err, t_ix, R_fdevent_name,
-                                    R_fdevent_params)           noexcept;
-    t_fdevent_id        add_fdevent(t_err, t_ix, R_fdevent_name,
-                                    R_fdevent_params,
-                                    t_fdevent_notify_ptr)       noexcept;
+    t_fdevent_id         add_fdevent(t_err, t_ix, R_fdevent_name,
+                                     R_fdevent_params)          noexcept;
+    t_fdevent_id         add_fdevent(t_err, t_ix, R_fdevent_name,
+                                     R_fdevent_params,
+                                     t_fdevent_notify_ptr)      noexcept;
     t_fdevent_notify_ptr del_fdevent(t_ix, t_fdevent_id)        noexcept;
     P_fdevent_info       get_fdevent(t_ix, t_fdevent_id)  const noexcept;
 
@@ -104,6 +105,11 @@ namespace sandbox
   private:
     struct t_logic_entry_ {
       p_logic       logic = nullptr;
+      // add t_messenger
+      // add t_tracer
+      // must know its assigned fds
+      // must know its assigned timers
+      // must know its spin if any.
       t_logic_entry_(p_logic _logic) : logic(_logic) { }
     };
     using t_logics_ = container::list::t_list<t_logic_entry_>;
@@ -118,11 +124,15 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_void may_reorder_events(base2::r_event_infos) override final;
-    virtual t_void notify_event_remove(base2::r_event_info) override final;
-    virtual base2::t_quit notify_timeout(base2::t_usec)     override final;
-    virtual base2::t_quit notify_error(base2::t_errn)       override final;
-    virtual base2::t_quit notify_events_processed()         override final;
+    //using t_quit        = base::t_quit;
+    //using r_event_info  = base2::r_event_info;
+    //using r_event_infos = base2::r_event_infos;
+
+    t_void notify_may_reorder  (r_event_infos) noexcept override final;
+    t_void notify_removed      (r_event_info)  noexcept override final;
+    t_quit notify_timeout      (t_usec)        noexcept override final;
+    t_quit notify_error        (t_errn)        noexcept override final;
+    t_quit notify_all_processed()              noexcept override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -130,9 +140,11 @@ namespace sandbox
     T_thread_params params_;
     t_dispatcher_   dispatcher_;
     t_logics_       logics_;
-    // spinning_;
-    // fds_;
-    // timers_;
+
+    // fds_;      // 200 - freelist
+    // timers_;   // 120 - freelist
+    // spinning_; // number of logics_;
+    t_spin_cnt spin_cnt_ = t_spin_cnt{0};
   };
 
 ///////////////////////////////////////////////////////////////////////////////

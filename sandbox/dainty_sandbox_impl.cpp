@@ -240,26 +240,26 @@ namespace sandbox
     }
   }
 
-  t_void t_impl_::may_reorder_events(base2::r_event_infos infos) {
+  t_void t_impl_::notify_may_reorder(r_event_infos infos) noexcept {
   }
 
-  t_void t_impl_::notify_event_remove(base2::r_event_info info) {
+  t_void t_impl_::notify_removed(r_event_info info) noexcept {
     // if a fd close it will be removed
   }
 
-  t_impl_::base2::t_quit t_impl_::notify_timeout(base2::t_usec usec) {
+  t_impl_::t_quit t_impl_::notify_timeout(t_usec usec) noexcept {
     // go through all those that want to wait
-    return true;
+    return t_quit{true};
   }
 
-  t_impl_::base2::t_quit t_impl_::notify_error(base2::t_errn errn) {
+  t_impl_::t_quit t_impl_::notify_error(t_errn errn) noexcept {
     //
-    return true;
+    return t_quit{true};
   }
 
-  t_impl_::base2::t_quit t_impl_::notify_events_processed() { // number?
+  t_impl_::t_quit t_impl_::notify_all_processed() noexcept { // number?
     // time to update the loop statistics
-    return true;
+    return t_quit{true};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
