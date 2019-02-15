@@ -1834,9 +1834,14 @@ namespace message
     }
 
     t_quit notify_all_processed() noexcept override final {
-      t_out{"messaging: notify_events_processed"};
+      t_out{"messaging: notify_all_processed"};
       data_.forward_msgs(msgs_);
       return DONT_QUIT;
+    }
+
+    t_action notify_event(r_event_params params) noexcept override final {
+      t_out{"messaging: notify_event"}; // use this instead of proxy?
+      return t_action{};
     }
 
     t_void process_chain(t_chain& chain) {
