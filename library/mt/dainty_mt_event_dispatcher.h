@@ -169,12 +169,11 @@ namespace event_dispatcher
       : logic(_logic), params(_params) {
     }
   };
-  using r_event_info = named::t_prefix<t_event_info>::r_;
-  using p_event_info = named::t_prefix<t_event_info>::p_;
-  using P_event_info = named::t_prefix<t_event_info>::P_;
-
+  using r_event_info  = t_prefix<t_event_info>::r_;
+  using p_event_info  = t_prefix<t_event_info>::p_;
+  using P_event_info  = t_prefix<t_event_info>::P_;
   using t_event_infos = container::ptrlist::t_ptrlist<t_event_info>;
-  using r_event_infos = named::t_prefix<t_event_infos>::r_;
+  using r_event_infos = t_prefix<t_event_infos>::r_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -188,8 +187,8 @@ namespace event_dispatcher
       : max(_max), service_name(_name) {
     }
   };
-  using T_params = named::t_prefix<t_params>::T_;
-  using R_params = named::t_prefix<t_params>::R_;
+  using T_params = t_prefix<t_params>::T_;
+  using R_params = t_prefix<t_params>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -200,7 +199,7 @@ namespace event_dispatcher
 
   class t_dispatcher {
   public:
-    class t_logic {
+    class t_logic : public t_event_logic {
     public:
       using r_event_info   = event_dispatcher::r_event_info;
       using r_event_infos  = event_dispatcher::r_event_infos;
@@ -233,10 +232,12 @@ namespace event_dispatcher
     t_void        display     () const noexcept;
     t_fd          get_fd_impl_() const noexcept;
 
-    t_event_id    add_event(       R_event_params, p_event_logic) noexcept;
-    t_event_id    add_event(t_err, R_event_params, p_event_logic) noexcept;
-    p_event_logic del_event(       t_event_id)                    noexcept;
-    p_event_logic del_event(t_err, t_event_id)                    noexcept;
+    t_event_id    add_event(       R_event_params,
+                                   p_event_logic = nullptr) noexcept;
+    t_event_id    add_event(t_err, R_event_params,
+                                   p_event_logic = nullptr) noexcept;
+    p_event_logic del_event(       t_event_id)              noexcept;
+    p_event_logic del_event(t_err, t_event_id)              noexcept;
 
     t_void        clear_events()      noexcept;
     t_void        clear_events(t_err) noexcept;

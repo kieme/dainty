@@ -190,7 +190,9 @@ namespace event_dispatcher
         t_ix end_ix = to_ix(infos.get_size());
         for (t_ix ix{0}; ix < end_ix; ++set(ix)) {
           auto     info   = infos.get(ix);
-          t_action action = info->logic->notify_event(info->params);
+          t_action action = info->logic ?
+                              info->logic->notify_event(info->params) :
+                              logic->notify_event(info->params);
           switch (action.cmd) {
             case CONTINUE: {
               p_event_logic next = action.next;
