@@ -241,25 +241,31 @@ namespace sandbox
   }
 
   t_void t_impl_::notify_may_reorder(r_event_infos infos) noexcept {
+    //XXX
   }
 
   t_void t_impl_::notify_removed(r_event_info info) noexcept {
     // if a fd close it will be removed
+    //XXX
   }
 
   t_impl_::t_quit t_impl_::notify_timeout(t_usec usec) noexcept {
     // go through all those that want to wait
-    return t_quit{true};
+    return t_quit{true}; //XXX
   }
 
   t_impl_::t_quit t_impl_::notify_error(t_errn errn) noexcept {
     //
-    return t_quit{true};
+    return t_quit{true}; //XXX
   }
 
   t_impl_::t_quit t_impl_::notify_all_processed() noexcept { // number?
     // time to update the loop statistics
-    return t_quit{true};
+    return t_quit{true}; //XXX
+  }
+
+  t_impl_::t_action t_impl_::notify_event(r_event_params params) noexcept {
+    return t_action{}; //XXX
   }
 
 ///////////////////////////////////////////////////////////////////////////////

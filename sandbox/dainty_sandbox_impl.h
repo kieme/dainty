@@ -128,11 +128,12 @@ namespace sandbox
     //using r_event_info  = base2::r_event_info;
     //using r_event_infos = base2::r_event_infos;
 
-    t_void notify_may_reorder  (r_event_infos) noexcept override final;
-    t_void notify_removed      (r_event_info)  noexcept override final;
-    t_quit notify_timeout      (t_usec)        noexcept override final;
-    t_quit notify_error        (t_errn)        noexcept override final;
-    t_quit notify_all_processed()              noexcept override final;
+    t_action notify_event        (r_event_params) noexcept override final;
+    t_void   notify_may_reorder  (r_event_infos)  noexcept override final;
+    t_void   notify_removed      (r_event_info)   noexcept override final;
+    t_quit   notify_timeout      (t_usec)         noexcept override final;
+    t_quit   notify_error        (t_errn)         noexcept override final;
+    t_quit   notify_all_processed()               noexcept override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 
