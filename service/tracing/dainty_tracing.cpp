@@ -904,7 +904,7 @@ namespace tracer
       return QUIT;
     }
 
-    t_quit notify_all_processed() noexcept override final {
+    t_quit notify_all_processed(r_usec) noexcept override final {
       t_out{"tracing: notify_all_processed"};
       return DONT_QUIT;
     }
