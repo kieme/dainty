@@ -756,26 +756,50 @@ namespace named
   enum  t_nsec_tag_ {};
   using t_nsec_ = t_ullong;
   using t_nsec  = t_explicit<t_nsec_, t_nsec_tag_>;
+  using T_nsec  = t_prefix<t_nsec>::T_;
+  using r_nsec  = t_prefix<t_nsec>::r_;
+  using p_nsec  = t_prefix<t_nsec>::p_;
+  using P_nsec  = t_prefix<t_nsec>::P_;
 
   enum  t_usec_tag_ {};
   using t_usec_ = t_ulong;
   using t_usec  = t_explicit<t_usec_, t_usec_tag_>;
+  using T_usec  = t_prefix<t_usec>::T_;
+  using r_usec  = t_prefix<t_usec>::r_;
+  using p_usec  = t_prefix<t_usec>::p_;
+  using P_usec  = t_prefix<t_usec>::P_;
 
   enum  t_msec_tag_ {};
   using t_msec_ = t_uint;
   using t_msec  = t_explicit<t_msec_, t_msec_tag_>;
+  using T_msec  = t_prefix<t_msec>::T_;
+  using r_msec  = t_prefix<t_msec>::r_;
+  using p_msec  = t_prefix<t_msec>::p_;
+  using P_msec  = t_prefix<t_msec>::P_;
 
   enum  t_sec_tag_ {};
   using t_sec_ = t_uint;
   using t_sec  = t_explicit<t_sec_, t_sec_tag_>;
+  using T_sec  = t_prefix<t_sec>::T_;
+  using r_sec  = t_prefix<t_sec>::r_;
+  using p_sec  = t_prefix<t_sec>::p_;
+  using P_sec  = t_prefix<t_sec>::P_;
 
   enum  t_min_tag_ {};
   using t_min_ = t_ushort;
   using t_min  = t_explicit<t_min_, t_min_tag_>;
+  using T_min  = t_prefix<t_min>::T_;
+  using r_min  = t_prefix<t_min>::r_;
+  using p_min  = t_prefix<t_min>::p_;
+  using P_min  = t_prefix<t_min>::P_;
 
   enum  t_ticks_tag_ {};
   using t_ticks_ = t_uint64;
   using t_ticks  = t_explicit<t_ticks_, t_ticks_tag_>;
+  using T_ticks  = t_prefix<t_ticks>::T_;
+  using r_ticks  = t_prefix<t_ticks>::r_;
+  using p_ticks  = t_prefix<t_ticks>::p_;
+  using P_ticks  = t_prefix<t_ticks>::P_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
