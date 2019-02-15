@@ -38,6 +38,9 @@ namespace dainty
 {
 namespace sandbox
 {
+  using named::t_fd;
+  using named::t_msec_;
+
   using t_thread_           = mt::detached_thread::t_thread;
   using t_dispatcher_       = mt::event_dispatcher::t_dispatcher;
   using t_thread_logic_     = t_thread_::t_logic;
@@ -70,10 +73,11 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_void     enable_spin    (t_err, t_ix, t_spin_cnt) noexcept;
-    t_void     disable_spin   (t_ix)         noexcept;
-    t_spin_cnt get_spin_cnt   (t_ix)   const noexcept;
-    t_msec     get_spin_period(t_ix)   const noexcept;
+    t_fd       get_dispatcher_fd() const noexcept;
+    t_void     enable_spin      (t_err, t_ix, t_spin_cnt) noexcept;
+    t_void     disable_spin     (t_ix)         noexcept;
+    t_spin_cnt get_spin_cnt     (t_ix)   const noexcept;
+    t_msec     get_spin_period  (t_ix)   const noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -104,7 +108,10 @@ namespace sandbox
 
   private:
     struct t_logic_entry_ {
-      p_logic       logic = nullptr;
+      p_logic       logic        = nullptr;
+      t_spin_cnt_   spin_cnt     = 0;
+      t_spin_cnt_   spin_cnt_max = 0;
+
       // add t_messenger
       // add t_tracer
       // must know its assigned fds
@@ -124,16 +131,12 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    //using t_quit        = base::t_quit;
-    //using r_event_info  = base2::r_event_info;
-    //using r_event_infos = base2::r_event_infos;
-
     t_action notify_event        (r_event_params) noexcept override final;
     t_void   notify_may_reorder  (r_event_infos)  noexcept override final;
     t_void   notify_removed      (r_event_info)   noexcept override final;
     t_quit   notify_timeout      (t_usec)         noexcept override final;
     t_quit   notify_error        (t_errn)         noexcept override final;
-    t_quit   notify_all_processed()               noexcept override final;
+    t_quit   notify_all_processed(r_usec)         noexcept override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -145,7 +148,8 @@ namespace sandbox
     // fds_;      // 200 - freelist
     // timers_;   // 120 - freelist
     // spinning_; // number of logics_;
-    t_spin_cnt spin_cnt_ = t_spin_cnt{0};
+    t_spin_cnt_     spin_cnt_    = 0;
+    t_msec_         spin_period_ = 10;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

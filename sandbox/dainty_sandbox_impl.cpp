@@ -86,25 +86,54 @@ namespace sandbox
     }
   }
 
+  t_fd t_impl_::get_dispatcher_fd() const noexcept {
+    return dispatcher_.get_fd_impl_();
+  }
+
   t_void t_impl_::enable_spin(t_err err, t_ix ix, t_spin_cnt cnt) noexcept {
     ERR_GUARD(err) {
+      t_spin_cnt_ _cnt = get(cnt);
+      if (_cnt) {
+        auto logic_entry = logics_.get(ix);
+        logic_entry->spin_cnt_max = _cnt;
+        logic_entry->spin_cnt     = 0;
+
+        if (!spin_cnt_)
+          spin_cnt_ = _cnt;
+        else
+          spin_cnt_ = 1; //XXX - can improve greatly - leave for later
+      } else
+        disable_spin(ix);
     }
   }
 
   t_void t_impl_::disable_spin(t_ix ix) noexcept {
+    auto logic_entry = logics_.get(ix);
+    logic_entry->spin_cnt_max = 0;
+    logic_entry->spin_cnt     = 0;
+
+    t_ix cnt{0}, end_ix{to_ix(logics_.get_size())};
+    for (; cnt < end_ix; ++set(cnt))
+      if (logics_.get(cnt)->spin_cnt_max)
+        break;
+
+    if (cnt == end_ix) // XXX - simplistic
+      spin_cnt_ = 0;
   }
 
   t_spin_cnt t_impl_::get_spin_cnt(t_ix ix) const noexcept {
-    return t_spin_cnt{0};
+    auto logic_entry = logics_.get(ix);
+    return t_spin_cnt{logic_entry->spin_cnt_max};
   }
 
   t_msec t_impl_::get_spin_period(t_ix ix) const noexcept {
-    return t_msec{0};
+    return t_msec{spin_period_};
   }
 
   t_timer_id t_impl_::start_timer(t_err err, t_ix ix, R_timer_name name,
                                   R_timer_params params) noexcept {
     ERR_GUARD(err) {
+    //XXX
     }
     return t_timer_id{0};
   }
@@ -113,6 +142,7 @@ namespace sandbox
                                   R_timer_params params,
                                   x_timer_notify_ptr ptr) noexcept {
     ERR_GUARD(err) {
+    //XXX
     }
     return t_timer_id{0};
   }
@@ -120,20 +150,24 @@ namespace sandbox
   t_void t_impl_::restart_timer(t_err err, t_ix ix, t_timer_id id,
                                R_timer_params params) noexcept {
     ERR_GUARD(err) {
+    //XXX
     }
   }
 
   t_timer_notify_ptr t_impl_::stop_timer(t_ix ix, t_timer_id id) noexcept {
+    //XXX
     return {};
   }
 
   P_timer_info t_impl_::get_timer(t_ix ix, t_timer_id id) const noexcept {
-   return nullptr;
+    //XXX
+    return nullptr;
   }
 
   t_fdevent_id t_impl_::add_fdevent(t_err err, t_ix ix, R_fdevent_name name,
                                     R_fdevent_params params) noexcept {
     ERR_GUARD(err) {
+    //XXX
     }
     return t_fdevent_id{0};
   }
@@ -142,17 +176,20 @@ namespace sandbox
                                     R_fdevent_params params,
                                     t_fdevent_notify_ptr ptr) noexcept {
     ERR_GUARD(err) {
+    //XXX
     }
     return t_fdevent_id{0};
   }
 
   t_fdevent_notify_ptr t_impl_::del_fdevent(t_ix ix,
                                            t_fdevent_id id) noexcept {
+    //XXX
     return t_fdevent_notify_ptr{};
   }
 
   P_fdevent_info t_impl_::get_fdevent(t_ix ix,
                                       t_fdevent_id id)  const noexcept {
+    //XXX
     return nullptr;
   }
 
@@ -255,11 +292,10 @@ namespace sandbox
   }
 
   t_impl_::t_quit t_impl_::notify_error(t_errn errn) noexcept {
-    //
     return t_quit{true}; //XXX
   }
 
-  t_impl_::t_quit t_impl_::notify_all_processed() noexcept { // number?
+  t_impl_::t_quit t_impl_::notify_all_processed(r_usec usec) noexcept {
     // time to update the loop statistics
     return t_quit{true}; //XXX
   }

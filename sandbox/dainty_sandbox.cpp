@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include "dainty_named.h"
 #include "dainty_named_utility.h"
+#include "dainty_named_terminal.h"
 #include "dainty_sandbox_impl.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,6 +39,7 @@ namespace sandbox
   using t_thread_attr_ = os::t_pthread_attr;
   using named::t_ix;
 
+  using named::terminal::t_out;
   using named::utility::x_cast;
   using os::call_pthread_init;
 
@@ -222,10 +224,9 @@ namespace sandbox
   t_thread::t_thread(t_err err, R_name name, x_ptr logic_ptr,
                      R_params params) noexcept {
     ERR_GUARD(err) {
-      t_thread_logic_ptr_ ptr = new t_single_impl_{err, name, params,
-                                                   x_cast(logic_ptr)};
-      t_id id{1}; // ask impl for epoll fd
-      t_thread_ thread{err, name.get_cstr(), x_cast(ptr)};
+      auto impl = new t_single_impl_{err, name, params, x_cast(logic_ptr)};
+      t_id id{impl->get_dispatcher_fd()};
+      t_thread_ thread{err, name.get_cstr(), x_cast(impl)};
       if (!err)
         id_ = id;
     }
@@ -234,10 +235,9 @@ namespace sandbox
   t_thread::t_thread(t_err err, R_name name, x_ptrlist list,
                      R_params params) noexcept {
     ERR_GUARD(err) {
-      t_thread_logic_ptr_ ptr = new t_shared_impl_{err, name, params,
-                                                   x_cast(list)};
-      t_id id{1}; // ask impl for epoll fd
-      t_thread_ thread{err, name.get_cstr(), x_cast(ptr)};
+      auto impl = new t_shared_impl_{err, name, params, x_cast(list)};
+      t_id id{impl->get_dispatcher_fd()};
+      t_thread_ thread{err, name.get_cstr(), x_cast(impl)};
       if (!err)
         id_ = id;
     }
@@ -257,7 +257,7 @@ namespace sandbox
                  R_params params) noexcept {
     ERR_GUARD(err) {
       t_single_impl_ impl{err, name, params, x_cast(logic)};
-      t_id id{1}; // ask impl for epoll fd
+      t_id id{impl.get_dispatcher_fd()};
       t_thread_attr_ attr;
       call_pthread_init(err, attr);
       impl.update(err, attr);
@@ -273,7 +273,7 @@ namespace sandbox
                  R_params params) noexcept {
     ERR_GUARD(err) {
       t_shared_impl_ impl{err, name, params, x_cast(list)};
-      t_id id{1}; // ask impl for epoll fd
+      t_id id{impl.get_dispatcher_fd()};
       t_thread_attr_ attr;
       call_pthread_init(err, attr);
       impl.update(err, attr);
@@ -402,8 +402,11 @@ namespace sandbox
 ///////////////////////////////////////////////////////////////////////////////
 
   t_void request_death(t_id id) noexcept {
-    os::t_fd fd(id);
-    os::call_close(fd);
+    if (id != BAD_ID)
+      os::call_close(id);
+    else {
+      t_out{"request death of a sandbox has failed"};
+    }
   }
 
 ///////////////////////////////////////////////////////////////////////////////
