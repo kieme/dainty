@@ -399,7 +399,7 @@ namespace event_dispatcher
 
   t_fd t_dispatcher::get_fd_impl_() const noexcept {
     if (*this == VALID)
-      impl_->get_fd_impl_();
+      return impl_->get_fd_impl_();
     return BAD_FD;
   }
 
