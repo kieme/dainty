@@ -80,8 +80,12 @@ namespace event_dispatcher
     virtual ~t_impl_() {
     }
 
-    virtual operator t_validity() const {
+    virtual operator t_validity() const noexcept {
       return events_ == VALID && infos_ == VALID ? VALID : INVALID;
+    }
+
+    virtual t_fd get_fd_impl_() const noexcept {
+      return BAD_FD;
     }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -91,12 +95,10 @@ namespace event_dispatcher
     virtual t_errn del_event(        r_event_info) noexcept = 0;
     virtual t_void del_event(r_err,  r_event_info) noexcept = 0;
 
-    virtual t_errn wait_events(       r_events, r_event_infos) noexcept = 0;
-    virtual t_void wait_events(r_err, r_events, r_event_infos) noexcept = 0;
     virtual t_errn wait_events(       r_events, r_event_infos,
-                                      t_usec)                  noexcept = 0;
+                                      t_usec = t_usec{0})  noexcept = 0;
     virtual t_void wait_events(r_err, r_events, r_event_infos,
-                                      t_usec)                  noexcept = 0;
+                                      t_usec = t_usec{0})  noexcept = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -184,7 +186,8 @@ namespace event_dispatcher
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_quit process_events(r_event_infos infos, p_logic logic) noexcept {
+    t_quit process_events(r_event_infos infos, p_logic logic,
+                          r_usec usec) noexcept {
       if (!infos.is_empty()) {
         logic->notify_may_reorder(infos);
         t_ix end_ix = to_ix(infos.get_size());
@@ -206,7 +209,7 @@ namespace event_dispatcher
               return t_quit{true};
           }
         }
-        return logic->notify_all_processed();
+        return logic->notify_all_processed(usec);
       }
       return t_quit{false};
     }
@@ -214,39 +217,11 @@ namespace event_dispatcher
 ///////////////////////////////////////////////////////////////////////////////
 
     t_n event_loop(p_logic logic) noexcept {
-      t_n    cnt {0};
-      t_quit quit{false};
-      do {
-        auto errn = wait_events(events_, infos_);
-        if (errn == VALID) {
-          if (!infos_.is_empty())
-            quit = process_events(infos_, logic);
-          else
-            set(quit) = true;
-        } else
-          quit = logic->notify_error(errn);
-        infos_.clear();
-        ++set(cnt);
-      } while (get(quit) != true);
-      return cnt;
+      return event_loop(logic, t_usec{0});
     }
 
     t_n event_loop(r_err err, p_logic logic) noexcept {
-      t_n    cnt {0};
-      t_quit quit{false};
-      do {
-        wait_events(err, events_, infos_);
-        if (!err) {
-          if (!infos_.is_empty())
-            quit = process_events(infos_, logic);
-          else
-            set(quit) = true;
-        } else
-          quit = logic->notify_error(t_errn(err.id()));
-        infos_.clear();
-        ++set(cnt);
-      } while (get(quit) != true);
-      return cnt;
+      return event_loop(err, logic, t_usec{0});
     }
 
     t_n event_loop(p_logic logic, t_usec usec) noexcept {
@@ -256,7 +231,7 @@ namespace event_dispatcher
         t_errn errn = wait_events(events_, infos_, usec);
         if (errn == VALID) {
           if (!infos_.is_empty())
-            quit = process_events(infos_, logic);
+            quit = process_events(infos_, logic, usec);
           else
             quit = logic->notify_timeout(usec);
         } else
@@ -274,7 +249,7 @@ namespace event_dispatcher
         wait_events(err, events_, infos_, usec);
         if (!err) {
           if (!infos_.is_empty())
-            quit = process_events(infos_, logic);
+            quit = process_events(infos_, logic, usec);
           else
             quit = logic->notify_timeout(usec);
         } else
@@ -313,6 +288,10 @@ namespace event_dispatcher
              epoll_events_ && epoll_ == VALID ? VALID : INVALID;
     }
 
+    t_fd get_fd_impl_() const noexcept override {
+      return epoll_.get_fd();
+    }
+
     t_errn add_event(r_event_info info) noexcept override {
       t_epoll::t_event_data data;
       data.u32 = get(info.id);
@@ -336,27 +315,10 @@ namespace event_dispatcher
       epoll_.del_event(err, info.params.fd);
     }
 
-    t_errn wait_events(r_events events, r_event_infos infos) noexcept override {
-      auto verify = epoll_.wait(epoll_events_, params.max);
-      if (verify == VALID) {
-        for (t_n_ cnt = 0; cnt < get(verify); ++cnt)
-          infos.push_back(events.get(to_(epoll_events_[0].data.u32)));
-      }
-      return verify.errn;
-    }
-
-    t_void wait_events(r_err err, r_events events,
-                       r_event_infos infos) noexcept override {
-      t_n_ n = get(epoll_.wait(err, epoll_events_, params.max));
-      if (!err) {
-        for (t_n_ cnt = 0; cnt < n; ++cnt)
-          infos.push_back(events.get(to_(epoll_events_[0].data.u32)));
-      }
-    }
-
     t_errn wait_events(r_events events, r_event_infos infos,
                        t_usec usec) noexcept override {
-      auto verify = epoll_.wait(epoll_events_, params.max, usec);
+      auto verify = get(usec) ? epoll_.wait(epoll_events_, params.max, usec)
+                              : epoll_.wait(epoll_events_, params.max);
       if (verify == VALID) {
         for (t_n_ cnt = 0; cnt < get(verify); ++cnt)
           infos.push_back(events.get(to_(epoll_events_[0].data.u32)));
@@ -366,7 +328,9 @@ namespace event_dispatcher
 
     t_void wait_events(r_err err, r_events events,
                        r_event_infos infos, t_usec usec) noexcept override {
-      t_n_ n = get(epoll_.wait(err, epoll_events_, params.max, usec));
+      t_n_ n = get((get(usec) ?
+                      epoll_.wait(err, epoll_events_, params.max, usec) :
+                      epoll_.wait(err, epoll_events_, params.max)));
       if (!err) {
         for (t_n_ cnt = 0; cnt < n; ++cnt)
           infos.push_back(events.get(to_(epoll_events_[0].data.u32)));
@@ -431,6 +395,12 @@ namespace event_dispatcher
   t_void t_dispatcher::display() const noexcept {
     if (*this == VALID)
       impl_->display();
+  }
+
+  t_fd t_dispatcher::get_fd_impl_() const noexcept {
+    if (*this == VALID)
+      impl_->get_fd_impl_();
+    return BAD_FD;
   }
 
   t_event_id t_dispatcher::add_event(R_event_params params,

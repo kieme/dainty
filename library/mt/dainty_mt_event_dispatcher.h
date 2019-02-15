@@ -49,6 +49,7 @@ namespace event_dispatcher
   using named::t_n;
   using named::T_n;
   using named::t_usec;
+  using named::r_usec;
   using named::t_ix;
   using named::string::t_string;
   using named::string::FMT;
@@ -204,6 +205,7 @@ namespace event_dispatcher
       using r_event_info   = event_dispatcher::r_event_info;
       using r_event_infos  = event_dispatcher::r_event_infos;
       using t_usec         = event_dispatcher::t_usec;
+      using r_usec         = event_dispatcher::r_usec;
       using t_errn         = event_dispatcher::t_errn;
       using t_quit         = event_dispatcher::t_quit;
 
@@ -213,7 +215,7 @@ namespace event_dispatcher
       virtual t_void notify_removed      (r_event_info)  noexcept = 0;
       virtual t_quit notify_timeout      (t_usec)        noexcept = 0;
       virtual t_quit notify_error        (t_errn)        noexcept = 0;
-      virtual t_quit notify_all_processed()              noexcept = 0;
+      virtual t_quit notify_all_processed(r_usec)        noexcept = 0;
     };
     using p_logic = t_prefix<t_logic>::p_;
 
