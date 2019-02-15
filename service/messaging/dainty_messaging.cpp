@@ -1833,7 +1833,7 @@ namespace message
       return QUIT;
     }
 
-    t_quit notify_all_processed() noexcept override final {
+    t_quit notify_all_processed(r_usec) noexcept override final {
       t_out{"messaging: notify_all_processed"};
       data_.forward_msgs(msgs_);
       return DONT_QUIT;
