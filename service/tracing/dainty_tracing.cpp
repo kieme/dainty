@@ -905,8 +905,13 @@ namespace tracer
     }
 
     t_quit notify_all_processed() noexcept override final {
-      t_out{"tracing: notify_events_processed"};
+      t_out{"tracing: notify_all_processed"};
       return DONT_QUIT;
+    }
+
+    t_action notify_event(r_event_params) noexcept override final {
+      t_out{"tracing: notify_all_processed"};
+      return t_action{};
     }
 
 ///////////////////////////////////////////////////////////////////////////////
