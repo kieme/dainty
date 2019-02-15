@@ -93,6 +93,48 @@ using p_app_logic = t_prefix<t_app_logic>::p_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class t_app0 {
+public:
+  t_app0(t_err err)
+    : logic_  {err},
+      sandbox_{err, "app_thread", {&logic_, nullptr}, IN_NEW_THREAD} {
+  }
+  t_void please_die() {
+    request_death(sandbox_.get_id());
+  }
+private:
+  t_app_logic logic_;
+  t_sandbox   sandbox_;
+};
+
+int main0() {
+  {
+    t_err err;
+    t_app0 app{err};
+
+    sleep(1);
+
+    while (!err) {
+      app.please_die();
+
+      sleep(5);
+    }
+
+    if (err) {
+      err.print();
+      err.clear();
+    }
+  }
+
+  sleep(3);
+
+  t_out{"main0 is exiting"};
+
+  return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 class t_app1 {
 public:
   t_app1(t_err err)
@@ -126,7 +168,7 @@ int main1() {
 
   sleep(2);
 
-  t_out{"main is exiting"};
+  t_out{"main1 is exiting"};
 
   return 0;
 }
@@ -175,7 +217,7 @@ int main2() {
 
   sleep(2);
 
-  t_out{"main is exiting"};
+  t_out{"main1 is exiting"};
 
   return 0;
 }
@@ -184,8 +226,9 @@ int main2() {
 
 int main() {
   wait_services();
-  main1();
-  main2();
+  main0();
+  //main1();
+  //main2();
   return 0;
 }
 

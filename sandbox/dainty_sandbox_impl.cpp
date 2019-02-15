@@ -51,6 +51,10 @@ namespace sandbox
     }
   }
 
+  t_impl_::~t_impl_() {
+    t_out{"t_impl_ dies graciously"};
+  }
+
   t_void t_impl_::update(base1::t_err err,
                          base1::r_pthread_attr attr) noexcept {
     ERR_GUARD(err) {
@@ -263,7 +267,10 @@ namespace sandbox
     t_err err;
 
     start_(err.tag(1));
-    dispatcher_.event_loop(err.tag(2), this);
+    t_out{"t_impl_::enter event loop"};
+    dispatcher_.event_loop(err.tag(2), this,
+                           t_usec{spin_cnt_ * 1000 * spin_period_});
+    t_out{"t_impl_::leave event loop"};
     cleanup_(err.tag(3));
 
     if (err) {
@@ -292,12 +299,13 @@ namespace sandbox
   }
 
   t_impl_::t_quit t_impl_::notify_error(t_errn errn) noexcept {
+    t_out{"t_impl_::notify_error - prepare to die"};
     return t_quit{true}; //XXX
   }
 
   t_impl_::t_quit t_impl_::notify_all_processed(r_usec usec) noexcept {
-    // time to update the loop statistics
-    return t_quit{true}; //XXX
+    usec = t_usec{spin_cnt_ * 1000 * spin_period_};
+    return t_quit{false}; //XXX
   }
 
   t_impl_::t_action t_impl_::notify_event(r_event_params params) noexcept {

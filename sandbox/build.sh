@@ -4,10 +4,8 @@ g++ -Wall -o run dainty_sandbox_example.cpp \
                  dainty_sandbox_impl.cpp    \
                  logic_extensions/dainty_sandbox_logic_ext_cli.cpp \
                  logic_extensions/dainty_sandbox_logic_ext_large_msg.cpp \
-                 ../service/messaging/dainty_messaging.cpp \
                  ../service/messaging/dainty_messaging_err.cpp \
                  ../service/tracing/dainty_tracing_err.cpp \
-                 ../service/tracing/dainty_tracing.cpp \
                  ../library/container/dainty_container_any.cpp \
                  ../library/container/dainty_container_bytebuf_impl.cpp \
                  ../library/container/dainty_container_err.cpp \

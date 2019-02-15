@@ -58,6 +58,7 @@ namespace sandbox
     using base2 = t_dispatcher_::t_logic;
   public:
     t_impl_(t_err, R_thread_name, R_thread_params, t_n max_logics) noexcept;
+    virtual ~t_impl_();
 
     t_impl_(R_impl_) = delete;
     t_impl_(x_impl_) = delete;
