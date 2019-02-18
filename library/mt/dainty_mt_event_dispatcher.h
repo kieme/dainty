@@ -150,11 +150,12 @@ namespace event_dispatcher
 
   class t_event_logic {
   public:
+    using t_event_id     = event_dispatcher::t_event_id;
     using r_event_params = event_dispatcher::r_event_params;
     using t_action       = event_dispatcher::t_action;
 
     virtual ~t_event_logic() { }
-    virtual t_action notify_event(r_event_params) noexcept = 0;
+    virtual t_action notify_event(t_event_id, r_event_params) noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
