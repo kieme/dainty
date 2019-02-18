@@ -48,8 +48,8 @@ namespace event_dispatcher
   using named::t_bool;
   using named::t_n;
   using named::T_n;
-  using named::t_usec;
-  using named::r_usec;
+  using named::t_msec;
+  using named::r_msec;
   using named::t_ix;
   using named::string::t_string;
   using named::string::FMT;
@@ -204,8 +204,8 @@ namespace event_dispatcher
     public:
       using r_event_info   = event_dispatcher::r_event_info;
       using r_event_infos  = event_dispatcher::r_event_infos;
-      using t_usec         = event_dispatcher::t_usec;
-      using r_usec         = event_dispatcher::r_usec;
+      using t_msec         = event_dispatcher::t_msec;
+      using r_msec         = event_dispatcher::r_msec;
       using t_errn         = event_dispatcher::t_errn;
       using t_quit         = event_dispatcher::t_quit;
 
@@ -213,9 +213,9 @@ namespace event_dispatcher
 
       virtual t_void notify_may_reorder  (r_event_infos) noexcept = 0;
       virtual t_void notify_removed      (r_event_info)  noexcept = 0;
-      virtual t_quit notify_timeout      (t_usec)        noexcept = 0;
+      virtual t_quit notify_timeout      (t_msec)        noexcept = 0;
       virtual t_quit notify_error        (t_errn)        noexcept = 0;
-      virtual t_quit notify_all_processed(r_usec)        noexcept = 0;
+      virtual t_quit notify_all_processed(r_msec)        noexcept = 0;
     };
     using p_logic = t_prefix<t_logic>::p_;
 
@@ -251,8 +251,8 @@ namespace event_dispatcher
     t_n           event_loop(       p_logic) noexcept;
     t_n           event_loop(t_err, p_logic) noexcept;
 
-    t_n           event_loop(       p_logic, t_usec) noexcept;
-    t_n           event_loop(t_err, p_logic, t_usec) noexcept;
+    t_n           event_loop(       p_logic, t_msec) noexcept;
+    t_n           event_loop(t_err, p_logic, t_msec) noexcept;
 
   private:
     t_impl_owner_ impl_;

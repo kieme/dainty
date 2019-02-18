@@ -92,9 +92,9 @@ namespace event_dispatcher
     virtual t_void del_event(r_err,  r_event_info) noexcept = 0;
 
     virtual t_errn wait_events(       r_events, r_event_infos,
-                                      t_usec = t_usec{0})  noexcept = 0;
+                                      t_msec = t_msec{0})  noexcept = 0;
     virtual t_void wait_events(r_err, r_events, r_event_infos,
-                                      t_usec = t_usec{0})  noexcept = 0;
+                                      t_msec = t_msec{0})  noexcept = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -183,7 +183,7 @@ namespace event_dispatcher
 ///////////////////////////////////////////////////////////////////////////////
 
     t_quit process_events(r_event_infos infos, p_logic logic,
-                          r_usec usec) noexcept {
+                          r_msec msec) noexcept {
       if (!infos.is_empty()) {
         logic->notify_may_reorder(infos);
         t_ix end_ix = to_ix(infos.get_size());
@@ -205,7 +205,7 @@ namespace event_dispatcher
               return t_quit{true};
           }
         }
-        return logic->notify_all_processed(usec);
+        return logic->notify_all_processed(msec);
       }
       return t_quit{false};
     }
@@ -213,23 +213,23 @@ namespace event_dispatcher
 ///////////////////////////////////////////////////////////////////////////////
 
     t_n event_loop(p_logic logic) noexcept {
-      return event_loop(logic, t_usec{0});
+      return event_loop(logic, t_msec{0});
     }
 
     t_n event_loop(r_err err, p_logic logic) noexcept {
-      return event_loop(err, logic, t_usec{0});
+      return event_loop(err, logic, t_msec{0});
     }
 
-    t_n event_loop(p_logic logic, t_usec usec) noexcept {
+    t_n event_loop(p_logic logic, t_msec msec) noexcept {
       t_n    cnt {0};
       t_quit quit{false};
       do {
-        t_errn errn = wait_events(events_, infos_, usec);
+        t_errn errn = wait_events(events_, infos_, msec);
         if (errn == VALID) {
           if (!infos_.is_empty())
-            quit = process_events(infos_, logic, usec);
+            quit = process_events(infos_, logic, msec);
           else
-            quit = logic->notify_timeout(usec);
+            quit = logic->notify_timeout(msec);
         } else
           quit = logic->notify_error(errn);
         infos_.clear();
@@ -238,16 +238,16 @@ namespace event_dispatcher
       return cnt;
     }
 
-    t_n event_loop(r_err err, p_logic logic, t_usec usec) noexcept {
+    t_n event_loop(r_err err, p_logic logic, t_msec msec) noexcept {
       t_n    cnt {0};
       t_quit quit{false};
       do {
-        wait_events(err, events_, infos_, usec);
+        wait_events(err, events_, infos_, msec);
         if (!err) {
           if (!infos_.is_empty())
-            quit = process_events(infos_, logic, usec);
+            quit = process_events(infos_, logic, msec);
           else
-            quit = logic->notify_timeout(usec);
+            quit = logic->notify_timeout(msec);
         } else
           quit = logic->notify_error(t_errn(err.id()));
         infos_.clear();
@@ -308,8 +308,8 @@ namespace event_dispatcher
     }
 
     t_errn wait_events(r_events events, r_event_infos infos,
-                       t_usec usec) noexcept override {
-      auto verify = get(usec) ? epoll_.wait(epoll_events_, params.max, usec)
+                       t_msec msec) noexcept override {
+      auto verify = get(msec) ? epoll_.wait(epoll_events_, params.max, msec)
                               : epoll_.wait(epoll_events_, params.max);
       if (verify == VALID) {
         for (t_n_ cnt = 0; cnt < get(verify); ++cnt)
@@ -319,9 +319,9 @@ namespace event_dispatcher
     }
 
     t_void wait_events(r_err err, r_events events,
-                       r_event_infos infos, t_usec usec) noexcept override {
-      t_n_ n = get((get(usec) ?
-                      epoll_.wait(err, epoll_events_, params.max, usec) :
+                       r_event_infos infos, t_msec msec) noexcept override {
+      t_n_ n = get((get(msec) ?
+                      epoll_.wait(err, epoll_events_, params.max, msec) :
                       epoll_.wait(err, epoll_events_, params.max)));
       if (!err) {
         for (t_n_ cnt = 0; cnt < n; ++cnt)
@@ -472,16 +472,16 @@ namespace event_dispatcher
     return t_n{0};
   }
 
-  t_n t_dispatcher::event_loop(p_logic logic, t_usec usec) noexcept {
+  t_n t_dispatcher::event_loop(p_logic logic, t_msec msec) noexcept {
     if (*this == VALID)
-      return impl_->event_loop(logic, usec);
+      return impl_->event_loop(logic, msec);
     return t_n{0};
   }
 
-  t_n t_dispatcher::event_loop(t_err err, p_logic logic, t_usec usec) noexcept {
+  t_n t_dispatcher::event_loop(t_err err, p_logic logic, t_msec msec) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
-        return impl_->event_loop(err, logic, usec);
+        return impl_->event_loop(err, logic, msec);
       err = err::E_XXX;
     }
     return t_n{0};
