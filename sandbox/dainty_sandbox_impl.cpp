@@ -47,7 +47,7 @@ namespace sandbox
                    t_n max_logics) noexcept
       : name_      {name},
         params_    {params},
-        closefd_   {os::call_eventfd(err, t_n{1})},
+        closefd_   {os::call_eventfd(err, t_n{0})},
         dispatcher_{err, {t_n{100}, "epoll_service"}},
         logics_    {err, max_logics}  {
     ERR_GUARD(err) {
@@ -55,6 +55,7 @@ namespace sandbox
   }
 
   t_impl_::~t_impl_() {
+    os::call_close(closefd_); // replace later
     t_out{"t_impl_ dies graciously"};
   }
 
@@ -106,10 +107,10 @@ namespace sandbox
         logic_entry->spin_cnt_max = _cnt;
         logic_entry->spin_cnt     = 0;
 
-        if (!spin_cnt_)
+        if (!spin_cnt_ || get(logics_.get_size()) == 1)
           spin_cnt_ = _cnt;
         else
-          spin_cnt_ = 1; //XXX - can improve greatly - leave for later
+          spin_cnt_ = 1;
       } else
         disable_spin(ix);
     }
@@ -288,8 +289,8 @@ namespace sandbox
     }
   }
 
-  t_void t_impl_::notify_may_reorder(r_event_infos infos) noexcept {
-    t_out{"t_impl_::notify_may_reorder"};
+  t_void t_impl_::notify_reorder(r_event_infos infos) noexcept {
+    t_out{"t_impl_::notify_reorder"};
     //XXX
   }
 
@@ -301,8 +302,19 @@ namespace sandbox
 
   t_impl_::t_quit t_impl_::notify_timeout(t_msec msec) noexcept {
     t_out{"t_impl_::notify_timeout"};
-    // go through all those that want to wait
-    return t_quit{true}; //XXX
+    t_ix end_ix = to_ix(logics_.get_size());
+    for (t_ix ix{0}; ix < end_ix; ++set(ix)) {
+      auto logic_entry = logics_.get(ix);
+      if (logic_entry->spin_cnt_max) {
+        logic_entry->spin_cnt += spin_cnt_;
+        if (logic_entry->spin_cnt == logic_entry->spin_cnt_max) {
+          logic_entry->spin_cnt = 0;
+          logic_entry->logic->notify_spin(t_msec{spin_period_*
+                                                 logic_entry->spin_cnt_max});
+        }
+      }
+    }
+    return t_quit{false};
   }
 
   t_impl_::t_quit t_impl_::notify_error(t_errn errn) noexcept {
@@ -310,14 +322,16 @@ namespace sandbox
     return t_quit{true}; //XXX
   }
 
-  t_impl_::t_quit t_impl_::notify_all_processed(r_msec msec) noexcept {
-    t_out{"t_impl_::notify_all_processed"};
+  t_impl_::t_quit t_impl_::notify_processed(r_msec msec) noexcept {
+    t_out{"t_impl_::notify_processed"};
     msec = t_msec{spin_cnt_ * spin_period_};
+    t_out{FMT, "request timeout of %u miliseconds", get(msec)};
     return t_quit{false}; //XXX
   }
 
   t_impl_::t_action t_impl_::notify_event(r_event_params params) noexcept {
-    t_out{"t_impl_::notify_event -> event can only be close"};
+    t_out{FMT, "t_impl_::notify_event -> %d", get(params.fd)};
+
     return t_action{QUIT_EVENT_LOOP}; //XXX
   }
 

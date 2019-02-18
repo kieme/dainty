@@ -117,7 +117,6 @@ namespace sandbox
       // add t_tracer
       // must know its assigned fds
       // must know its assigned timers
-      // must know its spin if any.
       t_logic_entry_(p_logic _logic) : logic(_logic) { }
     };
     using t_logics_ = container::list::t_list<t_logic_entry_>;
@@ -132,12 +131,12 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_action notify_event        (r_event_params) noexcept override final;
-    t_void   notify_may_reorder  (r_event_infos)  noexcept override final;
-    t_void   notify_removed      (r_event_info)   noexcept override final;
-    t_quit   notify_timeout      (t_msec)         noexcept override final;
-    t_quit   notify_error        (t_errn)         noexcept override final;
-    t_quit   notify_all_processed(r_msec)         noexcept override final;
+    t_action notify_event    (r_event_params) noexcept override final;
+    t_void   notify_reorder  (r_event_infos)  noexcept override final;
+    t_void   notify_removed  (r_event_info)   noexcept override final;
+    t_quit   notify_timeout  (t_msec)         noexcept override final;
+    t_quit   notify_error    (t_errn)         noexcept override final;
+    t_quit   notify_processed(r_msec)         noexcept override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 
