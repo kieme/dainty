@@ -542,6 +542,20 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template<class T, class TAG, class V>
+  constexpr
+  t_bool operator==(t_explicit<T, TAG, V> lh, t_explicit<T, TAG, V> rh) {
+    return get(lh) == get(rh);
+  }
+
+  template<class T, class TAG, class V>
+  constexpr
+  t_bool operator!=(t_explicit<T, TAG, V> lh, t_explicit<T, TAG, V> rh) {
+    return get(lh) != get(rh);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<class> struct t_is_explicit_;
 
   template<class T, class TAG, class V>
