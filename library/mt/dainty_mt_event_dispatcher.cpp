@@ -198,8 +198,8 @@ namespace event_dispatcher
                 info->logic = next;
             } break;
             case REMOVE_EVENT:
-              del_event(info->id);
               logic->notify_removed(*info);
+              del_event(info->id);
               break;
             case QUIT_EVENT_LOOP:
               return QUIT;
