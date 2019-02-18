@@ -1815,12 +1815,12 @@ namespace message
       return nullptr;
     }
 
-    t_void notify_may_reorder(r_event_infos) noexcept override final {
-      t_out{"messaging: may_reorder_events"};
+    t_void notify_reorder(r_event_infos) noexcept override final {
+      t_out{"messaging: notify_reorder"};
     }
 
     t_void notify_removed(r_event_info) noexcept override final {
-      t_out{"messaging: notify_event_remove"};
+      t_out{"messaging: notify_removed"};
     }
 
     t_quit notify_timeout(t_usec) noexcept override final {
@@ -1833,8 +1833,8 @@ namespace message
       return QUIT;
     }
 
-    t_quit notify_all_processed(r_usec) noexcept override final {
-      t_out{"messaging: notify_all_processed"};
+    t_quit notify_processed(r_usec) noexcept override final {
+      t_out{"messaging: notify_processed"};
       data_.forward_msgs(msgs_);
       return DONT_QUIT;
     }
