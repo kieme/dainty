@@ -182,10 +182,9 @@ namespace event_dispatcher
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_quit process_events(r_event_infos infos, p_logic logic,
-                          r_msec msec) noexcept {
+    t_quit process_events(r_event_infos infos, p_logic logic) noexcept {
       if (!infos.is_empty()) {
-        logic->notify_may_reorder(infos);
+        logic->notify_reorder(infos);
         t_ix end_ix = to_ix(infos.get_size());
         for (t_ix ix{0}; ix < end_ix; ++set(ix)) {
           auto     info   = infos.get(ix);
@@ -200,14 +199,14 @@ namespace event_dispatcher
             } break;
             case REMOVE_EVENT:
               del_event(info->id);
+              logic->notify_removed(*info);
               break;
             case QUIT_EVENT_LOOP:
-              return t_quit{true};
+              return QUIT;
           }
         }
-        return logic->notify_all_processed(msec);
       }
-      return t_quit{false};
+      return DONT_QUIT;
     }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -227,11 +226,15 @@ namespace event_dispatcher
         t_errn errn = wait_events(events_, infos_, msec);
         if (errn == VALID) {
           if (!infos_.is_empty())
-            quit = process_events(infos_, logic, msec);
+            quit = process_events(infos_, logic);
           else
             quit = logic->notify_timeout(msec);
         } else
           quit = logic->notify_error(errn);
+
+        if (quit == DONT_QUIT)
+          quit = logic->notify_processed(msec);
+
         infos_.clear();
         ++set(cnt);
       } while (get(quit) != true);
@@ -245,11 +248,15 @@ namespace event_dispatcher
         wait_events(err, events_, infos_, msec);
         if (!err) {
           if (!infos_.is_empty())
-            quit = process_events(infos_, logic, msec);
+            quit = process_events(infos_, logic);
           else
             quit = logic->notify_timeout(msec);
         } else
           quit = logic->notify_error(t_errn(err.id()));
+
+        if (quit == DONT_QUIT)
+          quit = logic->notify_processed(msec);
+
         infos_.clear();
         ++set(cnt);
       } while (get(quit) != true);

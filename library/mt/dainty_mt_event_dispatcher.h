@@ -211,11 +211,11 @@ namespace event_dispatcher
 
       virtual ~t_logic() { }
 
-      virtual t_void notify_may_reorder  (r_event_infos) noexcept = 0;
-      virtual t_void notify_removed      (r_event_info)  noexcept = 0;
-      virtual t_quit notify_timeout      (t_msec)        noexcept = 0;
-      virtual t_quit notify_error        (t_errn)        noexcept = 0;
-      virtual t_quit notify_all_processed(r_msec)        noexcept = 0;
+      virtual t_void notify_reorder  (r_event_infos) noexcept = 0;
+      virtual t_void notify_removed  (r_event_info)  noexcept = 0;
+      virtual t_quit notify_timeout  (t_msec)        noexcept = 0;
+      virtual t_quit notify_error    (t_errn)        noexcept = 0;
+      virtual t_quit notify_processed(r_msec)        noexcept = 0;
     };
     using p_logic = t_prefix<t_logic>::p_;
 
