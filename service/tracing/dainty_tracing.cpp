@@ -891,7 +891,7 @@ namespace tracer
     }
 
     t_void notify_removed(r_event_info) noexcept override final {
-      t_out{"tracing: notify_event_remove"};
+      t_out{"tracing: notify_removed"};
     }
 
     t_quit notify_timeout(t_usec) noexcept override final {
@@ -909,7 +909,8 @@ namespace tracer
       return DONT_QUIT;
     }
 
-    t_action notify_event(r_event_params) noexcept override final {
+    t_action notify_event(t_event_id,
+                          r_event_params) noexcept override final {
       t_out{"tracing: notify_event"};
       return t_action{};
     }
@@ -1248,7 +1249,8 @@ namespace tracer
         : err_(err), action_(action), processor_(processor), logic_{logic} {
       }
 
-      t_action notify_event(r_event_params) noexcept override final {
+      t_action notify_event(t_event_id,
+                            r_event_params) noexcept override final {
         action_.cmd = CONTINUE;
         processor_.process(err_, logic_);
         return action_;
@@ -1268,7 +1270,8 @@ namespace tracer
         : err_(err), action_(action), processor_(processor), logic_{logic} {
       }
 
-      t_action notify_event(r_event_params) noexcept override final {
+      t_action notify_event(t_event_id,
+                            r_event_params) noexcept override final {
         action_.cmd = CONTINUE;
         processor_.process_available(err_, logic_);
         return action_;
