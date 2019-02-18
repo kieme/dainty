@@ -886,8 +886,8 @@ namespace tracer
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_void notify_may_reorder(r_event_infos) noexcept override final {
-      t_out{"tracing: may_reorder_events"};
+    t_void notify_reorder(r_event_infos) noexcept override final {
+      t_out{"tracing: reorder_events"};
     }
 
     t_void notify_removed(r_event_info) noexcept override final {
@@ -904,13 +904,13 @@ namespace tracer
       return QUIT;
     }
 
-    t_quit notify_all_processed(r_usec) noexcept override final {
-      t_out{"tracing: notify_all_processed"};
+    t_quit notify_processed(r_usec) noexcept override final {
+      t_out{"tracing: notify_processed"};
       return DONT_QUIT;
     }
 
     t_action notify_event(r_event_params) noexcept override final {
-      t_out{"tracing: notify_all_processed"};
+      t_out{"tracing: notify_event"};
       return t_action{};
     }
 
