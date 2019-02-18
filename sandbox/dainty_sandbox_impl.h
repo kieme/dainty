@@ -144,7 +144,8 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_action notify_event    (r_event_params) noexcept override final;
+    t_action notify_event    (t_event_id,
+                              r_event_params) noexcept override final;
     t_void   notify_reorder  (r_event_infos)  noexcept override final;
     t_void   notify_removed  (r_event_info)   noexcept override final;
     t_quit   notify_timeout  (t_msec)         noexcept override final;

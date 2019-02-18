@@ -225,7 +225,7 @@ namespace sandbox
   P_fdevent_params t_impl_::get_fdevent(t_ix ix,
                                         t_fdevent_id id)  const noexcept {
     // get the index && session id from id
-    auto result = fdevents_.get();
+    //auto result = fdevents_.get();
     return nullptr;
   }
 
@@ -353,7 +353,9 @@ namespace sandbox
     return t_quit{false};
   }
 
-  t_impl_::t_action t_impl_::notify_event(r_event_params params) noexcept {
+  t_impl_::t_action t_impl_::notify_event(t_event_id,
+                                          r_event_params params) noexcept {
+    // params - t_user determine why
     t_out{FMT, "t_impl_::notify_event -> %d", get(params.fd)};
     return t_action{QUIT_EVENT_LOOP}; //XXX
   }
