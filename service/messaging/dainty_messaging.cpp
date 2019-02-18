@@ -1839,7 +1839,8 @@ namespace message
       return DONT_QUIT;
     }
 
-    t_action notify_event(r_event_params params) noexcept override final {
+    t_action notify_event(t_event_id,
+                          r_event_params params) noexcept override final {
       t_out{"messaging: notify_event"}; // use this instead of proxy?
       return t_action{};
     }
@@ -2141,7 +2142,7 @@ namespace message
         : err_(err), ev_cmd_(ev_cmd), processor_(processor), logic_{logic} {
       }
 
-      virtual t_action notify_event(r_event_params) noexcept override {
+      t_action notify_event(t_event_id, r_event_params) noexcept override {
         ev_cmd_ = CONTINUE;
         processor_.process(err_, logic_);
         return ev_cmd_;
@@ -2161,7 +2162,7 @@ namespace message
         : err_(err), ev_cmd_(ev_cmd), processor_(processor), logic_{logic} {
       }
 
-      virtual t_action notify_event(r_event_params) noexcept override {
+      t_action notify_event(t_event_id, r_event_params) noexcept override {
         ev_cmd_ = CONTINUE;
         processor_.process_available(err_, logic_);
         return ev_cmd_;
