@@ -28,6 +28,7 @@ SOFTWARE.
 #define _DAINTY_SANDBOX_IMPL_H_
 
 #include "dainty_named.h"
+#include "dainty_named_utility.h"
 #include "dainty_mt_detached_thread.h"
 #include "dainty_mt_event_dispatcher.h"
 #include "dainty_sandbox.h"
@@ -40,6 +41,9 @@ namespace sandbox
 {
   using named::t_fd;
   using named::t_msec_;
+  using named::utility::x_cast;
+  using container::list::t_list;
+  using container::freelist::t_freelist;
 
   using t_thread_           = mt::detached_thread::t_thread;
   using t_dispatcher_       = mt::event_dispatcher::t_dispatcher;
@@ -108,28 +112,27 @@ namespace sandbox
     t_void register_logic(t_err, p_logic logic) noexcept;
 
   private:
-    struct t_fdevent_info_ {
-      // session id that is part of t_ix
-      // logic_ptr // what will be called
-      // logix     // owner by
-      // name
-      // params
-      // t_fdevent_notify_ptr ptr_;
+    struct t_fdevent_entry_ {
+      t_fdevent_name       name;
+      t_fdevent_params     params;
+      t_ix                 logic_ix   = t_ix{0};
+      t_ix                 session_ix = t_ix{0};
+      t_fdevent_notify_ptr notify_ptr;
     };
-    using t_fdevents = container::freelist::t_freelist<t_fdevent_info_, 100>;
+    using t_fdevents     = t_freelist<t_fdevent_entry_, 200>;
+    using t_fdevents_ixs = t_freelist<t_ix, 100>;
 
     struct t_logic_entry_ {
-      p_logic       logic        = nullptr;
-      t_spin_cnt_   spin_cnt     = 0;
-      t_spin_cnt_   spin_cnt_max = 0;
-      // list pointing into t_fdevents;
+      p_logic        logic        = nullptr;
+      t_spin_cnt_    spin_cnt     = 0;
+      t_spin_cnt_    spin_cnt_max = 0;
+      t_fdevents_ixs fds_ixs;
+
       // add t_messenger
       // add t_tracer
-      // must know its assigned fds
       // must know its assigned timers
-      t_logic_entry_(p_logic _logic) : logic(_logic) { }
     };
-    using t_logics_ = container::list::t_list<t_logic_entry_>;
+    using t_logics_ = t_list<t_logic_entry_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -155,10 +158,8 @@ namespace sandbox
     t_fd            closefd_;
     t_dispatcher_   dispatcher_;
     t_logics_       logics_;
-
-    // fds_;      // 200 - freelist
+    t_fdevents      fdevents_;
     // timers_;   // 120 - freelist
-    // spinning_; // number of logics_;
     t_spin_cnt_     spin_cnt_    = 0;
     t_msec_         spin_period_ = 10;
   };

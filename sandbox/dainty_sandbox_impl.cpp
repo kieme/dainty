@@ -84,14 +84,17 @@ namespace sandbox
       t_out{FMT, "register logic name - %s",
             get(logic->get_messenger_name().get_cstr())};
       t_ix pos = to_ix(logics_.get_size());
-      auto entry = logics_.push_back(err, logic);
+      auto entry = logics_.push_back(err);
+      if (entry) {
+       entry->logic = logic;
 
       // do everything you need
       // tracing service   - tracer
       // messaging service - messenger
 
-      entry->logic->ix_   = pos;
-      entry->logic->impl_ = this;
+        entry->logic->ix_   = pos;
+        entry->logic->impl_ = this;
+      }
     }
   }
 
@@ -126,7 +129,7 @@ namespace sandbox
       if (logics_.get(cnt)->spin_cnt_max)
         break;
 
-    if (cnt == end_ix) // XXX - simplistic
+    if (cnt == end_ix)
       spin_cnt_ = 0;
   }
 
@@ -176,18 +179,39 @@ namespace sandbox
   t_fdevent_id t_impl_::add_fdevent(t_err err, t_ix ix, R_fdevent_name name,
                                     R_fdevent_params params) noexcept {
     ERR_GUARD(err) {
-      // take entry from freelist
-      // assign fd
-    //XXX
+      auto logic_entry = logics_.get(ix);
+      if (!logic_entry->fds_ixs.is_full()) {
+        auto result = fdevents_.insert(err);
+        if (result) {
+          logic_entry->fds_ixs.insert(t_ix{get(result.id)});
+          // add dispatcher call
+          auto fd_entry    = result.ptr;
+          fd_entry->name   = name;
+          fd_entry->params = params;
+        }
+      } else
+        err = err::E_XXX;
     }
     return t_fdevent_id{0};
   }
 
   t_fdevent_id t_impl_::add_fdevent(t_err err, t_ix ix, R_fdevent_name name,
                                     R_fdevent_params params,
-                                    t_fdevent_notify_ptr ptr) noexcept {
+                                    t_fdevent_notify_ptr notify_ptr) noexcept {
     ERR_GUARD(err) {
-    //XXX
+      auto logic_entry = logics_.get(ix);
+      if (!logic_entry->fds_ixs.is_full()) {
+        auto result = fdevents_.insert(err);
+        if (result) {
+          logic_entry->fds_ixs.insert(t_ix{get(result.id)});
+          // add dispatcher call
+          auto fd_entry        = result.ptr;
+          fd_entry->name       = name;
+          fd_entry->params     = params;
+          fd_entry->notify_ptr = x_cast(notify_ptr);
+        }
+      } else
+        err = err::E_XXX;
     }
     return t_fdevent_id{0};
   }
@@ -200,7 +224,8 @@ namespace sandbox
 
   P_fdevent_params t_impl_::get_fdevent(t_ix ix,
                                         t_fdevent_id id)  const noexcept {
-    //XXX
+    // get the index && session id from id
+    auto result = fdevents_.get();
     return nullptr;
   }
 
