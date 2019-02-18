@@ -66,15 +66,11 @@ namespace sandbox
   struct t_timer_params {
   };
   using R_timer_params = t_prefix<t_timer_params>::R_;
-
-  struct t_timer_info {
-  };
-  using R_timer_info = t_prefix<t_timer_info>::R_;
-  using P_timer_info = t_prefix<t_timer_info>::P_;
+  using P_timer_params = t_prefix<t_timer_params>::P_;
 
   struct t_timer_notify {
     virtual ~t_timer_notify() { };
-    virtual t_void notify_timeout(t_timer_id, R_timer_info) noexcept = 0;
+    virtual t_void notify_timeout(t_timer_id, R_timer_params) noexcept = 0;
   };
   using p_timer_notify     = t_prefix<t_timer_notify>::p_;
   using t_timer_notify_ptr = t_passable_ptr<t_timer_notify>;
@@ -88,14 +84,11 @@ namespace sandbox
   struct t_fdevent_params {
   };
   using R_fdevent_params = t_prefix<t_fdevent_params>::R_;
-  struct t_fdevent_info {
-  };
-  using R_fdevent_info = t_prefix<t_fdevent_info>::R_;
-  using P_fdevent_info = t_prefix<t_fdevent_info>::P_;
+  using P_fdevent_params = t_prefix<t_fdevent_params>::P_;
 
   struct t_fdevent_notify {
     virtual ~t_fdevent_notify() { };
-    virtual t_void notify_fdevent(R_fdevent_info) noexcept = 0;
+    virtual t_void notify_fdevent(t_fdevent_id, R_fdevent_params) noexcept = 0;
   };
   using p_fdevent_notify     = t_prefix<t_fdevent_notify>::p_;
   using t_fdevent_notify_ptr = t_passable_ptr<t_fdevent_notify>;
@@ -133,7 +126,7 @@ namespace sandbox
     virtual t_void     restart_timer(t_err, t_timer_id,
                                      R_timer_params)        noexcept = 0;
     virtual t_timer_notify_ptr stop_timer(t_timer_id)       noexcept = 0;
-    virtual P_timer_info       get_timer (t_timer_id) const noexcept = 0;
+    virtual P_timer_params     get_timer (t_timer_id) const noexcept = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -143,7 +136,7 @@ namespace sandbox
                                             R_fdevent_params,
                                             x_fdevent_notify_ptr) noexcept = 0;
     virtual t_fdevent_notify_ptr del_fdevent(t_fdevent_id)        noexcept = 0;
-    virtual P_fdevent_info       get_fdevent(t_fdevent_id)  const noexcept = 0;
+    virtual P_fdevent_params     get_fdevent(t_fdevent_id)  const noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

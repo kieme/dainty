@@ -48,9 +48,9 @@ namespace sandbox
   public:
     virtual ~t_logic_notify() { }
 
-    virtual t_void notify_start  (t_err)         noexcept = 0;
-    virtual t_void notify_cleanup()              noexcept = 0;
-    virtual t_void notify_spin   (t_msec delta)  noexcept = 0;
+    virtual t_void notify_start  (t_err)   noexcept = 0;
+    virtual t_void notify_cleanup()        noexcept = 0;
+    virtual t_void notify_spin   (t_msec)  noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

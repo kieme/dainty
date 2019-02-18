@@ -168,7 +168,7 @@ namespace sandbox
     return {};
   }
 
-  P_timer_info t_impl_::get_timer(t_ix ix, t_timer_id id) const noexcept {
+  P_timer_params t_impl_::get_timer(t_ix ix, t_timer_id id) const noexcept {
     //XXX
     return nullptr;
   }
@@ -176,6 +176,8 @@ namespace sandbox
   t_fdevent_id t_impl_::add_fdevent(t_err err, t_ix ix, R_fdevent_name name,
                                     R_fdevent_params params) noexcept {
     ERR_GUARD(err) {
+      // take entry from freelist
+      // assign fd
     //XXX
     }
     return t_fdevent_id{0};
@@ -196,8 +198,8 @@ namespace sandbox
     return t_fdevent_notify_ptr{};
   }
 
-  P_fdevent_info t_impl_::get_fdevent(t_ix ix,
-                                      t_fdevent_id id)  const noexcept {
+  P_fdevent_params t_impl_::get_fdevent(t_ix ix,
+                                        t_fdevent_id id)  const noexcept {
     //XXX
     return nullptr;
   }
@@ -301,7 +303,6 @@ namespace sandbox
   }
 
   t_impl_::t_quit t_impl_::notify_timeout(t_msec msec) noexcept {
-    t_out{"t_impl_::notify_timeout"};
     t_ix end_ix = to_ix(logics_.get_size());
     for (t_ix ix{0}; ix < end_ix; ++set(ix)) {
       auto logic_entry = logics_.get(ix);
@@ -319,19 +320,16 @@ namespace sandbox
 
   t_impl_::t_quit t_impl_::notify_error(t_errn errn) noexcept {
     t_out{"t_impl_::notify_error - prepare to die"};
-    return t_quit{true}; //XXX
+    return t_quit{true};
   }
 
   t_impl_::t_quit t_impl_::notify_processed(r_msec msec) noexcept {
-    t_out{"t_impl_::notify_processed"};
     msec = t_msec{spin_cnt_ * spin_period_};
-    t_out{FMT, "request timeout of %u miliseconds", get(msec)};
-    return t_quit{false}; //XXX
+    return t_quit{false};
   }
 
   t_impl_::t_action t_impl_::notify_event(r_event_params params) noexcept {
     t_out{FMT, "t_impl_::notify_event -> %d", get(params.fd)};
-
     return t_action{QUIT_EVENT_LOOP}; //XXX
   }
 

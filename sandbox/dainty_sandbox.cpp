@@ -180,7 +180,7 @@ namespace sandbox
     return {nullptr, nullptr};
   }
 
-  P_timer_info t_logic::get_timer(t_timer_id id) const noexcept {
+  P_timer_params t_logic::get_timer(t_timer_id id) const noexcept {
     if (impl_)
       return impl_->get_timer(ix_, id);
     return nullptr;
@@ -213,7 +213,7 @@ namespace sandbox
     return t_fdevent_notify_ptr{};
   }
 
-  P_fdevent_info t_logic::get_fdevent(t_fdevent_id id) const noexcept {
+  P_fdevent_params t_logic::get_fdevent(t_fdevent_id id) const noexcept {
     if (impl_)
       return impl_->get_fdevent(ix_, id);
     return nullptr;

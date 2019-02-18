@@ -90,7 +90,7 @@ namespace sandbox
     t_void             restart_timer(t_err, t_ix, t_timer_id,
                                      R_timer_params)         noexcept;
     t_timer_notify_ptr stop_timer   (t_ix, t_timer_id)       noexcept;
-    P_timer_info       get_timer    (t_ix, t_timer_id) const noexcept;
+    P_timer_params     get_timer    (t_ix, t_timer_id) const noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -100,7 +100,7 @@ namespace sandbox
                                      R_fdevent_params,
                                      t_fdevent_notify_ptr)      noexcept;
     t_fdevent_notify_ptr del_fdevent(t_ix, t_fdevent_id)        noexcept;
-    P_fdevent_info       get_fdevent(t_ix, t_fdevent_id)  const noexcept;
+    P_fdevent_params     get_fdevent(t_ix, t_fdevent_id)  const noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -108,11 +108,21 @@ namespace sandbox
     t_void register_logic(t_err, p_logic logic) noexcept;
 
   private:
+    struct t_fdevent_info_ {
+      // session id that is part of t_ix
+      // logic_ptr // what will be called
+      // logix     // owner by
+      // name
+      // params
+      // t_fdevent_notify_ptr ptr_;
+    };
+    using t_fdevents = container::freelist::t_freelist<t_fdevent_info_, 100>;
+
     struct t_logic_entry_ {
       p_logic       logic        = nullptr;
       t_spin_cnt_   spin_cnt     = 0;
       t_spin_cnt_   spin_cnt_max = 0;
-
+      // list pointing into t_fdevents;
       // add t_messenger
       // add t_tracer
       // must know its assigned fds

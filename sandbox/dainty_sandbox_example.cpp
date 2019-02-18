@@ -68,6 +68,7 @@ public:
   t_void notify_start(t_err err) noexcept override final {
     ERR_GUARD(err) {
       t_out{"t_app_logic:start"};
+      enable_spin(err, t_spin_cnt{100});
     }
   }
 
@@ -75,15 +76,23 @@ public:
     t_out{"t_app_logic:cleanup"};
   }
 
-  t_void notify_spin(t_bool exipred, t_msec delta) noexcept override final {
-    t_out{"t_app_logic:notify_spin"};
+  t_void notify_spin(t_msec msec) noexcept override final {
+    t_out{FMT, "t_app_logic:notify_spin - msec %u", get(msec)};
+
+    t_err err;
+    static int cnt = 0;
+    switch (++cnt) {
+      case 10: enable_spin(err, t_spin_cnt{200});          break;
+      case 20: enable_spin(err, t_spin_cnt{400});          break;
+      case 30: enable_spin(err, t_spin_cnt{100}); cnt = 0; break;
+    }
   }
 
-  t_void notify_timeout(t_timer_id, R_timer_info) noexcept override final {
+  t_void notify_timeout(t_timer_id, R_timer_params) noexcept override final {
     t_out{"t_app_logic:notify_timer_timout"};
   }
 
-  t_void notify_fdevent(R_fdevent_info) noexcept override final {
+  t_void notify_fdevent(t_fdevent_id, R_fdevent_params) noexcept override final {
     t_out{"t_app_logic:notify_fdevent"};
   }
 
@@ -112,13 +121,13 @@ int main0() {
     t_err err;
     t_app0 app{err};
 
-    sleep(1);
-
-    while (!err) {
-      app.please_die();
-
-      sleep(5);
+    while (1) {
+      sleep(10);
     }
+
+    //app.please_die();
+
+    sleep(1);
 
     if (err) {
       err.print();
@@ -126,7 +135,7 @@ int main0() {
     }
   }
 
-  sleep(3);
+  sleep(2);
 
   t_out{"main0 is exiting"};
 
