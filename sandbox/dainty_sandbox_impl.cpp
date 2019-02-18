@@ -38,6 +38,8 @@ namespace sandbox
   using namespace dainty::named::terminal;
   using t_ix = named::t_ix;
   using named::utility::x_cast;
+  using mt::event_dispatcher::RD_EVENT;
+  using mt::event_dispatcher::QUIT_EVENT_LOOP;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +47,7 @@ namespace sandbox
                    t_n max_logics) noexcept
       : name_      {name},
         params_    {params},
+        closefd_   {os::call_eventfd(err, t_n{1})},
         dispatcher_{err, {t_n{100}, "epoll_service"}},
         logics_    {err, max_logics}  {
     ERR_GUARD(err) {
@@ -64,6 +67,7 @@ namespace sandbox
 
   t_void t_impl_::prepare(base1::t_err err) noexcept {
     ERR_GUARD(err) {
+      dispatcher_.add_event(err, {closefd_, RD_EVENT});
       // XXX - can use params_ for further preparation
     }
   }
@@ -90,8 +94,8 @@ namespace sandbox
     }
   }
 
-  t_fd t_impl_::get_dispatcher_fd() const noexcept {
-    return dispatcher_.get_fd_impl_();
+  t_fd t_impl_::get_close_fd() const noexcept {
+    return closefd_;
   }
 
   t_void t_impl_::enable_spin(t_err err, t_ix ix, t_spin_cnt cnt) noexcept {
@@ -269,7 +273,7 @@ namespace sandbox
     start_(err.tag(1));
     t_out{"t_impl_::enter event loop"};
     dispatcher_.event_loop(err.tag(2), this,
-                           t_usec{spin_cnt_ * 1000 * spin_period_});
+                           t_msec{spin_cnt_ * spin_period_});
     t_out{"t_impl_::leave event loop"};
     cleanup_(err.tag(3));
 
@@ -285,15 +289,18 @@ namespace sandbox
   }
 
   t_void t_impl_::notify_may_reorder(r_event_infos infos) noexcept {
+    t_out{"t_impl_::notify_may_reorder"};
     //XXX
   }
 
   t_void t_impl_::notify_removed(r_event_info info) noexcept {
+    t_out{"t_impl_::notify_removed"};
     // if a fd close it will be removed
     //XXX
   }
 
-  t_impl_::t_quit t_impl_::notify_timeout(t_usec usec) noexcept {
+  t_impl_::t_quit t_impl_::notify_timeout(t_msec msec) noexcept {
+    t_out{"t_impl_::notify_timeout"};
     // go through all those that want to wait
     return t_quit{true}; //XXX
   }
@@ -303,13 +310,15 @@ namespace sandbox
     return t_quit{true}; //XXX
   }
 
-  t_impl_::t_quit t_impl_::notify_all_processed(r_usec usec) noexcept {
-    usec = t_usec{spin_cnt_ * 1000 * spin_period_};
+  t_impl_::t_quit t_impl_::notify_all_processed(r_msec msec) noexcept {
+    t_out{"t_impl_::notify_all_processed"};
+    msec = t_msec{spin_cnt_ * spin_period_};
     return t_quit{false}; //XXX
   }
 
   t_impl_::t_action t_impl_::notify_event(r_event_params params) noexcept {
-    return t_action{}; //XXX
+    t_out{"t_impl_::notify_event -> event can only be close"};
+    return t_action{QUIT_EVENT_LOOP}; //XXX
   }
 
 ///////////////////////////////////////////////////////////////////////////////

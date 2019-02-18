@@ -74,11 +74,11 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_fd       get_dispatcher_fd() const noexcept;
-    t_void     enable_spin      (t_err, t_ix, t_spin_cnt) noexcept;
-    t_void     disable_spin     (t_ix)         noexcept;
-    t_spin_cnt get_spin_cnt     (t_ix)   const noexcept;
-    t_msec     get_spin_period  (t_ix)   const noexcept;
+    t_fd       get_close_fd   () const noexcept;
+    t_void     enable_spin    (t_err, t_ix, t_spin_cnt) noexcept;
+    t_void     disable_spin   (t_ix)         noexcept;
+    t_spin_cnt get_spin_cnt   (t_ix)   const noexcept;
+    t_msec     get_spin_period(t_ix)   const noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -135,14 +135,15 @@ namespace sandbox
     t_action notify_event        (r_event_params) noexcept override final;
     t_void   notify_may_reorder  (r_event_infos)  noexcept override final;
     t_void   notify_removed      (r_event_info)   noexcept override final;
-    t_quit   notify_timeout      (t_usec)         noexcept override final;
+    t_quit   notify_timeout      (t_msec)         noexcept override final;
     t_quit   notify_error        (t_errn)         noexcept override final;
-    t_quit   notify_all_processed(r_usec)         noexcept override final;
+    t_quit   notify_all_processed(r_msec)         noexcept override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 
     T_thread_name   name_;
     T_thread_params params_;
+    t_fd            closefd_;
     t_dispatcher_   dispatcher_;
     t_logics_       logics_;
 

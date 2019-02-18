@@ -225,7 +225,7 @@ namespace sandbox
                      R_params params) noexcept {
     ERR_GUARD(err) {
       auto impl = new t_single_impl_{err, name, params, x_cast(logic_ptr)};
-      t_id id{impl->get_dispatcher_fd()};
+      t_id id{impl->get_close_fd()};
       t_thread_ thread{err, name.get_cstr(), x_cast(impl)};
       if (!err)
         id_ = id;
@@ -236,7 +236,7 @@ namespace sandbox
                      R_params params) noexcept {
     ERR_GUARD(err) {
       auto impl = new t_shared_impl_{err, name, params, x_cast(list)};
-      t_id id{impl->get_dispatcher_fd()};
+      t_id id{impl->get_close_fd()};
       t_thread_ thread{err, name.get_cstr(), x_cast(impl)};
       if (!err)
         id_ = id;
@@ -257,7 +257,7 @@ namespace sandbox
                  R_params params) noexcept {
     ERR_GUARD(err) {
       t_single_impl_ impl{err, name, params, x_cast(logic)};
-      t_id id{impl.get_dispatcher_fd()};
+      t_id id{impl.get_close_fd()};
       t_thread_attr_ attr;
       call_pthread_init(err, attr);
       impl.update(err, attr);
@@ -273,7 +273,7 @@ namespace sandbox
                  R_params params) noexcept {
     ERR_GUARD(err) {
       t_shared_impl_ impl{err, name, params, x_cast(list)};
-      t_id id{impl.get_dispatcher_fd()};
+      t_id id{impl.get_close_fd()};
       t_thread_attr_ attr;
       call_pthread_init(err, attr);
       impl.update(err, attr);
@@ -390,7 +390,7 @@ namespace sandbox
   }
 
   t_sandbox::operator t_validity() const noexcept {
-    return get_id() != BAD_ID ? VALID : INVALID;
+    return get_id() != BAD_ID ? VALID : INVALID; // might need to test key
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -403,7 +403,8 @@ namespace sandbox
 
   t_void request_death(t_id id) noexcept {
     if (id != BAD_ID)
-      os::call_close(id);
+      os::call_close(id); // not safe. best is to use key.
+                          // so t_id will become key.
     else {
       t_out{"request death of a sandbox has failed"};
     }
