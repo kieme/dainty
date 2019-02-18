@@ -239,16 +239,16 @@ namespace fdbased
     return t_n(0);
   }
 
-  t_verify<t_n> t_epoll::wait(p_event event, t_n max, t_usec usec) noexcept {
+  t_verify<t_n> t_epoll::wait(p_event event, t_n max, t_msec msec) noexcept {
     if (fd_ != BAD_FD)
-      return call_epoll_wait(fd_, event, max, usec);
+      return call_epoll_wait(fd_, event, max, msec);
     return {t_n{0}, t_errn{-1}};
   }
 
-  t_n t_epoll::wait(t_err err, p_event event, t_n max, t_usec usec) noexcept {
+  t_n t_epoll::wait(t_err err, p_event event, t_n max, t_msec msec) noexcept {
     ERR_GUARD(err) {
       if (fd_ != BAD_FD)
-        return call_epoll_wait(err, fd_, event, max, usec);
+        return call_epoll_wait(err, fd_, event, max, msec);
       err = err::E_XXX;
     }
     return t_n(0);

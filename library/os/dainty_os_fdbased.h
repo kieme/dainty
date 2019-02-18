@@ -99,7 +99,7 @@ namespace fdbased
   class t_epoll final {
   public:
     using t_n          = named::t_n;
-    using t_usec       = named::t_usec;
+    using t_msec       = named::t_msec;
     using t_fd         = fdbased::t_fd;
     using t_event_mask = ::uint32_t;
     using t_event_data = ::epoll_data;
@@ -136,8 +136,8 @@ namespace fdbased
     t_verify<t_n> wait(       p_event, t_n max) noexcept;
     t_n           wait(t_err, p_event, t_n max) noexcept;
 
-    t_verify<t_n> wait(       p_event, t_n max, t_usec) noexcept;
-    t_n           wait(t_err, p_event, t_n max, t_usec) noexcept;
+    t_verify<t_n> wait(       p_event, t_n max, t_msec) noexcept;
+    t_n           wait(t_err, p_event, t_n max, t_msec) noexcept;
 
     template<t_n_ N>
     inline
@@ -153,14 +153,14 @@ namespace fdbased
 
     template<t_n_ N>
     inline
-    t_verify<t_n> wait(t_event (&event)[N], t_usec usec) noexcept {
-      return wait(event, t_n{N}, usec);
+    t_verify<t_n> wait(t_event (&event)[N], t_msec msec) noexcept {
+      return wait(event, t_n{N}, msec);
     }
 
     template<t_n_ N>
     inline
-    t_n wait(t_err err, t_event (&event)[N], t_usec usec) noexcept {
-      return wait(err, event, t_n{N}, usec);
+    t_n wait(t_err err, t_event (&event)[N], t_msec msec) noexcept {
+      return wait(err, event, t_n{N}, msec);
     }
 
   private:
