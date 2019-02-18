@@ -232,7 +232,6 @@ namespace event_dispatcher
     operator      t_validity  () const noexcept;
     t_params      get_params  () const noexcept;
     t_void        display     () const noexcept;
-    t_fd          get_fd_impl_() const noexcept;
 
     t_event_id    add_event(       R_event_params,
                                    p_event_logic = nullptr) noexcept;

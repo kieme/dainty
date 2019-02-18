@@ -84,10 +84,6 @@ namespace event_dispatcher
       return events_ == VALID && infos_ == VALID ? VALID : INVALID;
     }
 
-    virtual t_fd get_fd_impl_() const noexcept {
-      return BAD_FD;
-    }
-
 ///////////////////////////////////////////////////////////////////////////////
 
     virtual t_errn add_event(        r_event_info) noexcept = 0;
@@ -288,10 +284,6 @@ namespace event_dispatcher
              epoll_events_ && epoll_ == VALID ? VALID : INVALID;
     }
 
-    t_fd get_fd_impl_() const noexcept override {
-      return epoll_.get_fd();
-    }
-
     t_errn add_event(r_event_info info) noexcept override {
       t_epoll::t_event_data data;
       data.u32 = get(info.id);
@@ -395,12 +387,6 @@ namespace event_dispatcher
   t_void t_dispatcher::display() const noexcept {
     if (*this == VALID)
       impl_->display();
-  }
-
-  t_fd t_dispatcher::get_fd_impl_() const noexcept {
-    if (*this == VALID)
-      return impl_->get_fd_impl_();
-    return BAD_FD;
   }
 
   t_event_id t_dispatcher::add_event(R_event_params params,
