@@ -38,6 +38,9 @@ namespace ptr
 {
   using named::t_void;
   using named::utility::reset;
+  using named::t_validity;
+  using named::VALID;
+  using named::INVALID;
 
   template<typename T>
   inline t_void default_deleter(T* t) {
@@ -82,6 +85,9 @@ namespace ptr
 
     inline
     operator bool() const       { return ptr_;  }
+
+    inline
+    operator t_validity() const { return ptr_ ? VALID : INVALID;  }
 
     inline
     T* get()                    { return ptr_;  }
@@ -147,6 +153,9 @@ namespace ptr
 
     inline
     operator bool() const       { return ptr_;  }
+
+    inline
+    operator t_validity() const { return ptr_ ? VALID : INVALID;  }
 
     inline
     const T*  get() const       { return ptr_;  }
