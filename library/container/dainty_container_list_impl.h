@@ -384,6 +384,24 @@ namespace list
       }
     }
 
+    template<typename F>
+    t_ix_ find_if(P_store store, F& f) const {
+      for (t_ix_ ix = 0; ix < next_; ++ix)
+        if (f(store[ix].cref()))
+          return ix;
+      return next_;
+    }
+
+    template<typename F>
+    t_ix_ find_if(r_err err, P_store store, F& f) const {
+      ERR_GUARD(err) {
+        if (store)
+          return find_if(f);
+        err = err::E_INVALID_INST;
+      }
+      return next_;
+    }
+
   private:
     inline
     t_void move_up_(p_store store, t_ix_ ix, t_ix_ max) {

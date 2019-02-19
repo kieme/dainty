@@ -108,6 +108,12 @@ namespace list
     template<typename F> t_void ceach(       F) const;
     template<typename F> t_void ceach(t_err, F) const;
 
+    template<typename F> t_ix find_if(       F) const;
+    template<typename F> t_ix find_if(t_err, F) const;
+
+    t_ix begin() const;
+    t_ix end  () const;
+
   private:
     typename t_impl_::t_entry store_[N];
     t_impl_                   impl_;
@@ -178,6 +184,12 @@ namespace list
     template<typename F> t_void  each(t_err, F) const;
     template<typename F> t_void ceach(       F) const;
     template<typename F> t_void ceach(t_err, F) const;
+
+    template<typename F> t_ix find_if(       F) const;
+    template<typename F> t_ix find_if(t_err, F) const;
+
+    t_ix begin() const;
+    t_ix end  () const;
 
   private:
     t_n_                      max_;
@@ -416,6 +428,32 @@ namespace list
   inline
   t_void t_list<T, N>::ceach(t_err err, F f) const {
     impl_.each(err, store_, f);
+  }
+
+  template<typename T, t_n_ N>
+  template<typename F>
+  inline
+  t_ix t_list<T, N>::find_if(F f) const {
+    return t_ix{impl_.find_if(store_, f)};
+  }
+
+  template<typename T, t_n_ N>
+  template<typename F>
+  inline
+  t_ix t_list<T, N>::find_if(t_err err, F f) const {
+    return t_ix{impl_.find_if(err, store_, f)};
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  t_ix t_list<T, N>::begin() const {
+    return t_ix{0};
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  t_ix t_list<T, N>::end() const {
+    return t_ix{impl_.get_size()};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -669,6 +707,32 @@ namespace list
   inline
   t_void t_list<T, 0>::ceach(t_err err, F f) const {
     impl_.each(err, store_, f);
+  }
+
+  template<typename T>
+  template<typename F>
+  inline
+  t_ix t_list<T, 0>::find_if(F f) const {
+    return t_ix{impl_.find_if(store_, f)};
+  }
+
+  template<typename T>
+  template<typename F>
+  inline
+  t_ix t_list<T, 0>::find_if(t_err err, F f) const {
+    return t_ix{impl_.find_if(err, store_, f)};
+  }
+
+  template<typename T>
+  inline
+  t_ix t_list<T, 0>::begin() const {
+    return t_ix{0};
+  }
+
+  template<typename T>
+  inline
+  t_ix t_list<T, 0>::end() const {
+    return t_ix{impl_.get_size()};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
