@@ -30,6 +30,7 @@ SOFTWARE.
 #include "dainty_named.h"
 #include "dainty_named_string.h"
 #include "dainty_container_ptr.h"
+#include "dainty_mt_event_dispatcher.h"
 #include "dainty_sandbox_err.h"
 #include "dainty_sandbox_logic_stats.h"
 
@@ -40,9 +41,12 @@ namespace dainty
 namespace sandbox
 {
   using t_err = err::t_err;
+  using named::t_fd;
   using named::t_msec;
   using named::t_void;
   using named::t_bool;
+  using named::t_prefix;
+  using named::t_explicit;
   using named::string::t_string;
   using container::ptr::t_passable_ptr;
 
@@ -78,10 +82,26 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_fdevent_id   = named::t_int;
-  using t_fdevent_name = named::t_int;
+  using t_fdevent_type                   = mt::event_dispatcher::t_event_type;
+  constexpr t_fdevent_type FDEVENT_READ  = mt::event_dispatcher::RD_EVENT;
+  constexpr t_fdevent_type FDEVENT_WRITE = mt::event_dispatcher::WR_EVENT;
+
+  enum  t_fdevent_id_tag_ {};
+  using t_fdevent_id_  = named::t_int;
+  using t_fdevent_id   = t_explicit<t_fdevent_id_, t_fdevent_id_tag_>;
+
+  enum  t_fdevent_name_tag_ {};
+  using t_fdevent_name = t_string<t_fdevent_name_tag_, 20>;
   using R_fdevent_name = t_prefix<t_fdevent_name>::R_;
+
+  using t_fdevent_user = mt::event_dispatcher::t_event_user;
+  using t_fdevent_prio = mt::event_dispatcher::t_event_prio;
+
   struct t_fdevent_params {
+    t_fd           fd   = {named::BAD_FD};
+    t_fdevent_type type = FDEVENT_READ;
+    t_fdevent_prio prio = t_fdevent_prio{0};
+    t_fdevent_user user;
   };
   using R_fdevent_params = t_prefix<t_fdevent_params>::R_;
   using P_fdevent_params = t_prefix<t_fdevent_params>::P_;

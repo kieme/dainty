@@ -40,6 +40,7 @@ namespace sandbox
   using named::utility::x_cast;
   using mt::event_dispatcher::RD_EVENT;
   using mt::event_dispatcher::QUIT_EVENT_LOOP;
+  using mt::event_dispatcher::CONTINUE;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -59,22 +60,8 @@ namespace sandbox
     t_out{"t_impl_ dies graciously"};
   }
 
-  t_void t_impl_::update(base1::t_err err,
-                         base1::r_pthread_attr attr) noexcept {
-    ERR_GUARD(err) {
-      // XXX - can use params_ to set attr
-    }
-  }
-
-  t_void t_impl_::prepare(base1::t_err err) noexcept {
-    ERR_GUARD(err) {
-      dispatcher_.add_event(err, {closefd_, RD_EVENT});
-      // XXX - can use params_ for further preparation
-    }
-  }
-
-  t_void t_impl_::run() noexcept {
-    event_loop_();
+  t_fd t_impl_::get_close_fd() const noexcept {
+    return closefd_;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,9 +75,8 @@ namespace sandbox
       if (entry) {
        entry->logic = logic;
 
-      // do everything you need
-      // tracing service   - tracer
-      // messaging service - messenger
+       // tracing service   - tracer
+       // messaging service - messenger
 
         entry->logic->ix_   = pos;
         entry->logic->impl_ = this;
@@ -98,9 +84,7 @@ namespace sandbox
     }
   }
 
-  t_fd t_impl_::get_close_fd() const noexcept {
-    return closefd_;
-  }
+///////////////////////////////////////////////////////////////////////////////
 
   t_void t_impl_::enable_spin(t_err err, t_ix ix, t_spin_cnt cnt) noexcept {
     ERR_GUARD(err) {
@@ -142,6 +126,8 @@ namespace sandbox
     return t_msec{spin_period_};
   }
 
+///////////////////////////////////////////////////////////////////////////////
+
   t_timer_id t_impl_::start_timer(t_err err, t_ix ix, R_timer_name name,
                                   R_timer_params params) noexcept {
     ERR_GUARD(err) {
@@ -176,18 +162,31 @@ namespace sandbox
     return nullptr;
   }
 
+///////////////////////////////////////////////////////////////////////////////
+
   t_fdevent_id t_impl_::add_fdevent(t_err err, t_ix ix, R_fdevent_name name,
                                     R_fdevent_params params) noexcept {
     ERR_GUARD(err) {
       auto logic_entry = logics_.get(ix);
-      if (!logic_entry->fds_ixs.is_full()) {
+      if (!logic_entry->fds_ids.is_full()) {
         auto result = fdevents_.insert(err);
         if (result) {
-          logic_entry->fds_ixs.insert(t_ix{get(result.id)});
-          // add dispatcher call
-          auto fd_entry    = result.ptr;
-          fd_entry->name   = name;
-          fd_entry->params = params;
+          t_fdevent_id id = mk_(result.id, generate_fdevent_session_id_());
+          auto ev_id = dispatcher_.add_event(err, {params.fd,
+                                                   params.type,
+                                                   params.prio,
+                                                   get(id)});
+          if (!err) {
+            auto fd_entry      = result.ptr;
+            fd_entry->logic_ix = ix;
+            fd_entry->name     = name;
+            fd_entry->params   = params;
+            fd_entry->ev_id    = ev_id;
+            fd_entry->id       = id;
+            logic_entry->fds_ids.push_back(id);
+            return id;
+          }
+          fdevents_.erase(result.id);
         }
       } else
         err = err::E_XXX;
@@ -200,15 +199,26 @@ namespace sandbox
                                     t_fdevent_notify_ptr notify_ptr) noexcept {
     ERR_GUARD(err) {
       auto logic_entry = logics_.get(ix);
-      if (!logic_entry->fds_ixs.is_full()) {
+      if (!logic_entry->fds_ids.is_full()) {
         auto result = fdevents_.insert(err);
         if (result) {
-          logic_entry->fds_ixs.insert(t_ix{get(result.id)});
-          // add dispatcher call
-          auto fd_entry        = result.ptr;
-          fd_entry->name       = name;
-          fd_entry->params     = params;
-          fd_entry->notify_ptr = x_cast(notify_ptr);
+          t_fdevent_id id = mk_(result.id, generate_fdevent_session_id_());
+          auto ev_id = dispatcher_.add_event(err, {params.fd,
+                                                   params.type,
+                                                   params.prio,
+                                                   get(id)});
+          if (!err) {
+            auto fd_entry        = result.ptr;
+            fd_entry->logic_ix   = ix;
+            fd_entry->name       = name;
+            fd_entry->params     = params;
+            fd_entry->ev_id      = ev_id;
+            fd_entry->notify_ptr = x_cast(notify_ptr);
+            fd_entry->id         = id;
+            logic_entry->fds_ids.push_back(id);
+            return id;
+          }
+          fdevents_.erase(result.id);
         }
       } else
         err = err::E_XXX;
@@ -217,15 +227,35 @@ namespace sandbox
   }
 
   t_fdevent_notify_ptr t_impl_::del_fdevent(t_ix ix,
-                                           t_fdevent_id id) noexcept {
-    //XXX
-    return t_fdevent_notify_ptr{};
+                                            t_fdevent_id id) noexcept {
+    t_fdevent_notify_ptr tmp;
+    auto entry_id = get_id_(id);
+    auto fd_entry = fdevents_.get(entry_id);
+
+    if (fd_entry && id == fd_entry->id && ix == fd_entry->logic_ix) {
+      dispatcher_.del_event(fd_entry->ev_id);
+
+      if (fd_entry->notify_ptr == VALID)
+        tmp = x_cast(fd_entry->notify_ptr);
+
+      auto logic_entry = logics_.get(ix);
+      logic_entry->fds_ids.erase(
+        logic_entry->fds_ids.find_if(
+          [&id](auto& _id) -> t_bool { return id == _id; }));
+
+      fdevents_.erase(entry_id);
+    }
+    return tmp;
   }
 
   P_fdevent_params t_impl_::get_fdevent(t_ix ix,
-                                        t_fdevent_id id)  const noexcept {
-    // get the index && session id from id
-    //auto result = fdevents_.get();
+                                        t_fdevent_id id) const noexcept {
+    auto entry_id = get_id_(id);
+    auto fd_entry = fdevents_.get(entry_id);
+
+    if (fd_entry && id == fd_entry->id && ix == fd_entry->logic_ix)
+      return &fd_entry->params;
+
     return nullptr;
   }
 
@@ -295,26 +325,46 @@ namespace sandbox
     }
   }
 
-  t_void t_impl_::event_loop_() noexcept {
-    t_err err;
+///////////////////////////////////////////////////////////////////////////////
 
-    start_(err.tag(1));
-    t_out{"t_impl_::enter event loop"};
-    dispatcher_.event_loop(err.tag(2), this,
-                           t_msec{spin_cnt_ * spin_period_});
-    t_out{"t_impl_::leave event loop"};
-    cleanup_(err.tag(3));
+  t_freelist_entry_id_ t_impl_::generate_fdevent_session_id_() {
+    return 0;
+  }
 
-    if (err) {
-      switch (err.tag()) {
-        case 1: { t_out{"failed in tag(1)"}; } break;
-        case 2: { t_out{"failed in tag(2)"}; } break;
-        case 3: { t_out{"failed in tag(3)"}; } break;
-      }
-      err.print();
-      err.clear();
+  // should not be class methods  change later
+  t_fdevent_id t_impl_::mk_(t_fdevents_entry_id_, t_freelist_entry_id_) const {
+    return t_fdevent_id{0};
+  }
+
+   t_impl_::t_fdevents_entry_id_ t_impl_::get_id_(t_fdevent_id) const {
+    return t_fdevents_entry_id_{0};
+  }
+
+  t_freelist_entry_id_ t_impl_::get_session_id_(t_fdevent_id) const {
+    return 0;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_impl_::update(base1::t_err err,
+                         base1::r_pthread_attr attr) noexcept {
+    ERR_GUARD(err) {
+      // XXX - can use params_ to set attr
     }
   }
+
+  t_void t_impl_::prepare(base1::t_err err) noexcept {
+    ERR_GUARD(err) {
+      dispatcher_.add_event(err, {closefd_, RD_EVENT});
+      // XXX - can use params_ for further preparation
+    }
+  }
+
+  t_void t_impl_::run() noexcept {
+    event_loop_();
+  }
+
+///////////////////////////////////////////////////////////////////////////////
 
   t_void t_impl_::notify_reorder(r_event_infos infos) noexcept {
     t_out{"t_impl_::notify_reorder"};
@@ -353,11 +403,44 @@ namespace sandbox
     return t_quit{false};
   }
 
-  t_impl_::t_action t_impl_::notify_event(t_event_id,
+  t_impl_::t_action t_impl_::notify_event(t_event_id ev_id,
                                           r_event_params params) noexcept {
-    // params - t_user determine why
-    t_out{FMT, "t_impl_::notify_event -> %d", get(params.fd)};
-    return t_action{QUIT_EVENT_LOOP}; //XXX
+    t_fdevent_id id(params.user.id); // seession ddata in it too
+    auto entry_id = get_id_(id);
+    auto fd_entry = fdevents_.get(entry_id);
+
+    if (fd_entry && fd_entry->id == id) {
+       if (fd_entry->notify_ptr == VALID)
+         fd_entry->notify_ptr->notify_fdevent(id, fd_entry->params);
+       else {
+         auto logic_entry = logics_.get(fd_entry->logic_ix);
+         logic_entry->logic->notify_fdevent(id, fd_entry->params);
+      }
+    } else {
+      t_out{"this should never happen - recv unknown event"};
+    }
+    return t_action{CONTINUE};
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_impl_::event_loop_() noexcept {
+    t_err err;
+
+    start_(err.tag(1));
+    dispatcher_.event_loop(err.tag(2), this,
+                           t_msec{spin_cnt_ * spin_period_});
+    cleanup_(err.tag(3));
+
+    if (err) {
+      switch (err.tag()) {
+        case 1: { t_out{"failed in tag(1)"}; } break;
+        case 2: { t_out{"failed in tag(2)"}; } break;
+        case 3: { t_out{"failed in tag(3)"}; } break;
+      }
+      err.print();
+      err.clear();
+    }
   }
 
 ///////////////////////////////////////////////////////////////////////////////

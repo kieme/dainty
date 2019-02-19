@@ -44,11 +44,14 @@ namespace sandbox
   using named::utility::x_cast;
   using container::list::t_list;
   using container::freelist::t_freelist;
+  using mt::event_dispatcher::BAD_EVENT_ID;
 
-  using t_thread_           = mt::detached_thread::t_thread;
-  using t_dispatcher_       = mt::event_dispatcher::t_dispatcher;
-  using t_thread_logic_     = t_thread_::t_logic;
-  using t_thread_logic_ptr_ = t_thread_::t_logic_ptr;
+  using t_freelist_entry_id  = container::freelist::t_id;
+  using t_freelist_entry_id_ = container::freelist::t_id_;
+  using t_thread_            = mt::detached_thread::t_thread;
+  using t_dispatcher_        = mt::event_dispatcher::t_dispatcher;
+  using t_thread_logic_      = t_thread_::t_logic;
+  using t_thread_logic_ptr_  = t_thread_::t_logic_ptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -115,19 +118,20 @@ namespace sandbox
     struct t_fdevent_entry_ {
       t_fdevent_name       name;
       t_fdevent_params     params;
-      t_ix                 logic_ix   = t_ix{0};
-      t_ix                 session_ix = t_ix{0};
+      t_ix                 logic_ix = t_ix{0};
+      t_event_id           ev_id    = BAD_EVENT_ID;
+      t_fdevent_id         id       = t_fdevent_id{0};
       t_fdevent_notify_ptr notify_ptr;
     };
-    using t_fdevents     = t_freelist<t_fdevent_entry_, 200>;
-    using t_fdevents_ixs = t_freelist<t_ix, 100>;
+    using t_fdevents_          = t_freelist<t_fdevent_entry_, 200>;
+    using t_fdevents_entry_id_ = t_fdevents_::t_id;
+    using t_fdevents_ids_      = t_list<t_fdevent_id, 100>;
 
     struct t_logic_entry_ {
-      p_logic        logic        = nullptr;
-      t_spin_cnt_    spin_cnt     = 0;
-      t_spin_cnt_    spin_cnt_max = 0;
-      t_fdevents_ixs fds_ixs;
-
+      p_logic         logic        = nullptr;
+      t_spin_cnt_     spin_cnt     = 0;
+      t_spin_cnt_     spin_cnt_max = 0;
+      t_fdevents_ids_ fds_ids;
       // add t_messenger
       // add t_tracer
       // must know its assigned timers
@@ -154,12 +158,20 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
+    t_freelist_entry_id_ generate_fdevent_session_id_();
+    t_fdevent_id         mk_(t_fdevents_entry_id_, t_freelist_entry_id_) const;
+    t_fdevents_entry_id_ get_id_        (t_fdevent_id) const;
+    t_freelist_entry_id_ get_session_id_(t_fdevent_id) const;
+
+///////////////////////////////////////////////////////////////////////////////
+
+
     T_thread_name   name_;
     T_thread_params params_;
     t_fd            closefd_;
     t_dispatcher_   dispatcher_;
     t_logics_       logics_;
-    t_fdevents      fdevents_;
+    t_fdevents_     fdevents_;
     // timers_;   // 120 - freelist
     t_spin_cnt_     spin_cnt_    = 0;
     t_msec_         spin_period_ = 10;
