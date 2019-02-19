@@ -642,20 +642,11 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  // only support very limited operators for t_n because of its massive use.
-
-  constexpr t_bool operator==(t_n lh, t_n rh)    { return get(lh) == get(rh); }
-  constexpr t_bool operator!=(t_n lh, t_n rh)    { return get(lh) != get(rh); }
   constexpr t_bool operator< (t_n lh, t_n rh)    { return get(lh) < get(rh);  }
   constexpr t_bool operator<=(t_n lh, t_n rh)    { return get(lh) <= get(rh); }
 
-  constexpr t_bool operator==(t_ix lh, t_ix rh)  { return get(lh) == get(rh); }
-  constexpr t_bool operator!=(t_ix lh, t_ix rh)  { return get(lh) != get(rh); }
   constexpr t_bool operator< (t_ix lh, t_ix rh)  { return get(lh) < get(rh);  }
   constexpr t_bool operator<=(t_ix lh, t_ix rh)  { return get(lh) <= get(rh); }
-
-  constexpr t_bool operator==(t_fd lh, t_fd rh)  { return get(lh) == get(rh); }
-  constexpr t_bool operator!=(t_fd lh, t_fd rh)  { return !(lh == rh);        }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -747,7 +738,8 @@ namespace named
     union {
       t_int64 id;
       p_void  ptr;
-      P_void cptr;
+      P_void  cptr;
+      t_char  buf[sizeof(t_int64)]; // 8 bytes
     };
     t_user() : id(0) { }
     inline t_user(t_int64  _id) :   id(_id)   { }
