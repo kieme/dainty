@@ -1,4 +1,4 @@
-g++ -Wall -o run dainty_sandbox_example.cpp \
+g++ -Wall -o run dainty_sandbox_example1.cpp \
                  dainty_sandbox.cpp         \
                  dainty_sandbox_err.cpp     \
                  dainty_sandbox_impl.cpp    \
