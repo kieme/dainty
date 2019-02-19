@@ -111,8 +111,8 @@ namespace list
     template<typename F> t_ix find_if(       F) const;
     template<typename F> t_ix find_if(t_err, F) const;
 
-    t_ix begin() const;
-    t_ix end  () const;
+    t_ix begin_ix() const;
+    t_ix end_ix  () const;
 
   private:
     typename t_impl_::t_entry store_[N];
@@ -188,8 +188,8 @@ namespace list
     template<typename F> t_ix find_if(       F) const;
     template<typename F> t_ix find_if(t_err, F) const;
 
-    t_ix begin() const;
-    t_ix end  () const;
+    t_ix begin_ix() const;
+    t_ix end_ix  () const;
 
   private:
     t_n_                      max_;
@@ -446,13 +446,13 @@ namespace list
 
   template<typename T, t_n_ N>
   inline
-  t_ix t_list<T, N>::begin() const {
+  t_ix t_list<T, N>::begin_ix() const {
     return t_ix{0};
   }
 
   template<typename T, t_n_ N>
   inline
-  t_ix t_list<T, N>::end() const {
+  t_ix t_list<T, N>::end_ix() const {
     return t_ix{impl_.get_size()};
   }
 
@@ -725,13 +725,13 @@ namespace list
 
   template<typename T>
   inline
-  t_ix t_list<T, 0>::begin() const {
+  t_ix t_list<T, 0>::begin_ix() const {
     return t_ix{0};
   }
 
   template<typename T>
   inline
-  t_ix t_list<T, 0>::end() const {
+  t_ix t_list<T, 0>::end_ix() const {
     return t_ix{impl_.get_size()};
   }
 
