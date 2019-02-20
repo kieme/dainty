@@ -28,6 +28,7 @@ SOFTWARE.
 #include "dainty_named_terminal.h"
 #include "dainty_mt_event.h"
 #include "dainty_sandbox.h"
+#include "dainty_mt_timers.h"
 
 using namespace dainty::named;
 using namespace dainty::named::utility;
@@ -95,7 +96,7 @@ public:
   }
 
   t_void notify_async_cnt(t_event_cnt cnt) {
-    t_out{FMT, "t_app_logic:cnt-%d", get(cnt)};
+    t_out{FMT, "t_app_logic:cnt-%lu", get(cnt)};
   }
 
 private:

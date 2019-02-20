@@ -62,7 +62,7 @@ namespace sandbox
     t_logic_ext() = delete;
     t_logic_ext(r_logic_ext) = delete;
     t_logic_ext(x_logic_ext) = delete;
-    r_logic_ext operator=(r_logic_ext)  = delete;
+    r_logic_ext operator=(r_logic_ext) = delete;
     r_logic_ext operator=(x_logic_ext) = delete;
 
     R_extension_name get_name () const noexcept override final;

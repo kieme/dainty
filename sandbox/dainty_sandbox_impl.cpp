@@ -366,18 +366,18 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_void t_impl_::notify_reorder(r_event_infos infos) noexcept {
+  t_void t_impl_::notify_dispatcher_reorder(r_event_infos infos) noexcept {
     t_out{"t_impl_::notify_reorder"};
     //XXX
   }
 
-  t_void t_impl_::notify_removed(r_event_info info) noexcept {
+  t_void t_impl_::notify_dispatcher_removed(r_event_info info) noexcept {
     t_out{"t_impl_::notify_removed"};
     // if a fd close it will be removed
     //XXX
   }
 
-  t_impl_::t_quit t_impl_::notify_timeout(t_msec msec) noexcept {
+  t_impl_::t_quit t_impl_::notify_dispatcher_timeout(t_msec msec) noexcept {
     t_ix end_ix = to_ix(logics_.get_size());
     for (t_ix ix{0}; ix < end_ix; ++set(ix)) {
       auto logic_entry = logics_.get(ix);
@@ -393,18 +393,18 @@ namespace sandbox
     return t_quit{false};
   }
 
-  t_impl_::t_quit t_impl_::notify_error(t_errn errn) noexcept {
+  t_impl_::t_quit t_impl_::notify_dispatcher_error(t_errn errn) noexcept {
     t_out{"t_impl_::notify_error - prepare to die"};
     return t_quit{true};
   }
 
-  t_impl_::t_quit t_impl_::notify_processed(r_msec msec) noexcept {
+  t_impl_::t_quit t_impl_::notify_dispatcher_processed(r_msec msec) noexcept {
     msec = t_msec{spin_cnt_ * spin_period_};
     return t_quit{false};
   }
 
-  t_impl_::t_action t_impl_::notify_event(t_event_id ev_id,
-                                          r_event_params params) noexcept {
+  t_impl_::t_action t_impl_::notify_dispatcher_event(t_event_id ev_id,
+                                                     r_event_params params) noexcept {
     t_fdevent_id id(params.user.id); // seession ddata in it too
     auto entry_id = get_id_(id);
     auto fd_entry = fdevents_.get(entry_id);

@@ -148,13 +148,13 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_action notify_event    (t_event_id,
-                              r_event_params) noexcept override final;
-    t_void   notify_reorder  (r_event_infos)  noexcept override final;
-    t_void   notify_removed  (r_event_info)   noexcept override final;
-    t_quit   notify_timeout  (t_msec)         noexcept override final;
-    t_quit   notify_error    (t_errn)         noexcept override final;
-    t_quit   notify_processed(r_msec)         noexcept override final;
+    t_action notify_dispatcher_event    (t_event_id,
+                                         r_event_params) noexcept override final;
+    t_void   notify_dispatcher_reorder  (r_event_infos)  noexcept override final;
+    t_void   notify_dispatcher_removed  (r_event_info)   noexcept override final;
+    t_quit   notify_dispatcher_timeout  (t_msec)         noexcept override final;
+    t_quit   notify_dispatcher_error    (t_errn)         noexcept override final;
+    t_quit   notify_dispatcher_processed(r_msec)         noexcept override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 
