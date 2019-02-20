@@ -76,6 +76,10 @@ namespace timers
 
   class t_timer_logic {
   public:
+    using t_timer_id     = timers::t_timer_id;
+    using t_timer_params = timers::t_timer_params;
+    using R_timer_params = timers::R_timer_params;
+
     virtual ~t_timer_logic() { };
     virtual t_void notify_timers_timeout(t_timer_id,
                                          R_timer_params) noexcept = 0;
@@ -114,7 +118,8 @@ namespace timers
   public:
     class t_logic : public t_timer_logic {
     public:
-      // error
+      using t_errn = timers::t_errn;
+
       virtual t_void notify_timers_error    (t_errn) noexcept = 0;
       virtual t_void notify_timers_processed()       noexcept = 0;
     };
