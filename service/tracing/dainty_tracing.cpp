@@ -886,32 +886,32 @@ namespace tracer
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_void notify_reorder(r_event_infos) noexcept override final {
-      t_out{"tracing: reorder_events"};
+    t_void notify_dispatcher_reorder(r_event_infos) noexcept override final {
+      t_out{"tracing: notify_dispatcher_reorder"};
     }
 
-    t_void notify_removed(r_event_info) noexcept override final {
-      t_out{"tracing: notify_removed"};
+    t_void notify_dispatcher_removed(r_event_info) noexcept override final {
+      t_out{"tracing: notify_dispatcher_removed"};
     }
 
-    t_quit notify_timeout(t_usec) noexcept override final {
-      t_out{"tracing: notify_timeout"};
+    t_quit notify_dispatcher_timeout(t_usec) noexcept override final {
+      t_out{"tracing: notify_dispatcher_timeout"};
       return QUIT;
     }
 
-    t_quit notify_error(t_errn) noexcept override final {
-      t_out{"tracing: notify_error"};
+    t_quit notify_dispatcher_error(t_errn) noexcept override final {
+      t_out{"tracing: notify_dispatcher_error"};
       return QUIT;
     }
 
-    t_quit notify_processed(r_usec) noexcept override final {
-      t_out{"tracing: notify_processed"};
+    t_quit notify_dispatcher_processed(r_usec) noexcept override final {
+      t_out{"tracing: notify_dispatcher_processed"};
       return DONT_QUIT;
     }
 
-    t_action notify_event(t_event_id,
-                          r_event_params) noexcept override final {
-      t_out{"tracing: notify_event"};
+    t_action notify_dispatcher_event(t_event_id,
+                                     r_event_params) noexcept override final {
+      t_out{"tracing: notify_dispatcher_event"};
       return t_action{};
     }
 
@@ -1249,8 +1249,8 @@ namespace tracer
         : err_(err), action_(action), processor_(processor), logic_{logic} {
       }
 
-      t_action notify_event(t_event_id,
-                            r_event_params) noexcept override final {
+      t_action notify_dispatcher_event(t_event_id,
+                                       r_event_params) noexcept override final {
         action_.cmd = CONTINUE;
         processor_.process(err_, logic_);
         return action_;
@@ -1270,8 +1270,8 @@ namespace tracer
         : err_(err), action_(action), processor_(processor), logic_{logic} {
       }
 
-      t_action notify_event(t_event_id,
-                            r_event_params) noexcept override final {
+      t_action notify_dispatcher_event(t_event_id,
+                                       r_event_params) noexcept override final {
         action_.cmd = CONTINUE;
         processor_.process_available(err_, logic_);
         return action_;
