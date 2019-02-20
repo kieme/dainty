@@ -1815,33 +1815,33 @@ namespace message
       return nullptr;
     }
 
-    t_void notify_reorder(r_event_infos) noexcept override final {
-      t_out{"messaging: notify_reorder"};
+    t_void notify_dispatcher_reorder(r_event_infos) noexcept override final {
+      t_out{"messaging: notify_dispatcher_reorder"};
     }
 
-    t_void notify_removed(r_event_info) noexcept override final {
-      t_out{"messaging: notify_removed"};
+    t_void notify_dispatcher_removed(r_event_info) noexcept override final {
+      t_out{"messaging: notify_dispatcher_removed"};
     }
 
-    t_quit notify_timeout(t_usec) noexcept override final {
-      t_out{"messaging: notify_timeout"};
+    t_quit notify_dispatcher_timeout(t_usec) noexcept override final {
+      t_out{"messaging: notify_dispatcher_timeout"};
       return QUIT;
     }
 
-    t_quit notify_error(t_errn)  noexcept override final {
-      t_out{"messaging: notify_error"};
+    t_quit notify_dispatcher_error(t_errn)  noexcept override final {
+      t_out{"messaging: notify_dispatcher_error"};
       return QUIT;
     }
 
-    t_quit notify_processed(r_usec) noexcept override final {
-      t_out{"messaging: notify_processed"};
+    t_quit notify_dispatcher_processed(r_usec) noexcept override final {
+      t_out{"messaging: notify_dispatcher_processed"};
       data_.forward_msgs(msgs_);
       return DONT_QUIT;
     }
 
-    t_action notify_event(t_event_id,
-                          r_event_params params) noexcept override final {
-      t_out{"messaging: notify_event"}; // use this instead of proxy?
+    t_action notify_dispatcher_event(t_event_id,
+                                     r_event_params params) noexcept override final {
+      t_out{"messaging: notify_dispatcher_event"};
       return t_action{};
     }
 
@@ -2142,7 +2142,8 @@ namespace message
         : err_(err), ev_cmd_(ev_cmd), processor_(processor), logic_{logic} {
       }
 
-      t_action notify_event(t_event_id, r_event_params) noexcept override {
+      t_action notify_dispatcher_event(t_event_id,
+                                       r_event_params) noexcept override {
         ev_cmd_ = CONTINUE;
         processor_.process(err_, logic_);
         return ev_cmd_;
@@ -2162,7 +2163,8 @@ namespace message
         : err_(err), ev_cmd_(ev_cmd), processor_(processor), logic_{logic} {
       }
 
-      t_action notify_event(t_event_id, r_event_params) noexcept override {
+      t_action notify_dispatcher_event(t_event_id,
+                                       r_event_params) noexcept override {
         ev_cmd_ = CONTINUE;
         processor_.process_available(err_, logic_);
         return ev_cmd_;
