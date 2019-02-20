@@ -184,13 +184,14 @@ namespace event_dispatcher
 
     t_quit process_events(r_event_infos infos, p_logic logic) noexcept {
       if (!infos.is_empty()) {
-        logic->notify_reorder(infos);
+        logic->notify_dispatcher_reorder(infos);
         t_ix end_ix = to_ix(infos.get_size());
         for (t_ix ix{0}; ix < end_ix; ++set(ix)) {
           auto     info   = infos.get(ix);
           t_action action =
-            info->logic ? info->logic->notify_event(info->id, info->params) :
-                                logic->notify_event(info->id, info->params);
+            info->logic ?
+              info->logic->notify_dispatcher_event(info->id, info->params) :
+                    logic->notify_dispatcher_event(info->id, info->params);
           switch (action.cmd) {
             case CONTINUE: {
               p_event_logic next = action.next;
@@ -198,7 +199,7 @@ namespace event_dispatcher
                 info->logic = next;
             } break;
             case REMOVE_EVENT:
-              logic->notify_removed(*info);
+              logic->notify_dispatcher_removed(*info);
               del_event(info->id);
               break;
             case QUIT_EVENT_LOOP:
@@ -228,16 +229,18 @@ namespace event_dispatcher
           if (!infos_.is_empty())
             quit = process_events(infos_, logic);
           else
-            quit = logic->notify_timeout(msec);
+            quit = logic->notify_dispatcher_timeout(msec);
         } else
-          quit = logic->notify_error(errn);
+          quit = logic->notify_dispatcher_error(errn);
 
-        if (quit == DONT_QUIT)
-          quit = logic->notify_processed(msec);
+        if (quit == DONT_QUIT) {
+          set(errn) = 0;
+          quit = logic->notify_dispatcher_processed(msec);
+        }
 
         infos_.clear();
         ++set(cnt);
-      } while (get(quit) != true);
+      } while (quit == DONT_QUIT);
       return cnt;
     }
 
@@ -250,16 +253,19 @@ namespace event_dispatcher
           if (!infos_.is_empty())
             quit = process_events(infos_, logic);
           else
-            quit = logic->notify_timeout(msec);
-        } else
-          quit = logic->notify_error(t_errn(err.id()));
+            quit = logic->notify_dispatcher_timeout(msec);
+        } else {
+          quit = logic->notify_dispatcher_error(t_errn(err.id()));
+          if (quit == DONT_QUIT)
+            err.clear();
+        }
 
         if (quit == DONT_QUIT)
-          quit = logic->notify_processed(msec);
+          quit = logic->notify_dispatcher_processed(msec);
 
         infos_.clear();
         ++set(cnt);
-      } while (get(quit) != true);
+      } while (quit == DONT_QUIT);
       return cnt;
     }
 

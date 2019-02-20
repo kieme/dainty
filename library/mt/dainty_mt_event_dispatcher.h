@@ -155,7 +155,8 @@ namespace event_dispatcher
     using t_action       = event_dispatcher::t_action;
 
     virtual ~t_event_logic() { }
-    virtual t_action notify_event(t_event_id, r_event_params) noexcept = 0;
+    virtual t_action notify_dispatcher_event(t_event_id,
+                                             r_event_params) noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -212,11 +213,11 @@ namespace event_dispatcher
 
       virtual ~t_logic() { }
 
-      virtual t_void notify_reorder  (r_event_infos) noexcept = 0;
-      virtual t_void notify_removed  (r_event_info)  noexcept = 0;
-      virtual t_quit notify_timeout  (t_msec)        noexcept = 0;
-      virtual t_quit notify_error    (t_errn)        noexcept = 0;
-      virtual t_quit notify_processed(r_msec)        noexcept = 0;
+      virtual t_void notify_dispatcher_reorder  (r_event_infos) noexcept = 0;
+      virtual t_void notify_dispatcher_removed  (r_event_info)  noexcept = 0;
+      virtual t_quit notify_dispatcher_timeout  (t_msec)        noexcept = 0;
+      virtual t_quit notify_dispatcher_error    (t_errn)        noexcept = 0;
+      virtual t_quit notify_dispatcher_processed(r_msec)        noexcept = 0;
     };
     using p_logic = t_prefix<t_logic>::p_;
 
