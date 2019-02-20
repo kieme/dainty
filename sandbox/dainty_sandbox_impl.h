@@ -31,6 +31,7 @@ SOFTWARE.
 #include "dainty_named_utility.h"
 #include "dainty_mt_detached_thread.h"
 #include "dainty_mt_event_dispatcher.h"
+#include "dainty_mt_timers.h"
 #include "dainty_sandbox.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,11 +46,13 @@ namespace sandbox
   using container::list::t_list;
   using container::freelist::t_freelist;
   using mt::event_dispatcher::BAD_EVENT_ID;
+  using mt::timers::BAD_TIMER_ID;
 
   using t_freelist_entry_id  = container::freelist::t_id;
   using t_freelist_entry_id_ = container::freelist::t_id_;
   using t_thread_            = mt::detached_thread::t_thread;
   using t_dispatcher_        = mt::event_dispatcher::t_dispatcher;
+  using t_timers_            = mt::timers::t_timers;
   using t_thread_logic_      = t_thread_::t_logic;
   using t_thread_logic_ptr_  = t_thread_::t_logic_ptr;
 
@@ -60,10 +63,15 @@ namespace sandbox
   using r_impl_ = t_prefix<t_impl_>::r_;
   using x_impl_ = t_prefix<t_impl_>::x_;
 
-  class t_impl_ : public t_thread_logic_, public t_dispatcher_::t_logic {
-    using base1 = t_thread_logic_;
-    using base2 = t_dispatcher_::t_logic;
+  class t_impl_ : public t_thread_logic_,
+                  public t_dispatcher_::t_logic,
+                  public t_timers_::t_logic {
+    using base1_ = t_thread_logic_;
+    using base2_ = t_dispatcher_::t_logic;
+    using base3_ = t_timers_::t_logic;
   public:
+    using t_errn = named::t_errn;
+
     t_impl_(t_err, R_thread_name, R_thread_params, t_n max_logics) noexcept;
     virtual ~t_impl_();
 
@@ -74,10 +82,10 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_void update (base1::t_err,
-                           base1::r_pthread_attr) noexcept override final;
-    virtual t_void prepare(base1::t_err)          noexcept override final;
-    virtual t_void run    ()                      noexcept override final;
+    virtual t_void update (base1_::t_err,
+                           base1_::r_pthread_attr) noexcept override final;
+    virtual t_void prepare(base1_::t_err)          noexcept override final;
+    virtual t_void run    ()                       noexcept override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -127,14 +135,25 @@ namespace sandbox
     using t_fdevents_entry_id_ = t_fdevents_::t_id;
     using t_fdevents_ids_      = t_list<t_fdevent_id, 100>;
 
+    struct t_timer_entry_ {
+      t_timer_name       name;
+      t_timer_params     params;
+      t_ix               logic_ix = t_ix{0};
+      t_timer_id         tmr_id   = BAD_TIMER_ID;
+      t_timer_notify_ptr notify_ptr;
+    };
+    using t_timers_tbl_     = t_freelist<t_timer_entry_, 200>;
+    using t_timer_entry_id_ = t_timers_tbl_::t_id;
+    using t_timer_ids_      = t_list<t_timer_id, 100>;
+
     struct t_logic_entry_ {
       p_logic         logic        = nullptr;
       t_spin_cnt_     spin_cnt     = 0;
       t_spin_cnt_     spin_cnt_max = 0;
       t_fdevents_ids_ fds_ids;
+      t_timer_ids_    tmr_ids;
       // add t_messenger
       // add t_tracer
-      // must know its assigned timers
     };
     using t_logics_ = t_list<t_logic_entry_>;
 
@@ -148,13 +167,17 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_action notify_dispatcher_event    (t_event_id,
-                                         r_event_params) noexcept override final;
-    t_void   notify_dispatcher_reorder  (r_event_infos)  noexcept override final;
-    t_void   notify_dispatcher_removed  (r_event_info)   noexcept override final;
-    t_quit   notify_dispatcher_timeout  (t_msec)         noexcept override final;
-    t_quit   notify_dispatcher_error    (t_errn)         noexcept override final;
-    t_quit   notify_dispatcher_processed(r_msec)         noexcept override final;
+    t_action notify_dispatcher_event  (t_event_id,
+                                       r_event_params) noexcept override final;
+    t_void notify_dispatcher_reorder  (r_event_infos)  noexcept override final;
+    t_void notify_dispatcher_removed  (r_event_info)   noexcept override final;
+    t_quit notify_dispatcher_timeout  (t_msec)         noexcept override final;
+    t_quit notify_dispatcher_error    (t_errn)         noexcept override final;
+    t_quit notify_dispatcher_processed(r_msec)         noexcept override final;
+    t_void notify_timers_error        (t_errn)         noexcept override final;
+    t_void notify_timers_processed    ()               noexcept override final;
+    t_void notify_timers_timeout      (t_timer_id,
+                                       R_timer_params) noexcept override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -165,14 +188,13 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-
     T_thread_name   name_;
     T_thread_params params_;
     t_fd            closefd_;
     t_dispatcher_   dispatcher_;
     t_logics_       logics_;
     t_fdevents_     fdevents_;
-    // timers_;   // 120 - freelist
+    t_timers_tbl_   timers_;
     t_spin_cnt_     spin_cnt_    = 0;
     t_msec_         spin_period_ = 10;
   };

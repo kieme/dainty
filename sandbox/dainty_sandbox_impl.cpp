@@ -346,14 +346,14 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_void t_impl_::update(base1::t_err err,
-                         base1::r_pthread_attr attr) noexcept {
+  t_void t_impl_::update(base1_::t_err err,
+                         base1_::r_pthread_attr attr) noexcept {
     ERR_GUARD(err) {
       // XXX - can use params_ to set attr
     }
   }
 
-  t_void t_impl_::prepare(base1::t_err err) noexcept {
+  t_void t_impl_::prepare(base1_::t_err err) noexcept {
     ERR_GUARD(err) {
       dispatcher_.add_event(err, {closefd_, RD_EVENT});
       // XXX - can use params_ for further preparation
@@ -403,8 +403,9 @@ namespace sandbox
     return t_quit{false};
   }
 
-  t_impl_::t_action t_impl_::notify_dispatcher_event(t_event_id ev_id,
-                                                     r_event_params params) noexcept {
+  t_impl_::t_action
+    t_impl_::notify_dispatcher_event(t_event_id ev_id,
+                                     r_event_params params) noexcept {
     t_fdevent_id id(params.user.id); // seession ddata in it too
     auto entry_id = get_id_(id);
     auto fd_entry = fdevents_.get(entry_id);
@@ -420,6 +421,19 @@ namespace sandbox
       t_out{"this should never happen - recv unknown event"};
     }
     return t_action{CONTINUE};
+  }
+
+  t_void t_impl_::notify_timers_error(t_errn) noexcept {
+     //XXX
+  }
+
+  t_void t_impl_::notify_timers_processed() noexcept {
+     //XXX
+  }
+
+  t_void t_impl_::notify_timers_timeout(t_timer_id id,
+                                        R_timer_params params) noexcept {
+    //XXX
   }
 
 ///////////////////////////////////////////////////////////////////////////////

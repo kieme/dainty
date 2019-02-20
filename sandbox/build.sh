@@ -23,6 +23,7 @@ g++ -Wall -o run dainty_sandbox_example1.cpp \
                  ../library/mt/dainty_mt_condvar_notify_change.cpp \
                  ../library/mt/dainty_mt_event_dispatcher.cpp \
                  ../library/mt/dainty_mt_condvar_command.cpp \
+                 ../library/mt/dainty_mt_timers.cpp \
                  ../library/os/dainty_os_clock.cpp \
                  ../library/os/dainty_os_call.cpp \
                  ../library/os/dainty_os_threading.cpp \

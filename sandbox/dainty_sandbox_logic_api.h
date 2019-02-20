@@ -31,6 +31,7 @@ SOFTWARE.
 #include "dainty_named_string.h"
 #include "dainty_container_ptr.h"
 #include "dainty_mt_event_dispatcher.h"
+#include "dainty_mt_timers.h"
 #include "dainty_sandbox_err.h"
 #include "dainty_sandbox_logic_stats.h"
 
@@ -63,17 +64,16 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_timer_id   = named::t_int;
-  using t_timer_name = named::t_int;
-  using R_timer_name = t_prefix<t_timer_name>::R_;
-
-  struct t_timer_params {
-  };
-  using R_timer_params = t_prefix<t_timer_params>::R_;
-  using P_timer_params = t_prefix<t_timer_params>::P_;
+  enum  t_timer_name_tag_ {};
+  using t_timer_id         = mt::timers::t_timer_id; // not like fdevent_id
+  using t_timer_name       = t_string<t_timer_name_tag_, 20>;
+  using R_timer_name       = t_prefix<t_timer_name>::R_;
+  using t_timer_params     = mt::timers::t_timer_params;
+  using R_timer_params     = t_prefix<t_timer_params>::R_;
+  using P_timer_params     = t_prefix<t_timer_params>::P_;
 
   struct t_timer_notify {
-    virtual ~t_timer_notify() { };
+    virtual ~t_timer_notify() { }
     virtual t_void notify_timeout(t_timer_id, R_timer_params) noexcept = 0;
   };
   using p_timer_notify     = t_prefix<t_timer_notify>::p_;
