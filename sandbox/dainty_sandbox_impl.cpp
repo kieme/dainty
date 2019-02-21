@@ -109,12 +109,12 @@ namespace sandbox
     logic_entry->spin_cnt_max = 0;
     logic_entry->spin_cnt     = 0;
 
-    t_ix cnt{0}, end_ix{to_ix(logics_.get_size())};
-    for (; cnt < end_ix; ++set(cnt))
-      if (logics_.get(cnt)->spin_cnt_max)
+    t_ix_ cnt = 0, end = get(logics_.get_size());
+    for (; cnt < end; ++cnt)
+      if (logics_.get(t_ix{cnt})->spin_cnt_max)
         break;
 
-    if (cnt == end_ix)
+    if (cnt == end)
       spin_cnt_ = 0;
   }
 
@@ -345,47 +345,43 @@ namespace sandbox
 
   t_void t_impl_::start_extensions_(t_err err, p_logic logic) noexcept {
     ERR_GUARD(err) {
-      t_ix end = to_ix(logic->exts_.get_size());
-      for (t_ix ix{0}; !err && ix < end; set(ix)++) {
-        logic->exts_.get(ix)->notify_start(err);
-        if (err) {
-          if (get(ix)) {
-            for (set(ix)--; get(ix); set(ix)--)
-              logic->exts_.get(ix)->notify_cleanup();
-            logic->exts_.get(ix)->notify_cleanup();
-          }
+      t_ix_ end = get(logic->exts_.get_size());
+      for (t_ix_ ix = 0; !err && ix < end; ++ix) {
+        logic->exts_.get(t_ix{ix})->notify_start(err);
+        if (err && ix) {
+          for (--ix; ix; --ix)
+            logic->exts_.get(t_ix{ix})->notify_cleanup();
+          logic->exts_.get(t_ix{ix})->notify_cleanup();
         }
       }
     }
   }
 
   t_void t_impl_::cleanup_extensions_(p_logic logic) noexcept {
-    t_ix ix = to_ix(logic->exts_.get_size());
-    if (get(ix)) {
-      for (set(ix)--; get(ix); set(ix)--)
-        logic->exts_.get(ix)->notify_cleanup();
-      logic->exts_.get(ix)->notify_cleanup();
+    t_ix_ ix = get(logic->exts_.get_size());
+    if (ix) {
+      for (--ix; ix; --ix)
+        logic->exts_.get(t_ix{ix})->notify_cleanup();
+      logic->exts_.get(t_ix{ix})->notify_cleanup();
     }
   }
 
   t_void t_impl_::start_(t_err err) noexcept {
     ERR_GUARD(err) {
-      t_ix end = to_ix(logics_.get_size());
-      for (t_ix ix{0}; !err && ix < end; set(ix)++) {
-        auto logic = logics_.get(ix)->logic;
+      t_ix_ end = get(logics_.get_size());
+      for (t_ix_ ix = 0; !err && ix < end; ++ix) {
+        auto logic = logics_.get(t_ix{ix})->logic;
         start_extensions_(err, logic);
         logic->notify_start(err);
-        if (err) {
-          if (get(ix)) {
-            for (set(ix)--; get(ix); set(ix)--) {
-              auto logic = logics_.get(ix)->logic;
-              logic->notify_cleanup();
-              cleanup_extensions_(logic);
-            }
-            auto logic = logics_.get(ix)->logic;
+        if (err && ix) {
+          for (--ix; ix; --ix) {
+            auto logic = logics_.get(t_ix{ix})->logic;
             logic->notify_cleanup();
             cleanup_extensions_(logic);
           }
+          auto logic = logics_.get(t_ix{ix})->logic;
+          logic->notify_cleanup();
+          cleanup_extensions_(logic);
         }
       }
     }
@@ -393,14 +389,14 @@ namespace sandbox
 
   t_void t_impl_::cleanup_(t_err err) noexcept {
     ERR_GUARD(err) {
-      t_ix ix = to_ix(logics_.get_size());
-      if (get(ix)) {
-        for (set(ix)--; get(ix); set(ix)--) {
-          auto logic = logics_.get(ix)->logic;
+      t_ix_ ix = get(logics_.get_size());
+      if (ix) {
+        for (--ix; ix; --ix) {
+          auto logic = logics_.get(t_ix{ix})->logic;
           logic->notify_cleanup();
           cleanup_extensions_(logic);
         }
-        auto logic = logics_.get(ix)->logic;
+        auto logic = logics_.get(t_ix{ix})->logic;
         logic->notify_cleanup();
         cleanup_extensions_(logic);
       }
@@ -521,9 +517,9 @@ namespace sandbox
   }
 
   t_impl_::t_quit t_impl_::notify_dispatcher_timeout(t_msec msec) noexcept {
-    t_ix end_ix = to_ix(logics_.get_size());
-    for (t_ix ix{0}; ix < end_ix; ++set(ix)) {
-      auto logic_entry = logics_.get(ix);
+    t_ix_ end = get(logics_.get_size());
+    for (t_ix_ ix = 0; ix < end; ++ix) {
+      auto logic_entry = logics_.get(t_ix{ix});
       if (logic_entry->spin_cnt_max) {
         logic_entry->spin_cnt += spin_cnt_;
         if (logic_entry->spin_cnt == logic_entry->spin_cnt_max) {
@@ -622,9 +618,9 @@ namespace sandbox
     : t_impl_{err, name, params, ptrlist.get_size()},
       ptrlist_{x_cast(ptrlist)} {
     ERR_GUARD(err) {
-      t_ix end = to_ix(ptrlist_.get_size());
-      for (t_ix ix{0}; !err && ix < end; ++set(ix))
-        register_logic(err, ptrlist_.get(ix)->get());
+      t_ix_ end = get(ptrlist_.get_size());
+      for (t_ix_ ix = 0; !err && ix < end; ++ix)
+        register_logic(err, ptrlist_.get(t_ix{ix})->get());
     }
   }
 

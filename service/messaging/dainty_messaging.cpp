@@ -310,14 +310,14 @@ namespace message
                    t_uint16&       _seq) {
     if (get(msg.get_capacity()) >= sizeof(t_hdr_)) {
       t_hdr_cptr_ hdr{msg.mk_cview(t_ix{0}, t_ix{sizeof(t_hdr_)})};
-      set(_len)       = hdr->len;
-      set(_dst)       = hdr->dst;
-      set(_src)       = hdr->src;
-      set(id.domain)  = hdr->domain;
-      set(id.user)    = hdr->user;
-      set(id.version) = hdr->version;
-      _cnt            = hdr->cnt;
-      _seq            = hdr->seq;
+      _len       = t_n{hdr->len};
+      _dst       = t_messenger_key{hdr->dst};
+      _src       = t_messenger_key{hdr->src};
+      id.domain  = hdr->domain;
+      id.user    = hdr->user;
+      id.version = hdr->version;
+      _cnt       = hdr->cnt;
+      _seq       = hdr->seq;
       return true;
     }
     return false;
@@ -517,11 +517,11 @@ namespace message
       t_notify_cptr_ notify{msg.mk_cview(t_ix{sizeof(t_hdr_)},
                                          t_ix{sizeof(t_hdr_) +
                                               sizeof(t_notify_)})};
-      state      = notify->state;
-      set(key)   = notify->key;
-      set(prio)  = notify->prio;
-      user       = notify->user;
-      name       = notify->name;
+      state = notify->state;
+      key   = t_messenger_key {notify->key};
+      prio  = t_messenger_prio{notify->prio};
+      user  = notify->user;
+      name  = notify->name;
       return true;
     }
     return false;
@@ -594,11 +594,11 @@ namespace message
       t_timeout_cptr_ timeout{msg.mk_cview(t_ix{sizeof(t_hdr_)},
                                            t_ix{sizeof(t_hdr_) +
                                                 sizeof(t_timeout_)})};
-      periodic            = timeout->periodic;
-      set(key)            = timeout->key;
-      set(prio)           = timeout->prio;
-      user                = timeout->user;
-      set(multiple.value) = timeout->multiple;
+      periodic       = timeout->periodic;
+      key            = t_messenger_key {timeout->key};
+      prio           = t_messenger_prio{timeout->prio};
+      user           = timeout->user;
+      multiple.value = t_multiple_of_100ms{timeout->multiple};
       return true;
     }
     return false;
@@ -1343,7 +1343,7 @@ namespace message
 
         auto m = monitored_.find(ctxt->info.name);
         if (m != monitored_.end()) {
-          set(m->second.key) = 0;
+          named::utility::reset(m->second.key);
           m->second.state = message::STATE_UNAVAILABLE;
           update_msgs(msgs, m->first, m->second);
         }
@@ -1450,7 +1450,7 @@ namespace message
           if (is_valid(ctxt->key)) {
             if (password == ctxt->password) {
               update_msgs(msgs, message::STATE_UNAVAILABLE, ctxt);
-              set(ctxt->key) = 0;
+              named::utility::reset(ctxt->key);
             } else
               err = err::E_XXX;
           } else
@@ -2463,7 +2463,7 @@ namespace messenger
 
   t_messenger::t_messenger(x_messenger messenger)
     : id_{messenger.id_}, processor_{x_cast(messenger.processor_)} {
-    set(messenger.id_) = 0;
+    named::utility::reset(messenger.id_);
   }
 
   t_messenger::~t_messenger() {

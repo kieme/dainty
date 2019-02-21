@@ -57,10 +57,10 @@ namespace event
     t_void process(r_err err, r_logic logic, t_n max) noexcept {
       ERR_GUARD(err) {
         for (t_n_ n = get(max); !err && n; --n) {
-          t_cnt cnt{0};
-          eventfd_.read(err, set(cnt));
+          t_cnt_ cnt = 0;
+          eventfd_.read(err, cnt);
           if (!err)
-            logic.async_process(cnt);
+            logic.async_process(t_cnt{cnt});
         }
       }
     }

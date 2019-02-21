@@ -164,7 +164,7 @@ namespace waitable_chained_queue
               t_eventfd::t_value value = 1;
               errn = eventfd_.write(value);
             } else
-              set(errn) = 0;
+              errn = t_errn{0};
           }
         %>
       }
@@ -194,7 +194,7 @@ namespace waitable_chained_queue
             t_bool must_insert = true;
             auto tail = queue_.get_tail();
             if (tail && tail->ref().any == chain.head->ref().any) {
-              ++set(tail->ref().cnt);
+              tail->ref().cnt = t_n{get(tail->ref().cnt) + 1};
               must_insert = false;
             }
             if (must_insert)
@@ -203,7 +203,7 @@ namespace waitable_chained_queue
               t_eventfd::t_value value = 1;
               errn = eventfd_.write(value);
             } else
-              set(errn) = 0;
+              errn = t_errn{0};
           }
         %>
       }
@@ -217,7 +217,7 @@ namespace waitable_chained_queue
             t_bool must_insert = true;
             auto tail = queue_.get_tail();
             if (tail && tail->ref().any == chain.head->ref().any) {
-              ++set(tail->ref().cnt);
+              tail->ref().cnt = t_n{get(tail->ref().cnt) + 1};
               must_insert = false;
             }
             if (must_insert)

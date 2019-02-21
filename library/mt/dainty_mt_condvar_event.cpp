@@ -53,16 +53,16 @@ namespace condvar_event
     }
 
     t_cnt get_cnt(t_err err) {
-      t_cnt cnt{0};
+      t_cnt_ cnt = 0;
       <% auto scope = lock_.make_locked_scope(err);
-        set(cnt) = cnt_;
+        cnt = cnt_;
       %>
-      return cnt;
+      return t_cnt{cnt};
     }
 
     t_void process(r_err err, r_logic logic, t_n max) noexcept {
       for (t_n_ n = get(max); !err && n; --n) {
-        t_cnt cnt{0};
+        t_cnt_ cnt = 0;
         <% auto scope = lock_.make_locked_scope(err);
           if (!err) {
             if (!cnt_) {
@@ -70,28 +70,28 @@ namespace condvar_event
                 cond_.wait(err, lock_);
               } while (!err && !cnt_);
             }
-            set(cnt) = named::utility::reset(cnt_);
+            cnt = named::utility::reset(cnt_);
           }
         %>
         if (!err)
-          logic.async_process(cnt);
+          logic.async_process(t_cnt{cnt});
       }
     }
 
     t_void reset_then_process(r_err err, r_logic logic, t_n max) noexcept {
       for (t_n_ n = get(max); !err && n; --n) {
-        t_cnt cnt{0};
+        t_cnt_ cnt = 0;
         <% auto scope = lock_.make_locked_scope(err);
           if (!err) {
             named::utility::reset(cnt_);
             do {
               cond_.wait(err, lock_);
             } while (!err && !cnt_);
-            set(cnt) = named::utility::reset(cnt_);
+            cnt = named::utility::reset(cnt_);
           }
         %>
         if (!err)
-          logic.async_process(cnt);
+          logic.async_process(t_cnt{cnt});
       }
     }
 

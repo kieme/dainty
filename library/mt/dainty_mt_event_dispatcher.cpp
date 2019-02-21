@@ -36,6 +36,7 @@ namespace mt
 namespace event_dispatcher
 {
   using named::t_n_;
+  using named::t_ix_;
   using named::P_cstr;
   using named::t_uint32;
   using os::fdbased::t_epoll;
@@ -185,9 +186,9 @@ namespace event_dispatcher
     t_quit process_events(r_event_infos infos, p_logic logic) noexcept {
       if (!infos.is_empty()) {
         logic->notify_dispatcher_reorder(infos);
-        t_ix end_ix = to_ix(infos.get_size());
-        for (t_ix ix{0}; ix < end_ix; ++set(ix)) {
-          auto     info   = infos.get(ix);
+        t_ix_ end = get(infos.get_size());
+        for (t_ix_ ix = 0; ix < end; ++ix) {
+          auto     info   = infos.get(t_ix{ix});
           t_action action =
             info->logic ?
               info->logic->notify_dispatcher_event(info->id, info->params) :
@@ -221,7 +222,7 @@ namespace event_dispatcher
     }
 
     t_n event_loop(p_logic logic, t_msec msec) noexcept {
-      t_n    cnt {0};
+      t_n_   cnt  = 0;
       t_quit quit{false};
       do {
         t_errn errn = wait_events(events_, infos_, msec);
@@ -234,18 +235,18 @@ namespace event_dispatcher
           quit = logic->notify_dispatcher_error(errn);
 
         if (quit == DONT_QUIT) {
-          set(errn) = 0;
+          errn = t_errn{0};
           quit = logic->notify_dispatcher_processed(msec);
         }
 
         infos_.clear();
-        ++set(cnt);
+        ++cnt;
       } while (quit == DONT_QUIT);
-      return cnt;
+      return t_n{cnt};
     }
 
     t_n event_loop(r_err err, p_logic logic, t_msec msec) noexcept {
-      t_n    cnt {0};
+      t_n_   cnt = 0;
       t_quit quit{false};
       do {
         wait_events(err, events_, infos_, msec);
@@ -264,9 +265,9 @@ namespace event_dispatcher
           quit = logic->notify_dispatcher_processed(msec);
 
         infos_.clear();
-        ++set(cnt);
+        ++cnt;
       } while (quit == DONT_QUIT);
-      return cnt;
+      return t_n{cnt};
     }
 
   private:

@@ -65,6 +65,10 @@ namespace dacli
   using std::end;
   using std::cend;
 
+  const t_fullname empty_fullname;
+  const t_name     empty_name;
+  const t_value    empty_value;
+
 ////////////////////////////////////////////////////////////////////////////////
 
   namespace syntax
@@ -1512,24 +1516,30 @@ namespace dacli
       auto rhs = rh.size();
       auto min = lhs < rhs ? lhs : rhs;
       for (decltype(min) i = 0; i < min; ++i) { // comparson missing because of <>
-        if (lh[i][0] == '/')
+        auto lh_range = lh[i].mk_range();
+        auto rh_range = rh[i].mk_range();
+
+        if (lh_range[t_ix{0}] == '/')
           return false;
-        if (rh[i][0] == '/')
+        if (rh_range[t_ix{0}] == '/')
           return true;
-        if (lh[i][0] == '.' && rh[i][0] != '.')
+        if (lh_range[t_ix{0}] == '.' && rh_range[t_ix{0}] != '.')
           return true;
-        if (lh[i][0] != '.' && rh[i][0] == '.')
+        if (lh_range[t_ix{0}] != '.' && rh_range[t_ix{0}] == '.')
           return false;
+
         t_name l;
-        if (*lh[i].get_cstr() == '<')
-          l.assign(lh[i].get_cstr() + 1, lh[i].size()-2);
+        if (lh_range[t_ix{0}] == '<')
+          l = mk_range(lh_range, t_ix{1}, t_ix{get(lh_range.n) - 2});
         else
-          l = lh[i];
+          l = lh_range;
+
         t_name r;
-        if (*rh[i].get_cstr() == '<')
-          r.assign(rh[i].get_cstr() + 1, rh[i].size()-2);
+        if (rh_range[t_ix{0}] == '<')
+          l = mk_range(rh_range, t_ix{1}, t_ix{get(rh_range.n) - 2});
         else
-          r = rh[i];
+          l = rh_range;
+
         if (l < r)
           return true;
         if (l > r)
@@ -1563,13 +1573,13 @@ namespace dacli
     const t_fullname& t_ref::get_fullname() const {
       if (is_valid_())
         return get_().first;
-      return empty_fullname_v;
+      return empty_fullname;
     }
 
     const t_name& t_ref::get_name() const {
       if (is_valid_())
         return get_().first.back();
-      return empty_name_v;
+      return empty_name;
     }
 
     t_oparams t_ref::get_optional_params() const {
@@ -1603,13 +1613,13 @@ namespace dacli
     const t_fullname& t_cref::get_fullname() const {
       if (is_valid_())
         return get_().first;
-      return empty_fullname_v;
+      return empty_fullname;
     }
 
     const t_name& t_cref::get_name() const {
       if (is_valid_())
         return get_().first.back();
-      return empty_name_v;
+      return empty_name;
     }
 
     t_oparams t_cref::get_optional_params() const {
@@ -1628,7 +1638,8 @@ namespace dacli
     t_simple_ref::t_simple_ref(t_err err, t_ref ref) : t_ref(err, ref) {
       if (!err && get_base_type() != TYPE_S) {
         clear_();
-        err.set(mk_cstr("id is not a simple argument"));
+        //err.set(mk_cstr("id is not a simple argument"));
+        err = err::E_XXX;
       }
     }
 
@@ -1648,7 +1659,7 @@ namespace dacli
         if (!get_().second.values_.empty())
           return get_().second.values_.front();
       }
-      return empty_value_v;
+      return empty_value;
     }
 
     t_bool t_simple_ref::set_value(t_err err, t_value value) {
@@ -1675,7 +1686,8 @@ namespace dacli
       : t_cref(err, ref) {
       if (!err && get_base_type() != TYPE_S) {
         clear_();
-        err.set(mk_cstr("id is not a simple argument"));
+        //err.set(mk_cstr("id is not a simple argument"));
+        err = err::E_XXX;
       }
     }
 
@@ -1684,7 +1696,7 @@ namespace dacli
         if (!get_().second.values_.empty())
           return get_().second.values_.front();
       }
-      return empty_value_v;
+      return empty_value;
     }
 
 ////////////////////////////////////////////////////////////////////////////////

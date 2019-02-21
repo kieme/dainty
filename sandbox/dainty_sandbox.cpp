@@ -38,6 +38,7 @@ namespace sandbox
   using r_err          = t_prefix<t_err>::r_;
   using t_thread_attr_ = os::t_pthread_attr;
   using named::t_ix;
+  using named::t_ix_;
 
   using named::terminal::t_out;
   using named::utility::x_cast;
@@ -76,9 +77,9 @@ namespace sandbox
   t_void register_(t_err err, r_logic logic, p_logic_ext ext) {
     ERR_GUARD(err) {
       if (ext) {
-        t_ix end = to_ix(logic.exts_.get_size());
-        for (t_ix ix{0}; ix < end; set(ix)++) {
-          p_logic_ext ext_ptr = logic.exts_.get(ix);
+        t_ix_ end = get(logic.exts_.get_size());
+        for (t_ix_ ix = 0; ix < end; ++ix) {
+          p_logic_ext ext_ptr = logic.exts_.get(t_ix{ix});
           if (ext == ext_ptr || ext_ptr->get_name() == ext->get_name()) {
             err = err::E_XXX; // already
             break;

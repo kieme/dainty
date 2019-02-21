@@ -59,13 +59,17 @@ namespace utility
 
   template<class T, class TAG>
   constexpr t_explicit<T, TAG>  reset(t_explicit<T, TAG>& t, T value) {
-    return t_explicit<T, TAG>{reset(set(t), value)};
+    t_explicit<T, TAG> tmp{t};
+    t = t_explicit<T, TAG>{value};
+    return tmp;
   }
 
   template<class T, class TAG>
   constexpr t_explicit<T, TAG> reset(t_explicit<T, TAG>& t,
                                      t_explicit<T, TAG> value) {
-    return t_explicit<T, TAG>{reset(set(t), get(value))};
+    t_explicit<T, TAG> tmp{t};
+    t = value;
+    return tmp;
   }
 
   template<class TAG>
@@ -96,12 +100,28 @@ namespace utility
   }
 
   constexpr t_fd reset(t_fd& fd) {
-    return t_fd{reset(set(fd), get(BAD_FD))};
+    return reset(fd, BAD_FD);
   }
 
   template<class T, class TAG>
   constexpr t_explicit<T, TAG> reset(t_explicit<T, TAG>& t) {
-    return t_explicit<T, TAG>{reset(set(t))};
+    t_explicit<T, TAG> tmp{t};
+    t = t_explicit<T, TAG>{0};
+    return tmp;
+  }
+
+  template<class T, class TAG>
+  constexpr t_explicit<T*, TAG> reset(t_explicit<T*, TAG>& t) {
+    t_explicit<T*, TAG> tmp{t};
+    t = t_explicit<T*, TAG>{nullptr};
+    return tmp;
+  }
+
+  template<class TAG>
+  constexpr t_explicit<t_bool, TAG> reset(t_explicit<t_bool, TAG>& t) {
+    t_explicit<t_bool, TAG> tmp{t};
+    t = t_explicit<t_bool, TAG>{false};
+    return tmp;
   }
 
   template<class TAG>
