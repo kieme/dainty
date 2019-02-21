@@ -214,10 +214,10 @@ namespace event_dispatcher
       virtual ~t_logic() { }
 
       virtual t_void notify_dispatcher_reorder  (r_event_infos) noexcept;
-      virtual t_void notify_dispatcher_removed  (r_event_info)  noexcept = 0;
+      virtual t_void notify_dispatcher_removed  (r_event_info)  noexcept;
+      virtual t_quit notify_dispatcher_processed(r_msec)        noexcept;
       virtual t_quit notify_dispatcher_timeout  (t_msec)        noexcept = 0;
       virtual t_quit notify_dispatcher_error    (t_errn)        noexcept = 0;
-      virtual t_quit notify_dispatcher_processed(r_msec)        noexcept = 0;
     };
     using p_logic = t_prefix<t_logic>::p_;
 

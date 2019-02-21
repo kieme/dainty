@@ -159,8 +159,8 @@ namespace timers
       virtual ~t_logic() { }
 
       virtual t_void notify_timers_reorder  (r_timer_infos) noexcept;
+      virtual t_void notify_timers_processed()              noexcept;
       virtual t_void notify_timers_error    (t_errn)        noexcept = 0;
-      virtual t_void notify_timers_processed()              noexcept = 0;
     };
     using p_logic = t_prefix<t_logic>::p_;
 
@@ -199,11 +199,8 @@ namespace timers
 
     t_void get_timer_ids(r_timer_ids)        const noexcept;
 
-    t_errn notify_expiry(       p_logic) noexcept;
-    t_void notify_expiry(t_err, p_logic) noexcept;
-
-    t_errn event_loop(       p_logic) noexcept;
-    t_void event_loop(t_err, p_logic) noexcept;
+    t_errn process(       p_logic) noexcept;
+    t_void process(t_err, p_logic) noexcept;
 
   private:
     t_impl_owner_ impl_;

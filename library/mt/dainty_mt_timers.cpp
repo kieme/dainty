@@ -105,18 +105,11 @@ namespace timers
     t_void get_timer_ids(r_timer_ids ids) const noexcept {
     }
 
-    t_errn notify_expiry(p_logic logic) noexcept {
+    t_errn process(p_logic logic) noexcept {
       return t_errn{-1};
     }
 
-    t_void notify_expiry(r_err err, p_logic logic) noexcept {
-    }
-
-    t_errn event_loop(p_logic logic) noexcept {
-      return t_errn{-1};
-    }
-
-    t_void event_loop(r_err err, p_logic logic) noexcept {
+    t_void process(r_err err, p_logic logic) noexcept {
     }
 
   private:
@@ -138,6 +131,9 @@ namespace timers
   t_void
       t_timers::t_logic::notify_timers_reorder(r_timer_infos) noexcept {
     // XXX provide default reorder - thats reorders on prio
+  }
+
+  t_void t_timers::t_logic::notify_timers_processed() noexcept {
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -272,30 +268,16 @@ namespace timers
       impl_->get_timer_ids(ids);
   }
 
-  t_errn t_timers::notify_expiry(p_logic logic) noexcept {
+  t_errn t_timers::process(p_logic logic) noexcept {
     if (*this == VALID)
-      return impl_->notify_expiry(logic);
+      return impl_->process(logic);
     return t_errn{-1};
   }
 
-  t_void t_timers::notify_expiry(t_err err, p_logic logic) noexcept {
+  t_void t_timers::process(t_err err, p_logic logic) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
-        return impl_->notify_expiry(err, logic);
-      err = err::E_XXX;
-    }
-  }
-
-  t_errn t_timers::event_loop(p_logic logic) noexcept {
-    if (*this == VALID)
-      return impl_->event_loop(logic);
-    return t_errn{-1};
-  }
-
-  t_void t_timers::event_loop(t_err err, p_logic logic) noexcept {
-    ERR_GUARD(err) {
-      if (*this == VALID)
-        return impl_->event_loop(err, logic);
+        return impl_->process(err, logic);
       err = err::E_XXX;
     }
   }

@@ -364,6 +364,15 @@ namespace event_dispatcher
     // XXX provide default reorder - thats reorders on prio
   }
 
+  t_void t_dispatcher::t_logic
+      ::notify_dispatcher_removed(r_event_info) noexcept {
+  }
+
+  t_quit t_dispatcher::t_logic
+      ::notify_dispatcher_processed(r_msec) noexcept {
+    return DONT_QUIT;
+  }
+
 ///////////////////////////////////////////////////////////////////////////////
 
   t_dispatcher::t_dispatcher(R_params params) noexcept {
