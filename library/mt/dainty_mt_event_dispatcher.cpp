@@ -350,7 +350,7 @@ namespace event_dispatcher
 ///////////////////////////////////////////////////////////////////////////////
 
   t_n get_supported_services() noexcept {
-     return t_n{1};
+    return t_n{1};
   }
 
   t_service_name get_supported_service(t_ix) noexcept {
@@ -359,10 +359,17 @@ namespace event_dispatcher
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_void t_dispatcher::t_logic
+      ::notify_dispatcher_reorder(r_event_infos) noexcept {
+    // XXX provide default reorder - thats reorders on prio
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
   t_dispatcher::t_dispatcher(R_params params) noexcept {
     if (params.service_name == P_cstr("epoll_service"))
-      impl_ = new t_epoll_impl_(params);
-    else if (params.service_name == P_cstr("select_service")) {
+      impl_ = new t_epoll_impl_{params};
+    else {
       // not yet supported - required for non-linux systems
     }
   }
@@ -370,12 +377,11 @@ namespace event_dispatcher
   t_dispatcher::t_dispatcher(t_err err, R_params params) noexcept {
     ERR_GUARD(err) {
       if (params.service_name == P_cstr("epoll_service"))
-        impl_ = new t_epoll_impl_(err, params);
-      else if (params.service_name == P_cstr("select_service")) {
+        impl_ = new t_epoll_impl_{err, params};
+      else {
+        err = err::E_XXX;
         // not yet supported - required for non-linux systems
-        err = err::E_XXX;
-      } else
-        err = err::E_XXX;
+      }
     }
   }
 
@@ -384,7 +390,8 @@ namespace event_dispatcher
   }
 
   t_dispatcher::~t_dispatcher() noexcept {
-    impl_.clear();
+    if (*this == VALID)
+      impl_->clear_events();
   }
 
   t_dispatcher::operator t_validity() const noexcept {
