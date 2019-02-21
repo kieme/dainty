@@ -29,8 +29,9 @@
 
 #include "dainty_named.h"
 #include "dainty_named_ptr.h"
-#include "dainty_named_utility.h"
+#include "dainty_named_string.h"
 #include "dainty_container_list.h"
+#include "dainty_container_ptrlist.h"
 #include "dainty_mt_err.h"
 
 namespace dainty
@@ -42,9 +43,12 @@ namespace timers
   using named::t_fd;
   using named::t_void;
   using named::t_bool;
+  using named::t_ix;
   using named::t_n;
+  using named::T_n;
   using named::t_msec;
   using named::t_errn;
+  using named::string::t_string;
   using named::t_validity;
   using named::t_prefix;
   using named::t_explicit;
@@ -66,10 +70,19 @@ namespace timers
   enum  t_timer_user_tag_ {};
   using t_timer_user = named::t_user<t_timer_user_tag_>;
 
+  using t_timer_prio = named::t_uchar;
+  using T_timer_prio = t_prefix<t_timer_prio>::T_;
+
+  enum  t_service_name_tag_ {};
+  using t_service_name = t_string<t_service_name_tag_, 20>;
+  using T_service_name = t_prefix<t_service_name>::T_;
+  using R_service_name = t_prefix<t_service_name>::R_;
+
   struct t_timer_params {
     t_bool       periodic = false;
-    t_msec       interval = t_msec{0};
+    t_msec       timeout  = t_msec{0};
     t_msec       early    = t_msec{0};
+    t_timer_prio prio     = t_timer_prio{0};
     t_timer_user user;
   };
   using R_timer_params = t_prefix<t_timer_params>::R_;
@@ -97,8 +110,10 @@ namespace timers
       : logic(_logic), params(_params) {
     }
   };
-  using r_timer_info = t_prefix<t_timer_info>::r_;
-  using P_timer_info = t_prefix<t_timer_info>::P_;
+  using r_timer_info  = t_prefix<t_timer_info>::r_;
+  using P_timer_info  = t_prefix<t_timer_info>::P_;
+  using t_timer_infos = container::ptrlist::t_ptrlist<t_timer_info>;
+  using r_timer_infos = t_prefix<t_timer_infos>::r_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -106,6 +121,26 @@ namespace timers
   enum  t_impl_owner_tag_ { };
   using t_impl_owner_ = named::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
                                           named::ptr::t_deleter>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_n            get_supported_services()     noexcept;
+  t_service_name get_supported_service (t_ix) noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  class t_params {
+  public:
+    T_n            max;
+    T_service_name service_name;
+
+    inline
+    t_params(t_n _max, R_service_name _name) noexcept
+      : max(_max), service_name(_name) {
+    }
+  };
+  using T_params = t_prefix<t_params>::T_;
+  using R_params = t_prefix<t_params>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -118,16 +153,21 @@ namespace timers
   public:
     class t_logic : public t_timer_logic {
     public:
-      using t_errn = timers::t_errn;
+      using t_errn        = timers::t_errn;
+      using r_timer_infos = timers::r_timer_infos;
 
-      virtual t_void notify_timers_error    (t_errn) noexcept = 0;
-      virtual t_void notify_timers_processed()       noexcept = 0;
+      virtual ~t_logic() { }
+
+      virtual t_void notify_timers_reorder  (r_timer_infos) noexcept;
+      virtual t_void notify_timers_error    (t_errn)        noexcept = 0;
+      virtual t_void notify_timers_processed()              noexcept = 0;
     };
     using p_logic = t_prefix<t_logic>::p_;
 
-    t_timers(       t_n max) noexcept;
-    t_timers(t_err, t_n max) noexcept;
-    t_timers(x_timers)       noexcept;
+    t_timers(       R_params) noexcept;
+    t_timers(t_err, R_params) noexcept;
+    t_timers(x_timers)        noexcept;
+   ~t_timers();
 
     t_timers(R_timers)           = delete;
     r_timers operator=(R_timers) = delete;

@@ -24,6 +24,7 @@
 
 ******************************************************************************/
 
+#include "dainty_named_utility.h"
 #include "dainty_mt_timers.h"
 
 namespace dainty
@@ -32,16 +33,17 @@ namespace mt
 {
 namespace timers
 {
+  using named::t_cstr_cptr;
   using r_err   = t_prefix<t_err>::r_;
   using p_logic = t_timers::p_logic;
 
 
   class t_impl_ {
   public:
-    t_impl_(t_n max) noexcept {
+    t_impl_(R_params params) noexcept : params_{params} {
     }
 
-    t_impl_(r_err err, t_n max) noexcept {
+    t_impl_(r_err err, R_params params) noexcept : params_{params} {
     }
 
     operator t_validity() const noexcept {
@@ -114,22 +116,54 @@ namespace timers
     }
 
   private:
+    T_params params_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_timers::t_timers(t_n max) noexcept
-    : impl_{new t_impl_{max}} {
+  t_n get_supported_services() noexcept {
+    return t_n{1};
   }
 
-  t_timers::t_timers(t_err err, t_n max) noexcept {
+  t_service_name get_supported_service(t_ix) noexcept {
+    return "timerfd_service";
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void
+      t_timers::t_logic::notify_timers_reorder(r_timer_infos) noexcept {
+    // XXX provide default reorder - thats reorders on prio
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_timers::t_timers(R_params params) noexcept {
+    if (params.service_name == t_cstr_cptr{"timerfd_service"})
+      impl_ = new t_impl_{params};
+    else {
+      // not yet supported - required for non-linux systems
+    }
+  }
+
+  t_timers::t_timers(t_err err, R_params params) noexcept {
     ERR_GUARD(err) {
-      impl_ = new t_impl_{err, max};
+      if (params.service_name == t_cstr_cptr{"timerfd_service"})
+        impl_ = new t_impl_{err, params};
+      else {
+        err = err::E_XXX;
+        // not yet supported - required for non-linux systems
+      }
     }
   }
 
   t_timers::t_timers(x_timers timers) noexcept
     : impl_{timers.impl_.release()} {
+  }
+
+  t_timers::~t_timers() {
+    if (*this == VALID)
+      impl_->clear_timers();
   }
 
   t_timers::operator t_validity() const noexcept {
