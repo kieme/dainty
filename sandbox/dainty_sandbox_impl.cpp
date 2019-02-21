@@ -498,7 +498,9 @@ namespace sandbox
 
   t_void t_impl_::prepare(base1_::t_err err) noexcept {
     ERR_GUARD(err) {
-      dispatcher_.add_event(err, {closefd_, RD_EVENT});
+      close_ev_id_ = dispatcher_.add_event(err, {closefd_,       RD_EVENT});
+      tmrs_ev_id_  = dispatcher_.add_event(err, {tmrs_.get_fd(), RD_EVENT});
+
       // XXX - can use params_ for further preparation
     }
   }
@@ -547,40 +549,63 @@ namespace sandbox
   }
 
   t_impl_::t_action
-    t_impl_::notify_dispatcher_event(t_event_id ev_id,
-                                     r_event_params params) noexcept {
-    t_fdevent_id id(params.user.id);
-    auto entry_id = get_fdevents_id_(id);
-    auto fd_entry = fdevents_.get(entry_id);
-
-    if (fd_entry && fd_entry->id == id) {
-       if (fd_entry->notify_ptr == VALID)
-         fd_entry->notify_ptr->notify_fdevent(id, fd_entry->params);
-       else {
-         auto logic_entry = logics_.get(fd_entry->logic_ix);
-         logic_entry->logic->notify_fdevent(id, fd_entry->params);
-      }
+      t_impl_::notify_dispatcher_event(t_event_id ev_id,
+                                       r_event_params params) noexcept {
+    if (ev_id == close_ev_id_) {
+      t_out{"quiting the event loop"};
+      return t_action{QUIT_EVENT_LOOP};
+    } else if (ev_id == tmrs_ev_id_) {
+      t_out{"internal timer expired - process timeouts"};
+      tmrs_.process(this);
     } else {
-      t_out{"this should never happen - recv unknown event"};
+      t_fdevent_id id(params.user.id);
+      auto entry_id = get_fdevents_id_(id);
+      auto fd_entry = fdevents_.get(entry_id);
+
+      if (fd_entry && fd_entry->id == id) {
+         if (fd_entry->notify_ptr == VALID)
+           fd_entry->notify_ptr->notify_fdevent(id, fd_entry->params);
+         else {
+           auto logic_entry = logics_.get(fd_entry->logic_ix);
+           logic_entry->logic->notify_fdevent(id, fd_entry->params);
+        }
+      } else {
+        t_out{"this should never happen - recv unknown fd event"};
+      }
     }
     return t_action{CONTINUE};
   }
 
   t_void t_impl_::notify_timers_reorder(r_timer_infos) noexcept {
-     //XXX
+    t_out{"t_impl_::notify_timers_reorder"};
+    //XXX
   }
 
   t_void t_impl_::notify_timers_error(t_errn) noexcept {
-     //XXX
+    t_out{"t_impl_::notify_timers_error"};
+    //XXX
   }
 
   t_void t_impl_::notify_timers_processed() noexcept {
-     //XXX
+    t_out{"t_impl_::notify_timers_processed"};
+    //XXX
   }
 
   t_void t_impl_::notify_timers_timeout(t_timer_id id,
                                         R_timer_params params) noexcept {
-    //XXX
+    auto entry_id    = get_timers_id_(id);
+    auto timer_entry = timers_.get(entry_id);
+
+    if (timer_entry && timer_entry->id == id) {
+       if (timer_entry->notify_ptr == VALID)
+         timer_entry->notify_ptr->notify_timeout(id, timer_entry->params);
+       else {
+         auto logic_entry = logics_.get(timer_entry->logic_ix);
+         logic_entry->logic->notify_timeout(id, timer_entry->params);
+      }
+    } else {
+      t_out{"this should never happen - recv unknown timer event"};
+    }
   }
 
 ///////////////////////////////////////////////////////////////////////////////

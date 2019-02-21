@@ -217,6 +217,8 @@ namespace sandbox
     t_logics_       logics_;
     t_fdevents_     fdevents_;
     t_timers_       timers_;
+    t_event_id      close_ev_id_ = BAD_EVENT_ID;
+    t_event_id      tmrs_ev_id_  = BAD_EVENT_ID;
     t_spin_cnt_     spin_cnt_    = 0;
     t_msec_         spin_period_ = 10;
   };
