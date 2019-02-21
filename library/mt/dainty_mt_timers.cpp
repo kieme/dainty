@@ -79,7 +79,11 @@ namespace timers
     t_void restart_timer(r_err err, t_timer_id id) noexcept {
     }
 
-    p_timer_logic stop_timer(t_timer_id id) noexcept {
+    t_bool stop_timer(t_timer_id id) noexcept {
+      return false;
+    }
+
+    p_timer_logic clear_timer(t_timer_id id) noexcept {
       return nullptr;
     }
 
@@ -225,9 +229,15 @@ namespace timers
     }
   }
 
-  p_timer_logic t_timers::stop_timer(t_timer_id id) noexcept {
+  t_bool t_timers::stop_timer(t_timer_id id) noexcept {
     if (*this == VALID)
       return impl_->stop_timer(id);
+    return false;
+  }
+
+  p_timer_logic t_timers::clear_timer(t_timer_id id) noexcept {
+    if (*this == VALID)
+      return impl_->clear_timer(id);
     return nullptr;
   }
 

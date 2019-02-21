@@ -186,7 +186,9 @@ namespace timers
     t_errn restart_timer  (       t_timer_id) noexcept;
     t_void restart_timer  (t_err, t_timer_id) noexcept;
 
-    p_timer_logic stop_timer  (t_timer_id) noexcept;
+    t_bool        stop_timer (t_timer_id) noexcept;
+    p_timer_logic clear_timer(t_timer_id) noexcept;
+
     t_void        clear_timers()           noexcept;
 
     t_bool is_timer_running(t_timer_id) const noexcept;
