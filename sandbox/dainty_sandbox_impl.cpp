@@ -136,8 +136,7 @@ namespace sandbox
       if (!logic_entry->timer_ids.is_full()) {
         auto result = timers_.insert(err);
         if (result) {
-          //t_timer_id id = mk_(result.id, generate_fdevent_session_id_());
-          t_timer_id id{0};
+          auto id = mk_timer_id_(result.id, generate_timer_unique_id_());
           auto tmr_id = tmrs_.start_timer(err, {params.periodic,
                                                 params.timeout,
                                                 params.early,
@@ -165,25 +164,100 @@ namespace sandbox
                                   R_timer_params params,
                                   x_timer_notify_ptr ptr) noexcept {
     ERR_GUARD(err) {
-    //XXX
+      auto logic_entry = logics_.get(ix);
+      if (!logic_entry->timer_ids.is_full()) {
+        auto result = timers_.insert(err);
+        if (result) {
+          auto id = mk_timer_id_(result.id, generate_timer_unique_id_());
+          auto tmr_id = tmrs_.start_timer(err, {params.periodic,
+                                                params.timeout,
+                                                params.early,
+                                                params.prio,
+                                                get(id)});
+          if (!err) {
+            auto timer_entry   = result.ptr;
+            timer_entry->logic_ix   = ix;
+            timer_entry->name       = name;
+            timer_entry->params     = params;
+            timer_entry->tmr_id     = tmr_id;
+            timer_entry->id         = id;
+            timer_entry->notify_ptr = x_cast(ptr);
+            logic_entry->timer_ids.push_back(id);
+            return id;
+          }
+          timers_.erase(result.id);
+        }
+      } else
+        err = err::E_XXX;
     }
     return t_timer_id{0};
   }
 
-  t_void t_impl_::restart_timer(t_err err, t_ix ix, t_timer_id id,
-                               R_timer_params params) noexcept {
+  t_void t_impl_::restart_timer(t_err err, t_ix ix, t_timer_id id) noexcept {
     ERR_GUARD(err) {
-    //XXX
+      auto entry_id = get_id_(id);
+      auto timer_entry = timers_.get(entry_id);
+
+      if (timer_entry && id == timer_entry->id && ix == timer_entry->logic_ix)
+        tmrs_.restart_timer(err, timer_entry->tmr_id);
+      else
+        err = err::E_XXX;
     }
   }
 
-  t_timer_notify_ptr t_impl_::stop_timer(t_ix ix, t_timer_id id) noexcept {
-    //XXX
-    return {};
+  t_void t_impl_::restart_timer(t_err err, t_ix ix, t_timer_id id,
+                                R_timer_params params) noexcept {
+    ERR_GUARD(err) {
+      auto entry_id = get_id_(id);
+      auto timer_entry = timers_.get(entry_id);
+
+      if (timer_entry && id == timer_entry->id &&
+          ix == timer_entry->logic_ix) {
+        tmrs_.restart_timer(err, timer_entry->tmr_id, params);
+        if (!err)
+          timer_entry->params = params;
+      } else
+        err = err::E_XXX;
+    }
+  }
+
+  t_bool t_impl_::stop_timer(t_ix ix, t_timer_id id) noexcept {
+    auto entry_id = get_id_(id);
+    auto timer_entry = timers_.get(entry_id);
+
+    if (timer_entry && id == timer_entry->id && ix == timer_entry->logic_ix)
+      return tmrs_.stop_timer(timer_entry->tmr_id);
+    return false;
+  }
+
+  t_timer_notify_ptr t_impl_::clear_timer(t_ix ix, t_timer_id id) noexcept {
+    t_timer_notify_ptr tmp;
+    auto entry_id = get_id_(id);
+    auto timer_entry = timers_.get(entry_id);
+
+    if (timer_entry && id == timer_entry->id && ix == timer_entry->logic_ix) {
+      tmrs_.clear_timer(timer_entry->tmr_id);
+
+      if (timer_entry->notify_ptr == VALID)
+        tmp = x_cast(timer_entry->notify_ptr);
+
+      auto logic_entry = logics_.get(ix);
+      logic_entry->timer_ids.erase(
+        logic_entry->timer_ids.find_if(
+          [&id](auto& _id) -> t_bool { return id == _id; }));
+
+      timers_.erase(entry_id);
+    }
+    return tmp;
   }
 
   P_timer_params t_impl_::get_timer(t_ix ix, t_timer_id id) const noexcept {
-    //XXX
+    auto entry_id = get_id_(id);
+    auto timer_entry = timers_.get(entry_id);
+
+    if (timer_entry && id == timer_entry->id && ix == timer_entry->logic_ix)
+      return &timer_entry->params;
+
     return nullptr;
   }
 
@@ -193,10 +267,10 @@ namespace sandbox
                                     R_fdevent_params params) noexcept {
     ERR_GUARD(err) {
       auto logic_entry = logics_.get(ix);
-      if (!logic_entry->fds_ids.is_full()) {
+      if (!logic_entry->event_ids.is_full()) {
         auto result = fdevents_.insert(err);
         if (result) {
-          t_fdevent_id id = mk_(result.id, generate_fdevent_session_id_());
+          auto id = mk_fdevent_id_(result.id, generate_fdevent_unique_id_());
           auto ev_id = dispatcher_.add_event(err, {params.fd,
                                                    params.type,
                                                    params.prio,
@@ -208,7 +282,7 @@ namespace sandbox
             fd_entry->params   = params;
             fd_entry->ev_id    = ev_id;
             fd_entry->id       = id;
-            logic_entry->fds_ids.push_back(id);
+            logic_entry->event_ids.push_back(id);
             return id;
           }
           fdevents_.erase(result.id);
@@ -224,10 +298,10 @@ namespace sandbox
                                     t_fdevent_notify_ptr notify_ptr) noexcept {
     ERR_GUARD(err) {
       auto logic_entry = logics_.get(ix);
-      if (!logic_entry->fds_ids.is_full()) {
+      if (!logic_entry->event_ids.is_full()) {
         auto result = fdevents_.insert(err);
         if (result) {
-          t_fdevent_id id = mk_(result.id, generate_fdevent_session_id_());
+          auto id = mk_fdevent_id_(result.id, generate_fdevent_unique_id_());
           auto ev_id = dispatcher_.add_event(err, {params.fd,
                                                    params.type,
                                                    params.prio,
@@ -240,7 +314,7 @@ namespace sandbox
             fd_entry->ev_id      = ev_id;
             fd_entry->notify_ptr = x_cast(notify_ptr);
             fd_entry->id         = id;
-            logic_entry->fds_ids.push_back(id);
+            logic_entry->event_ids.push_back(id);
             return id;
           }
           fdevents_.erase(result.id);
@@ -264,8 +338,8 @@ namespace sandbox
         tmp = x_cast(fd_entry->notify_ptr);
 
       auto logic_entry = logics_.get(ix);
-      logic_entry->fds_ids.erase(
-        logic_entry->fds_ids.find_if(
+      logic_entry->event_ids.erase(
+        logic_entry->event_ids.find_if(
           [&id](auto& _id) -> t_bool { return id == _id; }));
 
       fdevents_.erase(entry_id);
@@ -352,20 +426,47 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_freelist_entry_id_ t_impl_::generate_fdevent_session_id_() {
+  t_freelist_id_value_ t_impl_::generate_fdevent_unique_id_() noexcept {
+    // XXX
     return 0;
   }
 
-  // should not be class methods  change later
-  t_fdevent_id t_impl_::mk_(t_fdevents_entry_id_, t_freelist_entry_id_) const {
-    return t_fdevent_id{0};
+  t_fdevent_id t_impl_::mk_fdevent_id_(t_fdevents_id_ id,
+                                       t_freelist_id_value_) const noexcept {
+    // XXX
+    return t_fdevent_id(get(id));
   }
 
-   t_impl_::t_fdevents_entry_id_ t_impl_::get_id_(t_fdevent_id) const {
-    return t_fdevents_entry_id_{0};
+   t_impl_::t_fdevents_id_ t_impl_::get_id_(t_fdevent_id id) const noexcept {
+    // XXX
+    return t_fdevents_id_(get(id));
   }
 
-  t_freelist_entry_id_ t_impl_::get_session_id_(t_fdevent_id) const {
+  t_freelist_id_value_ t_impl_::get_unique_id_(t_fdevent_id) const noexcept {
+    // XXX
+    return 0;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_freelist_id_value_ t_impl_::generate_timer_unique_id_() noexcept {
+    // XXX
+    return 0;
+  }
+
+  t_timer_id t_impl_::mk_timer_id_(t_timers_id_ id,
+                                   t_freelist_id_value_) const noexcept {
+    // XXX
+    return t_timer_id(get(id));
+  }
+
+   t_impl_::t_timers_id_ t_impl_::get_id_(t_timer_id id) const noexcept {
+    // XXX
+    return t_timers_id_(get(id));
+  }
+
+  t_freelist_id_value_ t_impl_::get_unique_id_(t_timer_id) const noexcept {
+    // XXX
     return 0;
   }
 

@@ -78,13 +78,15 @@ namespace sandbox
 ///////////////////////////////////////////////////////////////////////////////
 
     t_timer_id start_timer  (t_err, R_timer_name,
-                             R_timer_params)         noexcept override final;
+                             R_timer_params)          noexcept override final;
     t_timer_id start_timer  (t_err, R_timer_name, R_timer_params,
-                             x_timer_notify_ptr)     noexcept override final;
+                             x_timer_notify_ptr)      noexcept override final;
+    t_void     restart_timer(t_err, t_timer_id)       noexcept override final;
     t_void     restart_timer(t_err, t_timer_id,
-                             R_timer_params)         noexcept override final;
-    t_timer_notify_ptr stop_timer(t_timer_id)        noexcept override final;
-    P_timer_params     get_timer (t_timer_id)  const noexcept override final;
+                             R_timer_params)          noexcept override final;
+    t_bool             stop_timer (t_timer_id)        noexcept override final;
+    t_timer_notify_ptr clear_timer(t_timer_id)        noexcept override final;
+    P_timer_params     get_timer  (t_timer_id)  const noexcept override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 

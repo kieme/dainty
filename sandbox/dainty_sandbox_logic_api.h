@@ -139,14 +139,16 @@ namespace sandbox
 ///////////////////////////////////////////////////////////////////////////////
 
     virtual t_timer_id start_timer  (t_err, R_timer_name,
-                                     R_timer_params)        noexcept = 0;
+                                     R_timer_params)         noexcept = 0;
     virtual t_timer_id start_timer  (t_err, R_timer_name,
                                      R_timer_params,
-                                     x_timer_notify_ptr)    noexcept = 0;
+                                     x_timer_notify_ptr)     noexcept = 0;
+    virtual t_void     restart_timer(t_err, t_timer_id)      noexcept = 0;
     virtual t_void     restart_timer(t_err, t_timer_id,
-                                     R_timer_params)        noexcept = 0;
-    virtual t_timer_notify_ptr stop_timer(t_timer_id)       noexcept = 0;
-    virtual P_timer_params     get_timer (t_timer_id) const noexcept = 0;
+                                     R_timer_params)         noexcept = 0;
+    virtual t_bool             stop_timer (t_timer_id)       noexcept = 0;
+    virtual t_timer_notify_ptr clear_timer(t_timer_id)       noexcept = 0;
+    virtual P_timer_params     get_timer  (t_timer_id) const noexcept = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 

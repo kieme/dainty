@@ -165,6 +165,14 @@ namespace sandbox
     return t_timer_id{-1};
   }
 
+  t_void t_logic::restart_timer(t_err err, t_timer_id id) noexcept {
+    ERR_GUARD(err) {
+      if (impl_)
+        return impl_->restart_timer(err, ix_, id);
+      err = err::E_XXX;
+    }
+  }
+
   t_void t_logic::restart_timer(t_err err, t_timer_id id,
                                 R_timer_params params) noexcept {
     ERR_GUARD(err) {
@@ -174,9 +182,15 @@ namespace sandbox
     }
   }
 
-  t_timer_notify_ptr t_logic::stop_timer(t_timer_id id) noexcept {
+  t_bool t_logic::stop_timer(t_timer_id id) noexcept {
     if (impl_)
       return impl_->stop_timer(ix_, id);
+    return false;
+  }
+
+  t_timer_notify_ptr t_logic::clear_timer(t_timer_id id) noexcept {
+    if (impl_)
+      return impl_->clear_timer(ix_, id);
     return {nullptr, nullptr};
   }
 

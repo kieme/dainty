@@ -48,8 +48,7 @@ namespace sandbox
   using mt::event_dispatcher::BAD_EVENT_ID;
   using mt::timers::BAD_TIMER_ID;
 
-  using t_freelist_entry_id  = container::freelist::t_id;
-  using t_freelist_entry_id_ = container::freelist::t_id_;
+  using t_freelist_id_value_ = container::freelist::t_id_;
   using t_thread_            = mt::detached_thread::t_thread;
   using t_dispatcher_        = mt::event_dispatcher::t_dispatcher;
   using t_tmrs_              = mt::timers::t_timers;
@@ -99,14 +98,16 @@ namespace sandbox
 ///////////////////////////////////////////////////////////////////////////////
 
     t_timer_id         start_timer  (t_err, t_ix, R_timer_name,
-                                     R_timer_params)         noexcept;
+                                     R_timer_params)          noexcept;
     t_timer_id         start_timer  (t_err, t_ix, R_timer_name,
                                      R_timer_params,
-                                     x_timer_notify_ptr)     noexcept;
+                                     x_timer_notify_ptr)      noexcept;
+    t_void             restart_timer(t_err, t_ix, t_timer_id) noexcept;
     t_void             restart_timer(t_err, t_ix, t_timer_id,
-                                     R_timer_params)         noexcept;
-    t_timer_notify_ptr stop_timer   (t_ix, t_timer_id)       noexcept;
-    P_timer_params     get_timer    (t_ix, t_timer_id) const noexcept;
+                                     R_timer_params)          noexcept;
+    t_bool             stop_timer   (t_ix, t_timer_id)        noexcept;
+    t_timer_notify_ptr clear_timer  (t_ix, t_timer_id)        noexcept;
+    P_timer_params     get_timer    (t_ix, t_timer_id) const  noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -132,9 +133,9 @@ namespace sandbox
       t_fdevent_id         id       = t_fdevent_id{0};
       t_fdevent_notify_ptr notify_ptr;
     };
-    using t_fdevents_          = t_freelist<t_fdevent_entry_, 200>;
-    using t_fdevents_entry_id_ = t_fdevents_::t_id;
-    using t_fdevents_ids_      = t_list<t_fdevent_id, 100>;
+    using t_fdevents_    = t_freelist<t_fdevent_entry_, 200>;
+    using t_fdevents_id_ = t_fdevents_::t_id;
+    using t_fdevent_ids_ = t_list<t_fdevent_id, 100>;
 
     struct t_timer_entry_ {
       t_timer_name       name;
@@ -144,16 +145,16 @@ namespace sandbox
       t_tmr_id_          tmr_id   = BAD_TIMER_ID;
       t_timer_notify_ptr notify_ptr;
     };
-    using t_timers_         = t_freelist<t_timer_entry_, 200>;
-    using t_timer_entry_id_ = t_timers_::t_id;
-    using t_timer_ids_      = t_list<t_timer_id, 100>;
+    using t_timers_    = t_freelist<t_timer_entry_, 200>;
+    using t_timers_id_ = t_timers_::t_id;
+    using t_timer_ids_ = t_list<t_timer_id, 100>;
 
     struct t_logic_entry_ {
-      p_logic         logic        = nullptr;
-      t_spin_cnt_     spin_cnt     = 0;
-      t_spin_cnt_     spin_cnt_max = 0;
-      t_fdevents_ids_ fds_ids;
-      t_timer_ids_    timer_ids;
+      p_logic        logic        = nullptr;
+      t_spin_cnt_    spin_cnt     = 0;
+      t_spin_cnt_    spin_cnt_max = 0;
+      t_fdevent_ids_ event_ids;
+      t_timer_ids_   timer_ids;
       // add t_messenger
       // add t_tracer
     };
@@ -183,10 +184,19 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_freelist_entry_id_ generate_fdevent_session_id_();
-    t_fdevent_id         mk_(t_fdevents_entry_id_, t_freelist_entry_id_) const;
-    t_fdevents_entry_id_ get_id_        (t_fdevent_id) const;
-    t_freelist_entry_id_ get_session_id_(t_fdevent_id) const;
+    t_freelist_id_value_ generate_fdevent_unique_id_() noexcept;
+    t_fdevent_id         mk_fdevent_id_(t_fdevents_id_,
+                                       t_freelist_id_value_) const noexcept;
+    t_fdevents_id_       get_id_        (t_fdevent_id) const noexcept;
+    t_freelist_id_value_ get_unique_id_ (t_fdevent_id) const noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_freelist_id_value_ generate_timer_unique_id_() noexcept;
+    t_timer_id           mk_timer_id_(t_timers_id_,
+                                      t_freelist_id_value_) const noexcept;
+    t_timers_id_         get_id_       (t_timer_id) const noexcept;
+    t_freelist_id_value_ get_unique_id_(t_timer_id) const noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
