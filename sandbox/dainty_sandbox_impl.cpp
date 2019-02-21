@@ -49,6 +49,7 @@ namespace sandbox
       : name_      {name},
         params_    {params},
         closefd_   {os::call_eventfd(err, t_n{0})},
+        tmrs_      {err, {t_n{100}, "timerfd_service"}},
         dispatcher_{err, {t_n{100}, "epoll_service"}},
         logics_    {err, max_logics}  {
     ERR_GUARD(err) {
@@ -131,7 +132,31 @@ namespace sandbox
   t_timer_id t_impl_::start_timer(t_err err, t_ix ix, R_timer_name name,
                                   R_timer_params params) noexcept {
     ERR_GUARD(err) {
-    //XXX
+      auto logic_entry = logics_.get(ix);
+      if (!logic_entry->timer_ids.is_full()) {
+        auto result = timers_.insert(err);
+        if (result) {
+          //t_timer_id id = mk_(result.id, generate_fdevent_session_id_());
+          t_timer_id id{0};
+          auto tmr_id = tmrs_.start_timer(err, {params.periodic,
+                                                params.timeout,
+                                                params.early,
+                                                params.prio,
+                                                get(id)});
+          if (!err) {
+            auto timer_entry   = result.ptr;
+            timer_entry->logic_ix = ix;
+            timer_entry->name     = name;
+            timer_entry->params   = params;
+            timer_entry->tmr_id   = tmr_id;
+            timer_entry->id       = id;
+            logic_entry->timer_ids.push_back(id);
+            return id;
+          }
+          timers_.erase(result.id);
+        }
+      } else
+        err = err::E_XXX;
     }
     return t_timer_id{0};
   }

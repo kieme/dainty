@@ -52,7 +52,8 @@ namespace sandbox
   using t_freelist_entry_id_ = container::freelist::t_id_;
   using t_thread_            = mt::detached_thread::t_thread;
   using t_dispatcher_        = mt::event_dispatcher::t_dispatcher;
-  using t_timers_            = mt::timers::t_timers;
+  using t_tmrs_              = mt::timers::t_timers;
+  using t_tmr_id_            = mt::timers::t_timer_id;
   using t_thread_logic_      = t_thread_::t_logic;
   using t_thread_logic_ptr_  = t_thread_::t_logic_ptr;
 
@@ -65,10 +66,10 @@ namespace sandbox
 
   class t_impl_ : public t_thread_logic_,
                   public t_dispatcher_::t_logic,
-                  public t_timers_::t_logic {
+                  public t_tmrs_::t_logic {
     using base1_ = t_thread_logic_;
     using base2_ = t_dispatcher_::t_logic;
-    using base3_ = t_timers_::t_logic;
+    using base3_ = t_tmrs_::t_logic;
   public:
     using t_errn = named::t_errn;
 
@@ -139,11 +140,12 @@ namespace sandbox
       t_timer_name       name;
       t_timer_params     params;
       t_ix               logic_ix = t_ix{0};
-      t_timer_id         tmr_id   = BAD_TIMER_ID;
+      t_timer_id         id       = BAD_TIMER_ID;
+      t_tmr_id_          tmr_id   = BAD_TIMER_ID;
       t_timer_notify_ptr notify_ptr;
     };
-    using t_timers_tbl_     = t_freelist<t_timer_entry_, 200>;
-    using t_timer_entry_id_ = t_timers_tbl_::t_id;
+    using t_timers_         = t_freelist<t_timer_entry_, 200>;
+    using t_timer_entry_id_ = t_timers_::t_id;
     using t_timer_ids_      = t_list<t_timer_id, 100>;
 
     struct t_logic_entry_ {
@@ -151,7 +153,7 @@ namespace sandbox
       t_spin_cnt_     spin_cnt     = 0;
       t_spin_cnt_     spin_cnt_max = 0;
       t_fdevents_ids_ fds_ids;
-      t_timer_ids_    tmr_ids;
+      t_timer_ids_    timer_ids;
       // add t_messenger
       // add t_tracer
     };
@@ -191,10 +193,11 @@ namespace sandbox
     T_thread_name   name_;
     T_thread_params params_;
     t_fd            closefd_;
+    t_tmrs_         tmrs_;
     t_dispatcher_   dispatcher_;
     t_logics_       logics_;
     t_fdevents_     fdevents_;
-    t_timers_tbl_   timers_;
+    t_timers_       timers_;
     t_spin_cnt_     spin_cnt_    = 0;
     t_msec_         spin_period_ = 10;
   };
