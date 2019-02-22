@@ -33,7 +33,7 @@ namespace os
 {
 namespace clock
 {
-  t_time monotonic_now() {
+  t_time monotonic_now() noexcept {
     t_time time;
     if (call_clock_gettime_monotonic(to_(time)) == VALID)
       return time;
@@ -41,7 +41,7 @@ namespace clock
     return {};
   }
 
-  t_time monotonic_now(t_err err) {
+  t_time monotonic_now(t_err err) noexcept {
     ERR_GUARD(err) {
       t_time time;
       call_clock_gettime_monotonic(err, to_(time));
@@ -50,7 +50,7 @@ namespace clock
     return {};
   }
 
-  t_time realtime_now() {
+  t_time realtime_now() noexcept {
     t_time time;
     if (call_clock_gettime_realtime(to_(time)) == VALID)
       return time;
@@ -58,7 +58,7 @@ namespace clock
     return {};
   }
 
-  t_time realtime_now(t_err err) {
+  t_time realtime_now(t_err err) noexcept {
     ERR_GUARD(err) {
       t_time time;
       call_clock_gettime_realtime(err, to_(time));
