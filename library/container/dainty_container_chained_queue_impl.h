@@ -191,8 +191,8 @@ namespace chained_queue
             chain_.tail->next_ = chain.head;
           else
             chain_.head = chain.head;
-          chain_.tail =  chain.tail;
-          set(chain_.cnt) += get(chain.cnt);
+          chain_.tail = chain.tail;
+          chain_.cnt  = t_n{get(chain_.cnt) + get(chain.cnt)};
         }
       }
     }
@@ -205,8 +205,8 @@ namespace chained_queue
               chain_.tail->next_ = chain.head;
             else
               chain_.head = chain.head;
-            chain_.tail =  chain.tail;
-            set(chain_.cnt) += get(chain.cnt);
+            chain_.tail = chain.tail;
+            chain_.cnt  = t_n{get(chain_.cnt) + get(chain.cnt)};
           }
         } else
           err = err::E_INVALID_INST;
@@ -220,7 +220,7 @@ namespace chained_queue
           auto cnt = get(n);
           if (!cnt || cnt >= has_cnt) {
             t_chain tmp = chain_;
-            set(chain_.cnt) = 0;
+            chain_.cnt  = t_n{0};
             return tmp;
           }
           p_item head = chain_.head;
@@ -229,7 +229,7 @@ namespace chained_queue
             tail = tail->next_;
           chain_.head =  tail->next_;
           tail->next_ = nullptr;
-          set(chain_.cnt) -= cnt;
+          chain_.cnt  = t_n{get(chain_.cnt) - cnt};
           return {n, head, tail};
         }
       }
@@ -244,7 +244,7 @@ namespace chained_queue
             auto cnt = get(n);
             if (!cnt || cnt >= has_cnt) {
               t_chain tmp = chain_;
-              set(chain_.cnt) = 0;
+              chain_.cnt  = t_n{0};
               return tmp;
             }
             p_item head = chain_.head;
@@ -253,7 +253,7 @@ namespace chained_queue
               tail = tail->next_;
             chain_.head =  tail->next_;
             tail->next_ = nullptr;
-            set(chain_.cnt) -= cnt;
+            chain_.cnt  = t_n{get(chain_.cnt) - cnt};
             return {n, head, tail};
           }
         } else

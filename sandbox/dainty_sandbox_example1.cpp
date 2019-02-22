@@ -144,8 +144,8 @@ int main() {
     t_app0 app1{err.tag(5), false, x_cast(client2), x_cast(processor1)};
     t_app0 app2{err.tag(6), true,  x_cast(client1), x_cast(processor2)};
 
-    t_n cnt{0};
-    for (; cnt < t_n{20}; ++set(cnt))
+    t_n_ cnt = 0;
+    for (; cnt < 20; ++cnt)
       sleep(5);
 
     sleep(1);

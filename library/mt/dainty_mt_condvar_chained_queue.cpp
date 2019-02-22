@@ -97,7 +97,7 @@ namespace condvar_chained_queue
           if (scope == VALID) {
             send = queue_.is_empty();
             queue_.insert(chain);
-            set(errn) = 0;
+            errn = t_errn{0};
           }
         %>
         if (send && errn == VALID)

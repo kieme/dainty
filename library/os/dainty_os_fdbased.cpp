@@ -89,7 +89,7 @@ namespace fdbased
       auto verify = call_read(fd_, &value, t_n{sizeof(t_value)});
       if (get(verify.value) == sizeof(value))
         return verify.errn;
-      set(errn) = -1;
+      errn = t_errn{-1};
     }
     return errn;
   }
@@ -109,7 +109,7 @@ namespace fdbased
       auto verify = call_write(fd_, &value, t_n{sizeof(t_value)});
       if (get(verify.value) == sizeof(value))
         return verify.errn;
-      set(errn) = -1;
+      errn = t_errn{-1};
     }
     return errn;
   }
@@ -353,7 +353,6 @@ namespace fdbased
       auto verify = call_read(fd_, &data, t_n{sizeof(t_data)});
       if (get(verify.value) == sizeof(t_data))
         return verify.errn;
-      set(errn) = -1;
     }
     return errn;
   }

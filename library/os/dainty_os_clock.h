@@ -126,8 +126,9 @@ namespace clock
 
   struct t_ticks_scope { // not overflow safe
     t_ticks& ticks;
-    t_ticks_scope(t_ticks& t) : ticks(t)    { ticks = get_ticks(); }
-    ~t_ticks_scope() { set(ticks) = get(get_ticks()) - get(ticks); }
+
+     t_ticks_scope(t_ticks& t) : ticks(t)    { ticks = get_ticks(); }
+    ~t_ticks_scope() { ticks = t_ticks{get(get_ticks()) - get(ticks)}; }
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -165,27 +166,27 @@ namespace clock
 ///////////////////////////////////////////////////////////////////////////////
 
   constexpr t_nsec& to_(t_nsec& nsec, const ::timespec& spec) noexcept {
-    set(nsec) = spec.tv_nsec + (1000000000*spec.tv_sec);
+    nsec = t_nsec(spec.tv_nsec + (1000000000*spec.tv_sec));
     return nsec;
   }
 
   constexpr t_usec& to_(t_usec& usec, const ::timespec& spec) noexcept {
-    set(usec) = spec.tv_nsec/1000 + (1000000*spec.tv_sec);
+    usec = t_usec(spec.tv_nsec/1000 + (1000000*spec.tv_sec));
     return usec;
   }
 
   constexpr t_msec& to_(t_msec& msec, const ::timespec& spec) noexcept {
-    set(msec) = spec.tv_nsec/1000000 + (1000*spec.tv_sec);
+    msec = t_msec(spec.tv_nsec/1000000 + (1000*spec.tv_sec));
     return msec;
   }
 
   constexpr t_sec& to_(t_sec& sec, const ::timespec& spec) noexcept {
-    set(sec) = spec.tv_sec;
+    sec = t_sec(spec.tv_sec);
     return sec;
   }
 
   constexpr t_min& to_(t_min& min, const ::timespec& spec) noexcept {
-    set(min) = spec.tv_sec/60;
+    min = t_min(spec.tv_sec/60);
     return min;
   }
 
