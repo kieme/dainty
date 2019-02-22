@@ -88,6 +88,9 @@ namespace clock
     template<typename T, typename = typename t_test_<T>::t_dummy_>
     constexpr T to() const noexcept;
 
+    constexpr r_time operator+=(R_time) noexcept;
+    constexpr r_time operator-=(R_time) noexcept;
+
     constexpr operator t_bool() const noexcept;
 
   private:
@@ -95,6 +98,49 @@ namespace clock
     friend constexpr const ::timespec& to_(R_time) noexcept;
     ::timespec spec_;
   };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  constexpr t_time operator+(t_time lh, R_time rh) noexcept {
+    return (lh += rh);
+  }
+
+  constexpr t_time operator-(t_time lh, R_time rh) noexcept {
+    return (lh -= rh);
+  }
+
+  constexpr t_bool operator<(R_time lh, R_time rh) noexcept {
+    return  to_(lh).tv_sec < to_(rh).tv_sec ||
+           (to_(lh).tv_sec  == to_(rh).tv_sec &&
+            to_(lh).tv_nsec <  to_(rh).tv_nsec);
+  }
+
+  constexpr t_bool operator>(R_time lh, R_time rh) noexcept {
+    return  to_(lh).tv_sec > to_(rh).tv_sec ||
+           (to_(lh).tv_sec  == to_(rh).tv_sec &&
+            to_(lh).tv_nsec >  to_(rh).tv_nsec);
+  }
+
+  constexpr t_bool operator<=(R_time lh, R_time rh) noexcept {
+    return  to_(lh).tv_sec < to_(rh).tv_sec ||
+           (to_(lh).tv_sec  == to_(rh).tv_sec &&
+            to_(lh).tv_nsec <= to_(rh).tv_nsec);
+  }
+
+  constexpr t_bool operator>=(R_time lh, R_time rh) noexcept {
+    return  to_(lh).tv_sec > to_(rh).tv_sec ||
+           (to_(lh).tv_sec  == to_(rh).tv_sec &&
+            to_(lh).tv_nsec >= to_(rh).tv_nsec);
+  }
+
+  constexpr t_bool operator==(R_time lh, R_time rh) noexcept {
+    return  to_(lh).tv_sec  == to_(rh).tv_sec &&
+            to_(lh).tv_nsec == to_(rh).tv_nsec;
+  }
+
+  constexpr t_bool operator!=(R_time lh, R_time rh) noexcept {
+    return !(lh == rh);
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -262,6 +308,16 @@ namespace clock
   template<typename T, typename>
   constexpr r_time t_time::operator-=(T value) noexcept {
     minus_(t_time{value}, spec_);
+    return *this;
+  }
+
+  constexpr r_time t_time::operator+=(R_time value) noexcept {
+    add_(value, spec_);
+    return *this;
+  }
+
+  constexpr r_time t_time::operator-=(R_time value) noexcept {
+    minus_(value, spec_);
     return *this;
   }
 
