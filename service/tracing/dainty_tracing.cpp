@@ -894,7 +894,7 @@ namespace tracer
       t_out{"tracing: notify_dispatcher_removed"};
     }
 
-    t_quit notify_dispatcher_timeout(t_usec) noexcept override final {
+    t_quit notify_dispatcher_timeout(t_msec) noexcept override final {
       t_out{"tracing: notify_dispatcher_timeout"};
       return QUIT;
     }
@@ -904,7 +904,7 @@ namespace tracer
       return QUIT;
     }
 
-    t_quit notify_dispatcher_processed(r_usec) noexcept override final {
+    t_quit notify_dispatcher_processed(r_msec) noexcept override final {
       t_out{"tracing: notify_dispatcher_processed"};
       return DONT_QUIT;
     }
