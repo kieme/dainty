@@ -65,12 +65,12 @@ namespace sandbox
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_timer_name_tag_ {};
-  using t_timer_id         = mt::timers::t_timer_id; // not like fdevent_id
-  using t_timer_name       = t_string<t_timer_name_tag_, 20>;
-  using R_timer_name       = t_prefix<t_timer_name>::R_;
-  using t_timer_params     = mt::timers::t_timer_params;
-  using R_timer_params     = t_prefix<t_timer_params>::R_;
-  using P_timer_params     = t_prefix<t_timer_params>::P_;
+  using t_timer_id     = mt::timers::t_timer_id; // not like fdevent_id
+  using t_timer_name   = t_string<t_timer_name_tag_, 20>;
+  using R_timer_name   = t_prefix<t_timer_name>::R_;
+  using t_timer_params = mt::timers::t_timer_params;
+  using R_timer_params = t_prefix<t_timer_params>::R_;
+  using P_timer_params = t_prefix<t_timer_params>::P_;
 
   struct t_timer_notify {
     virtual ~t_timer_notify() { }

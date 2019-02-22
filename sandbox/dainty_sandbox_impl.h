@@ -182,8 +182,6 @@ namespace sandbox
     t_quit notify_dispatcher_error    (t_errn)         noexcept override final;
     t_quit notify_dispatcher_processed(r_msec)         noexcept override final;
     t_void notify_timers_reorder      (r_timer_infos)  noexcept override final;
-    t_void notify_timers_error        (t_errn)         noexcept override final;
-    t_void notify_timers_processed    ()               noexcept override final;
     t_void notify_timers_timeout      (t_timer_id,
                                        R_timer_params) noexcept override final;
 

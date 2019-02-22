@@ -577,16 +577,6 @@ namespace sandbox
     //XXX
   }
 
-  t_void t_impl_::notify_timers_error(t_errn) noexcept {
-    t_out{"t_impl_::notify_timers_error"};
-    //XXX
-  }
-
-  t_void t_impl_::notify_timers_processed() noexcept {
-    t_out{"t_impl_::notify_timers_processed"};
-    //XXX
-  }
-
   t_void t_impl_::notify_timers_timeout(t_timer_id id,
                                         R_timer_params params) noexcept {
     auto entry_id    = get_timers_id_(id);

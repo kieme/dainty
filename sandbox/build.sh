@@ -1,4 +1,5 @@
 g++ -Wall -o run dainty_sandbox_example.cpp \
+                 ../library/mt/dainty_mt_timers.cpp \
                  dainty_sandbox.cpp         \
                  dainty_sandbox_err.cpp     \
                  dainty_sandbox_impl.cpp    \
@@ -25,7 +26,6 @@ g++ -Wall -o run dainty_sandbox_example.cpp \
                  ../library/mt/dainty_mt_condvar_notify_change.cpp \
                  ../library/mt/dainty_mt_event_dispatcher.cpp \
                  ../library/mt/dainty_mt_condvar_command.cpp \
-                 ../library/mt/dainty_mt_timers.cpp \
                  ../library/os/dainty_os_clock.cpp \
                  ../library/os/dainty_os_call.cpp \
                  ../library/os/dainty_os_threading.cpp \
@@ -48,4 +48,4 @@ g++ -Wall -o run dainty_sandbox_example.cpp \
                  -I../service/messaging \
                  -I./logic_extensions \
                  -I./ \
-                 -std=c++17 -lpthread -O0 -ggdb3
+                 -std=c++17 -lpthread -O2 -ggdb3
