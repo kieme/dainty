@@ -507,12 +507,30 @@ namespace named
     using t_tag      = TAG;
     using t_validate = V;
 
-    constexpr explicit t_explicit(t_value value) : value_(V::check(value)) {
-    }
+    constexpr explicit t_explicit(t_value value)
+#ifndef DAINTY_EXPLICIT_VALIDATE
+      : value_{value}
+#else
+      : value_{V::check(value)}
+#endif
+    { }
 
     template<class T1, class V1>
     constexpr explicit t_explicit(t_explicit<T1, TAG, V1> value)
-      : value_(V::check(value.value_)) {
+#ifndef DAINTY_EXPLICIT_VALIDATE
+      : value_{value}
+#else
+      : value_{V::check(value.value_)}
+#endif
+    { }
+
+    template<class T1, class V1>
+    constexpr t_explicit& operator=(t_explicit<T1, TAG, V1> value) {
+#ifndef DAINTY_EXPLICIT_VALIDATE
+      value_ = value;
+#else
+      value_ = V::check(value.value_);
+#endif
     }
 
     t_explicit() = delete;                              // for clarity
