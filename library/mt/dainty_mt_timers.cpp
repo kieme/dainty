@@ -97,11 +97,15 @@ namespace timers
         entry->start       = now;
         entry->running     = entry->timeout;
 
+        t_errn errn{0};
         if (recalc_current_(now, entry->timeout))
-          set_timer_(); //XXX - can fail
+          errn = set_timer_();
 
-        active_timers_.push_back(entry); //XXX
-        return t_timer_id(get(result.id));
+        if (get(errn) == 0) {
+          active_timers_.push_back(entry);
+          return t_timer_id(get(result.id));
+        }
+        timers_.erase(result.id);
       }
       return t_timer_id{BAD_TIMER_ID};
     }
@@ -123,10 +127,13 @@ namespace timers
         entry->running     = entry->timeout;
 
         if (recalc_current_(now, entry->timeout))
-          set_timer_(err); //XXX - can fail
+          set_timer_(err);
 
-        active_timers_.push_back(err, entry); //XXX
-        return t_timer_id(get(result.id));
+        if (!err) {
+          active_timers_.push_back(entry);
+          return t_timer_id(get(result.id));
+        }
+        timers_.erase(result.id);
       }
       return t_timer_id{BAD_TIMER_ID};
     }
@@ -147,13 +154,14 @@ namespace timers
         entry->start       = now;
         entry->running     = entry->timeout;
 
+        t_errn errn{0};
         if (recalc_current_(now, entry->timeout))
-          set_timer_(); //XXX - can fail
+          errn = set_timer_();
 
-        if (active_insert)
-          active_timers_.push_back(entry); //XXX
+        if (get(errn) == 0 && active_insert)
+          active_timers_.push_back(entry);
 
-        return t_errn{0}; //XXX
+        return errn;
       }
       return t_errn{-1};
     }
@@ -176,10 +184,10 @@ namespace timers
         entry->running     = entry->timeout;
 
         if (recalc_current_(now, entry->timeout))
-          set_timer_(err); //XXX - can fail
+          set_timer_(err);
 
-        if (active_insert)
-          active_timers_.push_back(err, entry); //XXX
+        if (!err && active_insert)
+          active_timers_.push_back(err, entry);
       }
     }
 
@@ -194,13 +202,14 @@ namespace timers
 
         entry->running = entry->timeout;
 
+        t_errn errn{-1};
         if (recalc_current_(now, entry->timeout))
-          set_timer_(); //XXX - can fail
+          errn = set_timer_();
 
-        if (active_insert)
-          active_timers_.push_back(entry); //XXX
+        if (get(errn) == 0 && active_insert)
+          active_timers_.push_back(entry);
 
-        return t_errn{0};
+        return errn;
       }
       return t_errn{-1};
     }
@@ -217,10 +226,10 @@ namespace timers
         entry->running = entry->timeout;
 
         if (recalc_current_(now, entry->timeout))
-          set_timer_(err); //XXX - can fail
+          set_timer_(err);
 
-        if (active_insert)
-          active_timers_.push_back(err, entry); //XXX
+        if (!err && active_insert) // XXX no proper cleanup
+          active_timers_.push_back(err, entry); 
       }
     }
 
