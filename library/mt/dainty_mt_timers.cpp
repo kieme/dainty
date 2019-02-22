@@ -25,6 +25,10 @@
 ******************************************************************************/
 
 #include "dainty_named_utility.h"
+#include "dainty_container_freelist.h"
+#include "dainty_container_ptrlist.h"
+#include "dainty_os_clock.h"
+#include "dainty_os_fdbased.h"
 #include "dainty_mt_timers.h"
 
 namespace dainty
@@ -33,53 +37,198 @@ namespace mt
 {
 namespace timers
 {
+  using named::t_ix_;
+  using named::t_msec;
   using named::t_cstr_cptr;
-  using r_err   = t_prefix<t_err>::r_;
-  using p_logic = t_timers::p_logic;
+  using os::clock::monotonic_now;
+  using container::freelist::t_freelist;
+  using container::ptrlist::t_ptrlist;
 
+  using t_tmr_          = os::clock::t_timer;
+  using r_err           = t_prefix<t_err>::r_;
+  using p_logic         = t_timers::p_logic;
+  using t_timerfd_      = os::fdbased::t_timerfd;
+  using t_timerfd_flags = t_timerfd_::t_flags;
+  using t_timerfd_spec  = t_timerfd_::t_timerspec;
+  using t_time          = os::clock::t_time;
+  using R_time          = os::clock::R_time;
+
+///////////////////////////////////////////////////////////////////////////////
 
   class t_impl_ {
   public:
-    t_impl_(R_params params) noexcept : params_{params} {
+    t_impl_(R_params params) noexcept
+      : params_       {params},
+        timers_       {params.max},
+        active_timers_{params.max},
+        timerfd_      {t_timerfd_flags{0}} {
     }
 
-    t_impl_(r_err err, R_params params) noexcept : params_{params} {
+    t_impl_(r_err err, R_params params) noexcept
+      : params_       {params},
+        timers_       {err, params.max},
+        active_timers_{err, params.max},
+        timerfd_      {err, t_timerfd_flags{0}} {
     }
 
     operator t_validity() const noexcept {
-      return INVALID;
+      return timerfd_       == VALID &&
+             timers_        == VALID &&
+             active_timers_ == VALID ? VALID : INVALID;
     }
 
     t_fd get_fd() const noexcept {
-      return BAD_FD;
+      return timerfd_.get_fd();
     }
 
     t_timer_id start_timer (R_timer_params params,
                             p_timer_logic logic) noexcept {
-      return t_timer_id{0};
+      auto result = timers_.insert();
+      if (result) {
+        auto now   = monotonic_now();
+        auto entry = result.ptr;
+
+        entry->info.id     = t_timer_id(get(result.id));
+        entry->info.params = params;
+        entry->info.logic  = logic;
+        entry->periodic    = params.periodic;
+        entry->timeout     = params.timeout;
+        entry->early       = params.early;
+        entry->start       = now;
+        entry->running     = entry->timeout;
+
+        if (recalc_current_(now, entry->timeout))
+          set_timer_(); //XXX - can fail
+
+        active_timers_.push_back(entry); //XXX
+        return t_timer_id(get(result.id));
+      }
+      return t_timer_id{BAD_TIMER_ID};
     }
 
     t_timer_id start_timer(r_err err, R_timer_params params,
                            p_timer_logic logic) noexcept {
-      return t_timer_id{0};
+      auto result = timers_.insert(err);
+      if (result) {
+        auto now   = monotonic_now();
+        auto entry = result.ptr;
+
+        entry->info.id     = t_timer_id(get(result.id));
+        entry->info.params = params;
+        entry->info.logic  = logic;
+        entry->periodic    = params.periodic;
+        entry->timeout     = params.timeout;
+        entry->early       = params.early;
+        entry->start       = now;
+        entry->running     = entry->timeout;
+
+        if (recalc_current_(now, entry->timeout))
+          set_timer_(err); //XXX - can fail
+
+        active_timers_.push_back(err, entry); //XXX
+        return t_timer_id(get(result.id));
+      }
+      return t_timer_id{BAD_TIMER_ID};
     }
 
     t_errn restart_timer(t_timer_id id, R_timer_params params) noexcept {
+      auto entry = timers_.get(t_timers_id_(get(id)));
+      if (entry) {
+        auto now = monotonic_now();
+
+        t_bool active_insert = true;
+        if (entry->running)
+          active_insert = false;
+
+        entry->info.params = params;
+        entry->periodic    = params.periodic;
+        entry->timeout     = params.timeout;
+        entry->early       = params.early;
+        entry->start       = now;
+        entry->running     = entry->timeout;
+
+        if (recalc_current_(now, entry->timeout))
+          set_timer_(); //XXX - can fail
+
+        if (active_insert)
+          active_timers_.push_back(entry); //XXX
+
+        return t_errn{0}; //XXX
+      }
       return t_errn{-1};
     }
 
     t_void restart_timer(r_err err, t_timer_id id,
                          R_timer_params params) noexcept {
+      auto entry = timers_.get(t_timers_id_(get(id)));
+      if (entry) {
+        auto now = monotonic_now();
+
+        t_bool active_insert = true;
+        if (entry->running)
+          active_insert = false;
+
+        entry->info.params = params;
+        entry->periodic    = params.periodic;
+        entry->timeout     = params.timeout;
+        entry->early       = params.early;
+        entry->start       = now;
+        entry->running     = entry->timeout;
+
+        if (recalc_current_(now, entry->timeout))
+          set_timer_(err); //XXX - can fail
+
+        if (active_insert)
+          active_timers_.push_back(err, entry); //XXX
+      }
     }
 
     t_errn restart_timer(t_timer_id id) noexcept {
+      auto entry = timers_.get(t_timers_id_(get(id)));
+      if (entry) {
+        auto now = monotonic_now();
+
+        t_bool active_insert = true;
+        if (entry->running)
+          active_insert = false;
+
+        entry->running = entry->timeout;
+
+        if (recalc_current_(now, entry->timeout))
+          set_timer_(); //XXX - can fail
+
+        if (active_insert)
+          active_timers_.push_back(entry); //XXX
+
+        return t_errn{0};
+      }
       return t_errn{-1};
     }
 
     t_void restart_timer(r_err err, t_timer_id id) noexcept {
+      auto entry = timers_.get(t_timers_id_(get(id)));
+      if (entry) {
+        auto now = monotonic_now();
+
+        t_bool active_insert = true;
+        if (entry->running)
+          active_insert = false;
+
+        entry->running = entry->timeout;
+
+        if (recalc_current_(now, entry->timeout))
+          set_timer_(err); //XXX - can fail
+
+        if (active_insert)
+          active_timers_.push_back(err, entry); //XXX
+      }
     }
 
     t_bool stop_timer(t_timer_id id) noexcept {
+      auto entry = timers_.get(t_timers_id_(get(id)));
+      if (entry) {
+        // clear from active list
+      }
       return false;
     }
 
@@ -91,29 +240,180 @@ namespace timers
     }
 
     t_bool is_timer_running(t_timer_id id) const noexcept {
+      auto entry = timers_.get(t_timers_id_(get(id)));
+      if (entry) {
+        t_ix_ end = get(active_timers_.get_size());
+        for (t_ix_ ix = 0; ix < end; ++ix)
+          if (entry == active_timers_.get(t_ix{ix}))
+            return true;
+      }
       return false;
     }
 
     P_timer_info get_info(t_timer_id id) const noexcept {
-      return nullptr;
-    }
-
-    P_timer_info get_info(r_err err, t_timer_id id) const noexcept {
+      auto entry = timers_.get(t_timers_id_(get(id)));
+      if (entry)
+        return &entry->info;
       return nullptr;
     }
 
     t_void get_timer_ids(r_timer_ids ids) const noexcept {
+      timers_.each([&ids](auto, auto& entry) mutable {
+                     ids.push_back(entry.info.id); });
     }
 
     t_errn process(p_logic logic) noexcept {
+      //XXX
       return t_errn{-1};
     }
 
     t_void process(r_err err, p_logic logic) noexcept {
+      t_timerfd_::t_data data;
+      timerfd_.read(err, data);
+      if (!err) {
+        if (current_ && !active_timers_.is_empty()) {
+          t_time now     = monotonic_now();
+          t_time expired = now - last_;
+          t_time lowest;
+
+          t_timer_infos expired_timers{err, params_.max};
+          if (!err) {
+            t_ix_ end = get(active_timers_.get_size());
+            for (t_ix_ ix = 0; ix < end; /*none*/) {
+              auto entry = active_timers_.get(t_ix{ix});
+              if (expired > entry->running)
+                entry->running = t_msec{0};
+              else
+                entry->running -= expired;
+
+              if (entry->running <= entry->early) {
+                expired_timers.push_back(&entry->info);
+                if (entry->periodic)
+                  entry->running = entry->timeout;
+                else {
+                  entry->running = t_msec{0};
+                  active_timers_.erase(t_ix{ix});
+                  end = get(active_timers_.get_size());
+                  continue;
+                }
+              }
+              if (entry->running < lowest)
+                lowest = entry->running;
+              ++ix;
+            }
+
+            if (lowest) {
+              last_    = now;
+              current_ = lowest;
+              set_timer_(err);
+            } else {
+              last_    = t_msec{0};
+              current_ = t_msec{0};
+            }
+
+            logic->notify_timers_reorder(expired_timers);
+
+            end = get(expired_timers.get_size());
+            for (t_ix_ ix = 0; ix < end; ++ix) {
+              auto entry = timers_.get(
+                t_timers_id_(get(expired_timers.get(t_ix{ix})->id)));
+              entry->end = monotonic_now();
+
+              // XXX can say excatly how long the timeout was
+              if (entry->info.logic)
+                entry->info.logic->notify_timers_timeout(entry->info.id,
+                                                         entry->info.params);
+              else
+                logic->notify_timers_timeout(entry->info.id,
+                                             entry->info.params);
+
+              if (entry->periodic) {
+                entry->start = now;
+                entry->end   = t_msec{0};
+              } else {
+                entry->start = t_msec{0};
+                entry->end   = t_msec{0};
+              }
+            }
+
+            logic->notify_timers_processed();
+          }
+        } else {
+          current_ = t_msec{0};
+          last_    = t_msec{0};
+          err = err::E_XXX;
+        }
+      }
     }
 
   private:
-    T_params params_;
+    struct t_timer_entry_ {
+      t_timer_info info;
+      t_bool  periodic;
+      t_time  timeout;
+      t_time  early;
+      t_time  running; // its running if not zero
+      t_time  start;
+      t_time  end;
+    };
+    using t_timers_       = t_freelist<t_timer_entry_>;
+    using t_timers_id_    = t_timers_::t_id;
+    using t_timer_ptrlist = t_ptrlist <t_timer_entry_>;
+
+    t_void set_timer_(r_err err) noexcept {
+      ERR_GUARD(err) {
+        t_time tmp;
+        t_timerfd_spec spec;
+        spec.it_interval = os::clock::to_(tmp);
+        spec.it_value    = os::clock::to_(current_);
+        timerfd_.set_time(err, t_timerfd_flags{0}, spec);
+      }
+    }
+
+    t_errn set_timer_() noexcept {
+      t_time tmp;
+      t_timerfd_spec spec;
+      spec.it_interval = os::clock::to_(tmp);
+      spec.it_value    = os::clock::to_(current_);
+      return timerfd_.set_time(t_timerfd_flags{0}, spec);
+    }
+
+    t_bool recalc_current_(R_time now, R_time timeout) noexcept {
+      t_bool updated = false;
+      if (current_) {
+        auto expired = now - last_;
+
+        t_time remain;
+        if (expired > current_) {
+          // XXX not sure yet
+        } else
+          remain  = current_ - expired;
+
+        if (timeout < remain) {
+          current_ = timeout;
+          updated  = true;
+          last_    = now;
+
+          t_ix_ end = get(active_timers_.get_size());
+          for (t_ix_ ix = 0; ix < end; ++ix) {
+            auto entry = active_timers_.get(t_ix{ix});
+            entry->running -= expired;
+          }
+        }
+      } else {
+        last_    = now;
+        current_ = timeout;
+        updated  = true;
+      }
+      return updated;
+    }
+
+    T_params        params_;
+    t_timers_       timers_;
+    t_timer_ptrlist active_timers_;
+    t_timerfd_      timerfd_;
+    t_time          current_;
+    t_time          last_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -256,8 +556,12 @@ namespace timers
 
   P_timer_info t_timers::get_info(t_err err, t_timer_id id) const noexcept {
     ERR_GUARD(err) {
-      if (*this == VALID)
-        return impl_->get_info(err, id);
+      if (*this == VALID) {
+        auto info = impl_->get_info(id);
+        if (!info)
+          err = err::E_XXX;
+        return info;
+      }
       err = err::E_XXX;
     }
     return nullptr;

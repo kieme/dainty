@@ -104,11 +104,6 @@ namespace timers
     t_timer_id     id     = t_timer_id{0};
     p_timer_logic  logic  = nullptr;
     t_timer_params params;
-
-    inline
-    t_timer_info(p_timer_logic _logic, R_timer_params _params) noexcept
-      : logic(_logic), params(_params) {
-    }
   };
   using r_timer_info  = t_prefix<t_timer_info>::r_;
   using P_timer_info  = t_prefix<t_timer_info>::P_;
@@ -160,7 +155,6 @@ namespace timers
 
       virtual t_void notify_timers_reorder  (r_timer_infos) noexcept;
       virtual t_void notify_timers_processed()              noexcept;
-      virtual t_void notify_timers_error    (t_errn)        noexcept = 0;
     };
     using p_logic = t_prefix<t_logic>::p_;
 

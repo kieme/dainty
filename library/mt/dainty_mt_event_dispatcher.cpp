@@ -231,13 +231,14 @@ namespace event_dispatcher
             quit = process_events(infos_, logic);
           else
             quit = logic->notify_dispatcher_timeout(msec);
-        } else
+        } else {
           quit = logic->notify_dispatcher_error(errn);
-
-        if (quit == DONT_QUIT) {
-          errn = t_errn{0};
-          quit = logic->notify_dispatcher_processed(msec);
+          if (quit == DONT_QUIT)
+            errn = t_errn{0};
         }
+
+        if (quit == DONT_QUIT)
+          quit = logic->notify_dispatcher_processed(msec);
 
         infos_.clear();
         ++cnt;
