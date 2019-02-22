@@ -313,9 +313,9 @@ namespace message
       _len       = t_n{hdr->len};
       _dst       = t_messenger_key{hdr->dst};
       _src       = t_messenger_key{hdr->src};
-      id.domain  = hdr->domain;
-      id.user    = hdr->user;
-      id.version = hdr->version;
+      id.domain  = t_domain       {hdr->domain};
+      id.user    = t_user         {hdr->user};
+      id.version = t_version      {hdr->version};
       _cnt       = hdr->cnt;
       _seq       = hdr->seq;
       return true;
@@ -594,11 +594,11 @@ namespace message
       t_timeout_cptr_ timeout{msg.mk_cview(t_ix{sizeof(t_hdr_)},
                                            t_ix{sizeof(t_hdr_) +
                                                 sizeof(t_timeout_)})};
-      periodic       = timeout->periodic;
-      key            = t_messenger_key {timeout->key};
-      prio           = t_messenger_prio{timeout->prio};
-      user           = timeout->user;
-      multiple.value = t_multiple_of_100ms{timeout->multiple};
+      periodic = timeout->periodic;
+      key      = t_messenger_key {timeout->key};
+      prio     = t_messenger_prio{timeout->prio};
+      user     = timeout->user;
+      multiple = t_multiple_of_100ms{timeout->multiple};
       return true;
     }
     return false;
@@ -1823,7 +1823,7 @@ namespace message
       t_out{"messaging: notify_dispatcher_removed"};
     }
 
-    t_quit notify_dispatcher_timeout(t_usec) noexcept override final {
+    t_quit notify_dispatcher_timeout(t_msec) noexcept override final {
       t_out{"messaging: notify_dispatcher_timeout"};
       return QUIT;
     }
@@ -1833,7 +1833,7 @@ namespace message
       return QUIT;
     }
 
-    t_quit notify_dispatcher_processed(r_usec) noexcept override final {
+    t_quit notify_dispatcher_processed(r_msec) noexcept override final {
       t_out{"messaging: notify_dispatcher_processed"};
       data_.forward_msgs(msgs_);
       return DONT_QUIT;
