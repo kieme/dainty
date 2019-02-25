@@ -72,7 +72,8 @@ namespace sandbox
   using R_timer_params = t_prefix<t_timer_params>::R_;
   using P_timer_params = t_prefix<t_timer_params>::P_;
 
-  struct t_timer_notify {
+  class t_timer_notify {
+  public:
     virtual ~t_timer_notify() { }
     virtual t_void notify_timeout(t_timer_id, R_timer_params) noexcept = 0;
   };
@@ -106,7 +107,8 @@ namespace sandbox
   using R_fdevent_params = t_prefix<t_fdevent_params>::R_;
   using P_fdevent_params = t_prefix<t_fdevent_params>::P_;
 
-  struct t_fdevent_notify {
+  class t_fdevent_notify {
+  public:
     virtual ~t_fdevent_notify() { };
     virtual t_void notify_fdevent(t_fdevent_id, R_fdevent_params) noexcept = 0;
   };
@@ -152,11 +154,11 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_fdevent_id        add_fdevent(t_err, R_fdevent_name,
-                                            R_fdevent_params)     noexcept = 0;
-    virtual t_fdevent_id        add_fdevent(t_err, R_fdevent_name,
-                                            R_fdevent_params,
-                                            x_fdevent_notify_ptr) noexcept = 0;
+    virtual t_fdevent_id add_fdevent(t_err, R_fdevent_name,
+                                     R_fdevent_params)            noexcept = 0;
+    virtual t_fdevent_id add_fdevent(t_err, R_fdevent_name,
+                                     R_fdevent_params,
+                                     x_fdevent_notify_ptr)        noexcept = 0;
     virtual t_fdevent_notify_ptr del_fdevent(t_fdevent_id)        noexcept = 0;
     virtual P_fdevent_params     get_fdevent(t_fdevent_id)  const noexcept = 0;
   };

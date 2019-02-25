@@ -36,7 +36,8 @@ namespace dainty
 namespace sandbox
 {
   using namespace dainty::named::terminal;
-  using t_ix = named::t_ix;
+  using named::t_ix;
+  using named::t_percentage;
   using named::utility::x_cast;
   using mt::event_dispatcher::RD_EVENT;
   using mt::event_dispatcher::QUIT_EVENT_LOOP;
@@ -49,7 +50,7 @@ namespace sandbox
       : name_      {name},
         params_    {params},
         closefd_   {os::call_eventfd(err, t_n{0})},
-        tmrs_      {err, {t_n{100}, "timerfd_service"}},
+        tmrs_      {err, {t_n{100}, t_percentage{20}, "timerfd_service"}},
         dispatcher_{err, {t_n{100}, "epoll_service"}},
         logics_    {err, max_logics}  {
     ERR_GUARD(err) {
@@ -570,6 +571,11 @@ namespace sandbox
       }
     }
     return t_action{CONTINUE};
+  }
+
+  t_void t_impl_::notify_timers_overrun(t_timer_id,
+                                        t_msec) noexcept {
+    t_out{"t_impl_::notify_timers_overrun"};
   }
 
   t_void t_impl_::notify_timers_reorder(r_timer_infos) noexcept {
