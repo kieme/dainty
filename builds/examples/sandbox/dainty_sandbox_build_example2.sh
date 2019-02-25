@@ -1,5 +1,5 @@
 export DAINTY_ROOT=../../..
-g++ -Wall -o run $DAINTY_ROOT/examples/sandbox/dainty_sandbox_example.cpp \
+g++ -Wall -o run $DAINTY_ROOT/examples/sandbox/dainty_sandbox_example2.cpp \
                  $DAINTY_ROOT/sandbox/dainty_sandbox.cpp         \
                  $DAINTY_ROOT/sandbox/dainty_sandbox_err.cpp     \
                  $DAINTY_ROOT/sandbox/dainty_sandbox_impl.cpp    \
