@@ -51,6 +51,8 @@ namespace timers
   using named::string::t_string;
   using named::t_validity;
   using named::t_prefix;
+  using named::t_percentage;
+  using named::T_percentage;
   using named::t_explicit;
   using named::VALID;
   using named::INVALID;
@@ -127,11 +129,12 @@ namespace timers
   class t_params {
   public:
     T_n            max;
+    T_percentage   overrun; // zero disable testing
     T_service_name service_name;
 
     inline
-    t_params(t_n _max, R_service_name _name) noexcept
-      : max(_max), service_name(_name) {
+    t_params(t_n _max, t_percentage _overrun, R_service_name _name) noexcept
+      : max(_max), overrun{_overrun}, service_name(_name) {
     }
   };
   using T_params = t_prefix<t_params>::T_;
@@ -153,8 +156,9 @@ namespace timers
 
       virtual ~t_logic() { }
 
-      virtual t_void notify_timers_reorder  (r_timer_infos) noexcept;
-      virtual t_void notify_timers_processed()              noexcept;
+      virtual t_void notify_timers_reorder  (r_timer_infos)      noexcept;
+      virtual t_void notify_timers_overrun  (t_timer_id, t_msec) noexcept;
+      virtual t_void notify_timers_processed()                   noexcept;
     };
     using p_logic = t_prefix<t_logic>::p_;
 

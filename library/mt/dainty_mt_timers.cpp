@@ -141,11 +141,8 @@ namespace timers
     t_errn restart_timer(t_timer_id id, R_timer_params params) noexcept {
       auto entry = timers_.get(t_timers_id_(get(id)));
       if (entry) {
-        auto now = monotonic_now();
-
-        t_bool active_insert = true;
-        if (entry->running)
-          active_insert = false;
+        auto now     = monotonic_now();
+        auto running = entry->running;
 
         entry->info.params = params;
         entry->periodic    = params.periodic;
@@ -155,10 +152,10 @@ namespace timers
         entry->running     = entry->timeout;
 
         t_errn errn{0};
-        if (recalc_current_(now, entry->timeout))
+        if (recalc_current_(now, entry->timeout, running))
           errn = set_timer_();
 
-        if (get(errn) == 0 && active_insert)
+        if (get(errn) == 0 && !running)
           active_timers_.push_back(entry);
 
         return errn;
@@ -170,11 +167,8 @@ namespace timers
                          R_timer_params params) noexcept {
       auto entry = timers_.get(t_timers_id_(get(id)));
       if (entry) {
-        auto now = monotonic_now();
-
-        t_bool active_insert = true;
-        if (entry->running)
-          active_insert = false;
+        auto now     = monotonic_now();
+        auto running = entry->running;
 
         entry->info.params = params;
         entry->periodic    = params.periodic;
@@ -183,10 +177,10 @@ namespace timers
         entry->start       = now;
         entry->running     = entry->timeout;
 
-        if (recalc_current_(now, entry->timeout))
+        if (recalc_current_(now, entry->timeout, running))
           set_timer_(err);
 
-        if (!err && active_insert)
+        if (!err && !running)
           active_timers_.push_back(err, entry);
       }
     }
@@ -194,19 +188,16 @@ namespace timers
     t_errn restart_timer(t_timer_id id) noexcept {
       auto entry = timers_.get(t_timers_id_(get(id)));
       if (entry) {
-        auto now = monotonic_now();
-
-        t_bool active_insert = true;
-        if (entry->running)
-          active_insert = false;
+        auto now     = monotonic_now();
+        auto running = entry->running;
 
         entry->running = entry->timeout;
 
         t_errn errn{-1};
-        if (recalc_current_(now, entry->timeout))
+        if (recalc_current_(now, entry->timeout, running))
           errn = set_timer_();
 
-        if (get(errn) == 0 && active_insert)
+        if (get(errn) == 0 && !running)
           active_timers_.push_back(entry);
 
         return errn;
@@ -217,35 +208,69 @@ namespace timers
     t_void restart_timer(r_err err, t_timer_id id) noexcept {
       auto entry = timers_.get(t_timers_id_(get(id)));
       if (entry) {
-        auto now = monotonic_now();
-
-        t_bool active_insert = true;
-        if (entry->running)
-          active_insert = false;
+        auto now     = monotonic_now();
+        auto running = entry->running;
 
         entry->running = entry->timeout;
 
-        if (recalc_current_(now, entry->timeout))
+        if (recalc_current_(now, entry->timeout, running))
           set_timer_(err);
 
-        if (!err && active_insert) // XXX no proper cleanup
-          active_timers_.push_back(err, entry); 
+        if (!err && !running) // XXX no proper cleanup
+          active_timers_.push_back(err, entry);
       }
     }
 
     t_bool stop_timer(t_timer_id id) noexcept {
       auto entry = timers_.get(t_timers_id_(get(id)));
-      if (entry) {
-        // clear from active list
+      if (entry && entry->running) {
+        t_ix_ end = get(active_timers_.get_size());
+        for (t_ix_ ix = 0; ix < end; ++ix) {
+          if (entry == active_timers_.get(t_ix{ix})) {
+            if (current_ == entry->running) {
+              active_timers_.erase(t_ix{ix});
+              if (recalc_current_all_(monotonic_now()))
+                set_timer_(); //XXX
+            }
+            entry->running = t_msec{0};
+            return true;
+          }
+        }
       }
       return false;
     }
 
     p_timer_logic clear_timer(t_timer_id id) noexcept {
+      t_timers_id_ _id(get(id));
+      auto entry = timers_.get(_id);
+      if (entry && entry->running) {
+        t_ix_ end = get(active_timers_.get_size());
+        for (t_ix_ ix = 0; ix < end; ++ix) {
+          if (entry == active_timers_.get(t_ix{ix})) {
+            if (current_ == entry->running) {
+              active_timers_.erase(t_ix{ix});
+              if (recalc_current_all_(monotonic_now()))
+                set_timer_(); //XXX
+            }
+            break;
+          }
+        }
+        auto tmp = entry->info.logic;
+        timers_.erase(_id);
+        return tmp;
+
+      }
       return nullptr;
     }
 
     t_void clear_timers() noexcept {
+      if (current_) {
+        current_ = t_msec{0};
+        last_    = t_msec{0};
+        set_timer_();
+        active_timers_.clear();
+        timers_.clear();
+      }
     }
 
     t_bool is_timer_running(t_timer_id id) const noexcept {
@@ -281,54 +306,29 @@ namespace timers
       timerfd_.read(err, data);
       if (!err) {
         if (current_ && !active_timers_.is_empty()) {
-          t_time now     = monotonic_now();
-          t_time expired = now - last_;
-          t_time lowest;
-
+          t_time now = monotonic_now();
           t_timer_infos expired_timers{err, params_.max};
           if (!err) {
-            t_ix_ end = get(active_timers_.get_size());
-            for (t_ix_ ix = 0; ix < end; /*none*/) {
-              auto entry = active_timers_.get(t_ix{ix});
-              if (expired > entry->running)
-                entry->running = t_msec{0};
-              else
-                entry->running -= expired;
-
-              if (entry->running <= entry->early) {
-                expired_timers.push_back(&entry->info);
-                if (entry->periodic)
-                  entry->running = entry->timeout;
-                else {
-                  entry->running = t_msec{0};
-                  active_timers_.erase(t_ix{ix});
-                  end = get(active_timers_.get_size());
-                  continue;
-                }
-              }
-              if (entry->running < lowest)
-                lowest = entry->running;
-              ++ix;
-            }
-
-            if (lowest) {
-              last_    = now;
-              current_ = lowest;
+            if (recalc_current_all_(now, expired_timers))
               set_timer_(err);
-            } else {
-              last_    = t_msec{0};
-              current_ = t_msec{0};
-            }
 
             logic->notify_timers_reorder(expired_timers);
 
-            end = get(expired_timers.get_size());
+            t_ix_ end = get(expired_timers.get_size());
             for (t_ix_ ix = 0; ix < end; ++ix) {
               auto entry = timers_.get(
                 t_timers_id_(get(expired_timers.get(t_ix{ix})->id)));
-              entry->end = monotonic_now();
 
-              // XXX can say excatly how long the timeout was
+              if (get(params_.overrun)) {
+                entry->end = monotonic_now();
+                t_msec expired{get(entry->start.to<t_msec>()) -
+                               get(entry->end.to<t_msec>())};
+                t_msec timeout{entry->info.params.timeout};
+                t_msec overrun{get(expired) - get(timeout)};
+                if ((get(overrun)/get(timeout))*100 >= get(params_.overrun))
+                  logic->notify_timers_overrun(entry->info.id, overrun);
+              }
+
               if (entry->info.logic)
                 entry->info.logic->notify_timers_timeout(entry->info.id,
                                                          entry->info.params);
@@ -387,16 +387,84 @@ namespace timers
       return timerfd_.set_time(t_timerfd_flags{0}, spec);
     }
 
+    t_bool recalc_current_all_(R_time now) noexcept {
+      t_time expired = now - last_;
+      t_time lowest;
+
+      t_ix_ end = get(active_timers_.get_size());
+      for (t_ix_ ix = 0; ix < end; ++ix) {
+        auto entry = active_timers_.get(t_ix{ix});
+        entry->running -= expired;
+        if (entry->running < lowest)
+          lowest = entry->running;
+      }
+
+      if (lowest) {
+        last_    = now;
+        current_ = lowest;
+        return true;
+      } else if (current_) {
+        last_    = t_msec{0};
+        current_ = t_msec{0};
+        return true;
+      }
+      return false;
+    }
+
+    t_bool recalc_current_all_(R_time now,
+                               r_timer_infos expired_timers) noexcept {
+      t_time expired = now - last_;
+      t_time lowest;
+
+      t_ix_ end = get(active_timers_.get_size());
+      for (t_ix_ ix = 0; ix < end; /*none*/) {
+        auto entry = active_timers_.get(t_ix{ix});
+        if (expired > entry->running)
+          entry->running = t_msec{0};
+        else
+          entry->running -= expired;
+
+        if (entry->running <= entry->early) {
+          entry->end = now;
+          expired_timers.push_back(&entry->info);
+          if (entry->periodic)
+            entry->running = entry->timeout;
+          else {
+            entry->running = t_msec{0};
+            active_timers_.erase(t_ix{ix});
+            end = get(active_timers_.get_size());
+            continue;
+          }
+        }
+
+        if (entry->running < lowest)
+          lowest = entry->running;
+
+        ++ix;
+      }
+
+      if (lowest) {
+        last_    = now;
+        current_ = lowest;
+        return true;
+      }
+
+      last_    = t_msec{0};
+      current_ = t_msec{0};
+      return false;
+    }
+
     t_bool recalc_current_(R_time now, R_time timeout) noexcept {
       t_bool updated = false;
       if (current_) {
         auto expired = now - last_;
 
         t_time remain;
-        if (expired > current_) {
-          // XXX not sure yet
-        } else
+        if (current_ > expired)
           remain  = current_ - expired;
+        else {
+          // XXX not sure - inform logic
+        }
 
         if (timeout < remain) {
           current_ = timeout;
@@ -406,6 +474,9 @@ namespace timers
           t_ix_ end = get(active_timers_.get_size());
           for (t_ix_ ix = 0; ix < end; ++ix) {
             auto entry = active_timers_.get(t_ix{ix});
+          if (expired > entry->running)
+            entry->running = t_msec{0};
+          else
             entry->running -= expired;
           }
         }
@@ -415,6 +486,12 @@ namespace timers
         updated  = true;
       }
       return updated;
+    }
+
+    t_bool recalc_current_(R_time now, R_time timeout,
+                           R_time running) noexcept {
+      return current_ != running ?  recalc_current_    (now, timeout) :
+                                    recalc_current_all_(now);
     }
 
     T_params        params_;
@@ -440,6 +517,10 @@ namespace timers
   t_void
       t_timers::t_logic::notify_timers_reorder(r_timer_infos) noexcept {
     // XXX provide default reorder - thats reorders on prio
+  }
+
+  t_void t_timers::t_logic::notify_timers_overrun(t_timer_id,
+                                                  t_msec) noexcept {
   }
 
   t_void t_timers::t_logic::notify_timers_processed() noexcept {
