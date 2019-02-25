@@ -650,6 +650,15 @@ namespace named
   using p_cstr_cptr = t_prefix<t_cstr_cptr>::p_;
   using P_cstr_cptr = t_prefix<t_cstr_cptr>::P_;
 
+  enum  t_percentage_tag_ {};
+  using t_percentage_ = t_uchar; // units of precentage - no decimals
+  using t_percentage  = t_explicit<t_percentage_, t_percentage_tag_>;
+  using T_percentage  = t_prefix<t_percentage>::T_;
+  using r_percentage  = t_prefix<t_percentage>::r_;
+  using R_percentage  = t_prefix<t_percentage>::R_;
+  using p_percentage  = t_prefix<t_percentage>::p_;
+  using P_percentage  = t_prefix<t_percentage>::P_;
+
 ///////////////////////////////////////////////////////////////////////////////
 
   constexpr t_bool operator< (t_n lh, t_n rh)    { return get(lh) < get(rh);  }
@@ -657,6 +666,13 @@ namespace named
 
   constexpr t_bool operator< (t_ix lh, t_ix rh)  { return get(lh) < get(rh);  }
   constexpr t_bool operator<=(t_ix lh, t_ix rh)  { return get(lh) <= get(rh); }
+
+  constexpr t_bool operator< (t_percentage lh, t_percentage rh) {
+    return get(lh) < get(rh);
+  }
+  constexpr t_bool operator<=(t_percentage lh, t_percentage rh) {
+    return get(lh) <= get(rh);
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
