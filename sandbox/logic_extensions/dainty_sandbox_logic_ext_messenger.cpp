@@ -34,13 +34,6 @@ namespace logic_messenger_ext
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_logic_messenger_ext::t_logic_messenger_ext(t_err err,
-                                               r_logic logic) noexcept
-    : impl_{err, logic, *this} {
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
   t_logic_messenger_ext::t_impl_::t_impl_(t_err err, r_logic logic,
                                           r_ext_ ext) noexcept
       : t_logic_ext{"messenger", logic}, ext_{ext} {
@@ -48,6 +41,8 @@ namespace logic_messenger_ext
       register_(err, logic, this);
     }
   }
+
+///////////////////////////////////////////////////////////////////////////////
 
   t_void t_logic_messenger_ext::t_impl_::notify_start(t_err err) noexcept {
     ERR_GUARD(err) {
@@ -65,6 +60,229 @@ namespace logic_messenger_ext
 
   t_void t_logic_messenger_ext::t_impl_
       ::notify_fdevent(t_fdevent_id, R_fdevent_params) noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_messenger_key t_logic_messenger_ext::t_impl_::get_key() const noexcept {
+  }
+
+  t_messenger_name t_logic_messenger_ext::t_impl_
+      ::get_name(t_err err) const noexcept {
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::get_params(t_err, r_messenger_params) const noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::post_msg(t_err, R_messenger_key, x_messenger_msg) noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::update_scope(t_err, t_messenger_scope) noexcept {
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::update_alive_period(t_err, t_multiple_of_100ms) noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::add_monitor(t_err, R_messenger_name, t_messenger_prio,
+                    t_messenger_user) noexcept {
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::remove_monitor(t_err, R_messenger_name,
+                       p_messenger_user) noexcept {
+  }
+
+  t_messenger_key t_logic_messenger_ext::t_impl_
+      ::is_monitored(t_err, R_messenger_name,
+                     p_messenger_user) const noexcept {
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::get_monitored(t_err, r_messenger_monitor_list) const noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::add_to_group(t_err, R_messenger_password,
+                     R_messenger_name group, t_messenger_prio,
+                     t_messenger_user) noexcept {
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::remove_from_group(t_err, R_messenger_password,
+                          R_messenger_name,
+                          p_messenger_user) noexcept {
+  }
+
+  t_bool t_logic_messenger_ext::t_impl_
+      ::is_in_group(t_err, R_messenger_name, p_messenger_user) const noexcept {
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::get_groups(t_err, r_messenger_group_list) const noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::create_group (t_err, R_messenger_password, R_messenger_name,
+                      t_messenger_scope) noexcept {
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::destroy_group(t_err, R_messenger_password,
+                      R_messenger_name) noexcept {
+  }
+
+  t_bool t_logic_messenger_ext::t_impl_
+      ::is_group(t_err, R_messenger_name, r_messenger_scope,
+                 p_messenger_name_list) const noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::add_to_group(t_err, R_messenger_password, R_messenger_name name,
+                     R_messenger_name group, t_messenger_prio,
+                     t_messenger_user) noexcept {
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::remove_from_group(t_err, R_messenger_password, R_messenger_name,
+                          R_messenger_name group,
+                          p_messenger_user) noexcept {
+  }
+
+  t_bool t_logic_messenger_ext::t_impl_
+      ::is_in_group(t_err, R_messenger_name,
+                    R_messenger_name group,
+                    p_messenger_user) const noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_logic_messenger_ext::t_logic_messenger_ext(t_err err,
+                                               r_logic logic) noexcept
+    : impl_{err, logic, *this} {
+  }
+
+  t_messenger_key t_logic_messenger_ext::get_key() const noexcept {
+  }
+
+  t_messenger_name t_logic_messenger_ext::get_name(t_err err) const noexcept {
+  }
+
+  t_void t_logic_messenger_ext
+      ::get_params(t_err, r_messenger_params) const noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext::post_msg(t_err, R_messenger_key,
+                                         x_messenger_msg) noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext::update_scope(t_err,
+                                             t_messenger_scope) noexcept {
+  }
+
+  t_void t_logic_messenger_ext
+      ::update_alive_period(t_err, t_multiple_of_100ms) noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext
+      ::add_monitor(t_err, R_messenger_name, t_messenger_prio,
+                    t_messenger_user) noexcept {
+  }
+
+  t_void t_logic_messenger_ext
+      ::remove_monitor(t_err, R_messenger_name,
+                       p_messenger_user) noexcept {
+  }
+
+  t_messenger_key t_logic_messenger_ext
+      ::is_monitored(t_err, R_messenger_name,
+                     p_messenger_user) const noexcept {
+  }
+
+  t_void t_logic_messenger_ext
+      ::get_monitored(t_err, r_messenger_monitor_list) const noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext
+      ::add_to_group(t_err, R_messenger_password,
+                     R_messenger_name group, t_messenger_prio,
+                     t_messenger_user) noexcept {
+  }
+
+  t_void t_logic_messenger_ext
+      ::remove_from_group(t_err, R_messenger_password,
+                          R_messenger_name,
+                          p_messenger_user) noexcept {
+  }
+
+  t_bool t_logic_messenger_ext
+      ::is_in_group(t_err, R_messenger_name, p_messenger_user) const noexcept {
+  }
+
+  t_void t_logic_messenger_ext
+      ::get_groups(t_err, r_messenger_group_list) const noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext
+      ::create_group (t_err, R_messenger_password, R_messenger_name,
+                      t_messenger_scope) noexcept {
+  }
+
+  t_void t_logic_messenger_ext
+      ::destroy_group(t_err, R_messenger_password,
+                      R_messenger_name) noexcept {
+  }
+
+  t_bool t_logic_messenger_ext
+      ::is_group(t_err, R_messenger_name, r_messenger_scope,
+                 p_messenger_name_list) const noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext
+      ::add_to_group(t_err, R_messenger_password, R_messenger_name name,
+                     R_messenger_name group, t_messenger_prio,
+                     t_messenger_user) noexcept {
+  }
+
+  t_void t_logic_messenger_ext
+      ::remove_from_group(t_err, R_messenger_password, R_messenger_name,
+                          R_messenger_name group,
+                          p_messenger_user) noexcept {
+  }
+
+  t_bool t_logic_messenger_ext
+      ::is_in_group(t_err, R_messenger_name,
+                    R_messenger_name group,
+                    p_messenger_user) const noexcept {
+    return impl_.is_in_group();
   }
 
 ///////////////////////////////////////////////////////////////////////////////

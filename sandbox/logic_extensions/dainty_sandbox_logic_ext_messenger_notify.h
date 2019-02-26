@@ -41,20 +41,28 @@ namespace logic_messenger_ext
 
   class t_logic_messenger_ext_notify {
   public:
+    using t_messenger_name          = messaging::t_messenger_name;
+    using R_messenger_name          = messaging::R_messenger_name;
+    using t_messenger_key           = messaging::t_messenger_key;
+    using R_messenger_key           = messaging::R_messenger_key;
+    using t_messenger_state         = messaging::message::t_messenger_state;
+    using t_messenger_params        = messaging::t_messenger_params;
+    using r_messenger_params        = messaging::messenger::r_params;
+    using r_messenger_group_list    = messaging::messenger::r_group_list;
+
     virtual ~t_logic_messenger_ext_notify() { }
 
     virtual t_void notify_messenger_start(t_err) noexcept = 0;
     virtual t_void notify_messenger_cleanup()    noexcept = 0;
 
-    /*
     virtual t_void notify_messenger_state(t_messenger_state,
                                           R_messenger_name,
                                           R_messenger_key,
                                           t_messenger_prio,
-                                          t_messenger_user) noexcept = 0;
-    virtual t_void notify_messenger_message    (x_message)  noexcept = 0;
-    virtual t_void notify_messenger_failed_send(x_message)  noexcept = 0;
-    */
+                                          t_messenger_user)      noexcept = 0;
+    virtual t_void notify_messenger_msg        (x_messenger_msg) noexcept = 0;
+    virtual t_void notify_messenger_failed_send(x_messenger_msg) noexcept = 0;
+
   };
 
 ///////////////////////////////////////////////////////////////////////////////

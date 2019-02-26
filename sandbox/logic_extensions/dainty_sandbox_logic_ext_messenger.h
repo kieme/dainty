@@ -45,15 +45,81 @@ namespace logic_messenger_ext
   public:
     t_logic_messenger_ext(t_err, r_logic) noexcept;
 
-    // use api
-    // provide notify_
+    operator t_validity() const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_messenger_key  get_key   ()                          const noexcept override final;
+    t_messenger_name get_name  (t_err)                     const noexcept override final;
+    t_void           get_params(t_err, r_messenger_params) const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_void post_msg(t_err, R_messenger_key, x_messenger_msg) noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_void update_scope       (t_err, t_messenger_scope)   noexcept override final;
+    t_void update_alive_period(t_err, t_multiple_of_100ms) noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_void add_monitor(t_err, R_messenger_name,
+                       t_messenger_prio = t_messenger_prio(0),
+                       t_messenger_user = t_messenger_user()) noexcept override final;
+    t_void remove_monitor(t_err, R_messenger_name,
+                          p_messenger_user = nullptr) noexcept override final;
+    t_messenger_key is_monitored(t_err, R_messenger_name,
+                                 p_messenger_user = nullptr) const noexcept override final;
+    t_void get_monitored(t_err,
+                         r_messenger_monitor_list) const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_void add_to_group(t_err, R_messenger_password,
+                        R_messenger_name group,
+                        t_messenger_prio = t_messenger_prio(0),
+                        t_messenger_user = t_messenger_user()) noexcept override final;
+    t_void remove_from_group(t_err, R_messenger_password,
+                             R_messenger_name,
+                             p_messenger_user = nullptr) noexcept override final;
+    t_bool is_in_group(t_err, R_messenger_name,
+                       p_messenger_user = nullptr)   const noexcept override final;
+    t_void get_groups(t_err, r_messenger_group_list) const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_void create_group (t_err, R_messenger_password, R_messenger_name,
+                         t_messenger_scope) noexcept override final;
+    t_void destroy_group(t_err, R_messenger_password,
+                         R_messenger_name) noexcept override final;
+    t_bool is_group     (t_err, R_messenger_name, r_messenger_scope,
+                         p_messenger_name_list = nullptr) const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_void add_to_group(t_err, R_messenger_password,
+                        R_messenger_name name,
+                        R_messenger_name group,
+                        t_messenger_prio = t_messenger_prio(0),
+                        t_messenger_user = t_messenger_user()) noexcept override final;
+    t_void remove_from_group(t_err, R_messenger_password,
+                             R_messenger_name,
+                             R_messenger_name group,
+                             p_messenger_user = nullptr) noexcept override final;
+    t_bool is_in_group(t_err, R_messenger_name,
+                       R_messenger_name group,
+                       p_messenger_user = nullptr) const noexcept override final;
 
   private:
     using r_ext_ = t_prefix<t_logic_messenger_ext>::r_;
 
-    class t_impl_ : public t_logic_ext {
+    class t_impl_ : public t_logic_ext,
+                    public t_logic_messenger_ext_api {
     public:
       t_impl_(t_err, r_logic, r_ext_) noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
 
       t_void notify_start(t_err) noexcept override final;
       t_void notify_cleanup()    noexcept override final;
@@ -62,6 +128,64 @@ namespace logic_messenger_ext
                             R_timer_params)   noexcept override final;
       t_void notify_fdevent(t_fdevent_id,
                             R_fdevent_params) noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+      t_messenger_key  get_key   ()                          const noexcept override final;
+      t_messenger_name get_name  (t_err)                     const noexcept override final;
+      t_void           get_params(t_err, r_messenger_params) const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+      t_void post_msg(t_err, R_messenger_key, x_messenger_msg) noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+      t_void update_scope       (t_err, t_messenger_scope)   noexcept override final;
+      t_void update_alive_period(t_err, t_multiple_of_100ms) noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+      t_void add_monitor(t_err, R_messenger_name, t_messenger_prio,
+                         t_messenger_user) noexcept override final;
+      t_void remove_monitor(t_err, R_messenger_name,
+                            p_messenger_user) noexcept override final;
+      t_messenger_key is_monitored(t_err, R_messenger_name,
+                                   p_messenger_user) const noexcept override final;
+      t_void get_monitored(t_err,
+                           r_messenger_monitor_list) const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+      t_void add_to_group(t_err, R_messenger_password, R_messenger_name group,
+                          t_messenger_prio, t_messenger_user) noexcept override final;
+      t_void remove_from_group(t_err, R_messenger_password,
+                               R_messenger_name, p_messenger_user) noexcept override final;
+      t_bool is_in_group(t_err, R_messenger_name,
+                         p_messenger_user)   const noexcept override final;
+      t_void get_groups(t_err, r_messenger_group_list) const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+      t_void create_group (t_err, R_messenger_password, R_messenger_name,
+                           t_messenger_scope) noexcept override final;
+      t_void destroy_group(t_err, R_messenger_password,
+                           R_messenger_name) noexcept override final;
+      t_bool is_group     (t_err, R_messenger_name, r_messenger_scope,
+                           p_messenger_name_list) const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+      t_void add_to_group(t_err, R_messenger_password, R_messenger_name name,
+                          R_messenger_name group, t_messenger_prio,
+                          t_messenger_user) noexcept override final;
+      t_void remove_from_group(t_err, R_messenger_password,
+                               R_messenger_name, R_messenger_name group,
+                               p_messenger_user) noexcept override final;
+      t_bool is_in_group(t_err, R_messenger_name, R_messenger_name group,
+                         p_messenger_user) const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
 
     private:
       r_ext_ ext_;
