@@ -27,9 +27,8 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_LOGIC_EXT_API_H_
 #define _DAINTY_SANDBOX_LOGIC_EXT_API_H_
 
-#include "dainty_named.h"
 #include "dainty_named_string.h"
-#include "dainty_sandbox_err.h"
+#include "dainty_sandbox_logic_api.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -64,9 +63,40 @@ namespace sandbox
   public:
     virtual ~t_logic_ext_api() { }
 
-    virtual R_extension_name get_name () const noexcept = 0;
-    virtual r_logic          get_logic()       noexcept = 0;
-    virtual R_logic          get_logic() const noexcept = 0;
+///////////////////////////////////////////////////////////////////////////////
+
+   virtual operator t_validity() const noexcept = 0;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    virtual R_extension_name get_name       () const noexcept = 0;
+    virtual R_logic_stats    get_logic_stats() const noexcept = 0;
+    virtual R_logic_name     get_logic_name () const noexcept = 0;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    virtual t_timer_id start_timer  (t_err, R_timer_name,
+                                     R_timer_params)          noexcept = 0;
+    virtual t_timer_id start_timer  (t_err, R_timer_name, R_timer_params,
+                                     x_timer_notify_ptr)      noexcept = 0;
+    virtual t_void     restart_timer(t_err, t_timer_id)       noexcept = 0;
+    virtual t_void     restart_timer(t_err, t_timer_id,
+                                     R_timer_params)          noexcept = 0;
+    virtual t_bool             stop_timer (t_timer_id)        noexcept = 0;
+    virtual t_timer_notify_ptr clear_timer(t_timer_id)        noexcept = 0;
+    virtual P_timer_params     get_timer  (t_timer_id)  const noexcept = 0;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    virtual t_fdevent_id add_fdevent(t_err, R_fdevent_name,
+                                     R_fdevent_params)            noexcept = 0;
+    virtual t_fdevent_id add_fdevent(t_err, R_fdevent_name,
+                                     R_fdevent_params,
+                                     x_fdevent_notify_ptr)        noexcept = 0;
+    virtual t_fdevent_notify_ptr del_fdevent(t_fdevent_id)        noexcept = 0;
+    virtual P_fdevent_params     get_fdevent(t_fdevent_id)  const noexcept = 0;
+
+///////////////////////////////////////////////////////////////////////////////
   };
 
 ///////////////////////////////////////////////////////////////////////////////

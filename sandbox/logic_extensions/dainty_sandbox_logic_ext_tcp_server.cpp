@@ -43,7 +43,7 @@ namespace sandbox
                                     r_ext_ ext) noexcept
       : t_logic_ext{"tcp_server", logic}, ext_{ext} {
     ERR_GUARD(err) {
-      register_(err, get_logic(), this);
+      register_(err, logic, this);
     }
   }
 
@@ -55,6 +55,14 @@ namespace sandbox
 
   t_void t_logic_tcp_server_ext::t_impl_::notify_cleanup() noexcept {
     ext_.notify_tcp_server_cleanup();
+  }
+
+  t_void t_logic_tcp_server_ext::t_impl_
+      ::notify_timeout(t_timer_id, R_timer_params) noexcept {
+  }
+
+  t_void t_logic_tcp_server_ext::t_impl_
+      ::notify_fdevent(t_fdevent_id, R_fdevent_params) noexcept {
   }
 
 ///////////////////////////////////////////////////////////////////////////////

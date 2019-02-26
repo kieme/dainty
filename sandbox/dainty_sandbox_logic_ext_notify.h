@@ -27,9 +27,7 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_LOGIC_EXT_NOTIFY_H_
 #define _DAINTY_SANDBOX_LOGIC_EXT_NOTIFY_H_
 
-#include "dainty_named.h"
-#include "dainty_named_string.h"
-#include "dainty_sandbox_err.h"
+#include "dainty_sandbox_logic_ext_api.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +42,7 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_ext_notify {
+  class t_logic_ext_notify : public t_fdevent_notify, public t_timer_notify {
   public:
     virtual t_void notify_start  (t_err) noexcept = 0;
     virtual t_void notify_cleanup()      noexcept = 0;

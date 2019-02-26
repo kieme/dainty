@@ -71,15 +71,11 @@ namespace sandbox
   t_void t_impl_::register_logic(t_err err, p_logic logic) noexcept {
     ERR_GUARD(err) {
       t_out{FMT, "register logic name - %s",
-            get(logic->get_messenger_name().get_cstr())};
+            get(logic->get_logic_name().get_cstr())};
       t_ix pos = to_ix(logics_.get_size());
       auto entry = logics_.push_back(err);
       if (entry) {
-       entry->logic = logic;
-
-       // tracing service   - tracer
-       // messaging service - messenger
-
+        entry->logic        = logic;
         entry->logic->ix_   = pos;
         entry->logic->impl_ = this;
       }

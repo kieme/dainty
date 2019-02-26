@@ -91,28 +91,100 @@ namespace sandbox
     }
   }
 
+  t_logic_ext::operator t_validity() const noexcept {
+    return logic_; // XXX - what about name
+  }
+
   R_extension_name t_logic_ext::get_name() const noexcept {
     return name_;
   }
 
-  r_logic t_logic_ext::get_logic() noexcept {
-    return logic_;
+  R_logic_stats t_logic_ext::get_logic_stats() const noexcept {
+    return logic_.get_logic_stats();
   }
 
-  R_logic t_logic_ext::get_logic() const noexcept {
-    return logic_;
+  R_logic_name t_logic_ext::get_logic_name () const noexcept {
+    return logic_.get_logic_name();
+  }
+
+  t_timer_id t_logic_ext::start_timer(t_err err, R_timer_name name,
+                                      R_timer_params params) noexcept {
+    ERR_GUARD(err) {
+      return logic_.start_timer(err, name, params, {this, nullptr});
+    }
+    return BAD_TIMER_ID;
+  }
+
+  t_timer_id t_logic_ext::start_timer(t_err err, R_timer_name name,
+                                      R_timer_params params,
+                                      x_timer_notify_ptr notify_ptr) noexcept {
+    ERR_GUARD(err) {
+      return logic_.start_timer(err, name, params, x_cast(notify_ptr));
+    }
+    return BAD_TIMER_ID;
+  }
+
+  t_void t_logic_ext::restart_timer(t_err err, t_timer_id id) noexcept {
+    ERR_GUARD(err) {
+      return logic_.restart_timer(err, id);
+    }
+  }
+
+  t_void t_logic_ext::restart_timer(t_err err, t_timer_id id,
+                                    R_timer_params params) noexcept {
+    ERR_GUARD(err) {
+      return logic_.restart_timer(err, id, params);
+    }
+  }
+
+  t_bool t_logic_ext::stop_timer(t_timer_id id) noexcept {
+    return logic_.stop_timer(id);
+  }
+
+  t_timer_notify_ptr t_logic_ext::clear_timer(t_timer_id id) noexcept {
+    return logic_.clear_timer(id);
+  }
+
+  P_timer_params t_logic_ext::get_timer(t_timer_id id) const noexcept {
+    return logic_.get_timer(id);
+  }
+
+  t_fdevent_id t_logic_ext::add_fdevent(t_err err, R_fdevent_name name,
+                                        R_fdevent_params params) noexcept {
+    ERR_GUARD(err) {
+      return logic_.add_fdevent(err, name, params, {this, nullptr});
+    }
+    return BAD_FDEVENT_ID;
+  }
+
+  t_fdevent_id
+      t_logic_ext::add_fdevent(t_err err, R_fdevent_name name,
+                               R_fdevent_params params,
+                               x_fdevent_notify_ptr notify_ptr) noexcept {
+    ERR_GUARD(err) {
+      return logic_.add_fdevent(err, name, params, x_cast(notify_ptr));
+    }
+    return BAD_FDEVENT_ID;
+  }
+
+  t_fdevent_notify_ptr t_logic_ext::del_fdevent(t_fdevent_id id) noexcept {
+    return logic_.del_fdevent(id);
+  }
+
+  P_fdevent_params t_logic_ext::get_fdevent(t_fdevent_id id) const noexcept {
+    return logic_.get_fdevent(id);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_logic::t_logic(t_err err, R_messenger_name name) noexcept : name_{name} {
+  t_logic::t_logic(t_err err, R_logic_name name) noexcept : name_{name} {
   }
 
-  t_logic::operator t_validity() const {
+  t_logic::operator t_validity() const noexcept {
     return impl_ ? VALID : INVALID;
   }
 
-  R_messenger_name t_logic::get_messenger_name() const noexcept {
+  R_logic_name t_logic::get_logic_name() const noexcept {
     return name_;
   }
 
@@ -152,7 +224,7 @@ namespace sandbox
         return impl_->start_timer(err, ix_, name, params);
       err = err::E_XXX;
     }
-    return t_timer_id{-1};
+    return BAD_TIMER_ID;
   }
 
   t_timer_id t_logic::start_timer(t_err err, R_timer_name name,
@@ -163,7 +235,7 @@ namespace sandbox
         return impl_->start_timer(err, ix_, name, params, x_cast(ptr));
       err = err::E_XXX;
     }
-    return t_timer_id{-1};
+    return BAD_TIMER_ID;
   }
 
   t_void t_logic::restart_timer(t_err err, t_timer_id id) noexcept {
@@ -208,7 +280,7 @@ namespace sandbox
         return impl_->add_fdevent(err, ix_, name, params);
       err = err::E_XXX;
     }
-    return t_fdevent_id{0};
+    return BAD_FDEVENT_ID;
   }
 
   t_fdevent_id t_logic::add_fdevent(t_err err, R_fdevent_name name,
@@ -219,7 +291,7 @@ namespace sandbox
         return impl_->add_fdevent(err, ix_, name, params, x_cast(ptr));
       err = err::E_XXX;
     }
-    return t_fdevent_id{0};
+    return BAD_FDEVENT_ID;
   }
 
   t_fdevent_notify_ptr t_logic::del_fdevent(t_fdevent_id id) noexcept {

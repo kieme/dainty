@@ -159,8 +159,6 @@ namespace sandbox
       t_spin_cnt_    spin_cnt_max = 0;
       t_fdevent_ids_ event_ids;
       t_timer_ids_   timer_ids;
-      // add t_messenger
-      // add t_tracer
     };
     using t_logics_ = t_list<t_logic_entry_>;
 

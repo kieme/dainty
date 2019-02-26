@@ -28,6 +28,7 @@ SOFTWARE.
 #define _DAINTY_SANDBOX_LOGIC_EXT_H_
 
 #include "dainty_named.h"
+#include "dainty_named_string.h"
 #include "dainty_sandbox_logic_ext_api.h"
 #include "dainty_sandbox_logic_ext_notify.h"
 
@@ -52,8 +53,7 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_ext : public t_logic_ext_api,
-                      public t_logic_ext_notify {
+  class t_logic_ext : public t_logic_ext_api, public t_logic_ext_notify {
   public:
     t_logic_ext(R_extension_name name, r_logic logic) noexcept
       : name_{name}, logic_{logic} {
@@ -65,9 +65,40 @@ namespace sandbox
     r_logic_ext operator=(r_logic_ext) = delete;
     r_logic_ext operator=(x_logic_ext) = delete;
 
-    R_extension_name get_name () const noexcept override final;
-    r_logic          get_logic()       noexcept override final;
-    R_logic          get_logic() const noexcept override final;
+///////////////////////////////////////////////////////////////////////////////
+
+    operator t_validity() const noexcept override;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    R_extension_name get_name       () const noexcept override final;
+    R_logic_stats    get_logic_stats() const noexcept override final;
+    R_logic_name     get_logic_name () const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_timer_id start_timer  (t_err, R_timer_name,
+                             R_timer_params)          noexcept override final;
+    t_timer_id start_timer  (t_err, R_timer_name, R_timer_params,
+                             x_timer_notify_ptr)      noexcept override final;
+    t_void     restart_timer(t_err, t_timer_id)       noexcept override final;
+    t_void     restart_timer(t_err, t_timer_id,
+                             R_timer_params)          noexcept override final;
+    t_bool             stop_timer (t_timer_id)        noexcept override final;
+    t_timer_notify_ptr clear_timer(t_timer_id)        noexcept override final;
+    P_timer_params     get_timer  (t_timer_id)  const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_fdevent_id add_fdevent(t_err, R_fdevent_name,
+                             R_fdevent_params)            noexcept override final;
+    t_fdevent_id add_fdevent(t_err, R_fdevent_name,
+                             R_fdevent_params,
+                             x_fdevent_notify_ptr)        noexcept override final;
+    t_fdevent_notify_ptr del_fdevent(t_fdevent_id)        noexcept override final;
+    P_fdevent_params     get_fdevent(t_fdevent_id)  const noexcept override final;
+
+///////////////////////////////////////////////////////////////////////////////
 
   private:
     T_extension_name name_;

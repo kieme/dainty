@@ -52,7 +52,7 @@ namespace sandbox
 
   class t_logic : public t_logic_api, public t_logic_notify {
   public:
-    t_logic(t_err, R_messenger_name) noexcept;
+    t_logic(t_err, R_logic_name) noexcept;
     virtual ~t_logic() { }
 
     t_logic() = delete;
@@ -61,12 +61,14 @@ namespace sandbox
     r_logic operator=(r_logic) = delete;
     r_logic operator=(x_logic) = delete;
 
-    operator t_validity() const;
+///////////////////////////////////////////////////////////////////////////////
+
+    operator t_validity() const noexcept override;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    R_logic_stats    get_logic_stats   () const noexcept override final;
-    R_messenger_name get_messenger_name() const noexcept override final;
+    R_logic_stats get_logic_stats() const noexcept override final;
+    R_logic_name  get_logic_name () const noexcept override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -106,11 +108,11 @@ namespace sandbox
     friend class t_main;
     friend class t_impl_;
 
-    p_impl_          impl_ = nullptr;
-    t_ix             ix_   = t_ix{0};
-    T_messenger_name name_;
-    t_logic_exts     exts_;
-    t_logic_stats    stats_;
+    p_impl_       impl_ = nullptr;
+    t_ix          ix_   = t_ix{0};
+    T_logic_name  name_;
+    t_logic_exts  exts_;
+    t_logic_stats stats_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

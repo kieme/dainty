@@ -47,13 +47,17 @@ namespace sandbox
   private:
     using r_ext_ = t_prefix<t_logic_cli_ext>::r_;
 
-    class t_impl_ : public t_logic_ext { // , t_fdevent_logic
+    class t_impl_ : public t_logic_ext {
     public:
       t_impl_(t_err, r_logic, r_ext_) noexcept;
 
-      virtual t_void notify_start(t_err) noexcept override final;
-      virtual t_void notify_cleanup()    noexcept override final;
+      t_void notify_start(t_err) noexcept override final;
+      t_void notify_cleanup()    noexcept override final;
 
+      t_void notify_timeout(t_timer_id,
+                            R_timer_params)   noexcept override final;
+      t_void notify_fdevent(t_fdevent_id,
+                            R_fdevent_params) noexcept override final;
     private:
       r_ext_ ext_;
     };

@@ -48,13 +48,15 @@ namespace sandbox
   using named::t_bool;
   using named::t_prefix;
   using named::t_explicit;
+  using named::t_validity;
   using named::string::t_string;
+  using mt::timers::BAD_TIMER_ID;
   using container::ptr::t_passable_ptr;
 
-  enum  t_messenger_name_tag {};
-  using t_messenger_name = t_string<t_messenger_name_tag>;
-  using T_messenger_name = t_prefix<t_messenger_name>::t_;
-  using R_messenger_name = t_prefix<t_messenger_name>::R_;
+  enum  t_logic_name_tag {};
+  using t_logic_name = t_string<t_logic_name_tag>;
+  using T_logic_name = t_prefix<t_logic_name>::t_;
+  using R_logic_name = t_prefix<t_logic_name>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -65,9 +67,9 @@ namespace sandbox
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_timer_name_tag_ {};
-  using t_timer_id     = mt::timers::t_timer_id; // not like fdevent_id
   using t_timer_name   = t_string<t_timer_name_tag_, 20>;
   using R_timer_name   = t_prefix<t_timer_name>::R_;
+  using t_timer_id     = mt::timers::t_timer_id; // not like fdevent_id
   using t_timer_params = mt::timers::t_timer_params;
   using R_timer_params = t_prefix<t_timer_params>::R_;
   using P_timer_params = t_prefix<t_timer_params>::P_;
@@ -88,8 +90,9 @@ namespace sandbox
   constexpr t_fdevent_type FDEVENT_WRITE = mt::event_dispatcher::WR_EVENT;
 
   enum  t_fdevent_id_tag_ {};
-  using t_fdevent_id_  = named::t_int;
-  using t_fdevent_id   = t_explicit<t_fdevent_id_, t_fdevent_id_tag_>;
+  using t_fdevent_id_= named::t_int;
+  using t_fdevent_id = t_explicit<t_fdevent_id_, t_fdevent_id_tag_>;
+  constexpr t_fdevent_id BAD_FDEVENT_ID{-1};
 
   enum  t_fdevent_name_tag_ {};
   using t_fdevent_name = t_string<t_fdevent_name_tag_, 20>;
@@ -118,18 +121,18 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  // message types - can provide dedicated providers
-
-///////////////////////////////////////////////////////////////////////////////
-
   class t_logic_api {
   public:
     virtual ~t_logic_api() { }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual R_logic_stats    get_logic_stats   () const noexcept = 0;
-    virtual R_messenger_name get_messenger_name() const noexcept = 0;
+    virtual operator t_validity() const noexcept = 0;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    virtual R_logic_stats get_logic_stats() const noexcept = 0;
+    virtual R_logic_name  get_logic_name () const noexcept = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
