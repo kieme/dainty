@@ -43,7 +43,6 @@ namespace event_dispatcher
 ///////////////////////////////////////////////////////////////////////////////
 
   using named::t_fd;
-  using named::T_fd;
   using named::t_void;
   using named::t_bool;
   using named::t_n;
@@ -65,7 +64,6 @@ namespace event_dispatcher
   enum  t_event_id_tag_ {};
   using t_event_id_ = named::t_short;
   using t_event_id  = t_explicit<t_event_id_, t_event_id_tag_>;
-  using T_event_id  = t_prefix<t_event_id>::T_;
   using t_event_ids = container::list::t_list<t_event_id, 200>;
   using r_event_ids = t_prefix<t_event_ids>::r_;
 
@@ -81,10 +79,8 @@ namespace event_dispatcher
   using t_name = t_string<t_name_tag_, 20>;
 
   enum  t_event_type { RD_EVENT, WR_EVENT };
-  using T_event_type = t_prefix<t_event_type>::T_;
 
   using t_event_prio = named::t_uchar;
-  using T_event_prio = t_prefix<t_event_prio>::T_;
 
   enum  t_quit_tag_ {};
   using t_quit = t_explicit<t_bool, t_quit_tag_>;
@@ -93,7 +89,7 @@ namespace event_dispatcher
   constexpr t_quit     DONT_QUIT   {false};
   constexpr t_event_id BAD_EVENT_ID{-1};
 
-  enum  t_cmd  { QUIT_EVENT_LOOP, REMOVE_EVENT, CONTINUE };
+  enum t_cmd { QUIT_EVENT_LOOP, REMOVE_EVENT, CONTINUE };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -111,17 +107,10 @@ namespace event_dispatcher
 
   class t_event_params {
   public:
-    T_fd         fd;
-    T_event_type type;
-    T_event_prio prio;
+    t_fd         fd   = BAD_FD;
+    t_event_type type = RD_EVENT;
+    t_event_prio prio = t_event_prio{0};
     t_event_user user;
-
-    inline
-    t_event_params(t_fd _fd, t_event_type _type,
-                   t_event_prio _prio = 0,
-                   t_event_user _user = t_event_user{0L}) noexcept
-      : fd{_fd}, type(_type), prio(_prio), user(_user) {
-    }
   };
   using r_event_params = t_prefix<t_event_params>::r_;
   using R_event_params = t_prefix<t_event_params>::R_;
