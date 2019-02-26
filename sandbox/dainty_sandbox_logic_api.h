@@ -79,7 +79,7 @@ namespace sandbox
 
   class t_timer_notify {
   public:
-    virtual ~t_timer_notify() { }
+    virtual ~t_timer_notify() {}
     virtual t_void notify_timeout(t_timer_id, R_timer_params) noexcept = 0;
   };
   using p_timer_notify     = t_prefix<t_timer_notify>::p_;
@@ -103,7 +103,7 @@ namespace sandbox
 
   class t_fdevent_notify {
   public:
-    virtual ~t_fdevent_notify() { };
+    virtual ~t_fdevent_notify() {}
     virtual t_void notify_fdevent(t_fdevent_id, R_fdevent_params) noexcept = 0;
   };
   using p_fdevent_notify     = t_prefix<t_fdevent_notify>::p_;

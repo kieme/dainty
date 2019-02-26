@@ -24,28 +24,50 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_LOGIC_EXT_TCP_CLIENT_API_H_
-#define _DAINTY_SANDBOX_LOGIC_EXT_TCP_CLIENT_API_H_
+#include "dainty_sandbox_logic_ext_messenger.h"
 
 namespace dainty
 {
 namespace sandbox
 {
-namespace logic_tcp_client_ext
+namespace logic_messenger_ext
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_tcp_client_ext_api {
-  public:
-    virtual ~t_logic_tcp_client_ext_api() { }
+  t_logic_messenger_ext::t_logic_messenger_ext(t_err err,
+                                               r_logic logic) noexcept
+    : impl_{err, logic, *this} {
+  }
 
-    // provide api
-    // send
-  };
+///////////////////////////////////////////////////////////////////////////////
+
+  t_logic_messenger_ext::t_impl_::t_impl_(t_err err, r_logic logic,
+                                          r_ext_ ext) noexcept
+      : t_logic_ext{"messenger", logic}, ext_{ext} {
+    ERR_GUARD(err) {
+      register_(err, logic, this);
+    }
+  }
+
+  t_void t_logic_messenger_ext::t_impl_::notify_start(t_err err) noexcept {
+    ERR_GUARD(err) {
+      ext_.notify_messenger_start(err);
+    }
+  }
+
+  t_void t_logic_messenger_ext::t_impl_::notify_cleanup() noexcept {
+    ext_.notify_messenger_cleanup();
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::notify_timeout(t_timer_id, R_timer_params) noexcept {
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::notify_fdevent(t_fdevent_id, R_fdevent_params) noexcept {
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 }
 }
 }
-
-#endif

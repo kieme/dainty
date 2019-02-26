@@ -24,28 +24,43 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_LOGIC_EXT_TCP_CLIENT_API_H_
-#define _DAINTY_SANDBOX_LOGIC_EXT_TCP_CLIENT_API_H_
+#ifndef _DAINTY_SANDBOX_LOGIC_EXT_MESSENGER_NOTIFY_H_
+#define _DAINTY_SANDBOX_LOGIC_EXT_MESSENGER_NOTIFY_H_
+
+#include "dainty_named.h"
+#include "dainty_sandbox_logic_ext_messenger_api.h"
 
 namespace dainty
 {
 namespace sandbox
 {
-namespace logic_tcp_client_ext
+namespace logic_messenger_ext
 {
+
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_tcp_client_ext_api {
+  class t_logic_messenger_ext_notify {
   public:
-    virtual ~t_logic_tcp_client_ext_api() { }
+    virtual ~t_logic_messenger_ext_notify() { }
 
-    // provide api
-    // send
+    virtual t_void notify_messenger_start(t_err) noexcept = 0;
+    virtual t_void notify_messenger_cleanup()    noexcept = 0;
+
+    /*
+    virtual t_void notify_messenger_state(t_messenger_state,
+                                          R_messenger_name,
+                                          R_messenger_key,
+                                          t_messenger_prio,
+                                          t_messenger_user) noexcept = 0;
+    virtual t_void notify_messenger_message    (x_message)  noexcept = 0;
+    virtual t_void notify_messenger_failed_send(x_message)  noexcept = 0;
+    */
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 }
 }
 }
+
 
 #endif

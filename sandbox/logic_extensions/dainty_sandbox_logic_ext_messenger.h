@@ -24,23 +24,50 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#ifndef _DAINTY_SANDBOX_LOGIC_EXT_TCP_CLIENT_API_H_
-#define _DAINTY_SANDBOX_LOGIC_EXT_TCP_CLIENT_API_H_
+#ifndef _DAINTY_SANDBOX_LOGIC_EXT_MESSENGER_H_
+#define _DAINTY_SANDBOX_LOGIC_EXT_MESSENGER_H_
+
+#include "dainty_sandbox_logic_api.h"
+#include "dainty_sandbox_logic_ext.h"
+#include "dainty_sandbox_logic_ext_messenger_api.h"
+#include "dainty_sandbox_logic_ext_messenger_notify.h"
 
 namespace dainty
 {
 namespace sandbox
 {
-namespace logic_tcp_client_ext
+namespace logic_messenger_ext
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_tcp_client_ext_api {
+  class t_logic_messenger_ext : public t_logic_messenger_ext_api,
+                                public t_logic_messenger_ext_notify {
   public:
-    virtual ~t_logic_tcp_client_ext_api() { }
+    t_logic_messenger_ext(t_err, r_logic) noexcept;
 
-    // provide api
-    // send
+    // use api
+    // provide notify_
+
+  private:
+    using r_ext_ = t_prefix<t_logic_messenger_ext>::r_;
+
+    class t_impl_ : public t_logic_ext {
+    public:
+      t_impl_(t_err, r_logic, r_ext_) noexcept;
+
+      t_void notify_start(t_err) noexcept override final;
+      t_void notify_cleanup()    noexcept override final;
+
+      t_void notify_timeout(t_timer_id,
+                            R_timer_params)   noexcept override final;
+      t_void notify_fdevent(t_fdevent_id,
+                            R_fdevent_params) noexcept override final;
+
+    private:
+      r_ext_ ext_;
+    };
+
+    t_impl_ impl_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

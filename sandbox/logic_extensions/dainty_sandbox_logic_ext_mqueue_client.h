@@ -35,6 +35,8 @@ namespace dainty
 {
 namespace sandbox
 {
+namespace logic_mqueue_client_ext
+{
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_logic_mqueue_client_ext : public t_logic_mqueue_client_ext_api,
@@ -68,7 +70,7 @@ namespace sandbox
   };
 
 ///////////////////////////////////////////////////////////////////////////////
-
+}
 }
 }
 

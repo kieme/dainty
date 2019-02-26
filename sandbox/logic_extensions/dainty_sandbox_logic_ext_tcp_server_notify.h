@@ -34,6 +34,8 @@ namespace dainty
 {
 namespace sandbox
 {
+namespace logic_tcp_server_ext
+{
   using named::t_void;
   using t_err = err::t_err;
 
@@ -48,7 +50,7 @@ namespace sandbox
   };
 
 ///////////////////////////////////////////////////////////////////////////////
-
+}
 }
 }
 

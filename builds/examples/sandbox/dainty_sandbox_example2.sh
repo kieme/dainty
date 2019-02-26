@@ -3,6 +3,15 @@ g++ -Wall -o run $DAINTY_ROOT/examples/sandbox/dainty_sandbox_example2.cpp \
                  $DAINTY_ROOT/sandbox/dainty_sandbox.cpp         \
                  $DAINTY_ROOT/sandbox/dainty_sandbox_err.cpp     \
                  $DAINTY_ROOT/sandbox/dainty_sandbox_impl.cpp    \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_inotify.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_mqueue_server.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_mqueue_client.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_tcp_server.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_tcp_client.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_udp_server.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_udp_client.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_file.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_messenger.cpp \
                  $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_cli.cpp \
                  $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_large_msg.cpp \
                  $DAINTY_ROOT/service/messaging/dainty_messaging_err.cpp \
@@ -49,4 +58,4 @@ g++ -Wall -o run $DAINTY_ROOT/examples/sandbox/dainty_sandbox_example2.cpp \
                  -I$DAINTY_ROOT/library/container \
                  -I$DAINTY_ROOT/service/tracing \
                  -I$DAINTY_ROOT/service/messaging \
-                 -std=c++17 -lpthread -O2 -ggdb3
+                 -std=c++17 -lpthread -O2
