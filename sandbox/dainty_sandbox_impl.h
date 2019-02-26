@@ -46,7 +46,6 @@ namespace sandbox
   using container::list::t_list;
   using container::freelist::t_freelist;
   using mt::event_dispatcher::BAD_EVENT_ID;
-  using mt::timers::BAD_TIMER_ID;
 
   using t_freelist_id_value_ = container::freelist::t_id_;
   using t_thread_            = mt::detached_thread::t_thread;

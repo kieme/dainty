@@ -50,8 +50,9 @@ namespace sandbox
   using named::t_explicit;
   using named::t_validity;
   using named::string::t_string;
-  using mt::timers::BAD_TIMER_ID;
   using container::ptr::t_passable_ptr;
+
+///////////////////////////////////////////////////////////////////////////////
 
   enum  t_logic_name_tag {};
   using t_logic_name = t_string<t_logic_name_tag>;
@@ -69,7 +70,9 @@ namespace sandbox
   enum  t_timer_name_tag_ {};
   using t_timer_name   = t_string<t_timer_name_tag_, 20>;
   using R_timer_name   = t_prefix<t_timer_name>::R_;
-  using t_timer_id     = mt::timers::t_timer_id; // not like fdevent_id
+  using t_timer_id     = mt::timers::t_timer_id;
+  using t_timer_prio   = mt::timers::t_timer_prio;
+  using t_timer_user   = mt::timers::t_timer_user;
   using t_timer_params = mt::timers::t_timer_params;
   using R_timer_params = t_prefix<t_timer_params>::R_;
   using P_timer_params = t_prefix<t_timer_params>::P_;
@@ -83,30 +86,18 @@ namespace sandbox
   using t_timer_notify_ptr = t_passable_ptr<t_timer_notify>;
   using x_timer_notify_ptr = t_prefix<t_timer_notify_ptr>::x_;
 
+  constexpr t_timer_id BAD_TIMER_ID{mt::timers::BAD_TIMER_ID};
+
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_fdevent_type                   = mt::event_dispatcher::t_event_type;
-  constexpr t_fdevent_type FDEVENT_READ  = mt::event_dispatcher::RD_EVENT;
-  constexpr t_fdevent_type FDEVENT_WRITE = mt::event_dispatcher::WR_EVENT;
-
-  enum  t_fdevent_id_tag_ {};
-  using t_fdevent_id_= named::t_int;
-  using t_fdevent_id = t_explicit<t_fdevent_id_, t_fdevent_id_tag_>;
-  constexpr t_fdevent_id BAD_FDEVENT_ID{-1};
-
   enum  t_fdevent_name_tag_ {};
-  using t_fdevent_name = t_string<t_fdevent_name_tag_, 20>;
-  using R_fdevent_name = t_prefix<t_fdevent_name>::R_;
-
-  using t_fdevent_user = mt::event_dispatcher::t_event_user;
-  using t_fdevent_prio = mt::event_dispatcher::t_event_prio;
-
-  struct t_fdevent_params {
-    t_fd           fd   = {named::BAD_FD};
-    t_fdevent_type type = FDEVENT_READ;
-    t_fdevent_prio prio = t_fdevent_prio{0};
-    t_fdevent_user user;
-  };
+  using t_fdevent_name   = t_string<t_fdevent_name_tag_, 20>;
+  using R_fdevent_name   = t_prefix<t_fdevent_name>::R_;
+  using t_fdevent_type   = mt::event_dispatcher::t_event_type;
+  using t_fdevent_id     = mt::event_dispatcher::t_event_id;
+  using t_fdevent_user   = mt::event_dispatcher::t_event_user;
+  using t_fdevent_prio   = mt::event_dispatcher::t_event_prio;
+  using t_fdevent_params = mt::event_dispatcher::t_event_params;
   using R_fdevent_params = t_prefix<t_fdevent_params>::R_;
   using P_fdevent_params = t_prefix<t_fdevent_params>::P_;
 
@@ -118,6 +109,10 @@ namespace sandbox
   using p_fdevent_notify     = t_prefix<t_fdevent_notify>::p_;
   using t_fdevent_notify_ptr = t_passable_ptr<t_fdevent_notify>;
   using x_fdevent_notify_ptr = t_prefix<t_fdevent_notify_ptr>::x_;
+
+  constexpr t_fdevent_type FDEVENT_READ  {mt::event_dispatcher::RD_EVENT};
+  constexpr t_fdevent_type FDEVENT_WRITE {mt::event_dispatcher::WR_EVENT};
+  constexpr t_fdevent_id   BAD_FDEVENT_ID{mt::event_dispatcher::BAD_EVENT_ID};
 
 ///////////////////////////////////////////////////////////////////////////////
 
