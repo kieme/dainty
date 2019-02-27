@@ -37,11 +37,14 @@ namespace logic_messenger_ext
 {
   using named::t_void;
   using named::t_bool;
+  using named::t_validity;
+  using named::VALID;
+  using named::INVALID;
   using t_err = err::t_err;
 
   using t_messenger_msg           = messaging::message::t_message;
   using x_messenger_msg           = messaging::message::x_message;
-  using t_messenger_msgs          = messaging::messenger::t_messages;
+  using t_messenger_msgs          = messaging::messenger::t_messages; //XXX
   using t_messenger_msg_id        = messaging::message::t_id;
   using R_messenger_msg_id        = messaging::message::R_id;
   using t_multiple_of_100ms       = messaging::t_multiple_of_100ms;
@@ -55,41 +58,35 @@ namespace logic_messenger_ext
   using t_messenger_name          = messaging::t_messenger_name;
   using R_messenger_name          = messaging::R_messenger_name;
   using t_messenger_key           = messaging::t_messenger_key;
-  using R_messenger_key           = messaging::R_messenger_key;
   using t_messenger_state         = messaging::message::t_messenger_state;
   using t_messenger_params        = messaging::t_messenger_params;
   using r_messenger_params        = messaging::messenger::r_params;
   using r_messenger_group_list    = messaging::messenger::r_group_list;
   using r_messenger_monitor_list  = messaging::messenger::r_monitor_list;
-  using R_messenger_create_params = messaging::R_messenger_create_params;
+  using R_messenger_create_params = messaging::R_messenger_create_params; //XXX
 
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_logic_messenger_ext_api {
   public:
-    using t_messenger_msg           = messaging::message::t_message;
-    using x_messenger_msg           = messaging::message::x_message;
-    using t_messenger_msgs          = messaging::messenger::t_messages;
-    using t_messenger_msg_id        = messaging::message::t_id;
-    using R_messenger_msg_id        = messaging::message::R_id;
-    using t_multiple_of_100ms       = messaging::t_multiple_of_100ms;
-    using t_messenger_scope         = messaging::t_messenger_scope;
-    using r_messenger_scope         = messaging::r_messenger_scope;
-    using p_messenger_name_list     = messaging::p_messenger_name_list;
-    using R_messenger_password      = messaging::R_messenger_password;
-    using t_messenger_prio          = messaging::t_messenger_prio;
-    using t_messenger_user          = messaging::t_messenger_user;
-    using p_messenger_user          = messaging::p_messenger_user;
-    using t_messenger_name          = messaging::t_messenger_name;
-    using R_messenger_name          = messaging::R_messenger_name;
-    using t_messenger_key           = messaging::t_messenger_key;
-    using R_messenger_key           = messaging::R_messenger_key;
-    using t_messenger_state         = messaging::message::t_messenger_state;
-    using t_messenger_params        = messaging::t_messenger_params;
-    using r_messenger_params        = messaging::messenger::r_params;
-    using r_messenger_group_list    = messaging::messenger::r_group_list;
-    using r_messenger_monitor_list  = messaging::messenger::r_monitor_list;
-    using R_messenger_create_params = messaging::R_messenger_create_params;
+    using t_messenger_msg           = logic_messenger_ext::t_messenger_msg;
+    using x_messenger_msg           = logic_messenger_ext::x_messenger_msg;
+    using t_multiple_of_100ms       = logic_messenger_ext::t_multiple_of_100ms;
+    using t_messenger_scope         = logic_messenger_ext::t_messenger_scope;
+    using r_messenger_scope         = logic_messenger_ext::r_messenger_scope;
+    using p_messenger_name_list     = logic_messenger_ext::p_messenger_name_list;
+    using R_messenger_password      = logic_messenger_ext::R_messenger_password;
+    using t_messenger_prio          = logic_messenger_ext::t_messenger_prio;
+    using t_messenger_user          = logic_messenger_ext::t_messenger_user;
+    using p_messenger_user          = logic_messenger_ext::p_messenger_user;
+    using t_messenger_name          = logic_messenger_ext::t_messenger_name;
+    using R_messenger_name          = logic_messenger_ext::R_messenger_name;
+    using t_messenger_key           = logic_messenger_ext::t_messenger_key;
+    using t_messenger_params        = logic_messenger_ext::t_messenger_params;
+    using r_messenger_params        = logic_messenger_ext::r_messenger_params;
+    using r_messenger_group_list    = logic_messenger_ext::r_messenger_group_list;
+    using r_messenger_monitor_list  = logic_messenger_ext::r_messenger_monitor_list;
+    using R_messenger_create_params = logic_messenger_ext::R_messenger_create_params;
 
     virtual ~t_logic_messenger_ext_api() {}
 
@@ -99,14 +96,13 @@ namespace logic_messenger_ext
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_messenger_key  get_key   ()      const noexcept = 0;
-    virtual t_messenger_name get_name  (t_err) const noexcept = 0;
-    virtual t_void           get_params(t_err,
-                                        r_messenger_params) const noexcept = 0;
+    virtual t_messenger_key  get_key   () const noexcept = 0;
+    virtual t_messenger_name get_name  () const noexcept = 0;
+    virtual t_void           get_params(r_messenger_params) const noexcept = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_void post_msg(t_err, R_messenger_key,
+    virtual t_void post_msg(t_err, t_messenger_key,
                             x_messenger_msg) noexcept = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
