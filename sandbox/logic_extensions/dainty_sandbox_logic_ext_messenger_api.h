@@ -27,6 +27,7 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_LOGIC_EXT_MESSENGER_API_H_
 #define _DAINTY_SANDBOX_LOGIC_EXT_MESSENGER_API_H_
 
+#include "dainty_container_ptr.h"
 #include "dainty_messaging.h"
 
 namespace dainty
@@ -40,6 +41,7 @@ namespace logic_messenger_ext
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
+  using container::ptr::t_passable_ptr;
   using t_err = err::t_err;
 
   using t_messenger_msg           = messaging::message::t_message;
@@ -64,6 +66,59 @@ namespace logic_messenger_ext
   using r_messenger_group_list    = messaging::messenger::r_group_list;
   using r_messenger_monitor_list  = messaging::messenger::r_monitor_list;
   using R_messenger_create_params = messaging::R_messenger_create_params; //XXX
+
+///////////////////////////////////////////////////////////////////////////////
+
+  using  t_messenger_msg_notify_id = named::t_int;
+
+  struct t_messenger_msg_notify_params {
+  };
+  using R_messenger_msg_notify_params
+    = t_prefix<t_messenger_msg_notify_params>::R_;
+  using P_messenger_msg_notify_params
+    = t_prefix<t_messenger_msg_notify_params>::P_;
+
+  class t_messenger_msg_notify {
+  public:
+    using t_messenger_msg = logic_messenger_ext::t_messenger_msg;
+    using x_messenger_msg = logic_messenger_ext::x_messenger_msg;
+
+    virtual ~t_messenger_msg_notify() {}
+
+    virtual t_void notify_messenger_msg            (x_messenger_msg) noexcept = 0;
+    virtual t_void notify_messenger_msg_send_failed(x_messenger_msg) noexcept = 0;
+  };
+  using t_messenger_msg_notify_ptr = t_passable_ptr<t_messenger_msg_notify>;
+  using x_messenger_msg_notify_ptr = t_prefix<t_messenger_msg_notify_ptr>::x_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  using  t_messenger_monitor_id = named::t_int;
+
+  struct t_messenger_monitor_params {
+  };
+  using R_messenger_monitor_params = t_prefix<t_messenger_monitor_params>::R_;
+  using P_messenger_monitor_params = t_prefix<t_messenger_monitor_params>::P_;
+
+  class t_messenger_monitor_notify {
+  public:
+    using t_messenger_name  = logic_messenger_ext::t_messenger_name;
+    using R_messenger_name  = logic_messenger_ext::R_messenger_name;
+    using t_messenger_state = logic_messenger_ext::t_messenger_state;
+    using t_messenger_prio  = logic_messenger_ext::t_messenger_prio;
+    using t_messenger_user  = logic_messenger_ext::t_messenger_user;
+
+    virtual ~t_messenger_monitor_notify() {}
+    virtual t_void notify_messenger_state(t_messenger_state,
+                                          R_messenger_name,
+                                          t_messenger_key,
+                                          t_messenger_prio,
+                                          t_messenger_user)      noexcept = 0;
+  };
+  using t_messenger_monitor_notify_ptr =
+    t_passable_ptr<t_messenger_monitor_notify>;
+  using x_messenger_monitor_notify_ptr =
+    t_prefix<t_messenger_monitor_notify_ptr>::x_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -96,68 +151,86 @@ namespace logic_messenger_ext
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_messenger_key  get_key   () const noexcept = 0;
-    virtual t_messenger_name get_name  () const noexcept = 0;
-    virtual t_void           get_params(r_messenger_params) const noexcept = 0;
+    virtual t_messenger_key  get_messenger_key   () const noexcept = 0;
+    virtual t_messenger_name get_messenger_name  () const noexcept = 0;
+
+    virtual t_void  get_messenger_params(r_messenger_params) const noexcept = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_void post_msg(t_err, t_messenger_key,
-                            x_messenger_msg) noexcept = 0;
+    virtual t_void post_messenger_msg(t_err, t_messenger_key,
+                                      x_messenger_msg) noexcept = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_void update_scope       (t_err, t_messenger_scope)   noexcept = 0;
-    virtual t_void update_alive_period(t_err, t_multiple_of_100ms) noexcept = 0;
+    virtual t_void update_messenger_scope       (t_err, t_messenger_scope)   noexcept = 0;
+    virtual t_void update_messenger_alive_period(t_err, t_multiple_of_100ms) noexcept = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_void add_monitor(t_err, R_messenger_name,
-                               t_messenger_prio = t_messenger_prio(0),
-                               t_messenger_user = t_messenger_user()) noexcept = 0;
-    virtual t_void remove_monitor(t_err, R_messenger_name,
-                                  p_messenger_user = nullptr) noexcept = 0;
-    virtual t_messenger_key is_monitored(t_err, R_messenger_name,
+    virtual t_messenger_msg_notify_id
+              add_messenger_msg_notify(t_err,
+                                       R_messenger_msg_notify_params) noexcept = 0;
+    virtual t_messenger_msg_notify_id
+              add_messenger_msg_notify(t_err, R_messenger_msg_notify_params,
+                                       x_messenger_msg_notify_ptr)    noexcept = 0;
+
+    virtual t_messenger_msg_notify_ptr
+              remove_messenger_msg_notify(t_messenger_msg_notify_id)    noexcept = 0;
+    virtual P_messenger_msg_notify_params
+              get_messenger_msg_notify(t_messenger_msg_notify_id) const noexcept = 0;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    virtual t_messenger_monitor_id
+              add_messenger_monitor(t_err, R_messenger_name,
+                                    R_messenger_monitor_params) noexcept = 0;
+    virtual t_messenger_monitor_id
+              add_messenger_monitor(t_err, R_messenger_name,
+                                    R_messenger_monitor_params,
+                                    x_messenger_monitor_notify_ptr) noexcept = 0;
+
+    virtual t_messenger_monitor_notify_ptr
+              remove_messenger_monitor(t_messenger_monitor_id) noexcept = 0;
+    virtual P_messenger_monitor_params
+              get_messenger_monitor(t_messenger_monitor_id) const noexcept = 0;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    virtual t_void add_messenger_to_group(t_err, R_messenger_password,
+                                          R_messenger_name group,
+                                          t_messenger_prio = t_messenger_prio(0),
+                                          t_messenger_user = t_messenger_user()) noexcept = 0;
+    virtual t_void remove_messenger_from_group(t_err, R_messenger_password,
+                                               R_messenger_name,
+                                               p_messenger_user = nullptr) noexcept = 0;
+    virtual t_bool is_messenger_in_group(t_err, R_messenger_name,
+                                         p_messenger_user = nullptr)   const noexcept = 0;
+    virtual t_void get_messenger_groups(t_err, r_messenger_group_list) const noexcept = 0;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    virtual t_void create_messenger_group (t_err, R_messenger_password, R_messenger_name,
+                                           t_messenger_scope) noexcept = 0;
+    virtual t_void destroy_messenger_group(t_err, R_messenger_password,
+                                           R_messenger_name) noexcept = 0;
+    virtual t_bool is_messenger_group     (t_err, R_messenger_name, r_messenger_scope,
+                                           p_messenger_name_list = nullptr) const noexcept = 0;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    virtual t_void add_messenger_to_group(t_err, R_messenger_password,
+                                          R_messenger_name name,
+                                          R_messenger_name group,
+                                          t_messenger_prio = t_messenger_prio(0),
+                                          t_messenger_user = t_messenger_user()) noexcept = 0;
+    virtual t_void remove_messenger_from_group(t_err, R_messenger_password,
+                                               R_messenger_name,
+                                               R_messenger_name group,
+                                               p_messenger_user = nullptr) noexcept = 0;
+    virtual t_bool is_messenger_in_group(t_err, R_messenger_name,
+                                         R_messenger_name group,
                                          p_messenger_user = nullptr) const noexcept = 0;
-    virtual t_void get_monitored(t_err,
-                                 r_messenger_monitor_list) const noexcept = 0;
-
-///////////////////////////////////////////////////////////////////////////////
-
-    virtual t_void add_to_group(t_err, R_messenger_password,
-                                R_messenger_name group,
-                                t_messenger_prio = t_messenger_prio(0),
-                                t_messenger_user = t_messenger_user()) noexcept = 0;
-    virtual t_void remove_from_group(t_err, R_messenger_password,
-                                     R_messenger_name,
-                                     p_messenger_user = nullptr) noexcept = 0;
-    virtual t_bool is_in_group(t_err, R_messenger_name,
-                               p_messenger_user = nullptr)   const noexcept = 0;
-    virtual t_void get_groups(t_err, r_messenger_group_list) const noexcept = 0;
-
-///////////////////////////////////////////////////////////////////////////////
-
-    virtual t_void create_group (t_err, R_messenger_password, R_messenger_name,
-                                 t_messenger_scope) noexcept = 0;
-    virtual t_void destroy_group(t_err, R_messenger_password,
-                                 R_messenger_name) noexcept = 0;
-    virtual t_bool is_group     (t_err, R_messenger_name, r_messenger_scope,
-                                 p_messenger_name_list = nullptr) const noexcept = 0;
-
-///////////////////////////////////////////////////////////////////////////////
-
-    virtual t_void add_to_group(t_err, R_messenger_password,
-                                R_messenger_name name,
-                                R_messenger_name group,
-                                t_messenger_prio = t_messenger_prio(0),
-                                t_messenger_user = t_messenger_user()) noexcept = 0;
-    virtual t_void remove_from_group(t_err, R_messenger_password,
-                                     R_messenger_name,
-                                     R_messenger_name group,
-                                     p_messenger_user = nullptr) noexcept = 0;
-    virtual t_bool is_in_group(t_err, R_messenger_name,
-                               R_messenger_name group,
-                               p_messenger_user = nullptr) const noexcept = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
   };
