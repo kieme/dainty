@@ -47,6 +47,7 @@ namespace logic_messenger_ext
           ev_id_        {BAD_FDEVENT_ID},
           mons_         {err, params_.monitors_max},
           monitors_     {err, params_.monitors_max},
+          msg_notifs_   {err, params_.msg_notifiers_max},
           msg_notifiers_{err, params_.msg_notifiers_max} {
     ERR_GUARD(err) {
       register_(err, logic, this);
@@ -201,15 +202,33 @@ namespace logic_messenger_ext
                                   R_messenger_msg_notify_params params) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID) {
-        auto result = msg_notifiers_.insert(err);
-        if (result) {
-          auto id = mk_msg_notify_id_(result.id,
-                                      generate_msg_notify_unique_id_());
-          auto entry    = result.ptr;
-          entry->id     = id;
-          entry->params = params;
-          return id;
-        }
+        if (!msg_notifiers_.is_full()) {
+          t_id_ id = msg_notifs_.find_if([&params](auto& entry) -> t_bool {
+            return entry.domain == params.domain;
+          });
+
+          p_msg_notif_entry_ msg_notif_entry = nullptr;
+          if (id != BAD_ID)
+            msg_notif_entry = msg_notifs_.get(id);
+          else {
+            auto result = msg_notifs_.insert();
+            msg_notif_entry = result.ptr;
+            msg_notif_entry->domain = params.domain;
+            id = result.id;
+          }
+
+          auto result = msg_notifiers_.insert();
+          msg_notif_entry->ids.push_back(result.id);
+
+          auto msg_id = mk_msg_notify_id_(result.id,
+                                          generate_msg_notify_unique_id_());
+          auto entry      = result.ptr;
+          entry->id       = msg_id;
+          entry->entry_id = id;
+          entry->params   = params;
+          return msg_id;
+        } else
+          err = err::E_XXX;
       } else
         err = err::E_XXX;
     }
@@ -222,16 +241,34 @@ namespace logic_messenger_ext
                                   x_messenger_msg_notify_ptr ptr) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID) {
-        auto result = msg_notifiers_.insert(err);
-        if (result) {
-          auto id = mk_msg_notify_id_(result.id,
-                                      generate_msg_notify_unique_id_());
-          auto entry    = result.ptr;
-          entry->id     = id;
-          entry->params = params;
+        if (!msg_notifiers_.is_full()) {
+          t_id_ id = msg_notifs_.find_if([&params](auto& entry) -> t_bool {
+                       return entry.domain == params.domain;
+                     });
+
+          p_msg_notif_entry_ msg_notif_entry = nullptr;
+          if (id != BAD_ID)
+            msg_notif_entry = msg_notifs_.get(id);
+          else {
+            auto result = msg_notifs_.insert();
+            msg_notif_entry = result.ptr;
+            msg_notif_entry->domain = params.domain;
+            id = result.id;
+          }
+
+          auto result = msg_notifiers_.insert();
+          msg_notif_entry->ids.push_back(result.id);
+
+          auto msg_id = mk_msg_notify_id_(result.id,
+                                          generate_msg_notify_unique_id_());
+          auto entry        = result.ptr;
+          entry->id         = msg_id;
+          entry->entry_id   = id;
           entry->notify_ptr = x_cast(ptr);
-          return id;
-        }
+          entry->params     = params;
+          return msg_id;
+        } else
+          err = err::E_XXX;
       } else
         err = err::E_XXX;
     }
@@ -245,6 +282,7 @@ namespace logic_messenger_ext
     if (entry) {
       if (entry->notify_ptr == VALID)
         tmp = x_cast(entry->notify_ptr);
+      // msg_notifs
       msg_notifiers_.erase(get_msg_notifiers_id_(id));
     }
     return tmp;

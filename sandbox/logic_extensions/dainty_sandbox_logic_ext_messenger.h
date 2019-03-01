@@ -45,6 +45,7 @@ namespace logic_messenger_ext
   using container::maybe::t_maybe;
   using container::list::t_list;
   using container::freelist::t_freelist;
+  using container::freelist::BAD_ID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -284,17 +285,26 @@ namespace logic_messenger_ext
 
     private:
       using t_id_                = container::freelist::t_id;
+      using t_ids_               = t_list<t_id_, 100>; //XXX
       using t_id_value_          = container::freelist::t_id_;
       using t_msg_notify_id      = t_messenger_msg_notify_id;
       using t_msg_notify_params  = t_messenger_msg_notify_params;
       using t_msg_notify_ptr     = t_messenger_msg_notify_ptr;
+      using t_msg_domain         = t_messenger_msg_domain;
       using t_monitor_id         = t_messenger_monitor_id;
-      using t_monitor_ids        = t_list<t_monitor_id>;
       using t_monitor_params     = t_messenger_monitor_params;
       using t_monitor_notify_ptr = t_messenger_monitor_notify_ptr;
 
-      struct t_msg_notify_entry_ { // mutiple entries?
-        t_msg_notify_id     id = BAD_MSG_NOTIFY_ID;
+      struct t_msg_notif_entry_ {
+        t_msg_domain domain = t_msg_domain{0};
+        t_ids_       ids;
+      };
+      using p_msg_notif_entry_ = t_prefix<t_msg_notif_entry_>::p_;
+      using t_msg_notifs_      = t_freelist<t_msg_notif_entry_>;
+
+      struct t_msg_notify_entry_ {
+        t_msg_notify_id     id       = BAD_MSG_NOTIFY_ID;
+        t_id_               entry_id = BAD_ID;
         t_msg_notify_params params;
         t_msg_notify_ptr    notify_ptr;
       };
@@ -302,18 +312,19 @@ namespace logic_messenger_ext
       using P_msg_notify_entry_ = t_prefix<t_msg_notify_entry_>::P_;
       using t_msg_notifiers_    = t_freelist<t_msg_notify_entry_>;
 
-      struct t_mon_entry_ { // multiple entries?
+      struct t_mon_entry_ {
         t_messenger_name     name;
         t_messenger_password password;
-        t_monitor_ids        ids;
+        t_ids_               ids;
       };
-      using t_mons_ = t_freelist<t_mon_entry_>;
+      using p_mon_entry_ = t_prefix<t_mon_entry_>::p_;
+      using t_mons_      = t_freelist<t_mon_entry_>;
 
-      struct t_monitor_entry_ { // multiple entries?
-        t_monitor_id         id = BAD_MONITOR_ID;
+      struct t_monitor_entry_ {
+        t_monitor_id         id       = BAD_MONITOR_ID;
+        t_id_                entry_id = BAD_ID;
         t_monitor_params     params;
         t_monitor_notify_ptr notify_ptr;
-        t_id_                id_;
       };
       using p_monitor_entry_ = t_prefix<t_monitor_entry_>::p_;
       using P_monitor_entry_ = t_prefix<t_monitor_entry_>::P_;
@@ -349,6 +360,7 @@ namespace logic_messenger_ext
       t_messaging_err              err_;
       t_mons_                      mons_;
       t_monitors_                  monitors_;
+      t_msg_notifs_                msg_notifs_;
       t_msg_notifiers_             msg_notifiers_;
     };
 
