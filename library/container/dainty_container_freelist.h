@@ -103,8 +103,8 @@ namespace freelist
     template<typename F> t_void ceach(       F) const;
     template<typename F> t_void ceach(t_err, F) const;
 
-    template<typename F> t_result find_if(       F) const;
-    template<typename F> t_result find_if(t_err, F) const;
+    template<typename F> t_id find_if(       F) const;
+    template<typename F> t_id find_if(t_err, F) const;
 
   private:
     typename t_impl_::t_entry store_[N];
@@ -172,8 +172,8 @@ namespace freelist
     template<typename F> t_void ceach(       F) const;
     template<typename F> t_void ceach(t_err, F) const;
 
-    template<typename F> t_result find_if(       F) const;
-    template<typename F> t_result find_if(t_err, F) const;
+    template<typename F> t_id find_if(       F) const;
+    template<typename F> t_id find_if(t_err, F) const;
 
   private:
     t_n_ max_;
@@ -389,7 +389,7 @@ namespace freelist
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
   template<typename F>
   inline
-  typename t_freelist<T, N, CLEANUP>::t_result
+  typename t_freelist<T, N, CLEANUP>::t_id
       t_freelist<T, N, CLEANUP>::find_if(F f) const {
     return impl_.find(store_, f);
   }
@@ -397,7 +397,7 @@ namespace freelist
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
   template<typename F>
   inline
-  typename t_freelist<T, N, CLEANUP>::t_result
+  typename t_freelist<T, N, CLEANUP>::t_id
       t_freelist<T, N, CLEANUP>::find_if(t_err err, F f) const {
     return impl_.find(err, store_, f);
   }
@@ -624,7 +624,7 @@ namespace freelist
   template<typename T, t_void (*CLEANUP)(T&)>
   template<typename F>
   inline
-  typename t_freelist<T, 0, CLEANUP>::t_result
+  typename t_freelist<T, 0, CLEANUP>::t_id
       t_freelist<T, 0, CLEANUP>::find_if(F f) const {
     return impl_.find(store_, f);
   }
@@ -632,7 +632,7 @@ namespace freelist
   template<typename T, t_void (*CLEANUP)(T&)>
   template<typename F>
   inline
-  t_freelist<T, 0, CLEANUP>::t_result
+  typename t_freelist<T, 0, CLEANUP>::t_id
       t_freelist<T, 0, CLEANUP>::find_if(t_err err, F f) const {
     return impl_.find(err, store_, f);
   }

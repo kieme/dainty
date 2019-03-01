@@ -48,8 +48,11 @@ namespace freelist
   using named::t_n_;
 
   enum  t_id_tag_ {};
-  using t_id_ = named::t_ix_;
+  using t_id_ = named::t_n_;
   using t_id  = named::t_explicit<t_id_, t_id_tag_>;
+
+  constexpr t_id_ BAD_ID_{0};
+  constexpr t_id  BAD_ID {BAD_ID_};
 
   template<typename T>
   struct t_result {
@@ -63,31 +66,13 @@ namespace freelist
     t_id    id;
     p_value ptr;
 
-    inline t_result()                        : id(0),   ptr(nullptr) { }
-    inline t_result(t_id_ _id, p_value _ptr) : id(_id), ptr(_ptr)    { }
+    inline t_result()                        : id(BAD_ID), ptr(nullptr) { }
+    inline t_result(t_id_ _id, p_value _ptr) : id(_id),    ptr(_ptr)    { }
 
     inline operator t_bool() const                      { return  ptr; }
     inline r_value operator*()                          { return *ptr; }
     inline R_value operator*() const                    { return *ptr; }
     inline p_value operator->()                         { return  ptr; }
-    inline P_value operator->() const                   { return  ptr; }
-  };
-
-  template<typename T>
-  struct t_cresult {
-    using t_id    = freelist::t_id;
-    using t_value = typename named::t_prefix<T>::t_;
-    using R_value = typename named::t_prefix<T>::R_;
-    using P_value = typename named::t_prefix<T>::P_;
-
-    t_id    id;
-    P_value ptr;
-
-    inline t_result()                        : id(0),   ptr(nullptr) { }
-    inline t_result(t_id_ _id, P_value _ptr) : id(_id), ptr(_ptr)    { }
-
-    inline operator t_bool() const                      { return  ptr; }
-    inline R_value operator*() const                    { return *ptr; }
     inline P_value operator->() const                   { return  ptr; }
   };
 
@@ -104,7 +89,6 @@ namespace freelist
 
   template<typename T, t_void (*CLEANUP)(T&)>
   class t_freelist_impl_ {
-    enum { USED = 0xFFFFFFFF }; // XXX - not a good idea - change later
   public:
     using t_id     = freelist::t_id;
     using t_result = typename freelist::t_result<T>;
@@ -146,9 +130,9 @@ namespace freelist
     t_result insert(p_entry _entry, t_n_ max) {
       if (free_ < max) {
         r_entry entry = _entry[free_];
-        t_result tmp(free_, entry.store_.default_construct());
+        t_result tmp(free_ + 1, entry.store_.default_construct());
         free_ = entry.free_;
-        entry.free_ = USED;
+        entry.free_ = max + 1;
         ++size_;
         return tmp;
       }
@@ -161,9 +145,9 @@ namespace freelist
         if (_entry) {
           if (free_ < max) {
             r_entry entry = _entry[free_];
-            t_result tmp(free_, entry.store_.default_construct());
+            t_result tmp(free_ + 1, entry.store_.default_construct());
             free_ = entry.free_;
-            entry.free_ = USED;
+            entry.free_ = max + 1;
             ++size_;
             return tmp;
           } else
@@ -178,9 +162,9 @@ namespace freelist
     t_result insert(p_entry _entry, t_n_ max, R_value value) {
       if (free_ < max) {
         r_entry entry = _entry[free_];
-        t_result tmp(free_, entry.store_.copy_construct(value));
+        t_result tmp(free_ + 1, entry.store_.copy_construct(value));
         free_ = entry.free_;
-        entry.free_ = USED;
+        entry.free_ = max + 1;
         ++size_;
         return tmp;
       }
@@ -193,9 +177,9 @@ namespace freelist
         if (_entry) {
           if (free_ < max) {
             r_entry entry = _entry[free_];
-            t_result tmp(free_, entry.store_.copy_construct(value));
+            t_result tmp(free_ + 1, entry.store_.copy_construct(value));
             free_ = entry.free_;
-            entry.free_ = USED;
+            entry.free_ = max + 1;
             ++size_;
             return tmp;
           } else
@@ -210,9 +194,9 @@ namespace freelist
     t_result insert(p_entry _entry, t_n_ max, x_value value) {
       if (free_ < max) {
         r_entry entry = _entry[free_];
-        t_result tmp(free_, entry.store_.move_construct(std::move(value)));
+        t_result tmp(free_ + 1, entry.store_.move_construct(std::move(value)));
         free_ = entry.free_;
-        entry.free_ = USED;
+        entry.free_ = max + 1;
         ++size_;
         return tmp;
       }
@@ -225,9 +209,10 @@ namespace freelist
         if (_entry) {
           if (free_ < max) {
             r_entry entry = _entry[free_];
-            t_result tmp(free_, entry.store_.move_construct(std::move(value)));
+            t_result tmp(free_ + 1,
+                         entry.store_.move_construct(std::move(value)));
             free_ = entry.free_;
-            entry.free_ = USED;
+            entry.free_ = max + 1;
             ++size_;
             return tmp;
           } else
@@ -240,9 +225,9 @@ namespace freelist
 
     inline
     t_bool erase(p_entry _entry, t_n_ max, t_id_ id) {
-      if (id < max) {
+      if (id != BAD_ID_ && --id < max) {
         r_entry entry = _entry[id];
-        if (entry.free_ == USED) {
+        if (entry.free_ == max + 1) {
           CLEANUP(entry.store_.ref());
           entry.store_.destruct();
           entry.free_  = free_;
@@ -258,9 +243,9 @@ namespace freelist
     t_bool erase(r_err err, p_entry _entry, t_n_ max, t_id_ id) {
       ERR_GUARD(err) {
         if (_entry) {
-          if (id < max) {
+          if (id != BAD_ID_ && --id < max) {
             r_entry entry = _entry[id];
-            if (entry.free_ == USED) {
+            if (entry.free_ == max + 1) {
               CLEANUP(entry.store_.ref());
               entry.store_.destruct();
               entry.free_  = free_;
@@ -303,7 +288,7 @@ namespace freelist
     t_void clear(p_entry _entry, t_n_ max) {
       for (t_n_ i = 0; i < max; /* none */ ) {
         r_entry entry = _entry[i++];
-        if (entry.free_ == USED) {
+        if (entry.free_ == max + 1) {
           CLEANUP(entry.store_.ref());
           entry.store_.destruct();
         }
@@ -319,7 +304,7 @@ namespace freelist
         if (_entry) {
           for (t_n_ i = 0; i < max; /* none */ ) {
             r_entry entry = _entry[i++];
-            if (entry.free_ == USED) {
+            if (entry.free_ == max + 1) {
               CLEANUP(entry.store_.ref());
               entry.store_.destruct();
             }
@@ -349,9 +334,9 @@ namespace freelist
 
     inline
     p_value get(p_entry _entry, t_n_ max, t_id_ id) {
-      if (id < max) {
+      if (id != BAD_ID_ && --id < max) {
         r_entry entry = _entry[id];
-        if (entry.free_ == USED)
+        if (entry.free_ == max + 1)
           return entry.store_.ptr();
       }
       return nullptr;
@@ -361,9 +346,9 @@ namespace freelist
     p_value get(r_err err, p_entry _entry, t_n_ max, t_id_ id) {
       ERR_GUARD(err) {
         if (_entry) {
-          if (id < max) {
+          if (id != BAD_ID_ && --id < max) {
             r_entry entry = _entry[id];
-            if (entry.free_ == USED)
+            if (entry.free_ == max + 1)
               return entry.store_.ptr();
             err = err::E_UNUSED_ID;
           } else
@@ -376,9 +361,9 @@ namespace freelist
 
     inline
     P_value get(P_entry _entry, t_n_ max, t_id_ id) const {
-      if (id < max) {
+      if (id != BAD_ID_ && --id < max) {
         R_entry entry = _entry[id];
-        if (entry.free_ == USED)
+        if (entry.free_ == max + 1)
           return entry.store_.cptr();
       }
       return nullptr;
@@ -388,9 +373,9 @@ namespace freelist
     P_value get(r_err err, P_entry _entry, t_n_ max, t_id_ id) const {
       ERR_GUARD(err) {
         if (_entry) {
-          if (id < max) {
+          if (id != BAD_ID_ && --id < max) {
             R_entry entry = _entry[id];
-            if (entry.free_ == USED)
+            if (entry.free_ == max + 1)
               return entry.store_.cptr();
             err = err::E_UNUSED_ID;
           } else
@@ -406,8 +391,8 @@ namespace freelist
     t_void each(p_entry _entry, t_n_ max, F f) {
       for (t_id_ id = 0; id < max; ++id) {
         r_entry entry = _entry[id];
-        if (entry.free_ == USED)
-          f(t_id{id}, entry.store_.ref());
+        if (entry.free_ == max + 1)
+          f(t_id{id + 1}, entry.store_.ref());
       }
     }
 
@@ -418,8 +403,8 @@ namespace freelist
         if (_entry) {
           for (t_id_ id = 0; id < max; ++id) {
             r_entry entry = _entry[id];
-            if (entry.free_ == USED)
-              f(t_id{id}, entry.store_.ref());
+            if (entry.free_ == max + 1)
+              f(t_id{id + 1}, entry.store_.ref());
           }
         } else
           err = err::E_INVALID_INST;
@@ -431,8 +416,8 @@ namespace freelist
     t_void each(P_entry _entry, t_n_ max, F f) const {
       for (t_id_ id = 0; id < max; ++id) {
         R_entry entry = _entry[id];
-        if (entry.free_ == USED)
-          f(t_id{id}, entry.store_.cref());
+        if (entry.free_ == max + 1)
+          f(t_id{id + 1}, entry.store_.cref());
       }
     }
 
@@ -443,8 +428,8 @@ namespace freelist
         if (_entry) {
           for (t_id_ id = 0; id < max; ++id) {
             R_entry entry = _entry[id];
-            if (entry.free_ == USED)
-              f(t_id{id}, entry.store_.cref());
+            if (entry.free_ == max + 1)
+              f(t_id{id + 1}, entry.store_.cref());
           }
         } else
           err = err::E_INVALID_INST;
@@ -453,46 +438,24 @@ namespace freelist
 
     template<typename F>
     inline
-    t_result find_if(p_entry _entry, t_n_ max, F& f) {
+    t_id_ find_if(P_entry _entry, t_n_ max, F& f) const {
       for (t_id_ id = 0; id < max; ++id) {
         R_entry entry = _entry[id];
-        if (entry.free_ == USED && f(entry.store_.cref()))
-          return t_result{t_id{id}, entry.store_.ptr()};
+        if ((entry.free_ == max + 1) && f(entry.store_.cref()))
+          return id + 1;
       }
-      return {};
+      return BAD_ID_;
     }
 
     template<typename F>
     inline
-    t_result find_if(r_err err, p_entry entry, t_n_ max, F& f) {
+    t_id_ find_if(r_err err, P_entry entry, t_n_ max, F& f) const {
       ERR_GUARD(err) {
         if (entry)
           return find_if(entry, max, f);
         err = err::E_INVALID_INST;
       }
-      return {};
-    }
-
-    template<typename F>
-    inline
-    t_result find_if(P_entry _entry, t_n_ max, F& f) const {
-      for (t_id_ id = 0; id < max; ++id) {
-        R_entry entry = _entry[id];
-        if (entry.free_ == USED && f(entry.store_.cref()))
-          return t_result{t_id{id}, entry.store_.ptr()};
-      }
-      return {};
-    }
-
-    template<typename F>
-    inline
-    t_result find_if(r_err err, P_entry entry, t_n_ max, F& f) const {
-      ERR_GUARD(err) {
-        if (entry)
-          return find_if(entry, max, f);
-        err = err::E_INVALID_INST;
-      }
-      return {};
+      return BAD_ID_;
     }
 
   private:
