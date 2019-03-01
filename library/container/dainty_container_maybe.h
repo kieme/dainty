@@ -148,7 +148,7 @@ namespace maybe
   template<typename T>
   inline
   typename t_maybe<T>::r_maybe t_maybe<T>::operator=(R_value value) {
-    if (valid_)
+    if (valid_ == VALID)
       store_.ref() = value;
     else
       store_.copy_construct(value);
@@ -159,7 +159,7 @@ namespace maybe
   template<typename T>
   inline
   typename t_maybe<T>::r_maybe t_maybe<T>::operator=(x_value value) {
-    if (valid_)
+    if (valid_ == VALID)
       store_.ref() = std::move(value);
     else
       store_.move_construct(std::move(value));
@@ -171,7 +171,7 @@ namespace maybe
   inline
   typename t_maybe<T>::r_maybe t_maybe<T>::operator=(R_maybe maybe) {
     if (maybe == VALID) {
-      if (valid_)
+      if (valid_ == VALID)
         store_.ref() = maybe.store_.cref();
       else
         store_.copy_construct(maybe.store_.cref());
