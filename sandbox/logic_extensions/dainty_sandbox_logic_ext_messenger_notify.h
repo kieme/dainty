@@ -36,7 +36,6 @@ namespace sandbox
 {
 namespace logic_messenger_ext
 {
-
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_logic_messenger_ext_notify : public t_messenger_msg_notify,

@@ -44,6 +44,7 @@ namespace logic_messenger_ext
   using container::ptr::t_passable_ptr;
   using t_err = err::t_err;
 
+  using t_messenger_msg_domain    = messaging::message::t_domain;
   using t_messenger_msg           = messaging::message::t_message;
   using x_messenger_msg           = messaging::message::x_message;
   using t_messenger_msgs          = messaging::messenger::t_messages; //XXX
@@ -72,6 +73,7 @@ namespace logic_messenger_ext
   using  t_messenger_msg_notify_id = named::t_int;
 
   struct t_messenger_msg_notify_params {
+    t_messenger_msg_domain domain;
   };
   using R_messenger_msg_notify_params
     = t_prefix<t_messenger_msg_notify_params>::R_;
@@ -80,13 +82,16 @@ namespace logic_messenger_ext
 
   class t_messenger_msg_notify {
   public:
-    using t_messenger_msg = logic_messenger_ext::t_messenger_msg;
-    using x_messenger_msg = logic_messenger_ext::x_messenger_msg;
+    using t_messenger_msg_notify_id = logic_messenger_ext::t_messenger_msg_notify_id;
+    using t_messenger_msg           = logic_messenger_ext::t_messenger_msg;
+    using x_messenger_msg           = logic_messenger_ext::x_messenger_msg;
 
     virtual ~t_messenger_msg_notify() {}
 
-    virtual t_void notify_messenger_msg            (x_messenger_msg) noexcept = 0;
-    virtual t_void notify_messenger_msg_send_failed(x_messenger_msg) noexcept = 0;
+    virtual t_void notify_messenger_msg(t_messenger_msg_notify_id,
+                                        x_messenger_msg) noexcept = 0;
+    virtual t_void notify_messenger_msg_send_failed(t_messenger_msg_notify_id,
+                                                    x_messenger_msg) noexcept = 0;
   };
   using t_messenger_msg_notify_ptr = t_passable_ptr<t_messenger_msg_notify>;
   using x_messenger_msg_notify_ptr = t_prefix<t_messenger_msg_notify_ptr>::x_;
@@ -102,18 +107,17 @@ namespace logic_messenger_ext
 
   class t_messenger_monitor_notify {
   public:
-    using t_messenger_name  = logic_messenger_ext::t_messenger_name;
-    using R_messenger_name  = logic_messenger_ext::R_messenger_name;
-    using t_messenger_state = logic_messenger_ext::t_messenger_state;
-    using t_messenger_prio  = logic_messenger_ext::t_messenger_prio;
-    using t_messenger_user  = logic_messenger_ext::t_messenger_user;
+    using t_messenger_monitor_id      = logic_messenger_ext::t_messenger_monitor_id;
+    using t_messenger_monitor_params  = logic_messenger_ext::t_messenger_monitor_params;
+    using R_messenger_params          = logic_messenger_ext::R_messenger_monitor_params;
+    using t_messenger_key             = logic_messenger_ext::t_messenger_key;
+    using t_messenger_state           = logic_messenger_ext::t_messenger_state;
 
     virtual ~t_messenger_monitor_notify() {}
-    virtual t_void notify_messenger_state(t_messenger_state,
-                                          R_messenger_name,
-                                          t_messenger_key,
-                                          t_messenger_prio,
-                                          t_messenger_user)      noexcept = 0;
+    virtual t_void notify_messenger_state(t_messenger_monitor_id,
+                                          R_messenger_monitor_params,
+                                          t_messenger_state,
+                                          t_messenger_key)      noexcept = 0;
   };
   using t_messenger_monitor_notify_ptr =
     t_passable_ptr<t_messenger_monitor_notify>;
