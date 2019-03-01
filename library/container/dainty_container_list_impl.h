@@ -396,7 +396,7 @@ namespace list
     t_ix_ find_if(r_err err, P_store store, F& f) const {
       ERR_GUARD(err) {
         if (store)
-          return find_if(f);
+          return find_if(store, f);
         err = err::E_INVALID_INST;
       }
       return next_;
@@ -423,6 +423,8 @@ namespace list
 
     t_n_ next_;
   };
+
+///////////////////////////////////////////////////////////////////////////////
 }
 }
 }

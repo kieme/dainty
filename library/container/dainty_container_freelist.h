@@ -103,6 +103,9 @@ namespace freelist
     template<typename F> t_void ceach(       F) const;
     template<typename F> t_void ceach(t_err, F) const;
 
+    template<typename F> t_result find_if(       F) const;
+    template<typename F> t_result find_if(t_err, F) const;
+
   private:
     typename t_impl_::t_entry store_[N];
     t_impl_ impl_;
@@ -168,6 +171,9 @@ namespace freelist
     template<typename F> t_void  each(t_err, F) const;
     template<typename F> t_void ceach(       F) const;
     template<typename F> t_void ceach(t_err, F) const;
+
+    template<typename F> t_result find_if(       F) const;
+    template<typename F> t_result find_if(t_err, F) const;
 
   private:
     t_n_ max_;
@@ -378,6 +384,22 @@ namespace freelist
   inline
   t_void t_freelist<T, N, CLEANUP>::ceach(t_err err, F f) const {
     impl_.each(err, store_, N, f);
+  }
+
+  template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
+  template<typename F>
+  inline
+  typename t_freelist<T, N, CLEANUP>::t_result
+      t_freelist<T, N, CLEANUP>::find_if(F f) const {
+    return impl_.find(store_, f);
+  }
+
+  template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
+  template<typename F>
+  inline
+  typename t_freelist<T, N, CLEANUP>::t_result
+      t_freelist<T, N, CLEANUP>::find_if(t_err err, F f) const {
+    return impl_.find(err, store_, f);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -597,6 +619,22 @@ namespace freelist
   inline
   t_void t_freelist<T, 0, CLEANUP>::ceach(t_err err, F f) const {
     impl_.each(err, store_, max_, f);
+  }
+
+  template<typename T, t_void (*CLEANUP)(T&)>
+  template<typename F>
+  inline
+  typename t_freelist<T, 0, CLEANUP>::t_result
+      t_freelist<T, 0, CLEANUP>::find_if(F f) const {
+    return impl_.find(store_, f);
+  }
+
+  template<typename T, t_void (*CLEANUP)(T&)>
+  template<typename F>
+  inline
+  t_freelist<T, 0, CLEANUP>::t_result
+      t_freelist<T, 0, CLEANUP>::find_if(t_err err, F f) const {
+    return impl_.find(err, store_, f);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

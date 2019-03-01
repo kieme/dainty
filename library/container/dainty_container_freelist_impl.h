@@ -73,6 +73,24 @@ namespace freelist
     inline P_value operator->() const                   { return  ptr; }
   };
 
+  template<typename T>
+  struct t_cresult {
+    using t_id    = freelist::t_id;
+    using t_value = typename named::t_prefix<T>::t_;
+    using R_value = typename named::t_prefix<T>::R_;
+    using P_value = typename named::t_prefix<T>::P_;
+
+    t_id    id;
+    P_value ptr;
+
+    inline t_result()                        : id(0),   ptr(nullptr) { }
+    inline t_result(t_id_ _id, P_value _ptr) : id(_id), ptr(_ptr)    { }
+
+    inline operator t_bool() const                      { return  ptr; }
+    inline R_value operator*() const                    { return *ptr; }
+    inline P_value operator->() const                   { return  ptr; }
+  };
+
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
@@ -433,13 +451,56 @@ namespace freelist
       }
     }
 
+    template<typename F>
+    inline
+    t_result find_if(p_entry _entry, t_n_ max, F& f) {
+      for (t_id_ id = 0; id < max; ++id) {
+        R_entry entry = _entry[id];
+        if (entry.free_ == USED && f(entry.store_.cref()))
+          return t_result{t_id{id}, entry.store_.ptr()};
+      }
+      return {};
+    }
+
+    template<typename F>
+    inline
+    t_result find_if(r_err err, p_entry entry, t_n_ max, F& f) {
+      ERR_GUARD(err) {
+        if (entry)
+          return find_if(entry, max, f);
+        err = err::E_INVALID_INST;
+      }
+      return {};
+    }
+
+    template<typename F>
+    inline
+    t_result find_if(P_entry _entry, t_n_ max, F& f) const {
+      for (t_id_ id = 0; id < max; ++id) {
+        R_entry entry = _entry[id];
+        if (entry.free_ == USED && f(entry.store_.cref()))
+          return t_result{t_id{id}, entry.store_.ptr()};
+      }
+      return {};
+    }
+
+    template<typename F>
+    inline
+    t_result find_if(r_err err, P_entry entry, t_n_ max, F& f) const {
+      ERR_GUARD(err) {
+        if (entry)
+          return find_if(entry, max, f);
+        err = err::E_INVALID_INST;
+      }
+      return {};
+    }
+
   private:
     t_n_ size_;
     t_n_ free_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
-
 }
 }
 }
