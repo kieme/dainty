@@ -28,6 +28,8 @@ SOFTWARE.
 #define _DAINTY_SANDBOX_LOGIC_EXT_MESSENGER_H_
 
 #include "dainty_container_maybe.h"
+#include "dainty_container_freelist.h"
+#include "dainty_container_list.h"
 #include "dainty_sandbox_logic_api.h"
 #include "dainty_sandbox_logic_ext.h"
 #include "dainty_sandbox_logic_ext_messenger_api.h"
@@ -39,13 +41,18 @@ namespace sandbox
 {
 namespace logic_messenger_ext
 {
+  using named::t_n;
   using container::maybe::t_maybe;
+  using container::list::t_list;
+  using container::freelist::t_freelist;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   struct t_logic_messenger_ext_params {
-    t_messenger_scope   scope        {messaging::messenger::SCOPE_PROCESS};
-    t_multiple_of_100ms alive_period {10};
+    t_messenger_scope   scope            {messaging::messenger::SCOPE_PROCESS};
+    t_multiple_of_100ms alive_period     {10};
+    t_n                 monitors_max     {10};
+    t_n                 msg_notifiers_max{10};
   };
   using T_logic_messenger_ext_params
     = t_prefix<t_logic_messenger_ext_params>::T_;
@@ -276,14 +283,73 @@ namespace logic_messenger_ext
 ///////////////////////////////////////////////////////////////////////////////
 
     private:
+      using t_id_                = container::freelist::t_id;
+      using t_id_value_          = container::freelist::t_id_;
+      using t_msg_notify_id      = t_messenger_msg_notify_id;
+      using t_msg_notify_params  = t_messenger_msg_notify_params;
+      using t_msg_notify_ptr     = t_messenger_msg_notify_ptr;
+      using t_monitor_id         = t_messenger_monitor_id;
+      using t_monitor_ids        = t_list<t_monitor_id>;
+      using t_monitor_params     = t_messenger_monitor_params;
+      using t_monitor_notify_ptr = t_messenger_monitor_notify_ptr;
+
+      struct t_msg_notify_entry_ { // mutiple entries?
+        t_msg_notify_id     id = BAD_MSG_NOTIFY_ID;
+        t_msg_notify_params params;
+        t_msg_notify_ptr    notify_ptr;
+      };
+      using p_msg_notify_entry_ = t_prefix<t_msg_notify_entry_>::p_;
+      using P_msg_notify_entry_ = t_prefix<t_msg_notify_entry_>::P_;
+      using t_msg_notifiers_    = t_freelist<t_msg_notify_entry_>;
+
+      struct t_mon_entry_ { // multiple entries?
+        t_messenger_name     name;
+        t_messenger_password password;
+        t_monitor_ids        ids;
+      };
+      using t_mons_ = t_freelist<t_mon_entry_>;
+
+      struct t_monitor_entry_ { // multiple entries?
+        t_monitor_id         id = BAD_MONITOR_ID;
+        t_monitor_params     params;
+        t_monitor_notify_ptr notify_ptr;
+        t_id_                id_;
+      };
+      using p_monitor_entry_ = t_prefix<t_monitor_entry_>::p_;
+      using P_monitor_entry_ = t_prefix<t_monitor_entry_>::P_;
+      using t_monitors_      = t_freelist<t_monitor_entry_>;
+
       using t_maybe_messenger = t_maybe<messaging::t_messenger>;
       using t_messaging_err   = messaging::t_err;
+
+///////////////////////////////////////////////////////////////////////////////
+
+      t_id_value_         generate_msg_notify_unique_id_()                noexcept;
+      p_msg_notify_entry_ get_entry_           (t_msg_notify_id)          noexcept;
+      P_msg_notify_entry_ get_entry_           (t_msg_notify_id)    const noexcept;
+      t_msg_notify_id     mk_msg_notify_id_    (t_id_, t_id_value_) const noexcept;
+      t_id_               get_msg_notifiers_id_(t_msg_notify_id)    const noexcept;
+      t_id_value_         get_unique_id_       (t_msg_notify_id)    const noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+      t_id_value_      generate_monitor_unique_id_()             noexcept;
+      p_monitor_entry_ get_entry_     (t_monitor_id)             noexcept;
+      P_monitor_entry_ get_entry_     (t_monitor_id)       const noexcept;
+      t_monitor_id     mk_monitor_id_ (t_id_, t_id_value_) const noexcept;
+      t_id_            get_monitor_id_(t_monitor_id)       const noexcept;
+      t_id_value_      get_unique_id_ (t_monitor_id)       const noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
 
       T_logic_messenger_ext_params params_;
       r_ext_                       ext_;
       t_maybe_messenger            messenger_;
       t_fdevent_id                 ev_id_;
       t_messaging_err              err_;
+      t_mons_                      mons_;
+      t_monitors_                  monitors_;
+      t_msg_notifiers_             msg_notifiers_;
     };
 
     t_impl_ impl_;

@@ -39,6 +39,7 @@ namespace logic_messenger_ext
   using named::t_void;
   using named::t_bool;
   using named::t_validity;
+  using named::t_explicit;
   using named::VALID;
   using named::INVALID;
   using container::ptr::t_passable_ptr;
@@ -54,6 +55,7 @@ namespace logic_messenger_ext
   using t_messenger_scope         = messaging::t_messenger_scope;
   using r_messenger_scope         = messaging::r_messenger_scope;
   using p_messenger_name_list     = messaging::p_messenger_name_list;
+  using t_messenger_password      = messaging::t_messenger_password;
   using R_messenger_password      = messaging::R_messenger_password;
   using t_messenger_prio          = messaging::t_messenger_prio;
   using t_messenger_user          = messaging::t_messenger_user;
@@ -70,10 +72,15 @@ namespace logic_messenger_ext
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using  t_messenger_msg_notify_id = named::t_int;
+  enum  t_messenger_msg_notify_id_tag_ {};
+  using t_messenger_msg_notify_id_ = named::t_short;
+  using t_messenger_msg_notify_id  = t_explicit<t_messenger_msg_notify_id_,
+                                                t_messenger_msg_notify_id_tag_>;
+  constexpr t_messenger_msg_notify_id BAD_MSG_NOTIFY_ID{-1};
 
   struct t_messenger_msg_notify_params {
-    t_messenger_msg_domain domain;
+    t_messenger_msg_domain domain = t_messenger_msg_domain{0};
+    t_messenger_user       user;
   };
   using R_messenger_msg_notify_params
     = t_prefix<t_messenger_msg_notify_params>::R_;
@@ -98,9 +105,16 @@ namespace logic_messenger_ext
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using  t_messenger_monitor_id = named::t_int;
+  enum  t_messenger_monitor_id_tag_ {};
+  using t_messenger_monitor_id_ = named::t_short;
+  using t_messenger_monitor_id  = t_explicit<t_messenger_monitor_id_,
+                                             t_messenger_monitor_id_tag_>;
+  constexpr t_messenger_monitor_id BAD_MONITOR_ID{-1};
 
   struct t_messenger_monitor_params {
+    t_messenger_name name;
+    t_messenger_prio prio = t_messenger_prio{0};
+    t_messenger_user user;
   };
   using R_messenger_monitor_params = t_prefix<t_messenger_monitor_params>::R_;
   using P_messenger_monitor_params = t_prefix<t_messenger_monitor_params>::P_;

@@ -41,8 +41,13 @@ namespace logic_messenger_ext
   t_logic_messenger_ext::t_impl_
       ::t_impl_(r_err err, r_logic logic, r_ext_ ext,
                 R_logic_messenger_ext_params params) noexcept
-        : t_logic_ext{"messenger", logic}, params_{params}, ext_{ext},
-          ev_id_{BAD_FDEVENT_ID} {
+        : t_logic_ext   {"messenger", logic},
+          params_       {params},
+          ext_          {ext},
+          ev_id_        {BAD_FDEVENT_ID},
+          mons_         {err, params_.monitors_max},
+          monitors_     {err, params_.monitors_max},
+          msg_notifiers_{err, params_.msg_notifiers_max} {
     ERR_GUARD(err) {
       register_(err, logic, this);
     }
@@ -92,6 +97,7 @@ namespace logic_messenger_ext
       ::notify_fdevent(t_fdevent_id, R_fdevent_params) noexcept {
     // means data came in - must look at domain - forward message.
     // messenger file descriptor
+    // distinguish between state notifications and use messages
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -106,7 +112,7 @@ namespace logic_messenger_ext
   t_messenger_name t_logic_messenger_ext::t_impl_
       ::get_messenger_name_() const noexcept {
     if (*this == VALID)
-      return get(messenger_).get_name(err_); //XXX
+      return get(messenger_).get_name(err_);
     return t_messenger_name{};
   }
 
@@ -154,16 +160,60 @@ namespace logic_messenger_ext
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_logic_messenger_ext::t_impl_::t_id_value_
+    t_logic_messenger_ext::t_impl_
+      ::generate_msg_notify_unique_id_() noexcept {
+    return 0; // XXX
+  }
+
+  t_logic_messenger_ext::t_impl_::p_msg_notify_entry_
+    t_logic_messenger_ext::t_impl_
+      ::get_entry_(t_msg_notify_id id) noexcept {
+    return msg_notifiers_.get(t_id_(get(id)));
+  }
+
+  t_logic_messenger_ext::t_impl_::P_msg_notify_entry_
+    t_logic_messenger_ext::t_impl_
+      ::get_entry_(t_msg_notify_id id) const noexcept {
+    return msg_notifiers_.get(t_id_(get(id)));
+  }
+
+  t_logic_messenger_ext::t_impl_::t_msg_notify_id
+    t_logic_messenger_ext::t_impl_
+      ::mk_msg_notify_id_(t_id_ id, t_id_value_ value) const noexcept {
+    return t_msg_notify_id(get(id)); // XXX - ignore unique
+  }
+
+  t_logic_messenger_ext::t_impl_::t_id_
+    t_logic_messenger_ext::t_impl_
+      ::get_msg_notifiers_id_(t_msg_notify_id id) const noexcept {
+    return t_id_(get(id));
+  }
+
+  t_logic_messenger_ext::t_impl_::t_id_value_
+    t_logic_messenger_ext::t_impl_
+      ::get_unique_id_(t_msg_notify_id id) const noexcept {
+    return 0; // XXX
+  }
+
   t_messenger_msg_notify_id t_logic_messenger_ext::t_impl_
       ::add_messenger_msg_notify_(r_err err,
                                   R_messenger_msg_notify_params params) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID) {
-        // XXX
+        auto result = msg_notifiers_.insert(err);
+        if (result) {
+          auto id = mk_msg_notify_id_(result.id,
+                                      generate_msg_notify_unique_id_());
+          auto entry    = result.ptr;
+          entry->id     = id;
+          entry->params = params;
+          return id;
+        }
       } else
         err = err::E_XXX;
     }
-    return 0;
+    return BAD_MSG_NOTIFY_ID;
   }
 
   t_messenger_msg_notify_id t_logic_messenger_ext::t_impl_
@@ -172,26 +222,78 @@ namespace logic_messenger_ext
                                   x_messenger_msg_notify_ptr ptr) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID) {
-        // XXX
+        auto result = msg_notifiers_.insert(err);
+        if (result) {
+          auto id = mk_msg_notify_id_(result.id,
+                                      generate_msg_notify_unique_id_());
+          auto entry    = result.ptr;
+          entry->id     = id;
+          entry->params = params;
+          entry->notify_ptr = x_cast(ptr);
+          return id;
+        }
       } else
         err = err::E_XXX;
     }
-    return 0;
+    return BAD_MSG_NOTIFY_ID;
   }
 
   t_messenger_msg_notify_ptr t_logic_messenger_ext::t_impl_
       ::remove_messenger_msg_notify_(t_messenger_msg_notify_id id) noexcept {
-    // XXX
-    return {};
+    t_messenger_msg_notify_ptr tmp;
+    auto entry = get_entry_(id);
+    if (entry) {
+      if (entry->notify_ptr == VALID)
+        tmp = x_cast(entry->notify_ptr);
+      msg_notifiers_.erase(get_msg_notifiers_id_(id));
+    }
+    return tmp;
   }
 
   P_messenger_msg_notify_params t_logic_messenger_ext::t_impl_
       ::get_messenger_msg_notify_(t_messenger_msg_notify_id id) const noexcept {
-    // XXX
+    auto entry = get_entry_(id);
+    if (entry)
+      return &entry->params;
     return nullptr;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  t_logic_messenger_ext::t_impl_::t_id_value_
+    t_logic_messenger_ext::t_impl_::generate_monitor_unique_id_() noexcept {
+    return 0;
+  }
+
+  t_logic_messenger_ext::t_impl_::p_monitor_entry_
+    t_logic_messenger_ext::t_impl_
+      ::get_entry_(t_monitor_id id) noexcept {
+    return monitors_.get(t_id_(get(id)));
+  }
+
+  t_logic_messenger_ext::t_impl_::P_monitor_entry_
+    t_logic_messenger_ext::t_impl_
+      ::get_entry_(t_monitor_id id) const noexcept {
+    return monitors_.get(t_id_(get(id)));
+  }
+
+  t_logic_messenger_ext::t_impl_::t_monitor_id
+    t_logic_messenger_ext::t_impl_
+      ::mk_monitor_id_(t_id_ id, t_id_value_) const noexcept {
+    return t_monitor_id(get(id));
+  }
+
+  t_logic_messenger_ext::t_impl_::t_id_
+    t_logic_messenger_ext::t_impl_
+      ::get_monitor_id_(t_monitor_id id) const noexcept {
+    return t_id_(get(id));
+  }
+
+  t_logic_messenger_ext::t_impl_::t_id_value_
+    t_logic_messenger_ext::t_impl_
+      ::get_unique_id_(t_monitor_id) const noexcept {
+    return 0;
+  }
 
   t_messenger_monitor_id t_logic_messenger_ext::t_impl_
       ::add_messenger_monitor_(r_err err,
@@ -199,11 +301,14 @@ namespace logic_messenger_ext
                                R_messenger_monitor_params params) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID) {
-        // XXX
+        if (!mons_.is_full() && !monitors_.is_full()) {
+          // find in mons - if not, then create it
+        } else
+          err = err::E_XXX;
       } else
         err = err::E_XXX;
     }
-    return 0;
+    return BAD_MONITOR_ID;
   }
 
   t_messenger_monitor_id t_logic_messenger_ext::t_impl_
@@ -217,7 +322,7 @@ namespace logic_messenger_ext
       } else
         err = err::E_XXX;
     }
-    return 0;
+    return BAD_MONITOR_ID;
   }
 
   t_messenger_monitor_notify_ptr t_logic_messenger_ext::t_impl_
@@ -289,7 +394,7 @@ namespace logic_messenger_ext
   t_void t_logic_messenger_ext::t_impl_
       ::create_messenger_group_(r_err err,
                                 R_messenger_password password,
-                                R_messenger_name  group,
+                                R_messenger_name group,
                                 t_messenger_scope scope) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
