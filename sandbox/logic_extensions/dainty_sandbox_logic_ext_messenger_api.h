@@ -151,10 +151,6 @@ namespace logic_messenger_ext
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual operator t_validity() const noexcept = 0;
-
-///////////////////////////////////////////////////////////////////////////////
-
     virtual t_messenger_key  get_messenger_key   () const noexcept = 0;
     virtual t_messenger_name get_messenger_name  () const noexcept = 0;
 

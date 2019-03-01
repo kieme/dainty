@@ -27,6 +27,7 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_LOGIC_EXT_MESSENGER_H_
 #define _DAINTY_SANDBOX_LOGIC_EXT_MESSENGER_H_
 
+#include "dainty_container_maybe.h"
 #include "dainty_sandbox_logic_api.h"
 #include "dainty_sandbox_logic_ext.h"
 #include "dainty_sandbox_logic_ext_messenger_api.h"
@@ -38,9 +39,13 @@ namespace sandbox
 {
 namespace logic_messenger_ext
 {
+  using container::maybe::t_maybe;
+
 ///////////////////////////////////////////////////////////////////////////////
 
   struct t_logic_messenger_ext_params {
+    t_messenger_scope   scope        {messaging::messenger::SCOPE_PROCESS};
+    t_multiple_of_100ms alive_period {10};
   };
   using T_logic_messenger_ext_params
     = t_prefix<t_logic_messenger_ext_params>::T_;
@@ -78,7 +83,7 @@ namespace logic_messenger_ext
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    operator t_validity() const noexcept override final;
+    operator t_validity() const noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -271,11 +276,14 @@ namespace logic_messenger_ext
 ///////////////////////////////////////////////////////////////////////////////
 
     private:
-      using t_messenger = messaging::t_messenger;
+      using t_maybe_messenger = t_maybe<messaging::t_messenger>;
+      using t_messaging_err   = messaging::t_err;
 
       T_logic_messenger_ext_params params_;
       r_ext_                       ext_;
-      //t_messenger messenger_;
+      t_maybe_messenger            messenger_;
+      t_fdevent_id                 ev_id_;
+      t_messaging_err              err_;
     };
 
     t_impl_ impl_;
