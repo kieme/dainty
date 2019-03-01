@@ -391,7 +391,7 @@ namespace freelist
   inline
   typename t_freelist<T, N, CLEANUP>::t_id
       t_freelist<T, N, CLEANUP>::find_if(F f) const {
-    return impl_.find(store_, f);
+    return t_id{impl_.find_if(store_, N, f)};
   }
 
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
@@ -399,7 +399,7 @@ namespace freelist
   inline
   typename t_freelist<T, N, CLEANUP>::t_id
       t_freelist<T, N, CLEANUP>::find_if(t_err err, F f) const {
-    return impl_.find(err, store_, f);
+    return t_id{impl_.find_if(err, store_, N, f)};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -626,7 +626,7 @@ namespace freelist
   inline
   typename t_freelist<T, 0, CLEANUP>::t_id
       t_freelist<T, 0, CLEANUP>::find_if(F f) const {
-    return impl_.find(store_, f);
+    return t_id{impl_.find_if(store_, max_, f)};
   }
 
   template<typename T, t_void (*CLEANUP)(T&)>
@@ -634,7 +634,7 @@ namespace freelist
   inline
   typename t_freelist<T, 0, CLEANUP>::t_id
       t_freelist<T, 0, CLEANUP>::find_if(t_err err, F f) const {
-    return impl_.find(err, store_, f);
+    return t_id{impl_.find_if(err, store_, max_, f)};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
