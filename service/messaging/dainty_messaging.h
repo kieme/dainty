@@ -60,6 +60,7 @@ namespace messaging
   using t_messenger_name         = messenger::t_name;
   using r_messenger_name         = messenger::r_name;
   using R_messenger_name         = messenger::R_name;
+  using t_messenger_password     = messenger::t_password;
   using R_messenger_password     = messenger::R_password;
   using r_messenger_group_list   = messenger::r_group_list;
   using t_messenger_timer_params = messenger::t_timer_params;
@@ -73,32 +74,16 @@ namespace messaging
 
   class t_messenger_create_params {
   public:
-    t_messenger_scope        scope;
-    t_multiple_of_100ms      alive_factor;
+    t_messenger_scope        scope        = messenger::SCOPE_PROCESS;
+    t_multiple_of_100ms      alive_factor = t_multiple_of_100ms{0};
     t_messenger_timer_params timer_params;
-
-    inline t_messenger_create_params()
-      : scope(messenger::SCOPE_PROCESS), alive_factor(0) {
-    }
-
-    inline t_messenger_create_params(t_messenger_scope _scope)
-      : scope(_scope), alive_factor(0) {
-    }
-
-    inline t_messenger_create_params(t_messenger_scope        _scope,
-                                     t_multiple_of_100ms      _alive_factor,
-                                     R_messenger_timer_params _timer_params)
-      : scope(_scope), alive_factor(_alive_factor),
-        timer_params(_timer_params) {
-    }
   };
   using R_messenger_create_params = t_prefix<t_messenger_create_params>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum  t_password_tag_ { };
-  using t_password = t_string<t_password_tag_, 16>;
-  using R_password = t_prefix<t_password>::R_;
+  using t_password = t_messenger_password; //XXX
+  using R_password = R_messenger_password;
 
 ///////////////////////////////////////////////////////////////////////////////
 
