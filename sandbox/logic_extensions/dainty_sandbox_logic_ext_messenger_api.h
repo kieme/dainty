@@ -121,11 +121,11 @@ namespace logic_messenger_ext
 
   class t_messenger_monitor_notify {
   public:
-    using t_messenger_monitor_id      = logic_messenger_ext::t_messenger_monitor_id;
-    using t_messenger_monitor_params  = logic_messenger_ext::t_messenger_monitor_params;
-    using R_messenger_params          = logic_messenger_ext::R_messenger_monitor_params;
-    using t_messenger_key             = logic_messenger_ext::t_messenger_key;
-    using t_messenger_state           = logic_messenger_ext::t_messenger_state;
+    using t_messenger_monitor_id     = logic_messenger_ext::t_messenger_monitor_id;
+    using t_messenger_monitor_params = logic_messenger_ext::t_messenger_monitor_params;
+    using R_messenger_params         = logic_messenger_ext::R_messenger_monitor_params;
+    using t_messenger_key            = logic_messenger_ext::t_messenger_key;
+    using t_messenger_state          = logic_messenger_ext::t_messenger_state;
 
     virtual ~t_messenger_monitor_notify() {}
     virtual t_void notify_messenger_state(t_messenger_monitor_id,
