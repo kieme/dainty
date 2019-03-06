@@ -99,10 +99,88 @@ namespace logic_messenger_ext
     t_messenger_msgs msgs{t_n{5}};
     set(messenger_).wait_message(err_, msgs);
     if (!err_) {
-      // domain - system - alive/monitor
-      // domain - user   - user
+      msgs.each([this](auto& msg) {
+        auto id = dainty::messaging::message::read_id(msg);
+        if (id.domain == messaging::message::MESSAGING) {
+               if (id.user == dainty::messaging::message::MESSAGING_NOTIFY)
+            handle_messaging_notify_(x_cast(msg));
+          else if (id.user == dainty::messaging::message::MESSAGING_TIMEOUT)
+            handle_messaging_timeout_(x_cast(msg));
+          else if (id.user == dainty::messaging::message::MESSAGING_ALIVE)
+            handle_messaging_alive_(x_cast(msg));
+          else if (id.user == dainty::messaging::message::MESSAGING_FAILED)
+            handle_messaging_failed_(x_cast(msg));
+        } else
+          handle_user_msg_(id, x_cast(msg));
+      });
+    }
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::handle_user_msg_(R_msg_id id, x_msg msg) noexcept {
+    auto entry_id = msg_notifs_.find_if([&id](auto& entry) {
+                return id.domain == entry.domain;
+              });
+    auto entry = msg_notifs_.get(entry_id);
+    if (entry) {
+      entry->ids.each([this, &msg](auto& id) {
+        auto entry = msg_notifiers_.get(id);
+        entry->notify_ptr->notify_messenger_msg(entry->id, x_cast(msg));
+      });
+    } else
+      ext_.notify_messenger_msg(BAD_MSG_NOTIFY_ID, x_cast(msg));
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::handle_messaging_notify_(x_msg msg) noexcept {
+    messaging::message::t_notify_message  notify_msg{x_cast(msg)};
+    t_messenger_state state;
+    t_messenger_name  name;
+    t_messenger_user  user;
+    t_messenger_key   key {0};
+    t_messenger_prio  prio{0};
+
+    if (notify_msg.get(state, name, key, prio, user) == VALID) {
+      auto entry_id = mons_.find_if([&name](auto& entry) {
+        return name == entry.name;
+      });
+      auto entry = mons_.get(entry_id);
+      if (entry) {
+        entry->state = state;
+        entry->key   = key;
+
+        entry->ids.each([this, &msg, state, key](auto& id) mutable {
+          auto entry = monitors_.get(id);
+          if (entry->notify_ptr == VALID)
+            entry->notify_ptr->notify_messenger_state(entry->id,
+                                                      entry->params,
+                                                      state,
+                                                      key);
+          else
+            ext_.notify_messenger_state(entry->id, entry->params, state, key);
+        });
+      } else {
+      }
     } else {
     }
+  }
+
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::handle_messaging_timeout_(x_msg msg) noexcept {
+    // XXX - later
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::handle_messaging_alive_(x_msg msg) noexcept {
+    // XXX - later
+  }
+
+  t_void t_logic_messenger_ext::t_impl_
+      ::handle_messaging_failed_(x_msg msg) noexcept {
+    // XXX - later
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -203,42 +281,39 @@ namespace logic_messenger_ext
 
   t_messenger_msg_notify_id t_logic_messenger_ext::t_impl_
       ::add_messenger_msg_notify_(r_err err,
-                                  R_messenger_msg_notify_params params) noexcept {
-    return add_messenger_msg_notify_(err, params, {});
-  }
-
-  t_messenger_msg_notify_id t_logic_messenger_ext::t_impl_
-      ::add_messenger_msg_notify_(r_err err,
                                   R_messenger_msg_notify_params params,
                                   x_messenger_msg_notify_ptr ptr) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID) {
-        if (!msg_notifiers_.is_full()) {
-          t_id_ id = msg_notifs_.find_if([&params](auto& entry) -> t_bool {
-                       return entry.domain == params.domain;
-                     });
+        if (ptr == VALID) {
+          if (!msg_notifiers_.is_full()) {
+            t_id_ id = msg_notifs_.find_if([&params](auto& entry) -> t_bool {
+                         return entry.domain == params.domain;
+                       });
 
-          p_msg_notif_entry_ msg_notif_entry = nullptr;
-          if (id != BAD_ID)
-            msg_notif_entry = msg_notifs_.get(id);
-          else {
-            auto result = msg_notifs_.insert();
-            msg_notif_entry = result.ptr;
-            msg_notif_entry->domain = params.domain;
-            id = result.id;
-          }
+            p_msg_notif_entry_ msg_notif_entry = nullptr;
+            if (id != BAD_ID)
+              msg_notif_entry = msg_notifs_.get(id);
+            else {
+              auto result = msg_notifs_.insert();
+              msg_notif_entry = result.ptr;
+              msg_notif_entry->domain = params.domain;
+              id = result.id;
+            }
 
-          auto result = msg_notifiers_.insert();
-          msg_notif_entry->ids.push_back(result.id);
+            auto result = msg_notifiers_.insert();
+            msg_notif_entry->ids.push_back(result.id);
 
-          auto msg_id = mk_msg_notify_id_(result.id,
-                                          generate_msg_notify_unique_id_());
-          auto entry        = result.ptr;
-          entry->id         = msg_id;
-          entry->entry_id   = id;
-          entry->notify_ptr = x_cast(ptr);
-          entry->params     = params;
-          return msg_id;
+            auto msg_id = mk_msg_notify_id_(result.id,
+                                            generate_msg_notify_unique_id_());
+            auto entry        = result.ptr;
+            entry->id         = msg_id;
+            entry->entry_id   = id;
+            entry->notify_ptr = x_cast(ptr);
+            entry->params     = params;
+            return msg_id;
+          } else
+            err = err::E_XXX;
         } else
           err = err::E_XXX;
       } else
@@ -593,12 +668,6 @@ namespace logic_messenger_ext
   }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-  t_messenger_msg_notify_id t_logic_messenger_ext
-      ::add_messenger_msg_notify(t_err err,
-                                 R_messenger_msg_notify_params params) noexcept {
-    return impl_.add_messenger_msg_notify_(err, params);
-  }
 
   t_messenger_msg_notify_id t_logic_messenger_ext
       ::add_messenger_msg_notify(t_err err,

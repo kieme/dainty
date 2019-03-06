@@ -183,9 +183,6 @@ namespace logic_messenger_ext
 ///////////////////////////////////////////////////////////////////////////////
 
     virtual t_messenger_msg_notify_id
-              add_messenger_msg_notify(t_err,
-                                       R_messenger_msg_notify_params) noexcept = 0;
-    virtual t_messenger_msg_notify_id
               add_messenger_msg_notify(t_err, R_messenger_msg_notify_params,
                                        x_messenger_msg_notify_ptr)    noexcept = 0;
 

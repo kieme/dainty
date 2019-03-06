@@ -111,8 +111,6 @@ namespace logic_messenger_ext
 ///////////////////////////////////////////////////////////////////////////////
 
     t_messenger_msg_notify_id
-      add_messenger_msg_notify(t_err, R_messenger_msg_notify_params) noexcept override final;
-    t_messenger_msg_notify_id
       add_messenger_msg_notify(t_err, R_messenger_msg_notify_params,
                                 x_messenger_msg_notify_ptr)          noexcept override final;
 
@@ -219,11 +217,8 @@ namespace logic_messenger_ext
 ///////////////////////////////////////////////////////////////////////////////
 
       t_messenger_msg_notify_id
-        add_messenger_msg_notify_(r_err, R_messenger_msg_notify_params) noexcept;
-      t_messenger_msg_notify_id
-        add_messenger_msg_notify_(r_err, R_messenger_msg_notify_params,
-                                  x_messenger_msg_notify_ptr)           noexcept;
-
+        add_messenger_msg_notify_   (r_err, R_messenger_msg_notify_params,
+                                     x_messenger_msg_notify_ptr)      noexcept;
       t_messenger_msg_notify_ptr
         remove_messenger_msg_notify_(t_messenger_msg_notify_id)       noexcept;
       P_messenger_msg_notify_params
@@ -287,6 +282,10 @@ namespace logic_messenger_ext
       using t_id_                = container::freelist::t_id;
       using t_ids_               = t_list<t_id_, 100>; //XXX
       using t_id_value_          = container::freelist::t_id_;
+      using t_msg                = t_messenger_msg;
+      using x_msg                = x_messenger_msg;
+      using t_msg_id             = t_messenger_msg_id;
+      using R_msg_id             = R_messenger_msg_id;
       using t_msg_notify_id      = t_messenger_msg_notify_id;
       using t_msg_notify_params  = t_messenger_msg_notify_params;
       using t_msg_notify_ptr     = t_messenger_msg_notify_ptr;
@@ -315,6 +314,8 @@ namespace logic_messenger_ext
       struct t_mon_entry_ {
         t_messenger_name     name;
         t_messenger_password password;
+        t_messenger_state    state = messaging::message::STATE_UNAVAILABLE;
+        t_messenger_key      key{0}; //XXX
         t_ids_               ids;
       };
       using p_mon_entry_ = t_prefix<t_mon_entry_>::p_;
@@ -350,6 +351,14 @@ namespace logic_messenger_ext
       t_monitor_id     mk_monitor_id_ (t_id_, t_id_value_) const noexcept;
       t_id_            get_monitor_id_(t_monitor_id)       const noexcept;
       t_id_value_      get_unique_id_ (t_monitor_id)       const noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+      t_void handle_user_msg_         (R_msg_id, x_msg) noexcept;
+      t_void handle_messaging_notify_ (          x_msg) noexcept;
+      t_void handle_messaging_timeout_(          x_msg) noexcept;
+      t_void handle_messaging_alive_  (          x_msg) noexcept;
+      t_void handle_messaging_failed_ (          x_msg) noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
