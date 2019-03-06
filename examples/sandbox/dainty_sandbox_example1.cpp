@@ -29,22 +29,26 @@ SOFTWARE.
 #include "dainty_sandbox.h"
 #include "dainty_sandbox_logic_ext_cli.h"
 #include "dainty_sandbox_logic_ext_large_msg.h"
+#include "dainty_sandbox_logic_ext_messenger.h"
 
 using namespace dainty::named::terminal;
 using namespace dainty::sandbox;
 using namespace dainty::sandbox::logic_cli_ext;
 using namespace dainty::sandbox::logic_large_msg_ext;
+using namespace dainty::sandbox::logic_messenger_ext;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class t_app_logic : public  t_logic,
                     private t_logic_cli_ext,
-                    private t_logic_large_msg_ext {
+                    private t_logic_large_msg_ext,
+                    private t_logic_messenger_ext {
 public:
   t_app_logic(t_err err) noexcept
     : t_logic              {err, "app_msngr"},
       t_logic_cli_ext      {err, *this},
-      t_logic_large_msg_ext{err, *this} {
+      t_logic_large_msg_ext{err, *this},
+      t_logic_messenger_ext{err, *this, {}} {
   }
 
   t_void notify_large_msg_start(t_err err) noexcept override final {
@@ -96,6 +100,31 @@ public:
 
   t_void notify_fdevent(t_fdevent_id, R_fdevent_params) noexcept override final {
     t_out{"t_app_logic:notify_fdevent"};
+  }
+
+  t_void notify_messenger_msg(t_messenger_msg_notify_id,
+                              x_messenger_msg) noexcept override final {
+    t_out{"t_app_logic:notify_messenger_msg"};
+  }
+
+  t_void notify_messenger_msg_send_failed(t_messenger_msg_notify_id,
+                                          x_messenger_msg) noexcept override final {
+    t_out{"t_app_logic:notify_messenger_msg_send_failed"};
+  }
+
+  t_void notify_messenger_state(t_messenger_monitor_id,
+                                R_messenger_monitor_params,
+                                t_messenger_state,
+                                t_messenger_key) noexcept override final {
+    t_out{"t_app_logic:notify_messenger_state"};
+  }
+
+  t_void notify_messenger_start(t_err) noexcept override final {
+    t_out{"t_app_logic:notify_messenger_start"};
+  }
+
+  t_void notify_messenger_cleanup() noexcept override final {
+    t_out{"t_app_logic:notify_messenger_cleanup"};
   }
 
 private:
@@ -236,6 +265,7 @@ int main2() {
 ///////////////////////////////////////////////////////////////////////////////
 
 int main() {
+  sleep(1);
   wait_services();
   main0();
   //main1();

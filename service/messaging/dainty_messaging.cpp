@@ -2456,7 +2456,7 @@ namespace messenger
   }
 
   t_messenger::~t_messenger() {
-    if (mr_)
+    if (mr_ && processor_ == VALID)
       mr_->destroy_messenger(id_);
   }
 

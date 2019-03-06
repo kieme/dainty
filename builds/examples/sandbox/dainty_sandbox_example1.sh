@@ -5,6 +5,7 @@ g++ -Wall -o run $DAINTY_ROOT/examples/sandbox/dainty_sandbox_example1.cpp \
                  $DAINTY_ROOT/sandbox/dainty_sandbox_impl.cpp    \
                  $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_cli.cpp \
                  $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_large_msg.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_messenger.cpp \
                  $DAINTY_ROOT/service/messaging/dainty_messaging_err.cpp \
                  $DAINTY_ROOT/service/messaging/dainty_messaging.cpp \
                  $DAINTY_ROOT/service/tracing/dainty_tracing_err.cpp \
@@ -49,4 +50,4 @@ g++ -Wall -o run $DAINTY_ROOT/examples/sandbox/dainty_sandbox_example1.cpp \
                  -I$DAINTY_ROOT/library/container \
                  -I$DAINTY_ROOT/service/tracing \
                  -I$DAINTY_ROOT/service/messaging \
-                 -std=c++17 -lpthread -O2 -ggdb3
+                 -std=c++17 -lpthread -O0 -ggdb3 -pg
