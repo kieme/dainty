@@ -90,9 +90,7 @@ namespace messaging
   enum t_scope {
     SCOPE_PROCESS,
     SCOPE_SYSTEM,
-    SCOPE_NODE,
-    SCOPE_SLAVE,
-    SCOPE_MASTER
+    SCOPE_NETWORK
   };
 
   enum  t_scope_name_tag_ { };

@@ -27,8 +27,8 @@
 #ifndef _DAINTY_MESSAGING_MESSAGE_H_
 #define _DAINTY_MESSAGING_MESSAGE_H_
 
-#include <utility>
 #include "dainty_named.h"
+#include "dainty_named_utility.h"
 #include "dainty_named_string.h"
 #include "dainty_container_bytebuf.h"
 
@@ -41,8 +41,10 @@ namespace message
 ///////////////////////////////////////////////////////////////////////////////
 
   using named::t_bool;
+  using named::r_bool;
   using named::t_n_;
   using named::t_n;
+  using named::r_n;
   using named::t_ix;
   using named::t_validity;
   using named::VALID;
@@ -52,6 +54,7 @@ namespace message
   using named::t_explicit;
   using named::t_prefix;
   using named::string::t_string;
+  using named::utility::x_cast;
 
   using container::bytebuf::p_byte;
   using container::bytebuf::P_byte;
@@ -62,23 +65,18 @@ namespace message
   using t_bytebuf = container::bytebuf::t_bytebuf<t_bytebuf_tag_, 0>;
   using R_bytebuf = named::t_prefix<t_bytebuf>::R_;
 
-  enum t_type {
-    MSG_NOTIFY,
-    MSG_TIMEOUT,
-    MSG_ALIVE,
-    MSG_FAIL
-  };
-
   enum t_messenger_state {
     STATE_AVAILABLE,
     STATE_AVAILABLE_UNRESPONSIVE,
     STATE_UNAVAILABLE,
   };
+  using r_messenger_state = t_prefix<t_messenger_state>::r_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_messenger_user_tag_ {};
   using t_messenger_user = named::t_user<t_messenger_user_tag_>;
+  using r_messenger_user = t_prefix<t_messenger_user>::r_;
 
   enum  t_messenger_key_tag_ {};
   using t_messenger_key_ = named::t_uint64;
@@ -88,11 +86,16 @@ namespace message
 
   enum  t_messenger_name_tag_ {};
   using t_messenger_name = t_string<t_messenger_name_tag_, 32>;
+  using r_messenger_name = t_prefix<t_messenger_name>::r_;
 
   enum  t_messenger_prio_tag_ {};
   using t_messenger_prio_ = named::t_uint16;
-  using t_messenger_prio  = t_explicit<t_messenger_prio_,
-                                       t_messenger_prio_tag_>;
+  using t_messenger_prio  = t_explicit<t_messenger_prio_, t_messenger_prio_tag_>;
+  using r_messenger_prio  = t_prefix<t_messenger_prio>::r_;
+
+  enum  t_multiple_of_100ms_tag_ {};
+  using t_multiple_of_100ms = named::t_multiple<100, t_multiple_of_100ms_tag_>;
+  using r_multiple_of_100ms = t_prefix<t_multiple_of_100ms>::r_;
 
   enum  t_domain_tag_ {};
   using t_domain_ = named::t_uchar;
@@ -106,23 +109,45 @@ namespace message
   using t_version_ = named::t_uchar;
   using t_version  = t_explicit<t_version_, t_version_tag_>;
 
-  enum  t_multiple_of_100ms_tag_ {};
-  using t_multiple_of_100ms = named::t_multiple<100, t_multiple_of_100ms_tag_>;
+///////////////////////////////////////////////////////////////////////////////
+
+  constexpr t_domain  MESSAGING        {0};
+  constexpr t_user    MESSAGING_NOTIFY {1};
+  constexpr t_user    MESSAGING_TIMEOUT{2};
+  constexpr t_user    MESSAGING_ALIVE  {3};
+  constexpr t_user    MESSAGING_FAILED {4};
+  constexpr t_version V1{1};
 
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_id {
   public:
-    inline t_id(t_domain _domain, t_user _user, t_version _version)
+    constexpr
+    t_id(t_domain _domain, t_user _user, t_version _version)
       : domain(_domain), user(_user), version(_version) {
     }
 
-    t_domain  domain;
-    t_user    user;
-    t_version version;
+    t_domain  domain;  // zero is reserved for system
+    t_user    user;    // packet type
+    t_version version; // version of the same packet type
   };
   using r_id = t_prefix<t_id>::r_;
   using R_id = t_prefix<t_id>::R_;
+
+  constexpr t_id NOTIFY_MSG_ID {MESSAGING, MESSAGING_NOTIFY,  V1};
+  constexpr t_id TIMEOUT_MSG_ID{MESSAGING, MESSAGING_TIMEOUT, V1};
+  constexpr t_id ALIVE_MSG_ID  {MESSAGING, MESSAGING_ALIVE,   V1};
+  constexpr t_id FAILED_MSG_ID {MESSAGING, MESSAGING_FAILED,  V1};
+
+  constexpr
+  t_bool operator==(R_id lh, R_id rh) {
+    return lh.domain == rh.domain && lh.user == rh.user;
+  }
+
+  constexpr
+  t_bool operator!=(R_id lh, R_id rh) {
+    return lh.domain != rh.domain || lh.user != rh.user;
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -136,6 +161,7 @@ namespace message
     using t_key     = t_messenger_key;
     using r_key     = r_messenger_key;
     using t_n       = message::t_n;
+    using r_n       = message::r_n;
     using t_uint16  = message::t_uint16;
     using t_id      = message::t_id;
     using t_domain  = message::t_domain;
@@ -150,12 +176,12 @@ namespace message
     r_message operator=(x_message);
     r_message operator=(R_message);
 
-    t_bool set(R_id, t_n len, t_uint16 cnt = 0);
-    t_bool get(r_id       id,
-               t_n&       len,
-               r_key      dst,
-               r_key      src,
-               t_uint16&  cnt);
+    t_validity set(R_id, t_n len, t_uint16 cnt = 0);
+    t_validity get(r_id       id,
+                   r_n        len,
+                   r_key      dst,
+                   r_key      src,
+                   t_uint16&  cnt);
 
     operator t_validity() const;
     t_n get_capacity() const;
@@ -200,22 +226,25 @@ namespace message
   public:
     t_notify_message();
 
-    inline t_notify_message(x_message msg) : t_message(std::move(msg)) {
+    inline
+    t_notify_message(x_message msg) : t_message(x_cast(msg)) {
     }
 
-    inline t_notify_message(x_notify_message msg) : t_message(std::move(msg)) {
+    inline
+    t_notify_message(x_notify_message msg) : t_message(x_cast(msg)) {
     }
 
-    inline r_notify_message operator=(x_notify_message msg) {
-      t_message::operator=(std::move(msg));
+    inline
+    r_notify_message operator=(x_notify_message msg) {
+      t_message::operator=(x_cast(msg));
       return *this;
     }
 
-    t_bool get(t_messenger_state&,
-               t_messenger_name&,
-               r_messenger_key,
-               t_messenger_prio&,
-               t_messenger_user&);
+    t_validity get(r_messenger_state,
+                   r_messenger_name,
+                   r_messenger_key,
+                   r_messenger_prio,
+                   r_messenger_user);
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -228,23 +257,25 @@ namespace message
   public:
     t_timeout_message();
 
-    inline t_timeout_message(x_message msg) : t_message(std::move(msg)) {
+    inline
+    t_timeout_message(x_message msg) : t_message(x_cast(msg)) {
     }
 
     inline
-    t_timeout_message(x_timeout_message msg) : t_message(std::move(msg)) {
+    t_timeout_message(x_timeout_message msg) : t_message(x_cast(msg)) {
     }
 
-    inline r_timeout_message operator=(x_timeout_message msg) {
-      t_message::operator=(std::move(msg));
+    inline
+    r_timeout_message operator=(x_timeout_message msg) {
+      t_message::operator=(x_cast(msg));
       return *this;
     }
 
-    t_bool get(t_bool& periodic,
-               t_multiple_of_100ms&,
-               r_messenger_key,
-               t_messenger_prio&,
-               t_messenger_user&);
+    t_validity get(r_bool periodic,
+                   r_multiple_of_100ms,
+                   r_messenger_key,
+                   r_messenger_prio,
+                   r_messenger_user);
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -258,22 +289,27 @@ namespace message
     enum t_reason {
       reason_messenger_noexist = 1
     };
+    using r_reason = t_prefix<t_reason>::r_;
 
-    inline t_fail_message(t_n n) : t_message(n) {
+    inline
+    t_fail_message(t_n n) : t_message(n) {
     }
 
-    inline t_fail_message(x_message msg) : t_message(std::move(msg)) {
+    inline
+    t_fail_message(x_message msg) : t_message(x_cast(msg)) {
     }
 
-    inline t_fail_message(x_fail_message msg) : t_message(std::move(msg)) {
+    inline
+    t_fail_message(x_fail_message msg) : t_message(x_cast(msg)) {
     }
 
-    inline r_fail_message operator=(x_fail_message msg) {
-      t_message::operator=(std::move(msg));
+    inline
+    r_fail_message operator=(x_fail_message msg) {
+      t_message::operator=(x_cast(msg));
       return *this;
     }
 
-    t_bool get(t_reason&, r_message send_message);
+    t_validity get(r_reason, r_message send_message);
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -286,18 +322,21 @@ namespace message
   public:
     t_alive_message();
 
-    inline t_alive_message(x_message msg) : t_message(std::move(msg)) {
+    inline
+    t_alive_message(x_message msg) : t_message(x_cast(msg)) {
     }
 
-    inline t_alive_message(x_alive_message msg) : t_message(std::move(msg)) {
+    inline
+    t_alive_message(x_alive_message msg) : t_message(x_cast(msg)) {
     }
 
-    inline r_alive_message operator=(x_alive_message msg) {
-      t_message::operator=(std::move(msg));
+    inline
+    r_alive_message operator=(x_alive_message msg) {
+      t_message::operator=(x_cast(msg));
       return *this;
     }
 
-    t_bool get(); // not sure what to pass yet
+    t_validity get(); // not sure what to pass yet
   };
 
 ///////////////////////////////////////////////////////////////////////////////
