@@ -306,6 +306,14 @@ namespace sandbox
     return nullptr;
   }
 
+  t_void t_logic::notify_wakeup(t_msec) noexcept {
+    t_out{"t_logic::notify_wakeup"};
+  }
+
+  t_void t_logic::notify_complete() noexcept {
+    t_out{"t_logic::notify_complete"};
+  }
+
 ///////////////////////////////////////////////////////////////////////////////
 
   t_thread::t_thread(t_err err, R_name name, x_ptr logic_ptr,

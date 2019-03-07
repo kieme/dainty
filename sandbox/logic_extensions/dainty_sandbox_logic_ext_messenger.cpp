@@ -24,6 +24,7 @@ SOFTWARE.
 
 ******************************************************************************/
 
+#include "dainty_named_terminal.h"
 #include "dainty_named_utility.h"
 #include "dainty_messaging.h"
 #include "dainty_sandbox_logic_ext_messenger.h"
@@ -34,6 +35,7 @@ namespace sandbox
 {
 namespace logic_messenger_ext
 {
+  using namespace named::terminal;
   using named::utility::x_cast;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -63,6 +65,8 @@ namespace logic_messenger_ext
 
   t_void t_logic_messenger_ext::t_impl_::notify_start(t_err err) noexcept {
     ERR_GUARD(err) {
+      t_out{"t_logic_messenger_ext::t_impl_::notify_start"};
+
       t_messenger_name name{get_logic_name().mk_range()};
       name += "_messenger";
       messenger_.emplace(messaging::create_messenger(err.tag(1), name,
@@ -87,15 +91,26 @@ namespace logic_messenger_ext
     del_fdevent(ev_id_);
     ext_.notify_messenger_cleanup();
     messenger_.release();
-    // clear everything explicitly - don't wait for deletion
+
+    t_out{"t_logic_messenger_ext::t_impl_::notify_cleanup"};
+  }
+
+  t_void t_logic_messenger_ext::t_impl_::notify_wakeup(t_msec) noexcept {
+    t_out{"t_logic_messenger_ext::t_impl_::notify_wakeup"};
+  }
+
+  t_void t_logic_messenger_ext::t_impl_::notify_complete() noexcept {
+    t_out{"t_logic_messenger_ext::t_impl_::notify_complete"};
   }
 
   t_void t_logic_messenger_ext::t_impl_
       ::notify_timeout(t_timer_id, R_timer_params) noexcept {
+    t_out{"t_logic_messenger_ext::t_impl_::notify_timeout"};
   }
 
   t_void t_logic_messenger_ext::t_impl_
       ::notify_fdevent(t_fdevent_id, R_fdevent_params) noexcept {
+    t_out{"t_logic_messenger_ext::t_impl_::notify_fdevent"};
     t_messenger_msgs msgs{t_n{5}};
     set(messenger_).wait_message(err_, msgs);
     if (!err_) {

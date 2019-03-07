@@ -50,17 +50,19 @@ namespace logic_mqueue_client_ext
   private:
     using r_ext_ = t_prefix<t_logic_mqueue_client_ext>::r_;
 
-    class t_impl_ : public t_logic_ext {
+    class t_impl_ final : public t_logic_ext {
     public:
       t_impl_(t_err, r_logic, r_ext_) noexcept;
 
-      t_void notify_start(t_err) noexcept override final;
-      t_void notify_cleanup()    noexcept override final;
-
-      t_void notify_timeout(t_timer_id,
-                            R_timer_params)   noexcept override final;
-      t_void notify_fdevent(t_fdevent_id,
-                            R_fdevent_params) noexcept override final;
+    private:
+      t_void notify_start   (t_err)  noexcept override final;
+      t_void notify_cleanup ()       noexcept override final;
+      t_void notify_wakeup  (t_msec) noexcept override final;
+      t_void notify_complete()       noexcept override final;
+      t_void notify_timeout (t_timer_id,
+                             R_timer_params)   noexcept override final;
+      t_void notify_fdevent (t_fdevent_id,
+                             R_fdevent_params) noexcept override final;
 
     private:
       r_ext_ ext_;

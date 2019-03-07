@@ -39,6 +39,8 @@ namespace sandbox
   using named::t_ix;
   using named::t_percentage;
   using named::utility::x_cast;
+  using mt::event_dispatcher::DONT_QUIT;
+  using mt::event_dispatcher::QUIT;
   using mt::event_dispatcher::RD_EVENT;
   using mt::event_dispatcher::QUIT_EVENT_LOOP;
   using mt::event_dispatcher::CONTINUE;
@@ -370,6 +372,7 @@ namespace sandbox
         auto logic = logics_.get(t_ix{ix})->logic;
         start_extensions_(err, logic);
         logic->notify_start(err);
+        last_ = os::clock::monotonic_now(err);
         if (err && ix) {
           for (--ix; ix; --ix) {
             auto logic = logics_.get(t_ix{ix})->logic;
@@ -506,7 +509,15 @@ namespace sandbox
 
   t_void t_impl_::notify_dispatcher_reorder(r_event_infos infos) noexcept {
     t_out{"t_impl_::notify_reorder"};
-    //XXX
+    t_time now     = os::clock::monotonic_now();
+    t_msec expired = (now - last_).to<t_msec>();
+    last_          = now;
+    logics_.each([this, expired](auto& entry) {
+      entry.logic->exts_.each([expired](auto entry) {
+          entry->notify_wakeup(expired);
+        });
+      entry.logic->notify_wakeup(expired);
+    });
   }
 
   t_void t_impl_::notify_dispatcher_removed(r_event_info info) noexcept {
@@ -516,29 +527,40 @@ namespace sandbox
   }
 
   t_impl_::t_quit t_impl_::notify_dispatcher_timeout(t_msec msec) noexcept {
-    t_ix_ end = get(logics_.get_size());
-    for (t_ix_ ix = 0; ix < end; ++ix) {
-      auto logic_entry = logics_.get(t_ix{ix});
-      if (logic_entry->spin_cnt_max) {
-        logic_entry->spin_cnt += spin_cnt_;
-        if (logic_entry->spin_cnt == logic_entry->spin_cnt_max) {
-          logic_entry->spin_cnt = 0;
-          logic_entry->logic->notify_spin(t_msec{spin_period_*
-                                                 logic_entry->spin_cnt_max});
+    t_time now     = os::clock::monotonic_now();
+    t_msec expired = (now - last_).to<t_msec>();
+    last_          = now;
+
+    logics_.each([this, expired](auto& entry) {
+        if (entry.spin_cnt_max) {
+          entry.spin_cnt += spin_cnt_;
+          if (entry.spin_cnt == entry.spin_cnt_max) {
+            entry.spin_cnt = 0;
+            entry.logic->exts_.each([expired](auto entry) {
+                entry->notify_wakeup(expired);
+              });
+            entry.logic->notify_wakeup(expired);
+          }
         }
-      }
-    }
-    return t_quit{false};
+      });
+
+    return DONT_QUIT;
   }
 
   t_impl_::t_quit t_impl_::notify_dispatcher_error(t_errn errn) noexcept {
     t_out{"t_impl_::notify_error - prepare to die"};
-    return t_quit{true};
+    return QUIT;
   }
 
   t_impl_::t_quit t_impl_::notify_dispatcher_processed(r_msec msec) noexcept {
+    logics_.each([this](auto& entry) {
+      entry.logic->exts_.each([](auto entry) {
+          entry->notify_complete();
+        });
+      entry.logic->notify_complete();
+    });
     msec = t_msec{spin_cnt_ * spin_period_};
-    return t_quit{false};
+    return DONT_QUIT;
   }
 
   t_impl_::t_action

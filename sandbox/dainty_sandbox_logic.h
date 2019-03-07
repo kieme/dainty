@@ -103,6 +103,10 @@ namespace sandbox
 ///////////////////////////////////////////////////////////////////////////////
 
   private:
+    t_void notify_wakeup  (t_msec) noexcept override;
+    t_void notify_complete()       noexcept override;
+
+///////////////////////////////////////////////////////////////////////////////
     friend t_void register_(t_err, r_logic, p_logic_ext);
     friend class t_thread;
     friend class t_main;

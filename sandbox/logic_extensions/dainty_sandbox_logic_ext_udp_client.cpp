@@ -24,6 +24,7 @@ SOFTWARE.
 
 ******************************************************************************/
 
+#include "dainty_named_terminal.h"
 #include "dainty_sandbox_logic_ext_udp_client.h"
 
 namespace dainty
@@ -32,6 +33,8 @@ namespace sandbox
 {
 namespace logic_udp_client_ext
 {
+  using namespace named::terminal;
+
 ///////////////////////////////////////////////////////////////////////////////
 
   t_logic_udp_client_ext::t_logic_udp_client_ext(t_err err,
@@ -51,20 +54,32 @@ namespace logic_udp_client_ext
 
   t_void t_logic_udp_client_ext::t_impl_::notify_start(t_err err) noexcept {
     ERR_GUARD(err) {
+      t_out{"t_logic_udp_client_ext::t_impl_::notify_start"};
       ext_.notify_udp_client_start(err);
     }
   }
 
   t_void t_logic_udp_client_ext::t_impl_::notify_cleanup() noexcept {
     ext_.notify_udp_client_cleanup();
+    t_out{"t_logic_udp_client_ext::t_impl_::notify_cleanup"};
+  }
+
+  t_void t_logic_udp_client_ext::t_impl_::notify_wakeup(t_msec) noexcept {
+    t_out{"t_logic_udp_client_ext::t_impl_::notify_wakeup"};
+  }
+
+  t_void t_logic_udp_client_ext::t_impl_::notify_complete() noexcept {
+    t_out{"t_logic_udp_client_ext::t_impl_::notify_complete"};
   }
 
   t_void t_logic_udp_client_ext::t_impl_
       ::notify_timeout(t_timer_id, R_timer_params)   noexcept {
+    t_out{"t_logic_udp_client_ext::t_impl_::notify_timeout"};
   }
 
   t_void t_logic_udp_client_ext::t_impl_
       ::notify_fdevent(t_fdevent_id, R_fdevent_params) noexcept {
+    t_out{"t_logic_udp_client_ext::t_impl_::notify_fdevent"};
   }
 
 ///////////////////////////////////////////////////////////////////////////////

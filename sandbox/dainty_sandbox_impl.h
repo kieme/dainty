@@ -29,6 +29,7 @@ SOFTWARE.
 
 #include "dainty_named.h"
 #include "dainty_named_utility.h"
+#include "dainty_os_clock.h"
 #include "dainty_mt_detached_thread.h"
 #include "dainty_mt_event_dispatcher.h"
 #include "dainty_mt_timers.h"
@@ -52,6 +53,8 @@ namespace sandbox
   using t_dispatcher_        = mt::event_dispatcher::t_dispatcher;
   using t_tmrs_              = mt::timers::t_timers;
   using t_tmr_id_            = mt::timers::t_timer_id;
+  using t_time               = os::clock::t_time;
+  using R_time               = os::clock::R_time;
   using t_thread_logic_      = t_thread_::t_logic;
   using t_thread_logic_ptr_  = t_thread_::t_logic_ptr;
 
@@ -218,6 +221,7 @@ namespace sandbox
     t_event_id      tmrs_ev_id_  = BAD_EVENT_ID;
     t_spin_cnt_     spin_cnt_    = 0;
     t_msec_         spin_period_ = 10;
+    t_time          last_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

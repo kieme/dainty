@@ -176,7 +176,7 @@ namespace logic_messenger_ext
   private:
     using r_ext_ = t_prefix<t_logic_messenger_ext>::r_;
 
-    class t_impl_ : public t_logic_ext {
+    class t_impl_ final : public t_logic_ext {
     public:
       using r_err = t_prefix<t_err>::r_;
 
@@ -185,16 +185,6 @@ namespace logic_messenger_ext
 ///////////////////////////////////////////////////////////////////////////////
 
       operator t_validity() const noexcept;
-
-///////////////////////////////////////////////////////////////////////////////
-
-      t_void notify_start(t_err) noexcept override final;
-      t_void notify_cleanup()    noexcept override final;
-
-      t_void notify_timeout(t_timer_id,
-                            R_timer_params)   noexcept override final;
-      t_void notify_fdevent(t_fdevent_id,
-                            R_fdevent_params) noexcept override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -275,6 +265,19 @@ namespace logic_messenger_ext
       t_bool is_messenger_in_group_(r_err, R_messenger_name,
                                     R_messenger_name group,
                                     p_messenger_user) const noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    private:
+      t_void notify_start(t_err) noexcept override final;
+      t_void notify_cleanup()    noexcept override final;
+
+      t_void notify_timeout(t_timer_id,
+                            R_timer_params)   noexcept override final;
+      t_void notify_fdevent(t_fdevent_id,
+                            R_fdevent_params) noexcept override final;
+      t_void notify_wakeup  (t_msec) noexcept override final;
+      t_void notify_complete()       noexcept override final;
 
 ///////////////////////////////////////////////////////////////////////////////
 
