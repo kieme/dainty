@@ -6,6 +6,16 @@ g++ -Wall -o run $DAINTY_ROOT/examples/sandbox/dainty_sandbox_example1.cpp \
                  $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_cli.cpp \
                  $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_large_msg.cpp \
                  $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_messenger.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_file.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_inotify.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_mqueue_client.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_mqueue_server.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_tcp_client.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_tcp_server.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_tipc_client.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_tipc_server.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_udp_client.cpp \
+                 $DAINTY_ROOT/sandbox/logic_extensions/dainty_sandbox_logic_ext_udp_server.cpp \
                  $DAINTY_ROOT/service/messaging/dainty_messaging_err.cpp \
                  $DAINTY_ROOT/service/messaging/dainty_messaging.cpp \
                  $DAINTY_ROOT/service/tracing/dainty_tracing_err.cpp \
