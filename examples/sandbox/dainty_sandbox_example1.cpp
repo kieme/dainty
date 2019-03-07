@@ -82,8 +82,8 @@ public:
     t_out{"t_app_logic:cleanup"};
   }
 
-  t_void notify_spin(t_msec msec) noexcept override final {
-    t_out{FMT, "t_app_logic:notify_spin - msec %u", get(msec)};
+  t_void notify_wakeup(t_msec msec) noexcept override final {
+    t_out{FMT, "t_app_logic:notify_wakeup - msec %u", get(msec)};
 
     t_err err;
     static int cnt = 0;
