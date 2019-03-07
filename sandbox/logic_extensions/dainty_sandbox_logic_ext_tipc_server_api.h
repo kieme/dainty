@@ -37,10 +37,25 @@ namespace logic_tipc_server_ext
 
   class t_logic_tipc_server_ext_api {
   public:
-    virtual ~t_logic_tipc_server_ext_api() { }
+    virtual ~t_logic_tipc_server_ext_api() {}
 
-    // provide api
-    // send
+    /*
+    virtual t_tipc_server_id add_tipc_server(t_err, R_tipc_server_params) noexcept = 0;
+    virtual t_tipc_server_id add_tipc_server(t_err, R_tipc_server_params,
+                                             x_tipc_server_notify_ptr)    noexcept = 0;
+
+    virtual t_tipc_server_notify_ptr del_tipc_server(t_tipc_server_id)       noexcept = 0;
+    virtual P_tipc_server_params     get_tipc_server(t_tipc_server_id) const noexcept = 0;
+
+    virtual t_bool         del_tipc_server_client(t_tipc_client_id)       noexcept = 0;
+    virtual P_tipc_address get_tipc_server_client(t_tipc_client_id) const noexcept = 0;
+
+    virtual t_void send_tipc_server_message(t_err, t_tipc_client_id,
+                                            R_message) noexcept = 0;
+    virtual t_void send_tipc_server_message(t_err, t_tipc_server_id,
+                                            R_tipc_address,
+                                            R_message) noexcept = 0;
+    */
   };
 
 ///////////////////////////////////////////////////////////////////////////////

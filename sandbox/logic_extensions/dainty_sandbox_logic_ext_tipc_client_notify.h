@@ -47,6 +47,18 @@ namespace logic_tipc_client_ext
 
     virtual t_void notify_tipc_client_start(t_err) noexcept = 0;
     virtual t_void notify_tipc_client_cleanup()    noexcept = 0;
+
+    /* NONBLOCKING
+    virtual t_bool notify_tipc_client_connected(t_tipc_server_id,
+                                                t_tipc_client_id,
+                                                R_tipc_address) noexcept = 0;
+
+    virtual t_bool notify_tipc_client_message(t_tipc_client_id,
+                                              R_message) noexcept = 0;
+    virtual t_bool notify_tipc_client_message(t_tipc_client_id,
+                                              R_tipc_address,
+                                              R_message) noexcept = 0;
+    */
   };
 
 ///////////////////////////////////////////////////////////////////////////////
