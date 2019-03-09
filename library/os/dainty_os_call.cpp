@@ -617,7 +617,7 @@ namespace os
     ERR_GUARD(err) {
       auto verify = call_epoll_create();
       if (verify == VALID)
-        return verify.value;
+        return verify;
       err = err::E_XXX;
     }
     return BAD_FD;
@@ -673,7 +673,7 @@ namespace os
     ERR_GUARD(err) {
       auto verify = call_epoll_wait(efd, events, max);
       if (verify == VALID)
-        return verify.value;
+        return verify;
       err = err::E_XXX;
     }
     return t_n{0};
@@ -692,7 +692,7 @@ namespace os
     ERR_GUARD(err) {
       auto verify = call_epoll_wait(efd, events, max, msec);
       if (verify == VALID)
-        return verify.value;
+        return verify;
       err = err::E_XXX;
     }
     return t_n{0};
@@ -711,7 +711,7 @@ namespace os
     ERR_GUARD(err) {
       auto verify = call_eventfd(cnt);
       if (verify == VALID)
-        return verify.value;
+        return verify;
       err = err::E_XXX;
     }
     return BAD_FD;
@@ -747,7 +747,7 @@ namespace os
     ERR_GUARD(err) {
       auto verify = call_timerfd_create(flags);
       if (verify == VALID)
-        return verify.value;
+        return verify;
       err = err::E_XXX;
     }
     return BAD_FD;
@@ -808,7 +808,7 @@ namespace os
     ERR_GUARD(err) {
       auto verify = call_read(fd, buf, cnt);
       if (verify == VALID)
-        return verify.value;
+        return verify;
       err = err::E_XXX; // assign err
     }
     return t_n{0};
@@ -825,10 +825,138 @@ namespace os
     ERR_GUARD(err) {
       auto verify = call_write(fd, buf, cnt);
       if (verify == VALID)
-        return verify.value;
+        return verify;
       err = err::E_XXX; // assign err
     }
     return t_n{0};
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_errn call_socket(t_socket_domain, t_socket_type,
+                     t_socket_protocol) noexcept {
+  }
+
+  t_void call_socket(t_err, t_socket_domain, t_socket_type,
+                            t_socket_protocol) noexcept {
+  }
+
+  t_errn call_bind(R_socket_address) noexcept {
+  }
+
+  t_void call_bind(t_err, R_socket_address) noexcept {
+  }
+
+  t_errn call_connect(R_socket_address) noexcept {
+  }
+
+  t_void call_connect(t_err, R_socket_address) noexcept {
+  }
+
+  t_errn call_listen(t_socket_backlog) noexcept {
+  }
+
+  t_void call_listen(t_err, t_socket_backlog) noexcept {
+  }
+
+  t_verify<t_fd> call_accept(p_socket_address) noexcept {
+  }
+
+  t_fd call_accept(t_err, p_socket_address) noexcept {
+  }
+
+  t_errn call_shutdown(t_socket_howto) noexcept {
+  }
+
+  t_void call_shutdown(t_err, t_socket_howto) noexcept {
+  }
+
+  t_errn call_getpeername(r_socket_address) noexcept {
+  }
+
+  t_void call_getpeername(t_err, r_socket_address) noexcept {
+  }
+
+  t_errn call_getsockname(r_socket_address) noexcept {
+  }
+
+  t_void call_getsockname(t_err, r_socket_address) noexcept {
+  }
+
+  t_errn call_getsockopt(t_socket_level, t_socket_option_name,
+                         r_socket_option_value) noexcept {
+  }
+
+  t_void call_getsockopt(t_err, t_socket_level, t_socket_option_name,
+                         r_socket_option_value) noexcept {
+  }
+
+  t_errn call_setsockopt(t_socket_level, t_socket_option_name,
+                         R_socket_option_value) noexcept {
+  }
+
+  t_void call_setsockopt(t_err, t_socket_level, t_socket_option_name,
+                         R_socket_option_value) noexcept {
+  }
+
+  t_verify<t_n> call_send(R_byte_crange, t_flags) noexcept {
+  }
+
+  t_n call_send(t_err, R_byte_crange, t_flags) noexcept {
+  }
+
+  t_verify<t_n> call_recv(r_byte_range, t_flags) noexcept {
+  }
+
+  t_n call_recv(t_err, r_byte_range, t_flags) noexcept {
+  }
+
+  t_verify<t_n> call_sendto(R_byte_crange, R_socket_address,
+                            t_flags) noexcept {
+  }
+
+  t_n call_sendto(t_err, R_byte_crange, R_socket_address,
+                  t_flags) noexcept {
+  }
+
+  t_verify<t_n> call_recvfrom(r_byte_range, r_socket_address,
+                              t_flags) noexcept {
+  }
+
+  t_n call_recvfrom(t_err, r_byte_range, r_socket_address,
+                    t_flags) noexcept {
+  }
+
+  t_verify<t_n> call_sendmsg(R_socket_msghdr, t_flags) noexcept {
+  }
+
+  t_n call_sendmsg(t_err, R_socket_msghdr, t_flags) noexcept {
+  }
+
+  t_verify<t_n> call_recvmsg(r_socket_msghdr, t_flags) noexcept {
+  }
+
+  t_n call_recvmsg(t_err, r_socket_msghdr, t_flags) noexcept {
+  }
+
+  t_verify<t_n> call_sendmmsg(R_socket_msghdr_crange, t_flags) noexcept {
+  }
+
+  t_n call_sendmmsg(t_err, R_socket_msghdr_crange, t_flags) noexcept {
+  }
+
+  t_verify<t_n> call_recvmmsg(r_socket_msghdr_range, t_flags) noexcept {
+  }
+
+  t_n call_recvmmsg(t_err, r_socket_msghdr_range, t_flags) noexcept {
+  }
+
+  t_verify<t_n> call_recvmmsg(r_socket_msghdr_range, t_flags,
+                              r_timespec) noexcept {
+  }
+
+  t_n call_recvmmsg(t_err, r_socket_msghdr_range, t_flags,
+                    r_timespec) noexcept {
   }
 
 ///////////////////////////////////////////////////////////////////////////////
