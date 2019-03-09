@@ -715,26 +715,37 @@ namespace named
   enum  t_errn_tag_ {};
   using t_errn_ = named::t_int;
   using t_errn  = named::t_explicit<t_errn_, t_errn_tag_>;
+  constexpr t_errn NO_ERRN{0};
 
   constexpr t_bool operator==(t_errn errn, t_validity validity) {
-    return get(errn) == 0 && validity == VALID;
+    return errn == NO_ERRN && validity == VALID;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  class t_verifiable {
-  public:
-    T      value;
-    t_errn errn;
+  class t_verifiable;
 
-    constexpr operator t_validity() const {
-      return get(errn) == 0 ? VALID : INVALID;
-    }
+  template<typename T, typename TAG, typename V>
+  class t_verifiable<t_explicit<T, TAG, V>> {
+  public:
+    using t_value = t_explicit<T, TAG, V>;
+    using T_value = typename t_prefix<t_value>::T_;
 
     constexpr
-    t_verifiable(T _value, t_errn _errn) : value(_value), errn(_errn) {
+    t_verifiable(t_value _value, t_errn _errn) : value(_value), errn(_errn) {
     }
+
+    constexpr operator t_validity() const {
+      return errn == NO_ERRN ? VALID : INVALID;
+    }
+
+    constexpr operator t_value () const {
+      return value;
+    }
+
+    T_value value;
+    t_errn  errn;
   };
 
   template<typename T>
@@ -742,20 +753,9 @@ namespace named
     return verifiable.value;
   }
 
-  template<typename T>
-  constexpr T& set(t_verifiable<T>& verifiable) {
-    return verifiable.value;
-  }
-
   template<class T, class TAG, class V>
   constexpr T get(const t_verifiable<t_explicit<T, TAG, V>>& verifiable) {
     return get(verifiable.value);
-  }
-
-  template<class T, class TAG, class V>
-  constexpr t_explicit<T, TAG, V>&
-      set(t_verifiable<t_explicit<T, TAG, V>>& verifiable) {
-    return verifiable.value;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
