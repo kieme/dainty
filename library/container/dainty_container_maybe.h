@@ -94,16 +94,6 @@ namespace maybe
     return maybe.store_.cref();
   }
 
-  template<typename T, typename TAG, typename V>
-  inline T& set(t_maybe<named::t_explicit<T, TAG, V> >& maybe) {
-    return named::set(maybe.store_.ref());
-  }
-
-  template<typename T, typename TAG, typename V>
-  inline const T& get(const t_maybe<named::t_explicit<T, TAG, V> >& maybe) {
-    return named::get(maybe.store_.cref());
-  }
-
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
