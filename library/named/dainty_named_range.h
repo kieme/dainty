@@ -45,6 +45,7 @@ namespace range
   using named::t_n_;
   using named::t_n;
   using named::t_validity;
+  using named::t_byte;
   using named::VALID;
   using named::INVALID;
 
@@ -66,7 +67,7 @@ namespace range
     t_range(p_item, t_n);
 
     t_range& operator=(const t_range<T, TAG>&);
-    t_range& operator=(const t_crange<T, TAG>&);
+    t_range& operator=(const t_crange<T, TAG>&); // XXX looks wrong
 
     operator t_validity() const;
 
@@ -81,7 +82,7 @@ namespace range
     template<typename F> t_void ceach(F) const;
 
     p_item const ptr;
-    const t_n    n;
+    t_n          n;
   };
 
   template<typename T, typename TAG>
@@ -106,10 +107,27 @@ namespace range
     template<typename F> t_void ceach(F) const;
 
     P_item const ptr;
-    const t_n n;
+    t_n          n;
   };
 
   template<typename T, typename TAG> class t_range<const T, TAG>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  enum  t_byte_range_tag_ {};
+  using t_byte_range  = t_range<t_byte, t_byte_range_tag_>;
+  using T_byte_range  = t_prefix<t_byte_range>::T_;
+  using R_byte_range  = t_prefix<t_byte_range>::R_;
+  using r_byte_range  = t_prefix<t_byte_range>::r_;
+  using P_byte_range  = t_prefix<t_byte_range>::P_;
+  using p_byte_range  = t_prefix<t_byte_range>::p_;
+
+  using t_byte_crange = t_crange<t_byte, t_byte_range_tag_>;
+  using T_byte_crange = t_prefix<t_byte_crange>::T_;
+  using R_byte_crange = t_prefix<t_byte_crange>::R_;
+  using r_byte_crange = t_prefix<t_byte_crange>::r_;
+  using P_byte_crange = t_prefix<t_byte_crange>::P_;
+  using p_byte_crange = t_prefix<t_byte_crange>::p_;
 
 ///////////////////////////////////////////////////////////////////////////////
 

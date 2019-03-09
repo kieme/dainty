@@ -581,6 +581,15 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  enum t_byte_tag_ { };
+  using t_byte_       = t_uchar;
+  using t_byte        = t_explicit<t_byte_, t_byte_tag_>;
+  using T_byte        = t_prefix<t_byte>::T_;
+  using r_byte        = t_prefix<t_byte>::r_;
+  using R_byte        = t_prefix<t_byte>::R_;
+  using p_byte        = t_prefix<t_byte>::p_;
+  using P_byte        = t_prefix<t_byte>::P_;
+
   enum t_fd_tag_ {};
   using t_fd_       = t_int32;
   using t_fd        = t_explicit<t_fd_, t_fd_tag_>;
@@ -852,6 +861,76 @@ namespace named
   constexpr t_n multiple_of(t_multiple<N, TAG> multiple) {
     return t_n{N*get(multiple.value)};
   }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename TAG>
+  class t_any_ptr {
+  public:
+    using r_any_ptr = typename t_prefix<t_any_ptr<TAG>>::r_;
+
+    constexpr t_any_ptr() = default;
+
+    constexpr t_any_ptr(p_void _ptr, t_n _n) : ptr{_ptr}, n{_n} {
+    }
+
+    template<typename T>
+    constexpr t_any_ptr(T* _ptr) : ptr{_ptr}, n{sizeof(T)} {
+    }
+
+    template<typename T>
+    constexpr r_any_ptr operator=(T* _ptr) {
+      ptr = _ptr;
+      n   = t_n{sizeof(T)};
+      return *this;
+    }
+
+    constexpr operator t_validity() const {
+      return ptr ? VALID : INVALID;
+    }
+
+    p_void ptr = nullptr;
+    t_n    n   = t_n{0};
+  };
+
+  template<typename TAG>
+  class t_any_cptr {
+  public:
+    using r_any_cptr = typename t_prefix<t_any_cptr<TAG>>::r_;
+    using R_any_ptr  = typename t_prefix<t_any_ptr<TAG>>::R_;
+
+    constexpr t_any_cptr() = default;
+
+    constexpr t_any_cptr(P_void _ptr, t_n _n) : ptr{_ptr}, n{_n} {
+    }
+
+    template<typename T>
+    constexpr t_any_cptr(T* _ptr) : ptr{_ptr}, n{sizeof(T)} {
+    }
+
+    constexpr t_any_cptr(R_any_ptr _ptr) : ptr{_ptr.ptr}, n{_ptr.n} {
+    }
+
+    constexpr r_any_cptr operator=(R_any_ptr _ptr) {
+      ptr = _ptr.ptr;
+      n   = _ptr.n;
+      return *this;
+    }
+
+    template<typename T>
+    constexpr r_any_cptr operator=(T* _ptr) {
+      ptr = _ptr;
+      n   = t_n{sizeof(T)};
+      return *this;
+    }
+
+    constexpr operator t_validity() const {
+      return ptr ? VALID : INVALID;
+    }
+
+    P_void ptr = nullptr;
+    t_n    n   = t_n{0};
+  };
 
 ///////////////////////////////////////////////////////////////////////////////
 
