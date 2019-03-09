@@ -30,10 +30,12 @@
 #include <sys/timerfd.h>
 #include <sys/eventfd.h>
 #include <sys/epoll.h>
+#include <sys/socket.h>
 #include <pthread.h>
 #include <time.h>
 #include <unistd.h>
 #include "dainty_named.h"
+#include "dainty_named_range.h"
 #include "dainty_os_err.h"
 
 namespace dainty
@@ -55,9 +57,20 @@ namespace os
   using named::t_prefix;
   using named::t_explicit;
   using named::P_cstr;
+  using named::t_any_ptr;
+  using named::NO_ERRN;
   using named::VALID;
   using named::INVALID;
   using named::BAD_FD;
+  using named::range::t_range;
+  using named::range::t_crange;
+  using named::range::t_byte_range;
+  using named::range::R_byte_range;
+  using named::range::r_byte_range;
+  using named::range::t_byte_crange;
+  using named::range::R_byte_crange;
+  using named::range::r_byte_crange;
+
   using err::t_err;
 
   template<typename T>
@@ -116,35 +129,53 @@ namespace os
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_byte_range            = named::t_int; // should be added to named
-  using R_byte_range            = t_prefix<t_byte_range>::R_;
-  using r_byte_range            = t_prefix<t_byte_range>::r_;
-
-  using t_byte_crange           = named::t_int; // XXX should be added to named
-  using R_byte_crange           = t_prefix<t_byte_crange>::R_;
-  using r_byte_crange           = t_prefix<t_byte_crange>::r_;
-
-  using t_socket_msghdr         = named::t_int;
+  using t_socket_msghdr         = ::mmsghdr;
   using R_socket_msghdr         = t_prefix<t_socket_msghdr>::R_;
   using r_socket_msghdr         = t_prefix<t_socket_msghdr>::r_;
 
-  using t_socket_msghdr_range   = named::t_int;
+  enum t_socket_msghdr_range_tag_ {};
+  using t_socket_msghdr_range   = t_range<t_socket_msghdr,
+                                          t_socket_msghdr_range_tag_>;
   using R_socket_msghdr_range   = t_prefix<t_socket_msghdr_range>::R_;
   using r_socket_msghdr_range   = t_prefix<t_socket_msghdr_range>::r_;
 
-  using t_socket_msghdr_crange  = named::t_int;
+  using t_socket_msghdr_crange  = t_crange<t_socket_msghdr,
+                                           t_socket_msghdr_range_tag_>;
   using R_socket_msghdr_crange  = t_prefix<t_socket_msghdr_crange>::R_;
   using r_socket_msghdr_crange  = t_prefix<t_socket_msghdr_crange>::r_;
 
-  using t_socket_domain         = named::t_int;
-  using t_socket_type           = named::t_int;
-  using t_socket_protocol       = named::t_int;
-  using t_socket_backlog        = named::t_int;
-  using t_socket_howto          = named::t_int;
-  using t_socket_level          = named::t_int;
-  using t_socket_option_name    = named::t_int;
+  enum  t_socket_domain_tag_ {};
+  using t_socket_domain_  = named::t_int;
+  using t_socket_domain   = t_explicit<t_socket_domain_, t_socket_domain_tag_>;
 
-  using t_socket_option_value   = named::t_int; // XXX named unknown value
+  enum  t_socket_type_tag_ {};
+  using t_socket_type_ = named::t_int;
+  using t_socket_type  = t_explicit<t_socket_type_, t_socket_type_tag_>;
+
+  enum  t_socket_protocol_tag_ {};
+  using t_socket_protocol_ = named::t_int;
+  using t_socket_protocol  = t_explicit<t_socket_protocol_,
+                                        t_socket_protocol_tag_>;
+
+  enum  t_socket_backlog_tag_ {};
+  using t_socket_backlog_ = named::t_int;
+  using t_socket_backlog  = t_explicit<t_socket_backlog_,
+                                       t_socket_backlog_tag_>;
+
+  enum  t_socket_howto_tag_ {};
+  using t_socket_howto_ = named::t_int;
+  using t_socket_howto  = t_explicit<t_socket_howto_, t_socket_howto_tag_>;
+
+  enum  t_socket_level_tag_ {};
+  using t_socket_level_ = named::t_int;
+  using t_socket_level  = t_explicit<t_socket_level_, t_socket_level_tag_>;
+
+  enum  t_socket_option_tag_ {};
+  using t_socket_option_ = named::t_int;
+  using t_socket_option  = t_explicit<t_socket_option_, t_socket_option_tag_>;
+
+  enum t_socket_option_value_tag {};
+  using t_socket_option_value   = t_any_ptr<t_socket_option_value_tag>;
   using r_socket_option_value   = t_prefix<t_socket_option_value>::r_;
   using R_socket_option_value   = t_prefix<t_socket_option_value>::R_;
 
@@ -422,10 +453,10 @@ namespace os
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_errn call_socket(       t_socket_domain, t_socket_type,
-                            t_socket_protocol) noexcept;
-  t_void call_socket(t_err, t_socket_domain, t_socket_type,
-                            t_socket_protocol) noexcept;
+  t_verify<t_fd> call_socket(       t_socket_domain, t_socket_type,
+                                    t_socket_protocol) noexcept;
+  t_fd           call_socket(t_err, t_socket_domain, t_socket_type,
+                                    t_socket_protocol) noexcept;
 
   t_errn call_bind(       R_socket_address) noexcept;
   t_void call_bind(t_err, R_socket_address) noexcept;
@@ -448,14 +479,14 @@ namespace os
   t_errn call_getsockname(       r_socket_address) noexcept;
   t_void call_getsockname(t_err, r_socket_address) noexcept;
 
-  t_errn call_getsockopt(       t_socket_level, t_socket_option_name,
+  t_errn call_getsockopt(       t_socket_level, t_socket_option,
                                 r_socket_option_value) noexcept;
-  t_void call_getsockopt(t_err, t_socket_level, t_socket_option_name,
+  t_void call_getsockopt(t_err, t_socket_level, t_socket_option,
                                 r_socket_option_value) noexcept;
 
-  t_errn call_setsockopt(       t_socket_level, t_socket_option_name,
+  t_errn call_setsockopt(       t_socket_level, t_socket_option,
                                 R_socket_option_value) noexcept;
-  t_void call_setsockopt(t_err, t_socket_level, t_socket_option_name,
+  t_void call_setsockopt(t_err, t_socket_level, t_socket_option,
                                 R_socket_option_value) noexcept;
 
   t_verify<t_n> call_send(       R_byte_crange, t_flags) noexcept;

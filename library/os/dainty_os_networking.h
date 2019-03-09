@@ -55,8 +55,9 @@ namespace networking
 
   class t_socket final {
   public:
+    t_socket(       t_socket_domain, t_socket_type, t_socket_protocol) noexcept;
+    t_socket(t_err, t_socket_domain, t_socket_type, t_socket_protocol) noexcept;
     t_socket() noexcept;
-    t_socket(t_socket_domain, t_socket_type, t_socket_protocol) noexcept;
     t_socket(x_socket) noexcept;
    ~t_socket();
 
@@ -104,14 +105,14 @@ namespace networking
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_errn getsockopt(       t_socket_level, t_socket_option_name,
+    t_errn getsockopt(       t_socket_level, t_socket_option,
                              r_socket_option_value) const noexcept;
-    t_void getsockopt(t_err, t_socket_level, t_socket_option_name,
+    t_void getsockopt(t_err, t_socket_level, t_socket_option,
                              r_socket_option_value) const noexcept;
 
-    t_errn setsockopt(       t_socket_level, t_socket_option_name,
+    t_errn setsockopt(       t_socket_level, t_socket_option,
                              R_socket_option_value) noexcept;
-    t_void setsockopt(t_err, t_socket_level, t_socket_option_name,
+    t_void setsockopt(t_err, t_socket_level, t_socket_option,
                              R_socket_option_value) noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -189,11 +190,67 @@ namespace networking
     operator t_validity() const noexcept;
     t_fd     get_fd    () const noexcept;
 
-    // connect
-    // send
-    // recv
-    // setsockopt
-    // getsockopt
+///////////////////////////////////////////////////////////////////////////////
+
+    t_errn connect(       R_tipc_address) noexcept;
+    t_void connect(t_err, R_tipc_address) noexcept;
+
+    t_errn getpeername(       r_tipc_address) const noexcept;
+    t_void getpeername(t_err, r_tipc_address) const noexcept;
+
+    t_errn getsockname(       r_tipc_address) const noexcept;
+    t_void getsockname(t_err, r_tipc_address) const noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_verify<t_n> send(       R_byte_crange, t_flags) noexcept;
+    t_n           send(t_err, R_byte_crange, t_flags) noexcept;
+
+    t_verify<t_n> recv(       r_byte_range, t_flags) noexcept;
+    t_n           recv(t_err, r_byte_range, t_flags) noexcept;
+
+    t_verify<t_n> sendmsg(       R_socket_msghdr, t_flags) noexcept;
+    t_n           sendmsg(t_err, R_socket_msghdr, t_flags) noexcept;
+
+    t_verify<t_n> recvmsg(       r_socket_msghdr, t_flags) noexcept;
+    t_n           recvmsg(t_err, r_socket_msghdr, t_flags) noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_errn getsockopt(       t_socket_level, t_socket_option,
+                             r_socket_option_value) const noexcept;
+    t_void getsockopt(t_err, t_socket_level, t_socket_option,
+                             r_socket_option_value) const noexcept;
+
+    t_errn setsockopt(       t_socket_level, t_socket_option,
+                             R_socket_option_value) noexcept;
+    t_void setsockopt(t_err, t_socket_level, t_socket_option,
+                             R_socket_option_value) noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_verify<t_n> sendmmsg(       R_socket_msghdr_crange, t_flags) noexcept;
+    t_n           sendmmsg(t_err, R_socket_msghdr_crange, t_flags) noexcept;
+
+    t_verify<t_n> recvmmsg(       r_socket_msghdr_range, t_flags) noexcept;
+    t_verify<t_n> recvmmsg(       r_socket_msghdr_range, t_flags,
+                                  r_timespec) noexcept;
+
+    t_n           recvmmsg(t_err, r_socket_msghdr_range, t_flags) noexcept;
+    t_n           recvmmsg(t_err, r_socket_msghdr_range, t_flags,
+                                  r_timespec) noexcept;
+
+    template<t_n_ N>
+    t_verify<t_n> recvmmsg(       t_socket_msghdr (&hdr)[N], t_flags) noexcept;
+    template<t_n_ N>
+    t_verify<t_n> recvmmsg(       t_socket_msghdr (&hdr)[N], t_flags,
+                                  r_timespec) noexcept;
+
+    template<t_n_ N>
+    t_n           recvmmsg(t_err, t_socket_msghdr (&hdr)[N], t_flags) noexcept;
+    template<t_n_ N>
+    t_n           recvmmsg(t_err, t_socket_msghdr (&hdr)[N], t_flags,
+                                  r_timespec) noexcept;
 
   private:
     t_socket socket_;
