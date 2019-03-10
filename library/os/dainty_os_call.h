@@ -27,6 +27,7 @@
 #ifndef _DAINTY_OS_CALL_H_
 #define _DAINTY_OS_CALL_H_
 
+#include <sys/types.h>
 #include <sys/timerfd.h>
 #include <sys/eventfd.h>
 #include <sys/epoll.h>
@@ -58,6 +59,7 @@ namespace os
   using named::t_explicit;
   using named::P_cstr;
   using named::t_any_ptr;
+  using named::NO_ERRN_;
   using named::NO_ERRN;
   using named::VALID;
   using named::INVALID;
@@ -170,28 +172,58 @@ namespace os
   using t_socket_level_ = named::t_int;
   using t_socket_level  = t_explicit<t_socket_level_, t_socket_level_tag_>;
 
-  enum  t_socket_option_tag_ {};
-  using t_socket_option_ = named::t_int;
-  using t_socket_option  = t_explicit<t_socket_option_, t_socket_option_tag_>;
+///////////////////////////////////////////////////////////////////////////////
 
-  enum t_socket_option_value_tag {};
-  using t_socket_option_value   = t_any_ptr<t_socket_option_value_tag>;
-  using r_socket_option_value   = t_prefix<t_socket_option_value>::r_;
-  using R_socket_option_value   = t_prefix<t_socket_option_value>::R_;
+  enum  t_socket_option_name_tag_ {};
+  using t_socket_option_name_ = named::t_int;
+  using t_socket_option_name  = t_explicit<t_socket_option_name_,
+                                           t_socket_option_name_tag_>;
+
+  enum  t_socket_option_len_tag_ {};
+  using t_socket_option_len_ = ::socklen_t;
+  using t_socket_option_len  = t_explicit<t_socket_option_len_,
+                                          t_socket_option_len_tag_>;
+
+  class t_socket_option {
+  public:
+    t_socket_option(t_socket_option_name _name,
+                    t_socket_option_len  _len) noexcept
+      : name{_name}, len{_len} {
+    }
+
+    virtual ~t_socket_option() {}
+
+    virtual operator p_void  ()       noexcept = 0;
+    virtual operator P_void  () const noexcept = 0;
+
+    t_socket_option_name name = t_socket_option_name{0};
+    t_socket_option_len  len  = t_socket_option_len {0};
+  };
+  using r_socket_option = t_prefix<t_socket_option>::r_;
+  using R_socket_option = t_prefix<t_socket_option>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_sockaddr = named::t_int;
+  using t_sockaddr = ::sockaddr;
   using p_sockaddr = t_prefix<t_sockaddr>::p_;
   using P_sockaddr = t_prefix<t_sockaddr>::P_;
 
+  enum  t_socket_address_len_tag_ {};
+  using t_socket_address_len_ = ::socklen_t;
+  using t_socket_address_len  = t_explicit<t_socket_address_len_,
+                                           t_socket_address_len_tag_>;
+
   class t_socket_address {
   public:
+    t_socket_address(t_socket_address_len _len) noexcept : len{_len} {
+    }
+
     virtual ~t_socket_address() {}
 
     virtual operator p_sockaddr()       noexcept = 0;
     virtual operator P_sockaddr() const noexcept = 0;
-    virtual t_n      get_size  () const noexcept = 0;
+
+    t_socket_address_len len;
   };
   using r_socket_address = t_prefix<t_socket_address>::r_;
   using R_socket_address = t_prefix<t_socket_address>::R_;
@@ -201,12 +233,11 @@ namespace os
   class t_ip_address final : public t_socket_address {
   public:
     // constructor
+    t_ip_address() noexcept : t_socket_address{t_socket_address_len{0}} {
+    }
 
     operator p_sockaddr()       noexcept override final;
     operator P_sockaddr() const noexcept override final;
-    t_n      get_size()   const noexcept override final;
-
-  private:
   };
   using r_ip_address = t_prefix<t_ip_address>::r_;
   using R_ip_address = t_prefix<t_ip_address>::R_;
@@ -216,12 +247,11 @@ namespace os
   class t_tipc_address final : public t_socket_address {
   public:
     // constructor
+    t_tipc_address() noexcept : t_socket_address{t_socket_address_len{0}} {
+    }
 
     operator p_sockaddr()       noexcept override final;
     operator P_sockaddr() const noexcept override final;
-    t_n      get_size()   const noexcept override final;
-
-  private:
   };
   using r_tipc_address = t_prefix<t_tipc_address>::r_;
   using R_tipc_address = t_prefix<t_tipc_address>::R_;
@@ -458,68 +488,67 @@ namespace os
   t_fd           call_socket(t_err, t_socket_domain, t_socket_type,
                                     t_socket_protocol) noexcept;
 
-  t_errn call_bind(       R_socket_address) noexcept;
-  t_void call_bind(t_err, R_socket_address) noexcept;
+  t_errn call_bind(       t_fd, R_socket_address) noexcept;
+  t_void call_bind(t_err, t_fd, R_socket_address) noexcept;
 
-  t_errn call_connect(       R_socket_address) noexcept;
-  t_void call_connect(t_err, R_socket_address) noexcept;
+  t_errn call_connect(       t_fd, R_socket_address) noexcept;
+  t_void call_connect(t_err, t_fd, R_socket_address) noexcept;
 
-  t_errn call_listen(       t_socket_backlog) noexcept;
-  t_void call_listen(t_err, t_socket_backlog) noexcept;
+  t_errn call_listen(       t_fd, t_socket_backlog) noexcept;
+  t_void call_listen(t_err, t_fd, t_socket_backlog) noexcept;
 
-  t_verify<t_fd> call_accept(       p_socket_address) noexcept;
-  t_fd           call_accept(t_err, p_socket_address) noexcept;
+  t_verify<t_fd> call_accept(       t_fd) noexcept;
+  t_fd           call_accept(t_err, t_fd) noexcept;
 
-  t_errn call_shutdown(       t_socket_howto) noexcept;
-  t_void call_shutdown(t_err, t_socket_howto) noexcept;
+  t_verify<t_fd> call_accept(       t_fd, p_socket_address) noexcept;
+  t_fd           call_accept(t_err, t_fd, p_socket_address) noexcept;
 
-  t_errn call_getpeername(       r_socket_address) noexcept;
-  t_void call_getpeername(t_err, r_socket_address) noexcept;
+  t_errn call_shutdown(       t_fd, t_socket_howto) noexcept;
+  t_void call_shutdown(t_err, t_fd, t_socket_howto) noexcept;
 
-  t_errn call_getsockname(       r_socket_address) noexcept;
-  t_void call_getsockname(t_err, r_socket_address) noexcept;
+  t_errn call_getpeername(       t_fd, r_socket_address) noexcept;
+  t_void call_getpeername(t_err, t_fd, r_socket_address) noexcept;
 
-  t_errn call_getsockopt(       t_socket_level, t_socket_option,
-                                r_socket_option_value) noexcept;
-  t_void call_getsockopt(t_err, t_socket_level, t_socket_option,
-                                r_socket_option_value) noexcept;
+  t_errn call_getsockname(       t_fd, r_socket_address) noexcept;
+  t_void call_getsockname(t_err, t_fd, r_socket_address) noexcept;
 
-  t_errn call_setsockopt(       t_socket_level, t_socket_option,
-                                R_socket_option_value) noexcept;
-  t_void call_setsockopt(t_err, t_socket_level, t_socket_option,
-                                R_socket_option_value) noexcept;
+  t_errn call_getsockopt(       t_fd, t_socket_level, r_socket_option) noexcept;
+  t_void call_getsockopt(t_err, t_fd, t_socket_level, r_socket_option) noexcept;
 
-  t_verify<t_n> call_send(       R_byte_crange, t_flags) noexcept;
-  t_n           call_send(t_err, R_byte_crange, t_flags) noexcept;
+  t_errn call_setsockopt(       t_fd, t_socket_level, R_socket_option) noexcept;
+  t_void call_setsockopt(t_err, t_fd, t_socket_level, R_socket_option) noexcept;
 
-  t_verify<t_n> call_recv(       r_byte_range, t_flags) noexcept;
-  t_n           call_recv(t_err, r_byte_range, t_flags) noexcept;
+  t_verify<t_n> call_send(       t_fd, R_byte_crange, t_flags) noexcept;
+  t_n           call_send(t_err, t_fd, R_byte_crange, t_flags) noexcept;
 
-  t_verify<t_n> call_sendto(       R_byte_crange, R_socket_address,
+  t_verify<t_n> call_recv(       t_fd, r_byte_range, t_flags) noexcept;
+  t_n           call_recv(t_err, t_fd, r_byte_range, t_flags) noexcept;
+
+  t_verify<t_n> call_sendto(       t_fd, R_byte_crange, R_socket_address,
                                    t_flags) noexcept;
-  t_n           call_sendto(t_err, R_byte_crange, R_socket_address,
+  t_n           call_sendto(t_err, t_fd, R_byte_crange, R_socket_address,
                                    t_flags) noexcept;
 
-  t_verify<t_n> call_recvfrom(       r_byte_range, r_socket_address,
+  t_verify<t_n> call_recvfrom(       t_fd, r_byte_range, r_socket_address,
                                      t_flags) noexcept;
-  t_n           call_recvfrom(t_err, r_byte_range, r_socket_address,
+  t_n           call_recvfrom(t_err, t_fd, r_byte_range, r_socket_address,
                                      t_flags) noexcept;
 
-  t_verify<t_n> call_sendmsg(       R_socket_msghdr, t_flags) noexcept;
-  t_n           call_sendmsg(t_err, R_socket_msghdr, t_flags) noexcept;
+  t_verify<t_n> call_sendmsg(       t_fd, R_socket_msghdr, t_flags) noexcept;
+  t_n           call_sendmsg(t_err, t_fd, R_socket_msghdr, t_flags) noexcept;
 
-  t_verify<t_n> call_recvmsg(       r_socket_msghdr, t_flags) noexcept;
-  t_n           call_recvmsg(t_err, r_socket_msghdr, t_flags) noexcept;
+  t_verify<t_n> call_recvmsg(       t_fd, r_socket_msghdr, t_flags) noexcept;
+  t_n           call_recvmsg(t_err, t_fd, r_socket_msghdr, t_flags) noexcept;
 
-  t_verify<t_n> call_sendmmsg(       R_socket_msghdr_crange, t_flags) noexcept;
-  t_n           call_sendmmsg(t_err, R_socket_msghdr_crange, t_flags) noexcept;
+  t_verify<t_n> call_sendmmsg(       t_fd, R_socket_msghdr_crange, t_flags) noexcept;
+  t_n           call_sendmmsg(t_err, t_fd, R_socket_msghdr_crange, t_flags) noexcept;
 
-  t_verify<t_n> call_recvmmsg(       r_socket_msghdr_range, t_flags) noexcept;
-  t_n           call_recvmmsg(t_err, r_socket_msghdr_range, t_flags) noexcept;
+  t_verify<t_n> call_recvmmsg(       t_fd, r_socket_msghdr_range, t_flags) noexcept;
+  t_n           call_recvmmsg(t_err, t_fd, r_socket_msghdr_range, t_flags) noexcept;
 
-  t_verify<t_n> call_recvmmsg(       r_socket_msghdr_range, t_flags,
+  t_verify<t_n> call_recvmmsg(       t_fd, r_socket_msghdr_range, t_flags,
                                      r_timespec) noexcept;
-  t_n           call_recvmmsg(t_err, r_socket_msghdr_range, t_flags,
+  t_n           call_recvmmsg(t_err, t_fd, r_socket_msghdr_range, t_flags,
                                      r_timespec) noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////

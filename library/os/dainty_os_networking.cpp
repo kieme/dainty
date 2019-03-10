@@ -24,6 +24,7 @@
 
 ******************************************************************************/
 
+#include "dainty_named_utility.h"
 #include "dainty_os_networking.h"
 
 namespace dainty
@@ -32,17 +33,21 @@ namespace os
 {
 namespace networking
 {
+  using named::utility::reset;
+
+///////////////////////////////////////////////////////////////////////////////
+
   t_socket::t_socket() noexcept : fd_{BAD_FD} {
   }
 
   t_socket::t_socket(t_socket_domain domain, t_socket_type type,
                      t_socket_protocol protocol) noexcept
-    : fd_{call_socket(domain, type, protocol)};
+    : fd_{call_socket(domain, type, protocol)} {
   }
 
   t_socket::t_socket(t_err err, t_socket_domain domain, t_socket_type type,
-                     t_socket_protocol protocol) noexcept {
-    : fd_{call_socket(err, domain, type, protocol)};
+                     t_socket_protocol protocol) noexcept
+    : fd_{call_socket(err, domain, type, protocol)} {
   }
 
   t_socket::t_socket(x_socket socket) noexcept : fd_{reset(socket.fd_)} {
@@ -68,7 +73,7 @@ namespace networking
                          t_socket_protocol) noexcept {
   }
 
-  t_errn t_socket::close()      noexcept {
+  t_errn t_socket::close() noexcept {
   }
 
   t_void t_socket::close(t_err) noexcept {
@@ -92,10 +97,16 @@ namespace networking
   t_void t_socket::listen(t_err, t_socket_backlog) noexcept {
   }
 
-  t_verify<t_fd> t_socket::accept(p_socket_address) noexcept {
+  t_verify<t_fd> t_socket::accept() noexcept {
   }
 
-  t_fd t_socket::accept(t_err, p_socket_address) noexcept {
+  t_fd t_socket::accept(t_err) noexcept {
+  }
+
+  t_verify<t_fd> t_socket::accept(r_socket_address) noexcept {
+  }
+
+  t_fd t_socket::accept(t_err, r_socket_address) noexcept {
   }
 
   t_errn t_socket::shutdown(t_socket_howto) noexcept {
@@ -116,19 +127,20 @@ namespace networking
   t_void t_socket::getsockname(t_err, r_socket_address) const noexcept {
   }
 
-  t_errn t_socket::getsockopt(t_socket_level, t_socket_option,
-                             r_socket_option_value) const noexcept {
+  t_errn t_socket::getsockopt(t_socket_level level,
+                              r_socket_option option) const noexcept {
   }
 
-  t_void t_socket::getsockopt(t_err, t_socket_level, t_socket_option,
-                             r_socket_option_value) const noexcept {
+  t_void t_socket::getsockopt(t_err err, t_socket_level level,
+                              r_socket_option option) const noexcept {
   }
 
-  t_errn t_socket::setsockopt(t_socket_level, t_socket_option,
-                             R_socket_option_value) noexcept {
+  t_errn t_socket::setsockopt(t_socket_level level,
+                              R_socket_option option) noexcept {
   }
-  t_void t_socket::setsockopt(t_err, t_socket_level, t_socket_option,
-                             R_socket_option_value) noexcept {
+
+  t_void t_socket::setsockopt(t_err err, t_socket_level level,
+                              R_socket_option option) noexcept {
   }
 
   t_verify<t_n> t_socket::send(R_byte_crange, t_flags) noexcept {

@@ -89,8 +89,11 @@ namespace networking
     t_errn listen(       t_socket_backlog) noexcept;
     t_void listen(t_err, t_socket_backlog) noexcept;
 
-    t_verify<t_fd> accept(       p_socket_address) noexcept;
-    t_fd           accept(t_err, p_socket_address) noexcept;
+    t_verify<t_fd> accept(     ) noexcept;
+    t_fd           accept(t_err) noexcept;
+
+    t_verify<t_fd> accept(       r_socket_address) noexcept;
+    t_fd           accept(t_err, r_socket_address) noexcept;
 
     t_errn shutdown(       t_socket_howto) noexcept;
     t_void shutdown(t_err, t_socket_howto) noexcept;
@@ -105,15 +108,11 @@ namespace networking
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_errn getsockopt(       t_socket_level, t_socket_option,
-                             r_socket_option_value) const noexcept;
-    t_void getsockopt(t_err, t_socket_level, t_socket_option,
-                             r_socket_option_value) const noexcept;
+    t_errn getsockopt(       t_socket_level, r_socket_option) const noexcept;
+    t_void getsockopt(t_err, t_socket_level, r_socket_option) const noexcept;
 
-    t_errn setsockopt(       t_socket_level, t_socket_option,
-                             R_socket_option_value) noexcept;
-    t_void setsockopt(t_err, t_socket_level, t_socket_option,
-                             R_socket_option_value) noexcept;
+    t_errn setsockopt(       t_socket_level, R_socket_option) noexcept;
+    t_void setsockopt(t_err, t_socket_level, R_socket_option) noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -217,15 +216,11 @@ namespace networking
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_errn getsockopt(       t_socket_level, t_socket_option,
-                             r_socket_option_value) const noexcept;
-    t_void getsockopt(t_err, t_socket_level, t_socket_option,
-                             r_socket_option_value) const noexcept;
+    t_errn getsockopt(       t_socket_level, r_socket_option) const noexcept;
+    t_void getsockopt(t_err, t_socket_level, r_socket_option) const noexcept;
 
-    t_errn setsockopt(       t_socket_level, t_socket_option,
-                             R_socket_option_value) noexcept;
-    t_void setsockopt(t_err, t_socket_level, t_socket_option,
-                             R_socket_option_value) noexcept;
+    t_errn setsockopt(       t_socket_level, R_socket_option) noexcept;
+    t_void setsockopt(t_err, t_socket_level, R_socket_option) noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
