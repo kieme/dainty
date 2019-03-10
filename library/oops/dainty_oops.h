@@ -137,7 +137,10 @@ namespace dainty
 {
 namespace oops
 {
+  using named::t_errn;
   using named::t_validity;
+  using named::NO_ERRN;
+  using named::NO_ERRN_;
   using named::VALID;
   using named::INVALID;
   using named::assert_now;
@@ -189,6 +192,8 @@ namespace oops
 
     operator t_validity() const;
     operator t_bool    () const;
+    operator t_errn    () const;
+
     t_id     id        () const;
     t_tagid  tag       () const;
     t_bool   is_set    (r_info) const;
@@ -279,6 +284,12 @@ namespace oops
   inline
   t_oops<W,I,C>::operator t_bool() const {
     return id();
+  }
+
+  template<p_what W, typename I, typename C>
+  inline
+  t_oops<W,I,C>::operator t_errn() const {
+    return t_errn(id());
   }
 
   template<p_what W, typename I, typename C>
