@@ -137,26 +137,21 @@ namespace dainty
 {
 namespace oops
 {
-  using named::t_errn;
-  using named::t_validity;
-  using named::NO_ERRN;
-  using named::NO_ERRN_;
-  using named::VALID;
-  using named::INVALID;
   using named::assert_now;
 
 ////////////////////////////////////////////////////////////////////////////////
 
   class t_except {
   public:
-    t_except() : ctxt_(nullptr)            { }
-    t_except(P_void ctxt) : ctxt_(ctxt)    { }
-    operator t_bool () const { return ctxt_; }
+    inline t_except()               noexcept : ctxt_(nullptr) { }
+    inline t_except(P_void ctxt)    noexcept : ctxt_(ctxt)    { }
+    inline operator t_bool () const noexcept                  { return ctxt_; }
 
   private:
     template<p_what, class, class> friend class t_oops;
     P_void ctxt_;
   };
+  using R_except = t_prefix<t_except>::R_;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -169,42 +164,44 @@ namespace oops
   template<p_what W = default_what, class I = t_id, class C = DAINTY_OOPS_CTXT>
   class t_oops {
   public:
-    using t_ctxt = typename named::t_prefix<C>::t_;
-    using p_ctxt = typename named::t_prefix<C>::p_;
-    using R_id   = typename named::t_prefix<I>::R_;
+    using r_oops = typename t_prefix<t_oops>::r_;
+    using R_oops = typename t_prefix<t_oops>::R_;
+    using x_oops = typename t_prefix<t_oops>::x_;
+    using t_ctxt = typename t_prefix<C>::t_;
+    using p_ctxt = typename t_prefix<C>::p_;
+    using R_id   = typename t_prefix<I>::R_;
 
-    t_oops();
-    t_oops(const t_oops&);
+    t_oops()       noexcept;
+    t_oops(p_ctxt) noexcept;
+    t_oops(R_oops) noexcept;
     template<p_what W1, class I1, class C1>
-    t_oops(const t_oops<W1, I1, C1>&);
-    t_oops(p_ctxt);
-    ~t_oops();
+    t_oops(const t_oops<W1, I1, C1>&) noexcept;
+   ~t_oops();
 
-    t_oops& operator=(t_oops&&) = delete; // explicit
+    r_oops operator=(x_oops) = delete; // explicit
+    r_oops operator=(R_oops) = delete; // explicit
 
-    t_oops& mark_block(P_filename, t_lineno);
-    t_oops& tag       (t_tagid);
+    r_oops mark_block(P_filename, t_lineno) noexcept;
+    r_oops tag       (t_tagid)              noexcept;
 
-    t_oops& operator=(R_id);
-    t_oops& operator=(R_info);
+    r_oops operator=(R_id);
+    r_oops operator=(R_info);
 
-    t_info  clear();
+    t_info clear() noexcept;
 
-    operator t_validity() const;
-    operator t_bool    () const;
-    operator t_errn    () const;
+    operator t_validity()         const noexcept;
+    operator t_bool    ()         const noexcept;
+    operator t_errn    ()         const noexcept;
 
-    t_id     id        () const;
-    t_tagid  tag       () const;
-    t_bool   is_set    (r_info) const;
-    P_cstr   what      () const;
-    t_void   print     () const;
-
-    t_bool knows(const t_except&) const;
+    t_id     id        ()         const noexcept;
+    t_tagid  tag       ()         const noexcept;
+    t_bool   is_set    (r_info)   const noexcept;
+    P_cstr   what      ()         const noexcept;
+    t_void   print     ()         const noexcept;
+    t_bool   knows     (R_except) const noexcept;
 
   private:
     template<p_what, class, class> friend class t_oops;
-    t_oops& operator=(const t_oops&); // = delete
 
     p_ctxt ctxt_;
     t_data data_;
@@ -222,20 +219,34 @@ namespace oops
 
   template<p_what W, typename I, typename C>
   inline
-  t_oops<W,I,C>::t_oops() : ctxt_(new t_ctxt), data_(true, true) {
+  t_oops<W,I,C>::t_oops() noexcept : ctxt_(new t_ctxt), data_(true, true) {
   }
 
   template<p_what W, typename I, typename C>
   inline
-  t_oops<W,I,C>::t_oops(p_ctxt ctxt) : ctxt_(ctxt), data_(true, false) {
+  t_oops<W,I,C>::t_oops(p_ctxt ctxt) noexcept
+      : ctxt_(ctxt), data_(true, false) {
     if (!ctxt_)
       assert_now(P_cstr{"oops->invalid_context"});
+  }
+
+  template<p_what W, typename I, typename C>
+  inline
+  t_oops<W,I,C>::t_oops(R_oops oops) noexcept
+#ifndef DAINTY_OOPS_BASIC
+    : ctxt_(oops.ctxt_), data_(false, false, oops.data_.depth_ + 1) {
+#else
+    : ctxt_(oops.ctxt_), data_(false, false) {
+#endif
+#ifdef DAINTY_OOPS_TRACE
+    ctxt_->step_in(data_, W);
+#endif
   }
 
   template<p_what W,  typename I,  typename C>
   template<p_what W1, typename I1, typename C1>
   inline
-  t_oops<W,I,C>::t_oops(const t_oops<W1, I1, C1>& oops)
+  t_oops<W,I,C>::t_oops(const t_oops<W1, I1, C1>& oops) noexcept
 #ifndef DAINTY_OOPS_BASIC
     : ctxt_(oops.ctxt_), data_(false, false, oops.data_.depth_ + 1) {
 #else
@@ -248,25 +259,12 @@ namespace oops
 
   template<p_what W, typename I, typename C>
   inline
-  t_oops<W,I,C>::t_oops(const t_oops& oops)
-#ifndef DAINTY_OOPS_BASIC
-    : ctxt_(oops.ctxt_), data_(false, false, oops.data_.depth_ + 1) {
-#else
-    : ctxt_(oops.ctxt_), data_(false, false) {
-#endif
-#ifdef DAINTY_OOPS_TRACE
-    ctxt_->step_in(data_, W);
-#endif
-  }
-
-  template<p_what W, typename I, typename C>
-  inline
   t_oops<W,I,C>::~t_oops() {
 #ifdef DAINTY_OOPS_TRACE
     ctxt_->step_out(data_, W);
 #endif
     if (data_.owner_) {
-      const t_bool on = id();
+      T_bool on = id();
       if (on)
         assert_now(P_cstr{"oops->unhandled"});
       if (data_.mem_)
@@ -276,38 +274,38 @@ namespace oops
 
   template<p_what W, typename I, typename C>
   inline
-  t_oops<W,I,C>::operator t_validity() const {
+  t_oops<W,I,C>::operator t_validity() const noexcept {
     return ctxt_ ? VALID : INVALID;
   }
 
   template<p_what W, typename I, typename C>
   inline
-  t_oops<W,I,C>::operator t_bool() const {
+  t_oops<W,I,C>::operator t_bool() const noexcept {
     return id();
   }
 
   template<p_what W, typename I, typename C>
   inline
-  t_oops<W,I,C>::operator t_errn() const {
+  t_oops<W,I,C>::operator t_errn() const noexcept {
     return t_errn(id());
   }
 
   template<p_what W, typename I, typename C>
   inline
-  t_id t_oops<W,I,C>::id() const {
+  t_id t_oops<W,I,C>::id() const noexcept {
     return ctxt_->get_id();
   }
 
   template<p_what W, typename I, typename C>
   inline
-  t_tagid t_oops<W,I,C>::tag() const {
+  t_tagid t_oops<W,I,C>::tag() const noexcept {
     return data_.tag_;
   }
 
   template<p_what W, typename I, typename C>
   inline
-  t_bool t_oops<W,I,C>::is_set(r_info info) const {
-    const t_bool on = id();
+  t_bool t_oops<W,I,C>::is_set(r_info info) const noexcept {
+    T_bool on = id();
     if (on)
       info = ctxt_->get_info();
     return on;
@@ -315,21 +313,21 @@ namespace oops
 
   template<p_what W, typename I, typename C>
   inline
-  P_cstr t_oops<W,I,C>::what() const {
+  P_cstr t_oops<W,I,C>::what() const noexcept {
     return ctxt_->what();
   }
 
   template<p_what W, typename I, typename C>
   inline
-  void t_oops<W,I,C>::print() const {
+  void t_oops<W,I,C>::print() const noexcept {
     ctxt_->print(data_);
   }
 
   template<p_what W, typename I, typename C>
   inline
-  t_oops<W,I,C>& t_oops<W,I,C>::operator=(R_id value) {
+  typename t_oops<W,I,C>::r_oops t_oops<W,I,C>::operator=(R_id value) {
     if (value) {
-      const t_bool on = id();
+      T_bool on = id();
       if (!on) {
 #ifndef DAINTY_OOPS_BASIC
         data_.set_ = true;
@@ -344,7 +342,7 @@ namespace oops
 
   template<p_what W, typename I, typename C>
   inline
-  t_oops<W,I,C>& t_oops<W,I,C>::operator=(R_info info) {
+  typename t_oops<W,I,C>::r_oops t_oops<W,I,C>::operator=(R_info info) {
     if (info.id_ && info.what_) {
       const t_bool on = id();
       if (!on) {
@@ -361,7 +359,8 @@ namespace oops
 
   template<p_what W, typename I, typename C>
   inline
-  t_oops<W,I,C>& t_oops<W,I,C>::mark_block(P_filename file, t_lineno line) {
+  typename t_oops<W,I,C>::r_oops
+      t_oops<W,I,C>::mark_block(P_filename file, t_lineno line) noexcept {
 #ifndef DAINTY_OOPS_BASIC
     data_.file_ = file;
     data_.line_ = line;
@@ -374,7 +373,7 @@ namespace oops
 
   template<p_what W, typename I, typename C>
   inline
-  t_oops<W,I,C>& t_oops<W,I,C>::tag(t_tagid tag) {
+  typename t_oops<W,I,C>::r_oops t_oops<W,I,C>::tag(t_tagid tag) noexcept {
     if (!id())
       data_.tag_ = tag;
     return *this;
@@ -382,11 +381,11 @@ namespace oops
 
   template<p_what W, typename I, typename C>
   inline
-  t_info t_oops<W,I,C>::clear() {
+  t_info t_oops<W,I,C>::clear() noexcept {
     if (!id())
       assert_now(P_cstr{"oops->nothing_to_clear"});
 #ifndef DAINTY_OOPS_BASIC
-    const t_depth depth = ctxt_->get_depth();
+    T_depth depth = ctxt_->get_depth();
     if (data_.depth_ > depth || (data_.depth_ == depth && !data_.set_))
       assert_now(P_cstr{"oops->cannot_be_cleared"});
     data_.set_ = false;
@@ -396,7 +395,7 @@ namespace oops
 
   template<p_what W, typename I, typename C>
   inline
-  t_bool t_oops<W,I,C>::knows(const t_except& except) const {
+  t_bool t_oops<W,I,C>::knows(R_except except) const noexcept {
     return ctxt_ == except.ctxt_;
   }
 }
