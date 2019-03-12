@@ -725,8 +725,11 @@ namespace named
   using t_errn_ = named::t_int;
   using t_errn  = named::t_explicit<t_errn_, t_errn_tag_>;
 
-  constexpr t_errn_ NO_ERRN_{0};
+  constexpr t_errn_ NO_ERRN_  =  0;
   constexpr t_errn  NO_ERRN {NO_ERRN_};
+
+  constexpr t_errn_ BAD_ERRN_ = -1;
+  constexpr t_errn  BAD_ERRN {BAD_ERRN_};
 
   constexpr t_bool operator==(t_errn errn, t_validity validity) {
     return errn == NO_ERRN && validity == VALID;
