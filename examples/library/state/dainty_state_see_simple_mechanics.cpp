@@ -65,9 +65,9 @@ struct t_sm : t_statemachine {
     assert(start(STATE1) == STATE1);
   }
 
-  ~t_sm()      { stop(); }
+  ~t_sm()        { stop(); }
 
-  void reset() { assert(restart(STATE1) == STATE1); }
+  t_void reset() { assert(restart(STATE1) == STATE1); }
 
   virtual t_states foo          ()              override {
     return do_transition(get_current()->foo());
