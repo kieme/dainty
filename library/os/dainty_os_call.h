@@ -131,10 +131,11 @@ namespace os
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_socket_msghdr         = ::mmsghdr;
+  using t_socket_msghdr         = ::msghdr;
   using R_socket_msghdr         = t_prefix<t_socket_msghdr>::R_;
   using r_socket_msghdr         = t_prefix<t_socket_msghdr>::r_;
 
+  using t_socket_mmsghdr        = ::mmsghdr;
   enum t_socket_msghdr_range_tag_ {};
   using t_socket_msghdr_range   = t_range<t_socket_msghdr,
                                           t_socket_msghdr_range_tag_>;

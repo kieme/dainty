@@ -36,6 +36,8 @@ namespace err
   {
     using namespace oops;
 
+///////////////////////////////////////////////////////////////////////////////
+
     const t_def err_tbl_[] = {
      /* CATEGORY           MESSAGE                NEXT CODE      */
       { IGNORE, P_cstr{"os: bad"},             E_TIMEOUT            },
@@ -53,6 +55,20 @@ namespace err
   t_def err_what(t_id id) {
     return err_tbl_[id <= 0 ? id : 0]; // fix later
   }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_err_codes get_pthread_mutexattr_init_err_code(t_errn) {
+    // look at nuber
+    return E_XXX;
+  }
+
+  t_err_codes get_clock_gettime_err_code(t_errn) {
+    // look at nuber
+    return E_XXX;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
 }
 }
 }

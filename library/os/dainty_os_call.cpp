@@ -32,6 +32,11 @@ namespace dainty
 {
 namespace os
 {
+  using named::BAD_ERRN;
+
+  using err::get_pthread_mutexattr_init_err_code;
+  using err::get_clock_gettime_err_code;
+
 ///////////////////////////////////////////////////////////////////////////////
 
   t_errn call_pthread_init(r_pthread_mutexattr attr) noexcept {
@@ -42,7 +47,7 @@ namespace os
     ERR_GUARD(err) {
       auto errn{call_pthread_init(attr)};
       if (errn == INVALID)
-        err = err::E_INIT_FAIL;
+        err = err:get_pthread_mutexattr_init_err_code(errn);
     }
   }
 
@@ -576,7 +581,7 @@ namespace os
     ERR_GUARD(err) {
       auto errn{call_clock_gettime(clk, spec)};
       if (errn == INVALID)
-        err = err::E_XXX;
+        err = get_clock_gettime_err_code(errn);
     }
   }
 
@@ -609,7 +614,7 @@ namespace os
   t_verify<t_fd> call_epoll_create() noexcept {
     auto fd = ::epoll_create1(0);
     if (fd >= 0)
-      return {t_fd(fd), t_errn{0}};
+      return {t_fd(fd), NO_ERRN};
     return {BAD_FD, t_errn{fd}};
   }
 
@@ -664,7 +669,7 @@ namespace os
   t_verify<t_n> call_epoll_wait(t_fd efd, p_epoll_event events, t_n max) noexcept {
     auto ret = ::epoll_wait(get(efd), events, get(max), -1);
     if (ret >= 0)
-      return {t_n(ret), t_errn{0}};
+      return {t_n(ret), NO_ERRN};
     return {t_n{0}, t_errn{ret}};
   }
 
@@ -683,7 +688,7 @@ namespace os
                                  t_msec msec) noexcept {
     auto ret = ::epoll_wait(get(efd), events, get(max), get(msec));
     if (ret >= 0)
-      return {t_n(ret), t_errn{0}};
+      return {t_n(ret), NO_ERRN};
     return {t_n{0}, t_errn{ret}};
   }
 
@@ -703,7 +708,7 @@ namespace os
   t_verify<t_fd> call_eventfd(t_n cnt) noexcept {
     auto fd = ::eventfd(get(cnt), 0);
     if (fd >= 0)
-      return {t_fd{fd}, t_errn{0}};
+      return {t_fd{fd}, NO_ERRN};
     return {BAD_FD, t_errn{fd}};
   }
 
@@ -722,7 +727,7 @@ namespace os
   t_errn call_close(t_fd& fd) noexcept {
     if (fd != BAD_FD)
       return t_errn{::close(get(named::utility::reset(fd, BAD_FD)))};
-    return t_errn{-1};
+    return BAD_ERRN;
   }
 
   t_void call_close(t_err err, t_fd& fd) noexcept {
@@ -739,7 +744,7 @@ namespace os
   t_verify<t_fd> call_timerfd_create(t_flags flags) noexcept {
     auto fd = ::timerfd_create(CLOCK_MONOTONIC, get(flags));
     if (fd >= 0)
-      return {t_fd{fd}, t_errn{0}};
+      return {t_fd{fd}, NO_ERRN};
     return {BAD_FD, t_errn{fd}};
   }
 
@@ -800,7 +805,7 @@ namespace os
   t_verify<t_n> call_read(t_fd fd, p_void buf, t_n cnt) noexcept {
     auto ret = ::read(get(fd), buf, get(cnt));
     if (ret >= 0)
-      return {t_n(ret), t_errn{0}};
+      return {t_n(ret), NO_ERRN};
     return {t_n{0}, t_errn(ret)};
   }
 
@@ -817,7 +822,7 @@ namespace os
   t_verify<t_n> call_write(t_fd fd, P_void buf, t_n cnt) noexcept {
     auto ret = ::write(get(fd), buf, get(cnt));
     if (ret >= 0)
-      return {t_n(ret), t_errn{0}};
+      return {t_n(ret), NO_ERRN};
     return {t_n{0}, t_errn(ret)};
   }
 
@@ -1016,111 +1021,173 @@ namespace os
 
   t_verify<t_n> call_send(t_fd fd, R_byte_crange bytes,
                           t_flags flags) noexcept {
-    // XXX 19
+    auto ret = ::send(get(fd), bytes.ptr, get(bytes.n), get(flags));
+    if (ret >= 0)
+      return {t_n(ret), NO_ERRN};
+    return {t_n(0), t_errn(errno)};
   }
 
   t_n call_send(t_err err, t_fd fd, R_byte_crange bytes,
                 t_flags flags) noexcept {
     ERR_GUARD(err) {
+      auto verify = call_send(fd, bytes, flags);
+      if (verify == VALID)
+        return verify;
+      err = err::E_XXX;
     }
-    // XXX 20
+    return t_n{0};
   }
 
   t_verify<t_n> call_recv(t_fd fd, r_byte_range bytes,
                           t_flags flags) noexcept {
-    // XXX 21
+    auto ret = ::recv(get(fd), bytes.ptr, get(bytes.n), get(flags));
+    if (ret >= 0)
+      return {t_n(ret), NO_ERRN};
+    return {t_n(0), t_errn(errno)};
   }
 
   t_n call_recv(t_err err, t_fd fd, r_byte_range bytes,
                 t_flags flags) noexcept {
     ERR_GUARD(err) {
+      auto verify = call_recv(fd, bytes, flags);
+      if (verify == VALID)
+        return verify;
+      err = err::E_XXX;
     }
-    // XXX 22
+    return t_n{0};
   }
 
   t_verify<t_n> call_sendto(t_fd fd, R_byte_crange bytes,
                             R_socket_address addr,
                             t_flags flags) noexcept {
-    // XXX 23
+    auto ret = ::sendto(get(fd), bytes.ptr, get(bytes.n), get(flags), addr,
+                        get(addr.len));
+    if (ret >= 0)
+      return {t_n(ret), NO_ERRN};
+    return {t_n(0), t_errn(errno)};
   }
 
   t_n call_sendto(t_err err, t_fd fd, R_byte_crange bytes,
                   R_socket_address addr, t_flags flags) noexcept {
     ERR_GUARD(err) {
+      auto verify = call_sendto(fd, bytes, addr, flags);
+      if (verify == VALID)
+        return verify;
+      err = err::E_XXX;
     }
-    // XXX 24
+    return t_n{0};
   }
 
   t_verify<t_n> call_recvfrom(t_fd fd, r_byte_range bytes,
                               r_socket_address addr, t_flags flags) noexcept {
-    // XXX 25
+    auto len = get(addr.len);
+    auto ret = ::recvfrom(get(fd), bytes.ptr, get(bytes.n), get(flags), addr,
+                        &len);
+    if (ret >= 0) {
+      addr.len = t_socket_address_len{len};
+      return {t_n(ret), NO_ERRN};
+    }
+    return {t_n(0), t_errn(errno)};
   }
 
   t_n call_recvfrom(t_err err, t_fd fd, r_byte_range bytes,
                     r_socket_address addr, t_flags flags) noexcept {
     ERR_GUARD(err) {
+      auto verify = call_recvfrom(fd, bytes, addr, flags);
+      if (verify == VALID)
+        return verify;
+      err = err::E_XXX;
     }
-    // XXX 26
+    return t_n{0};
   }
 
   t_verify<t_n> call_sendmsg(t_fd fd, R_socket_msghdr msg,
                              t_flags flags) noexcept {
-    // XXX 27
+    auto ret = ::sendmsg(get(fd), &msg, get(flags));
+    if (ret >= 0)
+      return {t_n(ret), NO_ERRN};
+    return {t_n(0), t_errn(errno)};
   }
 
   t_n call_sendmsg(t_err err, t_fd fd, R_socket_msghdr msg,
                    t_flags flags) noexcept {
     ERR_GUARD(err) {
+      auto verify = call_sendmsg(fd, msg, flags);
+      if (verify == VALID)
+        return verify;
+      err = err::E_XXX;
     }
-    // XXX 28
+    return t_n{0};
   }
 
   t_verify<t_n> call_recvmsg(t_fd fd, r_socket_msghdr msg,
                              t_flags flags) noexcept {
-    // XXX 29
+    auto ret = ::recvmsg(get(fd), &msg, get(flags));
+    if (ret >= 0)
+      return {t_n(ret), NO_ERRN};
+    return {t_n(0), t_errn(errno)};
   }
 
   t_n call_recvmsg(t_err err, t_fd fd, r_socket_msghdr msg,
                    t_flags flags) noexcept {
     ERR_GUARD(err) {
+      auto verify = call_recvmsg(fd, msg, flags);
+      if (verify == VALID)
+        return verify;
+      err = err::E_XXX;
     }
-    // XXX 30
+    return t_n{0};
   }
 
   t_verify<t_n> call_sendmmsg(t_fd fd, R_socket_msghdr_crange msgs,
                               t_flags flags) noexcept {
-    // XXX 31
+    // XXX-1
+    return {t_n{0}, BAD_ERRN};
   }
 
   t_n call_sendmmsg(t_err err, t_fd fd, R_socket_msghdr_crange msgs,
                     t_flags flags) noexcept {
     ERR_GUARD(err) {
+      auto verify = call_sendmmsg(fd, msgs, flags);
+      if (verify == VALID)
+        return verify;
+      err = err::E_XXX;
     }
-    // XXX 32
+    return t_n{0};
   }
 
   t_verify<t_n> call_recvmmsg(t_fd fd, r_socket_msghdr_range msgs,
                               t_flags flags) noexcept {
-    // XXX 33
+    // XXX-2
+    return {t_n{0}, BAD_ERRN};
   }
 
   t_n call_recvmmsg(t_err err, t_fd fd, r_socket_msghdr_range msgs,
                     t_flags flags) noexcept {
     ERR_GUARD(err) {
+      auto verify = call_recvmmsg(fd, msgs, flags);
+      if (verify == VALID)
+        return verify;
+      err = err::E_XXX;
     }
-    // XXX 34
+    return t_n{0};
   }
 
   t_verify<t_n> call_recvmmsg(t_fd fd, r_socket_msghdr_range msgs,
                               t_flags flags, r_timespec timespec) noexcept {
-    // XXX 35
+    // XXX-3
+    return {t_n{0}, BAD_ERRN};
   }
 
   t_n call_recvmmsg(t_err err, t_fd fd, r_socket_msghdr_range msgs,
                     t_flags flags, r_timespec timespec) noexcept {
     ERR_GUARD(err) {
+      auto verify = call_recvmmsg(fd, msgs, flags, timespec);
+      if (verify == VALID)
+        return verify;
+      err = err::E_XXX;
     }
-    // XXX 36
+    return t_n{0};
   }
 
 ///////////////////////////////////////////////////////////////////////////////

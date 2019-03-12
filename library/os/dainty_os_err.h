@@ -63,6 +63,12 @@ namespace err
   using t_err = oops::t_oops<err_what, t_err_codes>;
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  // for each call
+  t_err_codes get_pthread_mutexattr_init_err_code(t_errn);
+  t_err_codes get_clock_gettime_err_code         (t_errn);
+
+///////////////////////////////////////////////////////////////////////////////
 }
 }
 }
