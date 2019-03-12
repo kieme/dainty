@@ -77,7 +77,7 @@ struct t_sm : t_statemachine {
   virtual t_void   final_point  ()              override;
 
   virtual p_state  get_state    (t_sid i)       override { return states_[i]; }
-  virtual p_cstate get_state    (t_sid i) const override { return states_[i]; }
+  virtual P_state  get_state    (t_sid i) const override { return states_[i]; }
 
   t_state1 s1_;
   t_state2 s2_;
