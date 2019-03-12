@@ -47,7 +47,7 @@ namespace os
     ERR_GUARD(err) {
       auto errn{call_pthread_init(attr)};
       if (errn == INVALID)
-        err = err:get_pthread_mutexattr_init_err_code(errn);
+        err = err::get_pthread_mutexattr_init_err_code(errn);
     }
   }
 
