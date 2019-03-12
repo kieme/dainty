@@ -687,7 +687,9 @@ namespace named
 
   constexpr t_validity   VALID{true};
   constexpr t_validity INVALID{false};
-  constexpr t_fd       BAD_FD {-1};
+
+  constexpr t_fd_      BAD_FD_ = -1;
+  constexpr t_fd       BAD_FD {BAD_FD_};
 
 ///////////////////////////////////////////////////////////////////////////////
 
