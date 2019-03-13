@@ -58,7 +58,7 @@ namespace os
   using named::t_prefix;
   using named::t_explicit;
   using named::P_cstr;
-  using named::t_any_ptr;
+  using named::t_unknown_sized_ptr;
   using named::NO_ERRN_;
   using named::NO_ERRN;
   using named::VALID;
