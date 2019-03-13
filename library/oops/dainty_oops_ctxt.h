@@ -56,6 +56,7 @@ namespace oops
     RECOVERABLE   = 1,
     IGNORE        = 2
   };
+  using T_category = t_prefix<t_category>::T_;
 
   enum  t_user_tag_ { };
   using t_user = named::t_user<t_user_tag_>;
@@ -71,51 +72,58 @@ namespace oops
 
   struct t_data1 {
     inline
-    t_data1(t_bool owner, t_bool mem) noexcept
-      : owner_(owner), mem_(mem), tag_(0) {
+    t_data1(t_bool _owner, t_bool _mem) noexcept
+      : owner{_owner}, mem{_mem}, tag{0} {
     }
 
-    T_bool  owner_;
-    T_bool  mem_;
-    t_tagid tag_;
+    T_bool  owner;
+    T_bool  mem;
+    t_tagid tag;
   };
 
   struct t_data2 {
     inline
-    t_data2(t_bool owner, t_bool mem) noexcept
-      : owner_(owner), mem_(mem), depth_(0), tag_(0),
-        set_(false), line_(0), file_(nullptr) {
+    t_data2(t_bool _owner, t_bool _mem) noexcept
+      : owner{_owner}, mem{_mem} {
     }
 
     inline
-    t_data2(t_bool owner, t_bool mem, t_depth depth) noexcept
-      : owner_(owner), mem_(mem), depth_(depth), tag_(0),
-        set_(false), line_(0), file_(nullptr) {
+    t_data2(t_bool _owner, t_bool _mem, t_depth _depth) noexcept
+      : owner{_owner}, mem{_mem}, depth{_depth} {
     }
 
-    T_bool     owner_;
-    T_bool     mem_;
-    T_depth    depth_;
-    t_tagid    tag_;
-    t_bool     set_;
-    t_lineno   line_;
-    P_filename file_;
+    T_bool     owner;
+    T_bool     mem;
+    T_depth    depth = 0;
+    t_tagid    tag   = 0;
+    t_bool     set   = false;
+    t_lineno   line  = 0;
+    P_filename file  = P_cstr{nullptr};
   };
 
   struct t_def {
     inline
-    t_def(t_category category, P_cstr string, t_id next = 0,
-          t_user user = t_user{0L}) noexcept
-      : category_(category), string_(string), next_(next), user_(user)
-    { }
+    t_def(t_category _category, P_cstr _string) noexcept
+      : category{_category}, string{_string} {
+    }
 
-    t_category category_;
-    P_cstr     string_;
-    t_id       next_;
-    t_user     user_;
+    inline
+    t_def(t_category _category, P_cstr _string, t_id _next) noexcept
+      : category{_category}, string{_string}, next{_next} {
+    }
+
+    inline
+    t_def(t_category _category, P_cstr _string, t_id _next, t_user _user) noexcept
+      : category{_category}, string{_string}, next{_next}, user{_user} {
+    }
+
+    t_category category;
+    P_cstr     string;
+    t_id       next     = 0;
+    t_user     user     = t_user{0L};
   };
 
-  typedef t_def (*p_what)(t_id);
+  using p_what = t_def (*)(t_id);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -125,34 +133,28 @@ namespace oops
 
   struct t_info {
     inline
-    t_info(P_void ctxt) noexcept
-      : ctxt_(ctxt), id_(0), what_(0), depth_(0), tag_(0), file_(0), line_(0)
-    { }
-
-    inline
-    r_info set(t_id id, p_what what, t_depth depth, t_tagid tag,
-               P_filename file, t_lineno line) noexcept {
-      id_    = id;
-      what_  = what;
-      depth_ = depth;
-      tag_   = tag;
-      file_  = file;
-      line_  = line;
-      return *this;
+    t_info(P_void _ctxt) noexcept : ctxt{_ctxt} {
     }
 
     inline
     r_info reset() {
-      return set(0, 0, 0, 0, P_cstr{nullptr}, 0);
+      ctxt  = nullptr;
+      id    = 0;
+      what  = nullptr;
+      depth = 0;
+      tag   = 0;
+      file  = P_filename{nullptr};
+      line  = 0;
+      return *this;
     }
 
-    P_void     ctxt_;
-    t_id       id_;
-    p_what     what_;
-    t_depth    depth_;
-    t_tagid    tag_;
-    P_filename file_;
-    t_lineno   line_;
+    P_void     ctxt;
+    t_id       id    = 0;
+    p_what     what  = nullptr;
+    t_depth    depth = 0;
+    t_tagid    tag   = 0;
+    P_filename file  = P_filename{nullptr};
+    t_lineno   line  = 0;
   };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,12 +177,12 @@ namespace oops
   t_void default_print (R_info, R_data1) noexcept;
   t_void default_print (R_info, R_data2) noexcept;
 
-  t_void trace_step_in (R_info, p_what, P_void ctxt, R_data1) noexcept;
-  t_void trace_step_in (R_info, p_what, P_void ctxt, R_data2) noexcept;
-  t_void trace_step_out(R_info, p_what, P_void ctxt, R_data1) noexcept;
-  t_void trace_step_out(R_info, p_what, P_void ctxt, R_data2) noexcept;
-  t_void trace_step_do (R_info, p_what, P_void ctxt, R_data1);
-  t_void trace_step_do (R_info, p_what, P_void ctxt, R_data2);
+  t_void trace_step_in_ (R_info, p_what, P_void ctxt, R_data1) noexcept;
+  t_void trace_step_in_ (R_info, p_what, P_void ctxt, R_data2) noexcept;
+  t_void trace_step_out_(R_info, p_what, P_void ctxt, R_data1) noexcept;
+  t_void trace_step_out_(R_info, p_what, P_void ctxt, R_data2) noexcept;
+  t_void trace_step_do_ (R_info, p_what, P_void ctxt, R_data1);
+  t_void trace_step_do_ (R_info, p_what, P_void ctxt, R_data2);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -198,10 +200,19 @@ namespace oops
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<p_policy A = default_policy, p_print P = default_print>
+  template<p_policy POLICY = default_policy, p_print PRINT = default_print>
   class t_ctxt {
   public:
+    using r_ctxt = typename t_prefix<t_ctxt>::r_;
+    using x_ctxt = typename t_prefix<t_ctxt>::x_;
+    using R_ctxt = typename t_prefix<t_ctxt>::R_;
+
     t_ctxt() noexcept;
+
+    t_ctxt(R_ctxt)           = delete;
+    t_ctxt(x_ctxt)           = delete;
+    r_ctxt operator=(R_ctxt) = delete;
+    r_ctxt operator=(x_ctxt) = delete;
 
     t_void set(t_id, p_what, R_data1);
     t_void set(t_id, p_what, R_data2);
@@ -227,90 +238,102 @@ namespace oops
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  t_ctxt<A, P>::t_ctxt() noexcept : info_(this) {
+  t_ctxt<POLICY, PRINT>::t_ctxt() noexcept : info_{this} {
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  t_void t_ctxt<A, P>::set(t_id id, p_what what, R_data1 data) {
-    A(info_.set(id, what, 0, data.tag_, P_cstr{nullptr}, 0));
+  t_void t_ctxt<POLICY, PRINT>::set(t_id id, p_what what, R_data1 data) {
+    info_.id    = id;
+    info_.what  = what;
+    info_.depth = 0;
+    info_.tag   = data.tag;
+    info_.file  = nullptr;
+    info_.line  = 0;
+    POLICY(info_);
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  t_void t_ctxt<A, P>::set(t_id id, p_what what, R_data2 data) {
-    A(info_.set(id, what, data.depth_, data.tag_, data.file_, data.line_));
+  t_void t_ctxt<POLICY, PRINT>::set(t_id id, p_what what, R_data2 data) {
+    info_.id    = id;
+    info_.what  = what;
+    info_.depth = data.depth;
+    info_.tag   = data.tag;
+    info_.file  = data.file;
+    info_.line  = data.line;
+    POLICY(info_);
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  t_void t_ctxt<A, P>::set(R_info info) {
+  t_void t_ctxt<POLICY, PRINT>::set(R_info info) {
     info_ = info;
-    A(info_);
+    POLICY(info_);
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  t_id t_ctxt<A, P>::get_id() const noexcept {
-    return info_.id_;
+  t_id t_ctxt<POLICY, PRINT>::get_id() const noexcept {
+    return info_.id;
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  t_depth t_ctxt<A, P>::get_depth() const noexcept {
-    return info_.depth_;
+  t_depth t_ctxt<POLICY, PRINT>::get_depth() const noexcept {
+    return info_.depth;
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  p_what t_ctxt<A, P>::get_what() const noexcept {
-    return info_.what_;
+  p_what t_ctxt<POLICY, PRINT>::get_what() const noexcept {
+    return info_.what;
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  t_info t_ctxt<A, P>::get_info() const noexcept {
+  t_info t_ctxt<POLICY, PRINT>::get_info() const noexcept {
     return info_;
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  t_void t_ctxt<A, P>::print(R_data data) const noexcept {
-    P(info_, data);
+  t_void t_ctxt<POLICY, PRINT>::print(R_data data) const noexcept {
+    PRINT(info_, data);
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  P_cstr t_ctxt<A, P>::what() const noexcept {
-    return info_.what_ ? P_cstr{"no oops"} : info_.what_(info_.id_).string_;
+  P_cstr t_ctxt<POLICY, PRINT>::what() const noexcept {
+    return info_.what ? P_cstr{"no oops"} : info_.what(info_.id).string;
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  t_info t_ctxt<A, P>::clear() noexcept {
+  t_info t_ctxt<POLICY, PRINT>::clear() noexcept {
     t_info tmp = info_;
     info_.reset();
     return tmp;
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  t_void t_ctxt<A, P>::step_in(R_data data, p_what what) noexcept {
-    trace_step_in(info_, what, this, data);
+  t_void t_ctxt<POLICY, PRINT>::step_in(R_data data, p_what what) noexcept {
+    trace_step_in_(info_, what, this, data);
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  t_void t_ctxt<A, P>::step_out(R_data data, p_what what) noexcept {
-    trace_step_out(info_, what, this, data);
+  t_void t_ctxt<POLICY, PRINT>::step_out(R_data data, p_what what) noexcept {
+    trace_step_out_(info_, what, this, data);
   }
 
-  template<p_policy A, p_print P>
+  template<p_policy POLICY, p_print PRINT>
   inline
-  t_void t_ctxt<A, P>::step_do(R_data data, p_what what) {
-    trace_step_do(info_, what, this, data);
+  t_void t_ctxt<POLICY, PRINT>::step_do(R_data data, p_what what) {
+    trace_step_do_(info_, what, this, data);
   }
 }
 }
