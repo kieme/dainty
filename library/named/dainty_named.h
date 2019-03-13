@@ -872,27 +872,32 @@ namespace named
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename TAG>
-  class t_any_ptr {
+  class t_unknown_sized_ptr {
   public:
-    using r_any_ptr = typename t_prefix<t_any_ptr<TAG>>::r_;
+    using r_unknown_sized_ptr = typename t_prefix<t_unknown_sized_ptr<TAG>>::r_;
 
-    constexpr t_any_ptr() = default;
+    constexpr
+    t_unknown_sized_ptr() noexcept = default;
 
-    constexpr t_any_ptr(p_void _ptr, t_n _n) : ptr{_ptr}, n{_n} {
+    constexpr
+    t_unknown_sized_ptr(p_void _ptr, t_n _n) noexcept : ptr{_ptr}, n{_n} {
     }
 
     template<typename T>
-    constexpr t_any_ptr(T* _ptr) : ptr{_ptr}, n{sizeof(T)} {
+    constexpr
+    t_unknown_sized_ptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
     }
 
     template<typename T>
-    constexpr r_any_ptr operator=(T* _ptr) {
+    constexpr
+    r_unknown_sized_ptr operator=(T* _ptr) noexcept {
       ptr = _ptr;
       n   = t_n{sizeof(T)};
       return *this;
     }
 
-    constexpr operator t_validity() const {
+    constexpr
+    operator t_validity() const noexcept {
       return ptr ? VALID : INVALID;
     }
 
@@ -901,37 +906,45 @@ namespace named
   };
 
   template<typename TAG>
-  class t_any_cptr {
+  class t_unknown_sized_cptr {
   public:
-    using r_any_cptr = typename t_prefix<t_any_cptr<TAG>>::r_;
-    using R_any_ptr  = typename t_prefix<t_any_ptr<TAG>>::R_;
+    using r_unknown_sized_cptr = typename t_prefix<t_unknown_sized_cptr<TAG>>::r_;
+    using R_unknown_sized_ptr  = typename t_prefix<t_unknown_sized_ptr<TAG>>::R_;
 
-    constexpr t_any_cptr() = default;
+    constexpr
+    t_unknown_sized_cptr() noexcept = default;
 
-    constexpr t_any_cptr(P_void _ptr, t_n _n) : ptr{_ptr}, n{_n} {
+    constexpr
+    t_unknown_sized_cptr(P_void _ptr, t_n _n) noexcept : ptr{_ptr}, n{_n} {
     }
 
     template<typename T>
-    constexpr t_any_cptr(T* _ptr) : ptr{_ptr}, n{sizeof(T)} {
+    constexpr
+    t_unknown_sized_cptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
     }
 
-    constexpr t_any_cptr(R_any_ptr _ptr) : ptr{_ptr.ptr}, n{_ptr.n} {
+    constexpr
+    t_unknown_sized_cptr(R_unknown_sized_ptr _ptr) noexcept
+      : ptr{_ptr.ptr}, n{_ptr.n} {
     }
 
-    constexpr r_any_cptr operator=(R_any_ptr _ptr) {
+    constexpr
+    r_unknown_sized_cptr operator=(R_unknown_sized_ptr _ptr) noexcept {
       ptr = _ptr.ptr;
       n   = _ptr.n;
       return *this;
     }
 
     template<typename T>
-    constexpr r_any_cptr operator=(T* _ptr) {
+    constexpr
+    r_unknown_sized_cptr operator=(T* _ptr) noexcept {
       ptr = _ptr;
       n   = t_n{sizeof(T)};
       return *this;
     }
 
-    constexpr operator t_validity() const {
+    constexpr
+    operator t_validity() const noexcept {
       return ptr ? VALID : INVALID;
     }
 
