@@ -303,14 +303,14 @@ int main()
 
 namespace asystem {
   void error_policy(const oops::t_info& info) {
-    oops::t_def def(info.what_(info.id_));
-    switch (def.category_) {
+    oops::t_def def(info.what(info.id));
+    switch (def.category) {
       case oops::UNRECOVERABLE:
         assert(0);
 
       case oops::RECOVERABLE:
         std::cout << "throw exception" << std::endl;
-        throw t_error_except(info.ctxt_);
+        throw t_error_except(info.ctxt);
 
       case oops::IGNORE:
         break;
