@@ -1,454 +1,745 @@
 #include <assert.h>
-#include <iostream>
+#include "dainty_named_string.h"
+#include "dainty_named_assert.h"
 #include "dainty_state.h"
 
-namespace coffee_vending_machine
+namespace coffee_machine
 {
-  /////////////////////////////////////////////////////////////////////////////////////////
+  using dainty::named::P_cstr;
+  using dainty::named::t_prefix;
+  using dainty::named::t_void;
+  using dainty::named::t_bool;
+  using dainty::named::r_bool;
+  using dainty::named::t_int;
+  using dainty::named::t_n_;
+  using dainty::named::t_ix_;
+  using dainty::named::string::FMT;
+  using dainty::named::string::t_string;
+  using dainty::named::string::t_crange;
+  using dainty::named::string::mk_range;
 
-  enum timeout_id { POUR_SMALL_T_, POUR_MEDIUM_T_, POUR_LARGE_T_, TEST_TEMP_T_, EXPIRE_T_  };
-  enum select_id  { SMALL_, MEDIUM_, LARGE_ };
-  enum coin_id    { CENT10, CENT20, CENT50, EURO, BADCOIN_ };
-  enum state_id   { PREPARE_, READY_, ORDER_, POUR_, CLEAN_, STOP_ };
+  enum  t_tracker_tag_ {};
+  using t_tracker = t_string<t_tracker_tag_>;
+  using R_tracker = t_prefix<t_tracker>::R_;
+  using r_tracker = t_prefix<t_tracker>::r_;
 
-  /////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-  const int        coin_value[]   = { 10, 20, 50, 100, 0 };
+  enum t_timeout_id : t_ix_ { TEST_TEMP = 0,
+                              POUR_SMALL,
+                              POUR_MEDIUM,
+                              POUR_LARGE,
+                              WAIT_EXPIRE  };
 
-  /////////////////////////////////////////////////////////////////////////////////////////
+  const t_crange timeout_names[] = { mk_range("test_temp"),
+                                     mk_range("pour small)"),
+                                     mk_range("pour medium"),
+                                     mk_range("pour large"),
+                                     mk_range("inactive") };
 
-  using text = std::ostream;
+///////////////////////////////////////////////////////////////////////////////
 
-  inline text& operator,(text& txt, timeout_id id) {
-    const char* names[] = { "test_temp", "pour small", "pour medium", "pour large", "inactive" };
-    txt << names[id];
-    return txt;
-  }
+  enum t_selection_id : t_ix_ { SMALL = 0,
+                                MEDIUM,
+                                LARGE };
 
-  inline text& operator,(text& txt, state_id id) {
-    const char* names[] = { "prepare", "ready", "order", "pour", "clean", "stop" };
-    txt << names[id];
-    return txt;
-  }
+  const t_crange select_names[] = { mk_range("small"),
+                                    mk_range("medium"),
+                                    mk_range("large") };
 
-  inline text& operator,(text& txt, select_id id) {
-    const char* names[] = { "small", "medium", "large" };
-    txt << names[id];
-    return txt;
-  }
+///////////////////////////////////////////////////////////////////////////////
 
-  inline text& operator,(text& txt, coin_id id) {
-    const char* names[] = { "10cent", "20cent", "50cent", "1uero", "uknown" };
-    txt << names[id];
-    return txt;
-  }
+  enum t_state_id : t_ix_ { PREPARE = 0,
+                            READY,
+                            ORDER,
+                            POUR,
+                            CLEAN,
+                            STOP };
+
+  const t_crange state_names[] = { mk_range("prepare"),
+                                   mk_range("ready"),
+                                   mk_range("order"),
+                                   mk_range("pour"),
+                                   mk_range("clean"),
+                                   mk_range("stop") };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  enum t_coin_id : t_ix_ { CENT10 = 0,
+                           CENT20,
+                           CENT50,
+                           EURO,
+                           BADCOIN };
+
+  const t_crange coin_names[] = { mk_range("10cent"),
+                                  mk_range("20cent"),
+                                  mk_range("50cent"),
+                                  mk_range("1uero"),
+                                  mk_range("uknown") };
+
+///////////////////////////////////////////////////////////////////////////////
 
   enum e_cr { CR };
-  inline e_cr cr() { return CR; }
+  enum e_bg { BG };
 
-  inline text& operator,(text& txt, e_cr) {
-    txt << std::endl;
-    return txt;
+  inline r_tracker operator<<(r_tracker tracker, e_cr) {
+    tracker.append("\n");
+    return tracker;
+  }
+
+  inline r_tracker operator<<(r_tracker tracker, e_bg) {
+    static t_n_ cnt = 0;
+    tracker.append(FMT, "%03lu: ", ++cnt);
+    return tracker;
+  }
+
+  inline r_tracker operator<<(r_tracker tracker, t_timeout_id id) {
+    tracker.append(timeout_names[id]);
+    return tracker;
+  }
+
+  inline r_tracker operator<<(r_tracker tracker, t_state_id id) {
+    tracker.append(state_names[id]);
+    return tracker;
+  }
+
+  inline r_tracker operator<<(r_tracker tracker, t_selection_id id) {
+    tracker.append(select_names[id]);
+    return tracker;
+  }
+
+  inline r_tracker operator<<(r_tracker tracker, t_coin_id id) {
+    tracker.append(coin_names[id]);
+    return tracker;
+  }
+
+  inline r_tracker operator<<(r_tracker tracker, t_crange string) {
+    tracker.append(string);
+    return tracker;
   }
 
   template<typename T>
-  inline text& operator,(text& txt, const T& value) {
-    txt << value;
-    return txt;
+  inline r_tracker operator<<(r_tracker tracker, const T& value) {
+    tracker.append(value);
+    return tracker;
   }
 
-  /////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-  class events {
+  class t_events {
   public:
-     virtual ~events() { }
-     virtual state_id off()               = 0;
-     virtual state_id timeout(timeout_id) = 0;
-     virtual state_id select (select_id)  = 0;
-     virtual state_id insert (coin_id)    = 0;
-     virtual state_id cancel ()           = 0;
+     virtual ~t_events() {}
+
+     virtual t_state_id off    ()               noexcept = 0;
+     virtual t_state_id timeout(t_timeout_id)   noexcept = 0;
+     virtual t_state_id select (t_selection_id) noexcept = 0;
+     virtual t_state_id insert (t_coin_id)      noexcept = 0;
+     virtual t_state_id cancel ()               noexcept = 0;
   };
 
-  /////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-  class actions {
+  class t_actions {
   public:
-    actions() : total_(0) { }
+    t_actions(r_bool temp_ok) : temp_ok_{temp_ok} {
+    }
 
-    void rinse           ()              { std::cout << "rinse",                  cr(); }
-    void pour            ()              { std::cout << "pour",                   cr(); }
-    void stop_pour       ()              { std::cout << "stop_pour",              cr(); }
-    void fill            ()              { std::cout << "fill(beans&water)",      cr(); }
-    void display         (state_id);
-    void heatup          ()              { std::cout << "heatup",                 cr(); }
-    void keep_heat       ()              { std::cout << "keep_heat",              cr(); }
-    void stop_heat       ()              { std::cout << "stop_heat",              cr(); }
-    bool accept_order    (select_id);
-    void keep_coin       (coin_id id)    { std::cout << "keep_coin=",     id,     cr(); total_ += coin_value[id]; }
-    bool valid_coin      (coin_id id)    { std::cout << "valid_coin=",    id,     cr(); return id != BADCOIN_; }
-    void return_coin     (coin_id id)    { std::cout << "return coin=",   id,     cr(); }
-    void return_change   ()              { std::cout << "return_change=", total_, cr(); total_ = 0; }
-    void return_coins    ()              { std::cout << "return_coins=",  total_, cr(); total_ = 0; }
-    void beep            ()              { std::cout << "beep",                   cr(); }
-    void power_off       ()              { std::cout << "poweroff",               cr(); }
-    bool is_temp_above_75()              { std::cout << "test temp",              cr(); return true; }
-    void start_timer     (timeout_id id) { std::cout << "start_timer=",   id,     cr(); }
-    void stop_timer      (timeout_id id) { std::cout << "stop_timer=",    id,     cr(); }
+    t_void       rinse           ()               noexcept;
+    t_void       start_pour      ()               noexcept;
+    t_void       stop_pour       ()               noexcept;
+    t_void       fill            ()               noexcept;
+    t_void       display         (t_state_id)     noexcept;
+    t_void       heatup          ()               noexcept;
+    t_void       keep_heat       ()               noexcept;
+    t_void       stop_heat       ()               noexcept;
+    t_bool       accept_order    (t_selection_id) noexcept;
+    t_void       keep_coin       (t_coin_id)      noexcept;
+    t_bool       valid_coin      (t_coin_id)      noexcept;
+    t_void       return_coin     (t_coin_id)      noexcept;
+    t_void       return_change   ()               noexcept;
+    t_void       return_coins    ()               noexcept;
+    t_void       beep            ()               noexcept;
+    t_void       power_off       ()               noexcept;
+    t_bool       is_temp_above_75()               noexcept;
+    t_void       start_timer     (t_timeout_id)   noexcept;
+    t_void       stop_timer      (t_timeout_id)   noexcept;
+    t_timeout_id pour_time       () const         noexcept;
+    t_void       what_happened   () const         noexcept;
 
-    timeout_id pour_time    () const { return pour_time_; }
-    void       what_happened();
+  public:
+    mutable t_tracker tracker;
 
   private:
-    int        total_;
-    timeout_id pour_time_;
+    r_bool       temp_ok_;
+    t_n_         total_  = 0;
+    t_timeout_id pour_time_;
+  };
+  using r_actions = t_prefix<t_actions>::r_;
+  using R_actions = t_prefix<t_actions>::R_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  using t_traits_ = dainty::state::t_traits<t_state_id, t_actions, t_events>;
+  using t_state_         = t_traits_::t_state;
+  using t_statemachine_  = t_traits_::t_statemachine;
+  using R_statemachine_  = t_prefix<t_statemachine_>::R_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  struct t_state : public t_state_ {
+    t_state(t_state_id id, r_actions actions) noexcept : t_state_{id, actions} {
+    }
+
+    r_actions action()       noexcept { return get_user();  }
+    R_actions action() const noexcept { return get_cuser(); }
   };
 
-  /////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-  using state_ = dainty::state::t_state<state_id, actions, events>;
-
-  struct state : public state_ {
-    inline state(state_id id, actions& oper) : state_(id, oper) { }
-
-    inline       actions& action()          { return get_user();  }
-    inline const actions& action() const    { return get_cuser(); }
-  };
-
-  /////////////////////////////////////////////////////////////////////////////////////////
-
-  class prepare_state : public state {
+  class t_prepare_state final : public t_state {
   public:
-     prepare_state(actions& oper) : state(PREPARE_, oper) { }
+    t_prepare_state(r_actions actions) noexcept : t_state{PREPARE, actions} {
+    }
 
   private:
-     t_sid entry_point()           { if (!action().is_temp_above_75()) {
-                                       action().display(PREPARE_);
-                                       action().fill();
-                                       action().heatup();
-                                       action().start_timer(TEST_TEMP_T_);
-                                       return no_transition();
-                                     }
-                                     return request_transition(READY_);
-                                   }
+    t_state_id entry_point() override {
+      if (!action().is_temp_above_75()) {
+        action().display(PREPARE);
+        action().fill();
+        action().heatup();
+        action().start_timer(TEST_TEMP);
+        return no_transition();
+      }
+      return request_transition(READY);
+    }
 
-     void  exit_point()            { }
+    t_void exit_point() override {
+    }
 
-     state_id off()                { action().stop_timer(TEST_TEMP_T_);
-                                     return request_transition(CLEAN_);
-                                   }
+    t_state_id off() noexcept override {
+      action().stop_timer(TEST_TEMP);
+      return request_transition(CLEAN);
+    }
 
-     state_id timeout(timeout_id)  { if (action().is_temp_above_75()) {
-                                       action().keep_heat();
-                                       return request_transition(READY_);
-                                     }
-                                     action().start_timer(TEST_TEMP_T_);
-                                     return no_transition();
-                                   }
+    t_state_id timeout(t_timeout_id) noexcept override {
+      if (action().is_temp_above_75()) {
+        action().keep_heat();
+        return request_transition(READY);
+      }
+      action().start_timer(TEST_TEMP);
+      return no_transition();
+    }
 
-     state_id select (select_id)   { action().beep();
-                                     return no_transition();
-                                   }
+    t_state_id select(t_selection_id) noexcept override {
+      action().beep();
+      return no_transition();
+    }
 
-     state_id insert (coin_id id)  { action().beep();
-                                     action().return_coin(id);
-                                     return no_transition();
-                                   }
+    t_state_id insert(t_coin_id id) noexcept override {
+      action().beep();
+      action().return_coin(id);
+      return no_transition();
+    }
 
-     state_id cancel ()            { action().beep();
-                                     return no_transition();
-                                   }
+    t_state_id cancel() noexcept override {
+      action().beep();
+      return no_transition();
+    }
   };
 
-  /////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-  class ready_state : public state {
+  class t_ready_state final : public t_state {
   public:
-     ready_state(actions& oper) : state(READY_, oper) { }
+    t_ready_state(r_actions actions) noexcept : t_state{READY, actions} {
+    }
 
   private:
-     t_sid entry_point()           { action().display(READY_);
-                                     return no_transition();
-                                   }
+    t_state_id entry_point() override {
+      action().display(READY);
+      return no_transition();
+    }
 
-     void  exit_point()            { }
+    t_void exit_point() override {
+    }
 
-     state_id off()                { return request_transition(CLEAN_); }
+    t_state_id off() noexcept override {
+      return request_transition(CLEAN);
+    }
 
-     state_id timeout(timeout_id)  { return no_transition(); }
+    t_state_id timeout(t_timeout_id) noexcept override {
+      return no_transition();
+    }
 
-     state_id select (select_id)   { action().beep();
-                                     return no_transition();
-                                   }
+    t_state_id select (t_selection_id) noexcept override {
+      action().beep();
+      return no_transition();
+    }
 
-     state_id insert (coin_id id)  { if (action().valid_coin(id)) {
-                                       action().keep_coin(id);
-                                       return request_transition(ORDER_);
-                                     }
-                                     action().beep();
-                                     action().return_coin(id);
-                                     return no_transition();
-                                   }
+    t_state_id insert(t_coin_id id) noexcept override {
+      if (action().valid_coin(id)) {
+        action().keep_coin(id);
+        return request_transition(ORDER);
+      }
+      action().beep();
+      action().return_coin(id);
+      return no_transition();
+    }
 
-     state_id cancel ()            { return no_transition(); }
+     t_state_id cancel() noexcept override {
+       return no_transition();
+    }
   };
 
-  /////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-  class order_state : public state {
+  class t_order_state final : public t_state {
   public:
-     order_state(actions& oper) : state(ORDER_, oper) { }
+    t_order_state(r_actions actions) noexcept : t_state{ORDER, actions} {
+    }
 
   private:
-     t_sid entry_point()            { action().display(ORDER_);
-                                      action().start_timer(EXPIRE_T_);
-                                      return no_transition();
-                                    }
+    t_state_id entry_point() override {
+      action().display(ORDER);
+      action().start_timer(WAIT_EXPIRE);
+      return no_transition();
+    }
 
-     void  exit_point()             { action().stop_timer(EXPIRE_T_); }
+    t_void exit_point() override {
+      action().stop_timer(WAIT_EXPIRE);
+    }
 
-     state_id off()                 { action().return_coins();
-                                      return request_transition(CLEAN_);
-                                    }
+    t_state_id off() noexcept override {
+      action().return_coins();
+      return request_transition(CLEAN);
+    }
 
-     state_id timeout(timeout_id)   { action().return_coins();
-                                      return request_transition(READY_);
-                                    }
+    t_state_id timeout(t_timeout_id) noexcept override {
+      action().return_coins();
+      return request_transition(READY);
+    }
 
-     state_id select (select_id id) { if (action().accept_order(id)) {
-                                        action().return_change();
-                                        return request_transition(POUR_);
-                                      }
-                                      action().beep();
-                                      return no_transition();
-                                    }
+    t_state_id select(t_selection_id id) noexcept override {
+      if (action().accept_order(id)) {
+        action().return_change();
+        return request_transition(POUR);
+      }
+      action().beep();
+      return no_transition();
+    }
 
-     state_id insert (coin_id id)   { if (action().valid_coin(id)) {
-                                        action().keep_coin(id);
-                                        action().display(ORDER_);
-                                      } else {
-                                        action().beep();
-                                        action().return_coin(id);
-                                      }
-                                      return no_transition();
-                                    }
+    t_state_id insert(t_coin_id id) noexcept override {
+      if (action().valid_coin(id)) {
+        action().keep_coin(id);
+        action().display(ORDER);
+      } else {
+        action().beep();
+        action().return_coin(id);
+      }
+      return no_transition();
+    }
 
-     state_id cancel ()             { action().return_coins();
-                                      return request_transition(READY_);
-                                    }
+    t_state_id cancel() noexcept override {
+      action().return_coins();
+      return request_transition(READY);
+    }
   };
 
-  /////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-  class pour_state : public state {
+  class t_pour_state final : public t_state {
   public:
-     pour_state(actions& oper) : state(POUR_, oper) { }
+    t_pour_state(r_actions actions) noexcept : t_state{POUR, actions} {
+    }
 
   private:
-     t_sid entry_point()          { action().display(POUR_);
-                                    action().start_timer(action().pour_time());
-                                    action().pour();
-                                    return no_transition();
-                                  }
+    t_state_id entry_point() override {
+      action().display(POUR);
+      action().start_timer(action().pour_time());
+      action().start_pour();
+      return no_transition();
+    }
 
-     void  exit_point()           { action().stop_pour();
-                                    action().stop_timer(action().pour_time());
-                                  }
+    t_void exit_point() override {
+      action().stop_pour();
+      action().stop_timer(action().pour_time());
+    }
 
-     state_id off()               { return request_transition(CLEAN_);   }
+    t_state_id off() noexcept override {
+      return request_transition(CLEAN);
+    }
 
-     state_id timeout(timeout_id) { return request_transition(PREPARE_); }
+    t_state_id timeout(t_timeout_id) noexcept override {
+      return request_transition(PREPARE);
+    }
 
-     state_id select (select_id)  { action().beep();
-                                    return no_transition();
-                                  }
+    t_state_id select(t_selection_id) noexcept override {
+      action().beep();
+      return no_transition();
+    }
 
-     state_id insert (coin_id id) { action().beep();
-                                    action().return_coin(id);
-                                    return no_transition();
-                                  }
+    t_state_id insert(t_coin_id id) noexcept override {
+      action().beep();
+      action().return_coin(id);
+      return no_transition();
+    }
 
-     state_id cancel ()           { return request_transition(PREPARE_); }
+    t_state_id cancel() noexcept override {
+      return request_transition(PREPARE);
+    }
   };
 
-  /////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-  class clean_state : public state {
+  class t_clean_state final : public t_state {
   public:
-     clean_state(actions& oper) : state(CLEAN_, oper) { }
-
-  private:
-     t_sid entry_point()           { action().display(CLEAN_);
-                                     action().stop_heat();
-                                     action().rinse();
-                                     return request_transition(STOP_);
-                                   }
-
-     void  exit_point()            { /* unexpected */ }
-
-     state_id off()                { return no_transition(); }
-     state_id timeout(timeout_id)  { return no_transition(); }
-
-     state_id select (select_id)   { action().beep();
-                                     return no_transition(); }
-
-     state_id insert (coin_id id)  { action().beep();
-                                     action().return_coin(id);
-                                     return no_transition(); }
-     state_id cancel ()            { return no_transition(); }
-  };
-
-  /////////////////////////////////////////////////////////////////////////////////////////
-
-  using statemachine_ = dainty::state::t_statemachine<state_id, actions, events>;
-
-  class device_sm : public statemachine_ {
-  public:
-      device_sm(actions& oper) : statemachine_(STOP_, oper),
-                                    prepare_(oper),
-                                    ready_  (oper),
-                                    order_  (oper),
-                                    pour_   (oper),
-                                    clean_  (oper) {
-       states_[PREPARE_] = &prepare_;
-       states_[READY_]   = &ready_;
-       states_[ORDER_]   = &order_;
-       states_[POUR_]    = &pour_;
-       states_[CLEAN_]   = &clean_;
-
-       assert(start(PREPARE_) == READY_);
+     t_clean_state(r_actions actions) : t_state(CLEAN, actions) {
      }
 
-     ~device_sm() { stop(); } // never returns from stop
-
-     state_id off()                  { return do_transition(get_current()->off());        } // never returns
-     state_id timeout(timeout_id id) { return do_transition(get_current()->timeout(id));  }
-     state_id select (select_id  id) { return do_transition(get_current()->select(id));   }
-     state_id insert (coin_id    id) { return do_transition(get_current()->insert(id));   }
-     state_id cancel ()              { return do_transition(get_current()->cancel());     }
-
   private:
-    state_id initial_point(state_id id)                  { get_user().rinse(); return id; }
-    void     final_point  ()                             { get_user().power_off();        }
+     t_state_id entry_point() override {
+       action().display(CLEAN);
+       action().stop_heat();
+       action().rinse();
+       return request_transition(STOP);
+     }
 
-    p_state get_state(t_sid s)                                       { return states_[s]; }
-    P_state get_state(t_sid s) const                                 { return states_[s]; }
+     t_void exit_point() override {
+       /* unexpected */
+       action().beep();
+       action().beep();
+       action().beep();
+       action().beep();
+       action().beep();
+     }
 
-    prepare_state prepare_;
-    ready_state   ready_;
-    order_state   order_;
-    pour_state    pour_;
-    clean_state   clean_;
-    state_*       states_[STOP_];
+     t_state_id off() noexcept override {
+       return no_transition();
+     }
+
+     t_state_id timeout(t_timeout_id) noexcept override {
+       return no_transition();
+     }
+
+     t_state_id select (t_selection_id) noexcept override {
+       action().beep();
+       return no_transition();
+     }
+
+     t_state_id insert(t_coin_id id) noexcept override {
+       action().beep();
+       action().return_coin(id);
+       return no_transition();
+     }
+
+     t_state_id cancel() noexcept override {
+       return no_transition();
+     }
   };
 
-  /////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+  class t_statemachine final : public t_statemachine_ {
+  public:
+    t_statemachine(r_actions actions) noexcept
+      : t_statemachine_{STOP, actions},
+        prepare_       {actions},
+        ready_         {actions},
+        order_         {actions},
+        pour_          {actions},
+        clean_         {actions} {
+      states_[PREPARE] = &prepare_;
+      states_[READY]   = &ready_;
+      states_[ORDER]   = &order_;
+      states_[POUR]    = &pour_;
+      states_[CLEAN]   = &clean_;
+
+      auto stateid = start(PREPARE);
+      assert(stateid == READY || stateid == PREPARE);
+    }
+
+    ~t_statemachine() {
+      stop();
+    } // never returns from stop
+
+    t_state_id off() noexcept override {
+      return do_transition(get_current()->off());
+    } // never returns
+
+    t_state_id timeout(t_timeout_id id) noexcept override {
+      return do_transition(get_current()->timeout(id));
+    }
+
+    t_state_id select(t_selection_id id) noexcept override {
+      return do_transition(get_current()->select(id));
+    }
+
+    t_state_id insert(t_coin_id id) noexcept override {
+      return do_transition(get_current()->insert(id));
+    }
+
+    t_state_id cancel() noexcept override {
+      return do_transition(get_current()->cancel());
+    }
+
+  private:
+    r_actions action()       noexcept { return get_user();  }
+    R_actions action() const noexcept { return get_cuser(); }
+
+    t_state_id initial_point(t_state_id id) override {
+      action().rinse();
+      return id;
+    }
+
+    t_void final_point() override {
+      action().power_off();
+    }
+
+    p_state get_state(t_state_id s) noexcept override {
+      return states_[s];
+    }
+
+    P_state get_state(t_state_id s) const noexcept override {
+      return states_[s];
+    }
+
+    t_prepare_state prepare_;
+    t_ready_state   ready_;
+    t_order_state   order_;
+    t_pour_state    pour_;
+    t_clean_state   clean_;
+    p_state         states_[STOP];
+  };
+
+///////////////////////////////////////////////////////////////////////////////
 
 #ifdef COFFEE_DEBUG
-  void debug(const statemachine_* sm, state_id current, state_id next)
-  {
-    std::cout <<  "sm(", sm, ") transition: ", current, " -> ", next, cr();
+  t_void debug(R_statemachine_ sm, t_state_id current, t_state_id next) {
+    sm.get_user().tracker << BG << "statemachine transition from "
+                                << current << " to " << next << CR;
   }
 
-  void debug_start(const statemachine_* sm, state_id start)
-  {
-    std::cout <<  "sm(", sm, ") started with = ", start, cr();
+  t_void debug_start(R_statemachine_ sm, t_state_id start) {
+    sm.get_user().tracker << BG << "statemachine started in " << start << CR;
   }
 
-  void debug_stop(const statemachine_* sm)
-  {
-    std::cout <<  "sm(", sm, ") stopped", cr();
+  t_void debug_stop(R_statemachine_ sm) {
+    sm.get_user().tracker << BG << "statemachine stopped" << CR;
   }
 #endif
 
-  /////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-  class device {
+  class t_coffee_machine {
   public:
-     device() : actions_(), sm_(actions_)   { }
+    t_coffee_machine(r_bool temp_ok) noexcept
+      : actions_{temp_ok}, statemachine_{actions_} {
+    }
 
-     void off    ()              { sm_.off();       actions_.what_happened(); }
-     void timeout(timeout_id id) { sm_.timeout(id); actions_.what_happened(); }
-     void select (select_id  id) { sm_.select(id);  actions_.what_happened(); }
-     void insert (coin_id    id) { sm_.insert(id);  actions_.what_happened(); }
-     void cancel ()              { sm_.cancel();    actions_.what_happened(); }
+    t_void off() noexcept {
+      statemachine_.off();
+      actions_.what_happened();
+    }
+
+    t_void timeout(t_timeout_id id) noexcept {
+      statemachine_.timeout(id);
+      actions_.what_happened();
+    }
+
+    t_void select(t_selection_id id) noexcept {
+      statemachine_.select(id);
+      actions_.what_happened();
+    }
+
+    t_void insert(t_coin_id id) noexcept {
+      statemachine_.insert(id);
+      actions_.what_happened();
+    }
+
+    t_void cancel() noexcept {
+      statemachine_.cancel();
+      actions_.what_happened();
+    }
 
   private:
-    actions    actions_;
-    device_sm  sm_;
+    t_actions      actions_;
+    t_statemachine statemachine_;
   };
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-using namespace coffee_vending_machine;
+using namespace coffee_machine;
 
-int main()
-{
-  device dev;
+t_int main() {
+  t_bool temp_ok = false;            // water temp is below 75 deg
 
-  //dev.timeout(TEST_TEMP_T_);
-  dev.insert (CENT20);
-  dev.insert (CENT10);
+  t_coffee_machine coffee_machine(temp_ok);
 
-  dev.select (SMALL_);
+  coffee_machine.timeout(TEST_TEMP); // simulate internal event
+  coffee_machine.timeout(TEST_TEMP); // simulate internal event
+  coffee_machine.timeout(TEST_TEMP); // simulate internal event
 
-  dev.insert (CENT50);
-  dev.select (SMALL_);
-  dev.timeout(POUR_SMALL_T_);
+  temp_ok = true;                    // water temp is 75 deg
 
-  dev.off();
+  coffee_machine.timeout(TEST_TEMP); // simulate internal event
 
+  coffee_machine.insert (CENT20);
+  coffee_machine.insert (CENT10);
+
+  coffee_machine.select (SMALL);
+
+  coffee_machine.insert (CENT50);
+  coffee_machine.select (SMALL);
+
+  coffee_machine.timeout(POUR_SMALL); // simulate internal event
+
+  coffee_machine.off();
   return 0;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-namespace coffee_vending_machine
+namespace coffee_machine
 {
-  void actions::display(state_id id) {
+  using namespace dainty::named;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void t_actions::rinse() noexcept {
+    tracker << BG << "rinse" << CR;
+  }
+
+  t_void t_actions::start_pour() noexcept {
+    tracker << BG << "pour" << CR;
+  }
+
+  t_void t_actions::stop_pour() noexcept {
+    tracker << BG << "stop_pour" << CR;
+  }
+
+  t_void t_actions::fill() noexcept {
+    tracker << BG << "fill(beans&water)" << CR;
+  }
+
+  t_void t_actions::heatup() noexcept {
+    tracker << BG << "heatup" << CR;
+  }
+
+  t_void t_actions::keep_heat() noexcept {
+    tracker << BG << "keep_heat" << CR;
+  }
+
+  t_void t_actions::stop_heat() noexcept {
+    tracker << BG << "stop_heat" << CR;
+  }
+
+  t_void t_actions::keep_coin(t_coin_id id) noexcept {
+    assert(id != BADCOIN);
     switch (id) {
-      case ORDER_:
-        std::cout << "display=", id, " total=", total_, cr();
+      case CENT10:  total_ += 10;  break;
+      case CENT20:  total_ += 20;  break;
+      case CENT50:  total_ += 50;  break;
+      case EURO:    total_ += 100; break;
+      case BADCOIN:                break; // never happed due to assert
+    }
+    tracker << BG;
+    tracker.append(FMT, "keep_coin, total is now = %lu\n", total_);
+  }
+
+  t_bool t_actions::valid_coin(t_coin_id id) noexcept {
+    tracker << BG << "valid_coin=" << id << CR;
+    return id != BADCOIN;
+  }
+
+  t_void t_actions::return_coin(t_coin_id id) noexcept {
+    tracker << BG << "return coin=" << id << CR;
+  }
+
+  t_void t_actions::return_change() noexcept {
+    tracker << BG;
+    tracker.append(FMT,"return change in total of = %lu sent\n", total_);
+    total_ = 0;
+  }
+
+  t_void t_actions::return_coins() noexcept {
+    tracker << BG;
+    tracker.append(FMT," return given coins in total of = %lu sent\n", total_);
+    total_ = 0;
+  }
+
+  t_void t_actions::beep() noexcept {
+    tracker << BG << "beep" << CR;
+  }
+
+  t_void t_actions::power_off() noexcept {
+    tracker << BG << "poweroff" << CR;
+  }
+
+  t_bool t_actions::is_temp_above_75() noexcept {
+    tracker << BG << "test temp" << CR;
+    return temp_ok_;
+  }
+
+  t_void t_actions::start_timer(t_timeout_id id) noexcept {
+    tracker << BG << "start_timer=" << id << CR;
+  }
+
+  t_void t_actions::stop_timer(t_timeout_id id) noexcept {
+    tracker << BG << "stop_timer=" << id << CR;
+  }
+
+  t_timeout_id t_actions::pour_time() const noexcept {
+    tracker << BG << "fetch_pour_time" << CR;
+    return pour_time_;
+  }
+
+  t_void t_actions::display(t_state_id id) noexcept {
+    switch (id) {
+      case ORDER:
+        tracker << BG << "display" << id;
+        tracker.append(FMT," total = %lu\n", total_);
         break;
 
       default:
-        std::cout << "display=", id, cr();
+        tracker << BG << "display=" << id << CR;
         break;
     }
   }
 
-  bool actions::accept_order(select_id id) {
-    std::cout << "select=", id, cr();
-    bool enough = false;
+  t_bool t_actions::accept_order(t_selection_id id) noexcept {
+    tracker << BG << "selected " << id << CR;
+    t_bool enough = false;
     switch (id) {
-      case SMALL_: if (total_ >= 50) {
-                     std::cout << "accept order small", cr();
-                     total_    -= 50;
-                     pour_time_ = POUR_SMALL_T_;
-                     enough     = true;
-                   }
-                   break;
-      case MEDIUM_: if (total_ >= 100) {
-                     std::cout << "accept order medium", cr();
-                     total_    -= 100;
-                     pour_time_ = POUR_MEDIUM_T_;
-                     enough     = true;
-                   }
-                   break;
-      case LARGE_: if (total_ >= 150) {
-                     std::cout << "accept order large", cr();
-                     total_    -= 150;
-                     pour_time_ = POUR_LARGE_T_;
-                     enough     = true;
-                   }
-                   break;
+      case SMALL: if (total_ >= 50) {
+                    tracker << BG << "accept order small" << CR;
+                    total_    -= 50;
+                    pour_time_ = POUR_SMALL;
+                    enough     = true;
+                  }
+                  break;
+      case MEDIUM: if (total_ >= 100) {
+                    tracker << BG << "accept order medium" << CR;
+                    total_    -= 100;
+                    pour_time_ = POUR_MEDIUM;
+                    enough     = true;
+                  }
+                  break;
+      case LARGE: if (total_ >= 150) {
+                    tracker << BG << "accept order large" << CR;
+                    total_    -= 150;
+                    pour_time_ = POUR_LARGE;
+                    enough     = true;
+                  }
+                  break;
     }
     if (!enough)
-      std::cout << "insufficient funds", cr();
+      tracker << BG << "insufficient funds" << CR;
     return enough;
   }
 
-  void actions::what_happened() {
+  t_void t_actions::what_happened() const noexcept {
+    tracker.display_then_clear();
   }
 }
 
