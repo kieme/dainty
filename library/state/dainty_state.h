@@ -94,6 +94,7 @@ namespace state
   //  A template statemashine has been written that can be copied and pasted
   //  as a starting point and then be modified.
 
+  using named::t_prefix;
   using named::t_void;
 
   ///////////////////////////////////////////////////////////////////////////
@@ -103,308 +104,248 @@ namespace state
 
   ///////////////////////////////////////////////////////////////////////////
 
-  template<typename I,    // enum type defining states
-           typename U,    // user type which is used by the states
+  template<typename ID,   // enum type defining states
+           typename USER, // user type which is used by the states
            typename IF>   // enforced interface
   class t_state;
 
-  template<typename I,    // enum type defining states
-           typename U,    // user type which is used by the states
+  template<typename ID,   // enum type defining states
+           typename USER, // user type which is used by the states
            typename IF>   // enforced interface
   class t_statemachine;
 
   ///////////////////////////////////////////////////////////////////////////
 
-  template<typename I, typename U, typename IF>
+  template<typename ID, typename USER, typename IF>
   inline
-  t_void debug_start(const t_statemachine<I,U,IF>&, I start)     { }
+  t_void debug_start(const t_statemachine<ID, USER, IF>&, ID start) {
+  }
 
-  template<typename I, typename U, typename IF>
+  template<typename ID, typename USER, typename IF>
   inline
-  t_void debug_stop(const t_statemachine<I,U,IF>&)               { }
+  t_void debug_stop(const t_statemachine<ID, USER, IF>&) {
+  }
 
-  template<typename I, typename U, typename IF>
+  template<typename ID, typename USER, typename IF>
   inline
-  t_void debug(const t_statemachine<I,U,IF>&, I current, I next) { }
+  t_void debug(const t_statemachine<ID, USER, IF>&, ID current, ID next) {
+  }
 
   ///////////////////////////////////////////////////////////////////////////
 
-  template<typename I, typename U = t_no_user, typename IF = t_no_if>
+  template<typename ID, typename USER = t_no_user, typename IF = t_no_if>
   struct t_traits {
     t_traits() = delete;
 
-    using t_state        = state::t_state       <I, U, IF>;
-    using t_statemachine = state::t_statemachine<I, U, IF>;
-    using t_state_id     = typename named::t_prefix<I>::t_;
+    using t_state        = state::t_state       <ID, USER, IF>;
+    using t_statemachine = state::t_statemachine<ID, USER, IF>;
+    using t_state_id     = typename named::t_prefix<ID>::t_;
     using t_interface    = typename named::t_prefix<IF>::t_;
-    using t_user         = typename named::t_prefix<U>::t_;
-    using r_user         = typename named::t_prefix<U>::r_;
-    using R_user         = typename named::t_prefix<U>::R_;
+    using t_user         = typename named::t_prefix<USER>::t_;
+    using r_user         = typename named::t_prefix<USER>::r_;
+    using R_user         = typename named::t_prefix<USER>::R_;
     using p_state        = typename named::t_prefix<t_state>::p_;
     using P_state        = typename named::t_prefix<t_state>::P_;
   };
 
-  template<typename I, typename IF>
-  struct t_traits<I, t_no_user, IF> {
+  template<typename ID, typename IF>
+  struct t_traits<ID, t_no_user, IF> {
     t_traits() = delete;
 
-    using t_state        = state::t_state       <I, t_no_user, IF>;
-    using t_statemachine = state::t_statemachine<I, t_no_user, IF>;
-    using t_state_id     = typename named::t_prefix<I>::t_;
+    using t_state        = state::t_state       <ID, t_no_user, IF>;
+    using t_statemachine = state::t_statemachine<ID, t_no_user, IF>;
+    using t_state_id     = typename named::t_prefix<ID>::t_;
     using t_interface    = typename named::t_prefix<IF>::t_;
     using p_state        = typename named::t_prefix<t_state>::p_;
     using P_state        = typename named::t_prefix<t_state>::P_;
   };
 
-  template<typename I, typename U>
-  struct t_traits<I, U, t_no_if> {
+  template<typename ID, typename USER>
+  struct t_traits<ID, USER, t_no_if> {
     t_traits() = delete;
 
-    using t_state        = state::t_state       <I, U, t_no_if>;
-    using t_statemachine = state::t_statemachine<I, U, t_no_if>;
-    using t_state_id     = typename named::t_prefix<I>::t_;
-    using t_user         = typename named::t_prefix<U>::t_;
-    using r_user         = typename named::t_prefix<U>::r_;
-    using R_user         = typename named::t_prefix<U>::R_;
+    using t_state        = state::t_state       <ID, USER, t_no_if>;
+    using t_statemachine = state::t_statemachine<ID, USER, t_no_if>;
+    using t_state_id     = typename named::t_prefix<ID>::t_;
+    using t_user         = typename named::t_prefix<USER>::t_;
+    using r_user         = typename named::t_prefix<USER>::r_;
+    using R_user         = typename named::t_prefix<USER>::R_;
     using p_state        = typename named::t_prefix<t_state>::p_;
     using P_state        = typename named::t_prefix<t_state>::P_;
   };
 
-  template<typename I>
-  struct t_traits<I, t_no_user, t_no_if> {
+  template<typename ID>
+  struct t_traits<ID, t_no_user, t_no_if> {
     t_traits() = delete;
 
-    using t_state        = state::t_state       <I, t_no_user, t_no_if>;
-    using t_statemachine = state::t_statemachine<I, t_no_user, t_no_if>;
-    using t_state_id     = typename named::t_prefix<I>::t_;
+    using t_state        = state::t_state       <ID, t_no_user, t_no_if>;
+    using t_statemachine = state::t_statemachine<ID, t_no_user, t_no_if>;
+    using t_state_id     = typename named::t_prefix<ID>::t_;
     using p_state        = typename named::t_prefix<t_state>::p_;
     using P_state        = typename named::t_prefix<t_state>::P_;
   };
 
   ///////////////////////////////////////////////////////////////////////////
 
-  template<typename I, typename U = t_no_user, typename IF = t_no_if>
+  template<typename ID, typename USER = t_no_user, typename IF = t_no_if>
   class t_state : public IF {
   public:
-    using t_traits = state::t_traits<I, U, IF>;
+    using t_void   = state::t_void;
+    using t_traits = state::t_traits<ID, USER, IF>;
     using t_sid    = typename t_traits::t_state_id;
+    using r_user   = typename t_traits::r_user;
+    using R_user   = typename t_traits::R_user;
 
     // identification of the state
-    t_sid get_sid() const                                { return sid_; }
+    t_sid get_sid() const noexcept { return sid_; }
 
   protected:
-    using t_void = state::t_void;
-    using r_user = typename t_traits::r_user;
-    using R_user = typename t_traits::R_user;
-
     // state object must have an associated id and access to user
-    t_state(t_sid sid, r_user user) : sid_(sid), user_(user)          { }
+    t_state(t_sid sid, r_user user) noexcept : sid_{sid}, user_{user} { }
     virtual ~t_state()                                                { }
 
     // use to indicate that a state change is requested or not.
-    virtual t_sid request_transition(t_sid sid) const    { return sid;  }
-            t_sid no_transition     ()          const    { return sid_; }
+    virtual t_sid request_transition(t_sid sid) const          { return sid;  }
+            t_sid no_transition     ()          const noexcept { return sid_; }
 
-    r_user get_user ()                                  { return user_; }
-    R_user get_user () const                            { return user_; }
-    R_user get_cuser() const                            { return user_; }
+    r_user get_user ()       noexcept { return user_; }
+    R_user get_user () const noexcept { return user_; }
+    R_user get_cuser() const noexcept { return user_; }
 
   private:
+    using T_sid = typename t_prefix<t_sid>::T_;
     template<typename, typename, typename> friend class t_statemachine;
 
     // generic actions. entry_point can request a state change.
-    virtual t_sid  entry_point()              { return no_transition(); }
-    virtual t_void exit_point()                                       { }
+    virtual t_sid  entry_point() { return no_transition(); }
+    virtual t_void exit_point () { }
 
-    const t_sid  sid_;
-          r_user user_;
+    T_sid  sid_;
+    r_user user_;
   };
 
-  template<typename I, typename IF>
-  class t_state<I, t_no_user, IF> : public IF {
+  template<typename ID, typename IF>
+  class t_state<ID, t_no_user, IF> : public IF {
   public:
-    using t_traits = state::t_traits<I, t_no_user, IF>;
+    using t_void   = state::t_void;
+    using t_traits = state::t_traits<ID, t_no_user, IF>;
     using t_sid    = typename t_traits::t_state_id;
 
     // identification of the state
-    t_sid get_sid() const                             { return sid_; }
+    t_sid get_sid() const noexcept { return sid_; }
 
   protected:
-    using t_void = state::t_void;
-
     // state object must have an associated id
-    t_state(t_sid sid) : sid_(sid)                                 { }
-    virtual ~t_state()                                             { }
+    t_state(t_sid sid) noexcept : sid_{sid} { }
+    virtual ~t_state()                      { }
 
     // use to indicate that a state change is requested or not.
-    virtual t_sid request_transition(t_sid sid) const { return sid;  }
-            t_sid no_transition     ()          const { return sid_; }
+    virtual t_sid request_transition(t_sid sid) const          { return sid;  }
+            t_sid no_transition     ()          const noexcept { return sid_; }
 
   private:
+    using T_sid = typename t_prefix<t_sid>::T_;
     template<typename, typename, typename> friend class t_statemachine;
 
     // generic actions. entry_point can request a state change.
-    virtual t_sid  entry_point()           { return no_transition(); }
-    virtual t_void exit_point()                                    { }
+    virtual t_sid  entry_point() { return no_transition(); }
+    virtual t_void exit_point () { }
 
-    const t_sid sid_;
+    T_sid sid_;
   };
 
-  template<typename I, typename U>
-  class t_state<I, U, t_no_if> {
+  template<typename ID, typename USER>
+  class t_state<ID, USER, t_no_if> {
   public:
-    using t_traits = state::t_traits<I, U, t_no_if>;
+    using t_void   = state::t_void;
+    using t_traits = state::t_traits<ID, USER, t_no_if>;
     using t_sid    = typename t_traits::t_state_id;
+    using r_user   = typename t_traits::r_user;
+    using R_user   = typename t_traits::R_user;
 
     // identification of the state
-    t_sid get_sid() const                                { return sid_; }
+    t_sid get_sid() const noexcept { return sid_; }
 
   protected:
-    using t_void = state::t_void;
-    using r_user = typename t_traits::r_user;
-    using R_user = typename t_traits::R_user;
-
     // state object must have an associated id and access to user
-    t_state(t_sid sid, r_user user) : sid_(sid), user_(user)          { }
+    t_state(t_sid sid, r_user user) noexcept : sid_{sid}, user_{user} { }
     virtual ~t_state()                                                { }
 
     // use to indicate that a state change is requested or not.
-    virtual t_sid request_transition(t_sid sid) const    { return sid;  }
-            t_sid no_transition     ()          const    { return sid_; }
+    virtual t_sid request_transition(t_sid sid) const          { return sid;  }
+            t_sid no_transition     ()          const noexcept { return sid_; }
 
-    r_user get_user ()                                  { return user_; }
-    R_user get_user () const                            { return user_; }
-    R_user get_cuser() const                            { return user_; }
+    r_user get_user ()       noexcept { return user_; }
+    R_user get_user () const noexcept { return user_; }
+    R_user get_cuser() const noexcept { return user_; }
 
   private:
+    using T_sid = typename t_prefix<t_sid>::T_;
     template<typename, typename, typename> friend class t_statemachine;
 
     // generic actions. entry_point can request a state change.
-    virtual t_sid  entry_point()              { return no_transition(); }
-    virtual t_void exit_point()                                       { }
+    virtual t_sid  entry_point() { return no_transition(); }
+    virtual t_void exit_point () { }
 
-    const t_sid  sid_;
-          r_user user_;
+    T_sid  sid_;
+    r_user user_;
   };
 
-  template<typename I>
-  class t_state<I, t_no_user, t_no_if> {
+  template<typename ID>
+  class t_state<ID, t_no_user, t_no_if> {
   public:
-    using t_traits = state::t_traits<I, t_no_user, t_no_if>;
+    using t_void = state::t_void;
+    using t_traits = state::t_traits<ID, t_no_user, t_no_if>;
     using t_sid    = typename t_traits::t_state_id;
 
     // identification of the state
-    t_sid get_sid() const                             { return sid_; }
+    t_sid get_sid() const noexcept { return sid_; }
 
   protected:
-    using t_void = state::t_void;
-
     // state object must have an associated id
-    t_state(t_sid sid) : sid_(sid)                                 { }
-    virtual ~t_state()                                             { }
+    t_state(t_sid sid) noexcept : sid_{sid}  { }
+    virtual ~t_state()                       { }
 
     // use to indicate that a state change is requested or not.
-    virtual t_sid request_transition(t_sid sid) const { return sid;  }
-            t_sid no_transition     ()          const { return sid_; }
+    virtual t_sid request_transition(t_sid sid) const          { return sid;  }
+            t_sid no_transition     ()          const noexcept { return sid_; }
 
   private:
+    using T_sid = typename t_prefix<t_sid>::T_;
     template<typename, typename, typename> friend class t_statemachine;
 
     // generic actions. entry_point can request a state change.
-    virtual t_sid  entry_point()           { return no_transition(); }
-    virtual t_void exit_point()                                    { }
+    virtual t_sid  entry_point() { return no_transition(); }
+    virtual t_void exit_point () { }
 
-    const t_sid sid_;
+    T_sid sid_;
   };
 
   ///////////////////////////////////////////////////////////////////////////
 
-  template<typename I, typename U = t_no_user, typename IF = t_no_if>
+  template<typename ID, typename USER = t_no_user, typename IF = t_no_if>
   class t_statemachine : public IF {
   public:
-    using t_traits = state::t_traits<I, U, IF>;
+    using t_void   = state::t_void;
+    using t_traits = state::t_traits<ID, USER, IF>;
     using t_sid    = typename t_traits::t_state_id;
+    using r_user   = typename t_traits::r_user;
+    using R_user   = typename t_traits::R_user;
+    using p_state  = typename t_traits::p_state;
+    using P_state  = typename t_traits::P_state;
 
-    t_sid get_current_sid() const                         { return curr_; }
-
-  protected:
-    using t_void  = state::t_void;
-    using r_user  = typename t_traits::r_user;
-    using R_user  = typename t_traits::R_user;
-    using p_state = typename t_traits::p_state;
-    using P_state = typename t_traits::P_state;
-
-    // important. user is NOT owned but used. PRE should be an invalid state.
-    t_statemachine(t_sid stop, r_user user)
-      : stop_(stop), curr_(stop_), user_(user)                          { }
-
-    // start the statemachine in the id state.
-    inline
-    t_sid start(t_sid sid) {
-      DAINTY_SM_START
-    }
-
-    // start the statemachine in the id state.
-    inline
-    t_sid restart(t_sid sid) {
-      stop();
-      return start(sid);
-    }
-
-    // stop the statemachine in the id state. this is the terminating state.
-    inline
-    t_void stop() {
-      DAINTY_SM_STOP
-    }
+    t_sid get_current_sid() const noexcept { return curr_; }
 
     // access user
-    r_user get_user ()                                  { return user_; }
-    R_user get_user () const                            { return user_; }
-    R_user get_cuser() const                            { return user_; }
-
-    // access to current state pointer
-    p_state get_current()                    { return get_state(curr_); }
-    P_state get_current()  const             { return get_state(curr_); }
-    P_state get_ccurrent() const           { return get_current(curr_); }
-
-    // control state changes if required. return indicate if state was changed
-    inline
-    t_sid do_transition(t_sid next) {
-      DAINTY_SM_TRANSITION
-    }
-
-  private:
-    // provide methods that detect when the statemachine starts/stops
-    virtual t_sid  initial_point(t_sid id) { return id; }
-    virtual t_void final_point  ()                    { }
-
-    // access to state pointer associated with their ids.
-    virtual p_state get_state(t_sid)       = 0;
-    virtual P_state get_state(t_sid) const = 0;
-
-    inline
-    P_state get_cstate(t_sid sid) const        { return get_state(sid); }
-
-    const t_sid  stop_;
-          t_sid  curr_;
-          r_user user_;
-  };
-
-  template<typename I, typename IF>
-  class t_statemachine<I, t_no_user, IF> : public IF {
-  public:
-    using t_traits = state::t_traits<I, t_no_user, IF>;
-    using t_sid    = typename t_traits::t_state_id;
-
-    t_sid get_current_sid() const               { return curr_; }
+    r_user get_user ()       noexcept { return user_; }
+    R_user get_user () const noexcept { return user_; }
+    R_user get_cuser() const noexcept { return user_; }
 
   protected:
-    using t_void  = state::t_void;
-    using p_state = typename t_traits::p_state;
-    using P_state = typename t_traits::P_state;
-
     // important. user is NOT owned but used. PRE should be an invalid state.
-    t_statemachine(t_sid stop) : stop_(stop), curr_(stop_) { }
+    t_statemachine(t_sid stop, r_user user) noexcept
+      : stop_{stop}, curr_{stop_}, user_{user} {
+    }
 
     // start the statemachine in the id state.
     t_sid start(t_sid sid) {
@@ -420,52 +361,53 @@ namespace state
     // stop the statemachine in the id state. this is the terminating state.
     t_void stop() {
       DAINTY_SM_STOP
+    }
+
+    // control state changes if required. return indicate if state was changed
+    t_sid do_transition(t_sid next) {
+      DAINTY_SM_TRANSITION
     }
 
     // access to current state pointer
-    p_state get_current ()       { return get_state (curr_); }
-    P_state get_current () const { return get_state (curr_); }
-    P_state get_ccurrent() const { return get_cstate(curr_); }
-
-    // control state changes if required. return indicate if state was changed
-    t_sid do_transition(t_sid next) {
-      DAINTY_SM_TRANSITION
-    }
+    p_state get_current()        noexcept { return get_state(curr_); }
+    P_state get_current()  const noexcept { return get_state(curr_); }
+    P_state get_ccurrent() const noexcept { return get_current(curr_); }
 
   private:
+    using T_sid = typename t_prefix<t_sid>::T_;
+
     // provide methods that detect when the statemachine starts/stops
     virtual t_sid  initial_point(t_sid id) { return id; }
     virtual t_void final_point  ()                    { }
 
     // access to state pointer associated with their ids.
-    virtual p_state get_state(t_sid)       = 0;
-    virtual P_state get_state(t_sid) const = 0;
+    virtual p_state get_state (t_sid)           noexcept = 0;
+    virtual P_state get_state (t_sid)     const noexcept = 0;
 
-    inline
-    P_state get_cstate(t_sid sid) const { return get_state(sid); }
+    P_state get_cstate(t_sid sid) const {
+      return get_state(sid);
+    }
 
-    const t_sid stop_;
-          t_sid curr_;
+    T_sid  stop_;
+    t_sid  curr_;
+    r_user user_;
   };
 
-  template<typename I, typename U>
-  class t_statemachine<I, U, t_no_if> {
+  template<typename ID, typename IF>
+  class t_statemachine<ID, t_no_user, IF> : public IF {
   public:
-    using t_traits = state::t_traits<I, U, t_no_if>;
+    using t_void   = state::t_void;
+    using t_traits = state::t_traits<ID, t_no_user, IF>;
     using t_sid    = typename t_traits::t_state_id;
+    using p_state  = typename t_traits::p_state;
+    using P_state  = typename t_traits::P_state;
 
-    t_sid get_current_sid() const                         { return curr_; }
+    t_sid get_current_sid() const noexcept { return curr_; }
 
   protected:
-    using t_void  = state::t_void;
-    using r_user  = typename t_traits::r_user;
-    using R_user  = typename t_traits::R_user;
-    using p_state = typename t_traits::p_state;
-    using P_state = typename t_traits::P_state;
-
     // important. user is NOT owned but used. PRE should be an invalid state.
-    t_statemachine(t_sid stop, r_user user)
-      : stop_(stop), curr_(stop_), user_(user)                          { }
+    t_statemachine(t_sid stop) noexcept : stop_{stop}, curr_{stop_} {
+    }
 
     // start the statemachine in the id state.
     t_sid start(t_sid sid) {
@@ -483,52 +425,58 @@ namespace state
       DAINTY_SM_STOP
     }
 
-    // NOTE:     current() is not given because there is no interface.
-    // NOTE use: get_state(get_current_sid()) to get current state from the
-    //           the derived class.
+    // control state changes if required. return indicate if state was changed
+    t_sid do_transition(t_sid next) {
+      DAINTY_SM_TRANSITION
+    }
+
+    // access to current state pointer
+    p_state get_current ()       noexcept { return get_state (curr_); }
+    P_state get_current () const noexcept { return get_state (curr_); }
+    P_state get_ccurrent() const noexcept { return get_cstate(curr_); }
+
+  private:
+    using T_sid = typename t_prefix<t_sid>::T_;
+
+    // provide methods that detect when the statemachine starts/stops
+    virtual t_sid  initial_point(t_sid id) { return id; }
+    virtual t_void final_point  ()                    { }
+
+    // access to state pointer associated with their ids.
+    virtual p_state get_state(t_sid)       noexcept = 0;
+    virtual P_state get_state(t_sid) const noexcept = 0;
+
+    P_state get_cstate(t_sid sid) const noexcept {
+      return get_state(sid);
+    }
+
+    T_sid stop_;
+    t_sid curr_;
+  };
+
+  template<typename ID, typename USER>
+  class t_statemachine<ID, USER, t_no_if> {
+  public:
+    using t_void   = state::t_void;
+    using t_traits = state::t_traits<ID, USER, t_no_if>;
+    using t_sid    = typename t_traits::t_state_id;
+    using r_user   = typename t_traits::r_user;
+    using R_user   = typename t_traits::R_user;
+    using p_state  = typename t_traits::p_state;
+    using P_state  = typename t_traits::P_state;
+
+    t_sid get_current_sid() const noexcept { return curr_; }
 
     // access user
-    r_user get_user ()                     { return user_; }
-    R_user get_user () const               { return user_; }
-    R_user get_cuser() const               { return user_; }
-
-    // access to state pointer associated with their ids.
-    virtual p_state get_state(t_sid)       = 0;
-    virtual P_state get_state(t_sid) const = 0;
-
-    inline
-    P_state get_cstate(t_sid sid) const { return get_state(sid); }
-
-    // control state changes if required. return indicate if state was changed
-    t_sid do_transition(t_sid next) {
-      DAINTY_SM_TRANSITION
-    }
-
-  private:
-    // provide methods that detect when the statemachine starts/stops
-    virtual t_sid  initial_point(t_sid id) { return id; }
-    virtual t_void final_point  ()                    { }
-
-    const t_sid  stop_;
-          t_sid  curr_;
-          r_user user_;
-  };
-
-  template<typename I>
-  class t_statemachine<I, t_no_user, t_no_if> {
-  public:
-    using t_traits = state::t_traits<I, t_no_user, t_no_if>;
-    using t_sid    = typename t_traits::t_state_id;
-
-    t_sid get_current_sid() const               { return curr_; }
+    r_user get_user ()       noexcept { return user_; }
+    R_user get_user () const noexcept { return user_; }
+    R_user get_cuser() const noexcept { return user_; }
 
   protected:
-    using t_void  = state::t_void;
-    using p_state = typename t_traits::p_state;
-    using P_state = typename t_traits::P_state;
-
     // important. user is NOT owned but used. PRE should be an invalid state.
-    t_statemachine(t_sid stop) : stop_(stop), curr_(stop_) { }
+    t_statemachine(t_sid stop, r_user user) noexcept
+      : stop_{stop}, curr_{stop_}, user_{user} {
+    }
 
     // start the statemachine in the id state.
     t_sid start(t_sid sid) {
@@ -544,6 +492,11 @@ namespace state
     // stop the statemachine in the id state. this is the terminating state.
     t_void stop() {
       DAINTY_SM_STOP
+    }
+
+    // control state changes if required. return indicate if state was changed
+    t_sid do_transition(t_sid next) {
+      DAINTY_SM_TRANSITION
     }
 
     // NOTE:     current() is not given because there is no interface.
@@ -551,23 +504,83 @@ namespace state
     //           the derived class.
 
     // access to state pointer associated with their ids.
-    virtual p_state get_state(t_sid)       = 0;
-    virtual P_state get_state(t_sid) const = 0;
+    virtual p_state get_state(t_sid)       noexcept = 0;
+    virtual P_state get_state(t_sid) const noexcept = 0;
 
-    inline  P_state get_cstate(t_sid sid) const { return get_state(sid); }
+    P_state get_cstate(t_sid sid) const noexcept {
+      return get_state(sid);
+    }
+
+  private:
+    using T_sid = typename t_prefix<t_sid>::T_;
+
+    // provide methods that detect when the statemachine starts/stops
+    virtual t_sid  initial_point(t_sid id) { return id; }
+    virtual t_void final_point  ()                    { }
+
+    T_sid  stop_;
+    t_sid  curr_;
+    r_user user_;
+  };
+
+  template<typename ID>
+  class t_statemachine<ID, t_no_user, t_no_if> {
+  public:
+    using t_void   = state::t_void;
+    using t_traits = state::t_traits<ID, t_no_user, t_no_if>;
+    using t_sid    = typename t_traits::t_state_id;
+    using p_state  = typename t_traits::p_state;
+    using P_state  = typename t_traits::P_state;
+
+    t_sid get_current_sid() const noexcept { return curr_; }
+
+  protected:
+    // important. user is NOT owned but used. PRE should be an invalid state.
+    t_statemachine(t_sid stop) noexcept : stop_{stop}, curr_{stop_} {
+    }
+
+    // start the statemachine in the id state.
+    t_sid start(t_sid sid) {
+      DAINTY_SM_START
+    }
+
+    // start the statemachine in the id state.
+    t_sid restart(t_sid sid) {
+      stop();
+      return start(sid);
+    }
+
+    // stop the statemachine in the id state. this is the terminating state.
+    t_void stop() {
+      DAINTY_SM_STOP
+    }
 
     // control state changes if required. return indicate if state was changed
     t_sid do_transition(t_sid next) {
       DAINTY_SM_TRANSITION
     }
 
+    // NOTE:     current() is not given because there is no interface.
+    // NOTE use: get_state(get_current_sid()) to get current state from the
+    //           the derived class.
+
+    // access to state pointer associated with their ids.
+    virtual p_state get_state(t_sid)       noexcept = 0;
+    virtual P_state get_state(t_sid) const noexcept = 0;
+
+    P_state get_cstate(t_sid sid) const noexcept {
+      return get_state(sid);
+    }
+
   private:
+    using T_sid = typename t_prefix<t_sid>::T_;
+
     // provide methods that detect when the statemachine starts/stops
     virtual t_sid  initial_point(t_sid id) { return id; }
     virtual t_void final_point  ()                    { }
 
-    const t_sid stop_;
-          t_sid curr_;
+    T_sid stop_;
+    t_sid curr_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
