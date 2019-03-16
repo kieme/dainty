@@ -189,8 +189,6 @@ namespace networking
     operator t_validity() const noexcept;
     t_fd     get_fd    () const noexcept;
 
-///////////////////////////////////////////////////////////////////////////////
-
     t_errn connect(       R_tipc_address) noexcept;
     t_void connect(t_err, R_tipc_address) noexcept;
 
@@ -199,8 +197,6 @@ namespace networking
 
     t_errn getsockname(       r_tipc_address) const noexcept;
     t_void getsockname(t_err, r_tipc_address) const noexcept;
-
-///////////////////////////////////////////////////////////////////////////////
 
     t_verify<t_n> send(       R_byte_crange, t_flags) noexcept;
     t_n           send(t_err, R_byte_crange, t_flags) noexcept;
@@ -214,15 +210,11 @@ namespace networking
     t_verify<t_n> recvmsg(       r_socket_msghdr, t_flags) noexcept;
     t_n           recvmsg(t_err, r_socket_msghdr, t_flags) noexcept;
 
-///////////////////////////////////////////////////////////////////////////////
-
     t_errn getsockopt(       t_socket_level, r_socket_option) const noexcept;
     t_void getsockopt(t_err, t_socket_level, r_socket_option) const noexcept;
 
     t_errn setsockopt(       t_socket_level, R_socket_option) noexcept;
     t_void setsockopt(t_err, t_socket_level, R_socket_option) noexcept;
-
-///////////////////////////////////////////////////////////////////////////////
 
     t_verify<t_n> sendmmsg(       R_socket_msghdr_crange, t_flags) noexcept;
     t_n           sendmmsg(t_err, R_socket_msghdr_crange, t_flags) noexcept;
@@ -250,6 +242,8 @@ namespace networking
   private:
     t_socket socket_;
   };
+
+///////////////////////////////////////////////////////////////////////////////
 
   class t_tipc_stream_server;
   using r_tipc_stream_server = t_prefix<t_tipc_stream_server>::r_;
@@ -314,6 +308,8 @@ namespace networking
     t_socket socket_;
   };
 
+///////////////////////////////////////////////////////////////////////////////
+
   class t_tipc_dgram_server;
   using r_tipc_dgram_server = t_prefix<t_tipc_dgram_server>::r_;
   using x_tipc_dgram_server = t_prefix<t_tipc_dgram_server>::x_;
@@ -375,6 +371,8 @@ namespace networking
   private:
     t_socket socket_;
   };
+
+///////////////////////////////////////////////////////////////////////////////
 
   class t_tipc_rdm_server;
   using r_tipc_rdm_server = t_prefix<t_tipc_rdm_server>::r_;
@@ -438,6 +436,8 @@ namespace networking
   private:
     t_socket socket_;
   };
+
+///////////////////////////////////////////////////////////////////////////////
 
   class t_tipc_seqpacket_server;
   using r_tipc_seqpacket_server = t_prefix<t_tipc_seqpacket_server>::r_;
@@ -503,6 +503,8 @@ namespace networking
     t_socket socket_;
   };
 
+///////////////////////////////////////////////////////////////////////////////
+
   class t_tcp_server;
   using r_tcp_server = t_prefix<t_tcp_server>::r_;
   using x_tcp_server = t_prefix<t_tcp_server>::x_;
@@ -565,6 +567,8 @@ namespace networking
   private:
     t_socket socket_;
   };
+
+///////////////////////////////////////////////////////////////////////////////
 
   class t_udp_server;
   using r_udp_server = t_prefix<t_udp_server>::r_;

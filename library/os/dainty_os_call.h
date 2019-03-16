@@ -61,6 +61,8 @@ namespace os
   using named::t_unknown_sized_ptr;
   using named::NO_ERRN_;
   using named::NO_ERRN;
+  using named::BAD_ERRN_;
+  using named::BAD_ERRN;
   using named::VALID;
   using named::INVALID;
   using named::BAD_FD;
@@ -501,8 +503,8 @@ namespace os
   t_verify<t_fd> call_accept(       t_fd) noexcept;
   t_fd           call_accept(t_err, t_fd) noexcept;
 
-  t_verify<t_fd> call_accept(       t_fd, p_socket_address) noexcept;
-  t_fd           call_accept(t_err, t_fd, p_socket_address) noexcept;
+  t_verify<t_fd> call_accept(       t_fd, r_socket_address) noexcept;
+  t_fd           call_accept(t_err, t_fd, r_socket_address) noexcept;
 
   t_errn call_shutdown(       t_fd, t_socket_howto) noexcept;
   t_void call_shutdown(t_err, t_fd, t_socket_howto) noexcept;
