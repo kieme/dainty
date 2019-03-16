@@ -45,19 +45,19 @@ namespace valuestore
 
   template<typename T>
   inline
-  T* construct_(T* ptr) {
+  T* default_construct_(T* ptr) {
     return new (ptr) T;
   }
 
   template<typename T>
   inline
-  T* construct_(T* ptr, const T& value) {
+  T* copy_construct_(T* ptr, const T& value) {
     return new (ptr) T(value);
   }
 
   template<typename T>
   inline
-  T* construct_(T* ptr, T&& value) {
+  T* move_construct_(T* ptr, T&& value) {
     return new (ptr) T(std::move(value));
   }
 
@@ -95,17 +95,17 @@ namespace valuestore
 
     inline
     p_value default_construct() {
-      return construct_(ptr());
+      return default_construct_(ptr());
     }
 
     inline
     p_value copy_construct(R_value value) {
-      return construct_(ptr(), value);
+      return copy_construct_(ptr(), value);
     }
 
     inline
     p_value move_construct(x_value value) {
-      return construct_(ptr(), std::move(value));
+      return move_construct_(ptr(), std::move(value));
     }
 
     template<typename... Args>
