@@ -453,83 +453,88 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> struct t__explicit_ { };
+  template<typename T> struct t_explicit_ { };
 
-  template<> struct t__explicit_<t_bool>   { using t_type_ = t_bool;   };
-  template<> struct t__explicit_<t_char>   { using t_type_ = t_char;   };
-  template<> struct t__explicit_<t_uchar>  { using t_type_ = t_uchar;  };
-  template<> struct t__explicit_<t_int>    { using t_type_ = t_int;    };
-  template<> struct t__explicit_<t_uint>   { using t_type_ = t_uint;   };
-  template<> struct t__explicit_<t_short>  { using t_type_ = t_short;  };
-  template<> struct t__explicit_<t_ushort> { using t_type_ = t_ushort; };
-  template<> struct t__explicit_<t_long>   { using t_type_ = t_long;   };
-  template<> struct t__explicit_<t_ulong>  { using t_type_ = t_ulong;  };
-  template<> struct t__explicit_<t_llong>  { using t_type_ = t_llong;  };
-  template<> struct t__explicit_<t_ullong> { using t_type_ = t_ullong; };
-  template<> struct t__explicit_<t_double> { using t_type_ = t_double; };
-  template<> struct t__explicit_<t_void>   { using t_type_ = t_void;   };
+  template<> struct t_explicit_<t_bool>   { using t_type_ = t_bool;   };
+  template<> struct t_explicit_<t_char>   { using t_type_ = t_char;   };
+  template<> struct t_explicit_<t_uchar>  { using t_type_ = t_uchar;  };
+  template<> struct t_explicit_<t_int>    { using t_type_ = t_int;    };
+  template<> struct t_explicit_<t_uint>   { using t_type_ = t_uint;   };
+  template<> struct t_explicit_<t_short>  { using t_type_ = t_short;  };
+  template<> struct t_explicit_<t_ushort> { using t_type_ = t_ushort; };
+  template<> struct t_explicit_<t_long>   { using t_type_ = t_long;   };
+  template<> struct t_explicit_<t_ulong>  { using t_type_ = t_ulong;  };
+  template<> struct t_explicit_<t_llong>  { using t_type_ = t_llong;  };
+  template<> struct t_explicit_<t_ullong> { using t_type_ = t_ullong; };
+  template<> struct t_explicit_<t_double> { using t_type_ = t_double; };
+  template<> struct t_explicit_<t_void>   { using t_type_ = t_void;   };
 
   template<typename T>
-  struct t__explicit_<T*> {
-    using t_type_ = typename t__explicit_<T>::t_type_*;
+  struct t_explicit_<T*> {
+    using t_type_ = typename t_explicit_<T>::t_type_*;
   };
 
   template<typename T>
-  struct t__explicit_<const T*> {
-    using t_type_ = const typename t__explicit_<T>::t_type_*;
+  struct t_explicit_<const T*> {
+    using t_type_ = const typename t_explicit_<T>::t_type_*;
   };
 
   template<typename T>
-  struct t__explicit_<T* const> {
-    using t_type_ = typename t__explicit_<T>::t_type_* const;
+  struct t_explicit_<T* const> {
+    using t_type_ = typename t_explicit_<T>::t_type_* const;
   };
 
   template<typename T>
-  struct t__explicit_<const T* const> {
-    using t_type_ = const typename t__explicit_<T>::t_type_* const;
+  struct t_explicit_<const T* const> {
+    using t_type_ = const typename t_explicit_<T>::t_type_* const;
   };
 
-  template<typename T> struct t__explicit_<T**>;
+  template<typename T> struct t_explicit_<T**>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<class, class, class> class t_explicit;
-  template<class T, class TAG, class V>
-  constexpr T  get(t_explicit<T, TAG, V>);
+  template<class T, class TAG, class CHECK>
+  constexpr T get(t_explicit<T, TAG, CHECK>) noexcept;
 
   template<class T, class TAG>
-  struct t_validate_ { static constexpr T check(T t) { return t; } };
+  struct t_check {
+    static constexpr T test(T t) { return t; }
+  };
 
-  template<class T, class TAG, class V = t_validate_<T, TAG> >
+  template<class T, class TAG, class CHECK = void>
   class t_explicit {
   public:
-    using t_value    = typename t__explicit_<T>::t_type_;
+    using t_value    = typename t_explicit_<T>::t_type_;
     using t_tag      = TAG;
-    using t_validate = V;
+    using t_check    = CHECK;
 
-    constexpr explicit t_explicit(t_value value)
-#ifndef DAINTY_EXPLICIT_VALIDATE
+    constexpr
+    explicit t_explicit(t_value value)
+#ifndef DAINTY_EXPLICIT_CHECK
       : value_{value}
 #else
-      : value_{V::check(value)}
+      : value_{CHECK::test(value)}
 #endif
     { }
 
-    template<class T1, class V1>
-    constexpr explicit t_explicit(t_explicit<T1, TAG, V1> value)
-#ifndef DAINTY_EXPLICIT_VALIDATE
+    template<class T1, class CHECK1>
+    constexpr
+    explicit t_explicit(t_explicit<T1, TAG, CHECK1> value)
+#ifndef DAINTY_EXPLICIT_CHECK
       : value_{value}
 #else
-      : value_{V::check(value.value_)}
+      : value_{CHECK::test(value.value_)}
 #endif
     { }
 
-    template<class T1, class V1>
-    constexpr t_explicit& operator=(t_explicit<T1, TAG, V1> value) {
-#ifndef DAINTY_EXPLICIT_VALIDATE
+    template<class T1, class CHECK1>
+    constexpr
+    t_explicit& operator=(t_explicit<T1, TAG, CHECK1> value) {
+#ifndef DAINTY_EXPLICIT_CHECK
       value_ = value;
 #else
-      value_ = V::check(value.value_);
+      value_ = CHECK::test(value.value_);
 #endif
     }
 
@@ -538,29 +543,68 @@ namespace named
     t_explicit& operator=(const t_explicit&) = default; // for clarity
 
   private:
-    template<class T1, class TAG1, class V1> friend class t_explicit;
-    template<class T1, class TAG1, class V1>
-    friend constexpr T1  get(t_explicit<T1, TAG1, V1>);
+    template<class T1, class TAG1, class CHECK1> friend class t_explicit;
+    template<class T1, class TAG1, class CHECK1>
+    friend constexpr T1  get(t_explicit<T1, TAG1, CHECK1>) noexcept;
     t_value value_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<class T, class TAG, class V>
-  constexpr
-  T  get(t_explicit<T, TAG, V> value)  { return value.value_; }
+  template<class T, class TAG>
+  class t_explicit<T, TAG, void> {
+  public:
+    using t_value = typename t_explicit_<T>::t_type_;
+    using t_tag   = TAG;
+    using t_check = void;
+
+    constexpr
+    explicit t_explicit(t_value value) noexcept : value_{value} {
+    }
+
+    template<class T1, class CHECK1>
+    constexpr
+    explicit t_explicit(t_explicit<T1, TAG, CHECK1> value) noexcept
+      : value_{value} {
+    }
+
+    template<class T1, class CHECK1>
+    constexpr
+    t_explicit& operator=(t_explicit<T1, TAG, CHECK1> value) noexcept {
+      value_ = value;
+      return *this;
+    }
+
+    t_explicit() = delete;                              // for clarity
+    t_explicit(const t_explicit&) = default;            // for clarity
+    t_explicit& operator=(const t_explicit&) = default; // for clarity
+
+  private:
+    template<class T1, class TAG1, class CHECK1> friend class t_explicit;
+    template<class T1, class TAG1, class CHECK1>
+    friend constexpr T1 get(t_explicit<T1, TAG1, CHECK1>) noexcept;
+    t_value value_;
+  };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<class T, class TAG, class V>
+  template<class T, class TAG, class CHECK>
   constexpr
-  t_bool operator==(t_explicit<T, TAG, V> lh, t_explicit<T, TAG, V> rh) {
+  T get(t_explicit<T, TAG, CHECK> value) noexcept { return value.value_; }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<class T, class TAG, class CHECK>
+  constexpr
+  t_bool operator==(t_explicit<T, TAG, CHECK> lh,
+                    t_explicit<T, TAG, CHECK> rh) noexcept {
     return get(lh) == get(rh);
   }
 
-  template<class T, class TAG, class V>
+  template<class T, class TAG, class CHECK>
   constexpr
-  t_bool operator!=(t_explicit<T, TAG, V> lh, t_explicit<T, TAG, V> rh) {
+  t_bool operator!=(t_explicit<T, TAG, CHECK> lh,
+                    t_explicit<T, TAG, CHECK> rh) noexcept {
     return get(lh) != get(rh);
   }
 
@@ -568,14 +612,14 @@ namespace named
 
   template<class> struct t_is_explicit_;
 
-  template<class T, class TAG, class V>
-  struct t_is_explicit_<t_explicit<T, TAG, V>> {
-    using t_result_ = t_explicit<T, TAG, V>;
+  template<class T, class TAG, class CHECK>
+  struct t_is_explicit_<t_explicit<T, TAG, CHECK>> {
+    using t_result_ = t_explicit<T, TAG, CHECK>;
   };
 
-  template<class E, class T, class TAG, class V>
+  template<class E, class T, class TAG, class CHECK>
   constexpr
-  E transform(t_explicit<T, TAG, V> src) {
+  E transform(t_explicit<T, TAG, CHECK> src) {
     return typename t_is_explicit_<E>::t_result_{get(src)};
   }
 
@@ -670,16 +714,27 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_bool operator< (t_n lh, t_n rh)    { return get(lh) < get(rh);  }
-  constexpr t_bool operator<=(t_n lh, t_n rh)    { return get(lh) <= get(rh); }
-
-  constexpr t_bool operator< (t_ix lh, t_ix rh)  { return get(lh) < get(rh);  }
-  constexpr t_bool operator<=(t_ix lh, t_ix rh)  { return get(lh) <= get(rh); }
-
-  constexpr t_bool operator< (t_percentage lh, t_percentage rh) {
+  constexpr t_bool operator< (t_n lh, t_n rh) noexcept {
     return get(lh) < get(rh);
   }
-  constexpr t_bool operator<=(t_percentage lh, t_percentage rh) {
+
+  constexpr t_bool operator<=(t_n lh, t_n rh) noexcept {
+    return get(lh) <= get(rh);
+  }
+
+  constexpr t_bool operator< (t_ix lh, t_ix rh) noexcept {
+    return get(lh) < get(rh);
+  }
+
+  constexpr t_bool operator<=(t_ix lh, t_ix rh) noexcept {
+    return get(lh) <= get(rh);
+  }
+
+  constexpr t_bool operator< (t_percentage lh, t_percentage rh) noexcept {
+    return get(lh) < get(rh);
+  }
+
+  constexpr t_bool operator<=(t_percentage lh, t_percentage rh) noexcept {
     return get(lh) <= get(rh);
   }
 
@@ -693,33 +748,44 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_n   to_n  (t_ix ix)  { return transform<t_n>  (ix); }
-  constexpr t_bix to_bix(t_ix ix)  { return transform<t_bix>(ix); }
-  constexpr t_eix to_eix(t_ix ix)  { return transform<t_eix>(ix); }
-  constexpr t_ix  to_ix (t_n  n)   { return transform<t_ix> (n);  }
-  constexpr t_ix  to_ix (t_bix ix) { return transform<t_ix> (ix); }
-  constexpr t_ix  to_ix (t_eix ix) { return transform<t_ix> (ix); }
+  constexpr t_n   to_n  (t_ix ix)  noexcept  { return transform<t_n>  (ix); }
+  constexpr t_bix to_bix(t_ix ix)  noexcept  { return transform<t_bix>(ix); }
+  constexpr t_eix to_eix(t_ix ix)  noexcept  { return transform<t_eix>(ix); }
+  constexpr t_ix  to_ix (t_n  n)   noexcept  { return transform<t_ix> (n);  }
+  constexpr t_ix  to_ix (t_bix ix) noexcept  { return transform<t_ix> (ix); }
+  constexpr t_ix  to_ix (t_eix ix) noexcept  { return transform<t_ix> (ix); }
 
-  constexpr t_ix  operator"" _ix (t_ullong ix) { return t_ix(ix);  }
-  constexpr t_bix operator"" _bix(t_ullong ix) { return t_bix(ix); }
-  constexpr t_eix operator"" _eix(t_ullong ix) { return t_eix(ix); }
-  constexpr t_n   operator"" _n  (t_ullong n)  { return t_n(n);    }
+  constexpr t_ix  operator"" _ix (t_ullong ix) noexcept { return t_ix(ix);  }
+  constexpr t_bix operator"" _bix(t_ullong ix) noexcept { return t_bix(ix); }
+  constexpr t_eix operator"" _eix(t_ullong ix) noexcept { return t_eix(ix); }
+  constexpr t_n   operator"" _n  (t_ullong n)  noexcept { return t_n(n);    }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_bool operator==(const t_validity& lh, const t_validity& rh) {
+  constexpr
+  t_bool operator==(const t_validity& lh, const t_validity& rh) noexcept {
     return get(lh) == get(rh);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<int N>
-  constexpr t_cstr_ptr mk_ptr(t_char (&str)[N]) { return t_cstr_ptr{str};  }
-  constexpr t_cstr_ptr mk_ptr(p_cstr_ str)      { return t_cstr_ptr{str};  }
+  constexpr t_cstr_ptr mk_ptr(t_char (&str)[N]) noexcept {
+    return t_cstr_ptr{str};
+  }
+
+  constexpr t_cstr_ptr mk_ptr(p_cstr_ str) noexcept {
+    return t_cstr_ptr{str};
+  }
 
   template<int N>
-  constexpr t_cstr_cptr mk_cptr(T_char (&cstr)[N]) { return t_cstr_cptr{cstr}; }
-  constexpr t_cstr_cptr mk_cptr(P_cstr_ cstr)      { return t_cstr_cptr{cstr}; }
+  constexpr t_cstr_cptr mk_cptr(T_char (&cstr)[N]) noexcept {
+    return t_cstr_cptr{cstr};
+  }
+
+  constexpr t_cstr_cptr mk_cptr(P_cstr_ cstr) noexcept {
+    return t_cstr_cptr{cstr};
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -733,7 +799,7 @@ namespace named
   constexpr t_errn_ BAD_ERRN_ = -1;
   constexpr t_errn  BAD_ERRN {BAD_ERRN_};
 
-  constexpr t_bool operator==(t_errn errn, t_validity validity) {
+  constexpr t_bool operator==(t_errn errn, t_validity validity) noexcept {
     return errn == NO_ERRN && validity == VALID;
   }
 
@@ -742,21 +808,21 @@ namespace named
   template<typename T>
   class t_verifiable;
 
-  template<typename T, typename TAG, typename V>
-  class t_verifiable<t_explicit<T, TAG, V>> {
+  template<typename T, typename TAG, typename CHECK>
+  class t_verifiable<t_explicit<T, TAG, CHECK>> {
   public:
-    using t_value = t_explicit<T, TAG, V>;
+    using t_value = t_explicit<T, TAG, CHECK>;
     using T_value = typename t_prefix<t_value>::T_;
 
-    constexpr
-    t_verifiable(t_value _value, t_errn _errn) : value(_value), errn(_errn) {
+    constexpr t_verifiable(t_value _value, t_errn _errn) noexcept
+      : value{_value}, errn{_errn} {
     }
 
-    constexpr operator t_validity() const {
+    constexpr operator t_validity() const noexcept {
       return errn == NO_ERRN ? VALID : INVALID;
     }
 
-    constexpr operator t_value () const {
+    constexpr operator t_value () const noexcept {
       return value;
     }
 
@@ -765,12 +831,13 @@ namespace named
   };
 
   template<typename T>
-  constexpr const T& get(const t_verifiable<T>& verifiable) {
+  constexpr const T& get(const t_verifiable<T>& verifiable) noexcept {
     return verifiable.value;
   }
 
-  template<class T, class TAG, class V>
-  constexpr T get(const t_verifiable<t_explicit<T, TAG, V>>& verifiable) {
+  template<class T, class TAG, class CHECK>
+  constexpr
+  T get(const t_verifiable<t_explicit<T, TAG, CHECK>>& verifiable) noexcept {
     return get(verifiable.value);
   }
 
@@ -784,19 +851,21 @@ namespace named
       P_void  cptr;
       t_char  buf[sizeof(t_int64)]; // 8 bytes
     };
-    t_user() : id(0) { }
-    inline t_user(t_int64  _id) :   id(_id)   { }
-    inline t_user(p_void  _ptr) :  ptr(_ptr)  { }
-    inline t_user(P_void _cptr) : cptr(_cptr) { }
+    t_user()             noexcept : id  {0L}    { }
+    t_user(t_int64  _id) noexcept : id  {_id}   { }
+    t_user(p_void  _ptr) noexcept : ptr {_ptr}  { }
+    t_user(P_void _cptr) noexcept : cptr{_cptr} { }
   };
 
   template<typename TAG>
-  constexpr t_bool operator==(const t_user<TAG>& lh, const t_user<TAG>& rh) {
+  constexpr
+  t_bool operator==(const t_user<TAG>& lh, const t_user<TAG>& rh) noexcept {
     return lh.id == rh.id;
   }
 
   template<typename TAG>
-  constexpr t_bool operator!=(const t_user<TAG>& lh, const t_user<TAG>& rh) {
+  constexpr
+  t_bool operator!=(const t_user<TAG>& lh, const t_user<TAG>& rh) noexcept {
     return lh.id != rh.id;
   }
 
@@ -855,10 +924,10 @@ namespace named
   template<t_n_ N, typename TAG>
   class t_multiple {
   public:
-    constexpr static t_n of() {
+    constexpr static t_n of() noexcept {
       return t_n{N};
     }
-    constexpr t_multiple(t_n_ _value) : value(_value) {
+    constexpr t_multiple(t_n_ _value) noexcept : value(_value) {
     }
 
     t_n value;
@@ -876,28 +945,24 @@ namespace named
   public:
     using r_unknown_sized_ptr = typename t_prefix<t_unknown_sized_ptr<TAG>>::r_;
 
-    constexpr
-    t_unknown_sized_ptr() noexcept = default;
+    constexpr t_unknown_sized_ptr() noexcept = default;
 
     constexpr
     t_unknown_sized_ptr(p_void _ptr, t_n _n) noexcept : ptr{_ptr}, n{_n} {
     }
 
     template<typename T>
-    constexpr
-    t_unknown_sized_ptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
+    constexpr t_unknown_sized_ptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
     }
 
     template<typename T>
-    constexpr
-    r_unknown_sized_ptr operator=(T* _ptr) noexcept {
+    constexpr r_unknown_sized_ptr operator=(T* _ptr) noexcept {
       ptr = _ptr;
       n   = t_n{sizeof(T)};
       return *this;
     }
 
-    constexpr
-    operator t_validity() const noexcept {
+    constexpr operator t_validity() const noexcept {
       return ptr ? VALID : INVALID;
     }
 
@@ -911,8 +976,7 @@ namespace named
     using r_unknown_sized_cptr = typename t_prefix<t_unknown_sized_cptr<TAG>>::r_;
     using R_unknown_sized_ptr  = typename t_prefix<t_unknown_sized_ptr<TAG>>::R_;
 
-    constexpr
-    t_unknown_sized_cptr() noexcept = default;
+    constexpr t_unknown_sized_cptr() noexcept = default;
 
     constexpr
     t_unknown_sized_cptr(P_void _ptr, t_n _n) noexcept : ptr{_ptr}, n{_n} {
@@ -923,8 +987,7 @@ namespace named
     t_unknown_sized_cptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
     }
 
-    constexpr
-    t_unknown_sized_cptr(R_unknown_sized_ptr _ptr) noexcept
+    constexpr t_unknown_sized_cptr(R_unknown_sized_ptr _ptr) noexcept
       : ptr{_ptr.ptr}, n{_ptr.n} {
     }
 
@@ -936,15 +999,13 @@ namespace named
     }
 
     template<typename T>
-    constexpr
-    r_unknown_sized_cptr operator=(T* _ptr) noexcept {
+    constexpr r_unknown_sized_cptr operator=(T* _ptr) noexcept {
       ptr = _ptr;
       n   = t_n{sizeof(T)};
       return *this;
     }
 
-    constexpr
-    operator t_validity() const noexcept {
+    constexpr operator t_validity() const noexcept {
       return ptr ? VALID : INVALID;
     }
 
@@ -956,16 +1017,21 @@ namespace named
 
   // deprecated - should remove overtime - P_cstr and p_cstr
 
-  using p_cstr      = t_explicit<p_cstr_, t_cstr_tag_>;
-  using P_cstr      = t_explicit<P_cstr_, t_cstr_tag_>; // XXX - not sure?
+  using p_cstr = t_explicit<p_cstr_, t_cstr_tag_>;
+  using P_cstr = t_explicit<P_cstr_, t_cstr_tag_>; // XXX - not sure?
 
   template<int N>
-  constexpr p_cstr mk_str(char (&str)[N])         { return p_cstr{str};  }
-  constexpr p_cstr mk_str(p_cstr_ str)            { return p_cstr{str};  }
+  constexpr p_cstr mk_str(char (&str)[N]) noexcept { return p_cstr{str}; }
+  constexpr p_cstr mk_str(p_cstr_ str)    noexcept { return p_cstr{str}; }
 
   template<int N>
-  constexpr P_cstr mk_cstr(const char (&cstr)[N]) { return P_cstr{cstr}; }
-  constexpr P_cstr mk_cstr(P_cstr_ cstr)          { return P_cstr{cstr}; }
+  constexpr P_cstr mk_cstr(const char (&cstr)[N]) noexcept {
+    return P_cstr{cstr};
+  }
+
+  constexpr P_cstr mk_cstr(P_cstr_ cstr) noexcept {
+     return P_cstr{cstr};
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 }
