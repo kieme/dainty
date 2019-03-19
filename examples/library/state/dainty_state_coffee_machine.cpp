@@ -74,7 +74,7 @@ namespace coffee_machine
   const t_crange coin_names[] = { mk_range("10cent"),
                                   mk_range("20cent"),
                                   mk_range("50cent"),
-                                  mk_range("1uero"),
+                                  mk_range("1euro"),
                                   mk_range("uknown") };
 
 ///////////////////////////////////////////////////////////////////////////////
