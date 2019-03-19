@@ -34,6 +34,7 @@ namespace os
 namespace networking
 {
   using named::utility::reset;
+  using named::utility::x_cast;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +55,8 @@ namespace networking
   }
 
   t_socket::~t_socket() {
-    call_close(fd_);
+    if (fd_ != BAD_FD)
+      call_close(fd_);
   }
 
   t_socket::operator t_validity() const noexcept {
@@ -408,6 +410,7 @@ namespace networking
   }
 
 ///////////////////////////////////////////////////////////////////////////////
+
 }
 }
 }
