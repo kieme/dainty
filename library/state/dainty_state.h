@@ -50,14 +50,16 @@
       }
 
 #define DAINTY_SM_TRANSITION                                     \
-      if (next != curr_) {                                       \
+      while (curr_ != next) {                                    \
         if (next != stop_) {                                     \
           get_state(curr_)->exit_point();                        \
           debug(*this, curr_, next);                             \
           curr_ = next;                                          \
-          next = do_transition(get_state(curr_)->entry_point()); \
-        } else                                                   \
+          next = get_state(curr_)->entry_point();                \
+        } else {                                                 \
           stop();                                                \
+          break;                                                 \
+        }                                                        \
       }                                                          \
       return curr_;
 
