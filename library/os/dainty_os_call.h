@@ -53,6 +53,7 @@ namespace os
   using named::t_fd;
   using named::t_errn;
   using named::t_validity;
+  using named::t_n_;
   using named::t_n;
   using named::p_cstr;
   using named::t_prefix;
