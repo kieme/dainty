@@ -28,8 +28,17 @@
 #define _DAINTY_MT_NET_TIPC_H_
 
 #include "dainty_named.h"
-#include "dainty_mt_err.h"
+#include "dainty_container_list.h"
+#include "dainty_container_maybe.h"
 #include "dainty_os_networking.h"
+#include "dainty_mt_err.h"
+
+// stats for all. just counters. how many calls. how many bytes sent receive.
+// connection ooriented - have virtual methods - accept authenticate
+//                                               ask accepted
+//                                               inform when added
+//                                               inform when remove
+// t_logic
 
 namespace dainty
 {
@@ -37,7 +46,55 @@ namespace mt
 {
 namespace net_tipc
 {
-  t_connect_id
+  using named::t_validity;
+  using named::VALID;
+  using named::INVALID;
+  using named::t_prefix;
+  using named::t_explicit;
+  using named::t_void;
+  using named::t_bool;
+  using named::t_n;
+  using named::t_fd;
+  using named::t_errn;
+
+  using container::list::t_list;
+  using container::maybe::t_maybe;
+
+  using os::t_verify;
+  using os::t_tipc_address;
+  using os::r_tipc_address;
+  using os::R_tipc_address;
+  using os::t_socket_level;
+  using os::t_socket_option;
+  using os::r_socket_option;
+  using os::R_socket_option;
+  using os::R_byte_crange;
+  using os::r_byte_range;
+  using os::R_socket_msghdr;
+  using os::r_socket_msghdr;
+  using os::t_flags;
+  using os::networking::t_socket;
+
+  using err::t_err;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  enum  t_connect_id_tag_ {};
+  using t_connect_id_ = named::t_int;
+  using t_connect_id  = t_explicit<t_connect_id_, t_connect_id_tag_>;
+
+  using t_connect_ids = t_maybe<t_list<t_connect_id>>;
+  using r_connect_ids = t_prefix<t_connect_ids>::r_;
+
+  struct t_connect_stats {
+  };
+
+  struct t_connect_info {
+    t_fd            fd;
+    t_connect_stats stats;
+    // peername
+  };
+  using R_connect_info = t_prefix<t_connect_info>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -50,8 +107,10 @@ namespace net_tipc
 
   class t_tipc_stream_client {
   public:
-    t_tipc_stream_client() noexcept;
-    t_tipc_stream_client(x_tipc_stream_client) noexcept;
+    t_tipc_stream_client(       R_tipc_address) noexcept;
+    t_tipc_stream_client(t_err, R_tipc_address) noexcept;
+
+    t_tipc_stream_client(x_tipc_stream_client)  noexcept;
 
     t_tipc_stream_client(R_tipc_stream_client)           = delete;
     r_tipc_stream_client operator=(R_tipc_stream_client) = delete;
@@ -59,9 +118,6 @@ namespace net_tipc
 
     operator t_validity() const noexcept;
     t_fd     get_fd    () const noexcept;
-
-    t_errn connect(       R_tipc_address) noexcept;
-    t_void connect(t_err, R_tipc_address) noexcept;
 
     t_errn getpeername(       r_tipc_address) const noexcept;
     t_void getpeername(t_err, r_tipc_address) const noexcept;
@@ -102,9 +158,10 @@ namespace net_tipc
 
   class t_tipc_stream_server {
   public:
-    // addresss, bind, listen, max connections
-    t_tipc_stream_server(int) noexcept; // family, protocol, flags
-    t_tipc_stream_server(x_tipc_stream_server) noexcept;
+    t_tipc_stream_server(       R_tipc_address server) noexcept;
+    t_tipc_stream_server(t_err, R_tipc_address server) noexcept;
+
+    t_tipc_stream_server(x_tipc_stream_server)         noexcept;
    ~t_tipc_stream_server();
 
     t_tipc_stream_server(R_tipc_stream_server)           = delete;
@@ -116,11 +173,11 @@ namespace net_tipc
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_connect_id   accept();
-    t_bool         shutdown(t_connect_id);
+    t_connect_id   accept_connection()            noexcept;
+    t_bool         close_connection(t_connect_id) noexcept;
 
-    R_connect_info get_connect(t_connect_id)      const;
-    t_n            get_connect_ids(r_connect_ids) const;
+    R_connect_info get_connection(t_connect_id)      const noexcept;
+    t_void         get_connection_ids(r_connect_ids) const noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -185,7 +242,6 @@ namespace net_tipc
 
   private:
     t_socket socket_;
-    // t_connect_ids - freelist of fds
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -199,7 +255,7 @@ namespace net_tipc
 
   class t_tipc_dgram_client {
   public:
-    t_tipc_dgram_client() noexcept;
+    t_tipc_dgram_client()                    noexcept;
     t_tipc_dgram_client(x_tipc_dgram_client) noexcept;
 
     t_tipc_dgram_client(R_tipc_dgram_client)           = delete;
@@ -208,11 +264,29 @@ namespace net_tipc
 
     operator t_validity() const noexcept;
     t_fd     get_fd    () const noexcept;
+    // XXX add stats
 
-    // send
-    // recv
-    // setsockopt
-    // getsockopt
+    t_errn getsockopt(       t_socket_level, r_socket_option) const noexcept;
+    t_void getsockopt(t_err, t_socket_level, r_socket_option) const noexcept;
+
+    t_errn setsockopt(       t_socket_level, R_socket_option) noexcept;
+    t_void setsockopt(t_err, t_socket_level, R_socket_option) noexcept;
+
+    t_verify<t_n> sendto(       R_byte_crange, R_tipc_address,
+                                t_flags) noexcept;
+    t_n           sendto(t_err, R_byte_crange, R_tipc_address,
+                                t_flags) noexcept;
+
+    t_verify<t_n> recvfrom(       r_byte_range, r_tipc_address,
+                                  t_flags) noexcept;
+    t_n           recvfrom(t_err, r_byte_range, r_tipc_address,
+                                  t_flags) noexcept;
+
+    t_verify<t_n> sendmsg(       R_socket_msghdr, t_flags) noexcept;
+    t_n           sendmsg(t_err, R_socket_msghdr, t_flags) noexcept;
+
+    t_verify<t_n> recvmsg(       r_socket_msghdr, t_flags) noexcept;
+    t_n           recvmsg(t_err, r_socket_msghdr, t_flags) noexcept;
 
   private:
     t_socket socket_;
@@ -229,8 +303,10 @@ namespace net_tipc
 
   class t_tipc_dgram_server {
   public:
-    t_tipc_dgram_server(int) noexcept; // family, protocol, flags
-    t_tipc_dgram_server(x_tipc_dgram_server) noexcept;
+    t_tipc_dgram_server(       R_tipc_address server) noexcept;
+    t_tipc_dgram_server(t_err, R_tipc_address server) noexcept;
+
+    t_tipc_dgram_server(x_tipc_dgram_server)          noexcept;
    ~t_tipc_dgram_server();
 
     t_tipc_dgram_server(R_tipc_dgram_server)           = delete;
@@ -240,12 +316,29 @@ namespace net_tipc
     operator t_validity() const noexcept;
     t_fd     get_fd    () const noexcept;
 
-    // send
-    // recv
-    // sendmsg
-    // recvmsg
-    // setsockopt
-    // getsockopt
+    // XXX add stats
+
+    t_errn getsockopt(       t_socket_level, r_socket_option) const noexcept;
+    t_void getsockopt(t_err, t_socket_level, r_socket_option) const noexcept;
+
+    t_errn setsockopt(       t_socket_level, R_socket_option) noexcept;
+    t_void setsockopt(t_err, t_socket_level, R_socket_option) noexcept;
+
+    t_verify<t_n> sendto(       R_byte_crange, R_tipc_address,
+                                t_flags) noexcept;
+    t_n           sendto(t_err, R_byte_crange, R_tipc_address,
+                                t_flags) noexcept;
+
+    t_verify<t_n> recvfrom(       r_byte_range, r_tipc_address,
+                                  t_flags) noexcept;
+    t_n           recvfrom(t_err, r_byte_range, r_tipc_address,
+                                  t_flags) noexcept;
+
+    t_verify<t_n> sendmsg(       R_socket_msghdr, t_flags) noexcept;
+    t_n           sendmsg(t_err, R_socket_msghdr, t_flags) noexcept;
+
+    t_verify<t_n> recvmsg(       r_socket_msghdr, t_flags) noexcept;
+    t_n           recvmsg(t_err, r_socket_msghdr, t_flags) noexcept;
 
   private:
     t_socket socket_;
@@ -262,7 +355,7 @@ namespace net_tipc
 
   class t_tipc_rdm_client {
   public:
-    t_tipc_rdm_client() noexcept;
+    t_tipc_rdm_client()                  noexcept;
     t_tipc_rdm_client(x_tipc_rdm_client) noexcept;
    ~t_tipc_rdm_client();
 
@@ -273,10 +366,29 @@ namespace net_tipc
     operator t_validity() const noexcept;
     t_fd     get_fd    () const noexcept;
 
-    // send
-    // recv
-    // setsockopt
-    // getsockopt
+    // XXX add stats
+
+    t_errn getsockopt(       t_socket_level, r_socket_option) const noexcept;
+    t_void getsockopt(t_err, t_socket_level, r_socket_option) const noexcept;
+
+    t_errn setsockopt(       t_socket_level, R_socket_option) noexcept;
+    t_void setsockopt(t_err, t_socket_level, R_socket_option) noexcept;
+
+    t_verify<t_n> sendto(       R_byte_crange, R_tipc_address,
+                                t_flags) noexcept;
+    t_n           sendto(t_err, R_byte_crange, R_tipc_address,
+                                t_flags) noexcept;
+
+    t_verify<t_n> recvfrom(       r_byte_range, r_tipc_address,
+                                  t_flags) noexcept;
+    t_n           recvfrom(t_err, r_byte_range, r_tipc_address,
+                                  t_flags) noexcept;
+
+    t_verify<t_n> sendmsg(       R_socket_msghdr, t_flags) noexcept;
+    t_n           sendmsg(t_err, R_socket_msghdr, t_flags) noexcept;
+
+    t_verify<t_n> recvmsg(       r_socket_msghdr, t_flags) noexcept;
+    t_n           recvmsg(t_err, r_socket_msghdr, t_flags) noexcept;
 
   private:
     t_socket socket_;
@@ -293,8 +405,10 @@ namespace net_tipc
 
   class t_tipc_rdm_server {
   public:
-    t_tipc_rdm_server(int) noexcept; // family, protocol, flags
-    t_tipc_rdm_server(x_tipc_rdm_server) noexcept;
+    t_tipc_rdm_server(       R_tipc_address server) noexcept;
+    t_tipc_rdm_server(t_err, R_tipc_address server) noexcept;
+
+    t_tipc_rdm_server(x_tipc_rdm_server)            noexcept;
    ~t_tipc_rdm_server();
 
     t_tipc_rdm_server(R_tipc_rdm_server)           = delete;
@@ -304,12 +418,27 @@ namespace net_tipc
     operator t_validity() const noexcept;
     t_fd     get_fd    () const noexcept;
 
-    // send
-    // recv
-    // sendmsg
-    // recvmsg
-    // setsockopt
-    // getsockopt
+    t_errn getsockopt(       t_socket_level, r_socket_option) const noexcept;
+    t_void getsockopt(t_err, t_socket_level, r_socket_option) const noexcept;
+
+    t_errn setsockopt(       t_socket_level, R_socket_option) noexcept;
+    t_void setsockopt(t_err, t_socket_level, R_socket_option) noexcept;
+
+    t_verify<t_n> sendto(       R_byte_crange, R_tipc_address,
+                                t_flags) noexcept;
+    t_n           sendto(t_err, R_byte_crange, R_tipc_address,
+                                t_flags) noexcept;
+
+    t_verify<t_n> recvfrom(       r_byte_range, r_tipc_address,
+                                  t_flags) noexcept;
+    t_n           recvfrom(t_err, r_byte_range, r_tipc_address,
+                                  t_flags) noexcept;
+
+    t_verify<t_n> sendmsg(       R_socket_msghdr, t_flags) noexcept;
+    t_n           sendmsg(t_err, R_socket_msghdr, t_flags) noexcept;
+
+    t_verify<t_n> recvmsg(       r_socket_msghdr, t_flags) noexcept;
+    t_n           recvmsg(t_err, r_socket_msghdr, t_flags) noexcept;
 
   private:
     t_socket socket_;
@@ -326,8 +455,10 @@ namespace net_tipc
 
   class t_tipc_seqpacket_client {
   public:
-    t_tipc_seqpacket_client() noexcept;
-    t_tipc_seqpacket_client(x_tipc_seqpacket_client) noexcept;
+    t_tipc_seqpacket_client(       R_tipc_address server) noexcept;
+    t_tipc_seqpacket_client(t_err, R_tipc_address server) noexcept;
+
+    t_tipc_seqpacket_client(x_tipc_seqpacket_client)      noexcept;
    ~t_tipc_seqpacket_client();
 
     t_tipc_seqpacket_client(R_tipc_seqpacket_client)           = delete;
@@ -337,11 +468,29 @@ namespace net_tipc
     operator t_validity() const noexcept;
     t_fd     get_fd    () const noexcept;
 
-    // connect
-    // send
-    // recv
-    // setsockopt
-    // getsockopt
+    t_errn getpeername(       r_tipc_address) const noexcept;
+    t_void getpeername(t_err, r_tipc_address) const noexcept;
+
+    t_errn getsockname(       r_tipc_address) const noexcept;
+    t_void getsockname(t_err, r_tipc_address) const noexcept;
+
+    t_verify<t_n> send(       R_byte_crange, t_flags) noexcept;
+    t_n           send(t_err, R_byte_crange, t_flags) noexcept;
+
+    t_verify<t_n> recv(       r_byte_range, t_flags) noexcept;
+    t_n           recv(t_err, r_byte_range, t_flags) noexcept;
+
+    t_verify<t_n> sendmsg(       R_socket_msghdr, t_flags) noexcept;
+    t_n           sendmsg(t_err, R_socket_msghdr, t_flags) noexcept;
+
+    t_verify<t_n> recvmsg(       r_socket_msghdr, t_flags) noexcept;
+    t_n           recvmsg(t_err, r_socket_msghdr, t_flags) noexcept;
+
+    t_errn getsockopt(       t_socket_level, r_socket_option) const noexcept;
+    t_void getsockopt(t_err, t_socket_level, r_socket_option) const noexcept;
+
+    t_errn setsockopt(       t_socket_level, R_socket_option) noexcept;
+    t_void setsockopt(t_err, t_socket_level, R_socket_option) noexcept;
 
   private:
     t_socket socket_;
@@ -358,7 +507,9 @@ namespace net_tipc
 
   class t_tipc_seqpacket_server {
   public:
-    t_tipc_seqpacket_server(int) noexcept; // family, protocol, flags
+    t_tipc_seqpacket_server(       R_tipc_address)   noexcept;
+    t_tipc_seqpacket_server(t_err, R_tipc_address)   noexcept;
+
     t_tipc_seqpacket_server(x_tipc_seqpacket_server) noexcept;
    ~t_tipc_seqpacket_server();
 
@@ -369,13 +520,74 @@ namespace net_tipc
     operator t_validity() const noexcept;
     t_fd     get_fd    () const noexcept;
 
-    // accept
-    // send
-    // recv
-    // sendmsg
-    // recvmsg
-    // setsockopt
-    // getsockopt
+///////////////////////////////////////////////////////////////////////////////
+
+    t_connect_id   accept_connection()            noexcept;
+    t_bool         close_connection(t_connect_id) noexcept;
+
+    R_connect_info get_connection(t_connect_id)      const noexcept;
+    t_void         get_connection_ids(r_connect_ids) const noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    // shutdown/close
+    t_errn getpeername(       t_connect_id, r_tipc_address) const noexcept;
+    t_void getpeername(t_err, t_connect_id, r_tipc_address) const noexcept;
+
+    t_errn getsockname(       t_connect_id, r_tipc_address) const noexcept;
+    t_void getsockname(t_err, t_connect_id, r_tipc_address) const noexcept;
+
+    t_verify<t_n> send(       t_connect_id, R_byte_crange, t_flags) noexcept;
+    t_n           send(t_err, t_connect_id, R_byte_crange, t_flags) noexcept;
+
+    t_verify<t_n> recv(       t_connect_id, r_byte_range, t_flags) noexcept;
+    t_n           recv(t_err, t_connect_id, r_byte_range, t_flags) noexcept;
+
+    t_verify<t_n> sendmsg(       t_connect_id, R_socket_msghdr,
+                                 t_flags) noexcept;
+    t_n           sendmsg(t_err, t_connect_id, R_socket_msghdr,
+                                 t_flags) noexcept;
+
+    t_verify<t_n> recvmsg(       t_connect_id, r_socket_msghdr,
+                                 t_flags) noexcept;
+    t_n           recvmsg(t_err, t_connect_id, r_socket_msghdr,
+                                 t_flags) noexcept;
+
+    t_errn getsockopt(       t_connect_id, t_socket_level,
+                             r_socket_option) const noexcept;
+    t_void getsockopt(t_err, t_connect_id, t_socket_level,
+                             r_socket_option) const noexcept;
+
+    t_errn setsockopt(       t_connect_id, t_socket_level,
+                             R_socket_option) noexcept;
+    t_void setsockopt(t_err, t_connect_id, t_socket_level,
+                             R_socket_option) noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    t_errn getpeername(       r_tipc_address) const noexcept;
+    t_void getpeername(t_err, r_tipc_address) const noexcept;
+
+    t_errn getsockname(       r_tipc_address) const noexcept;
+    t_void getsockname(t_err, r_tipc_address) const noexcept;
+
+    t_verify<t_n> send(       R_byte_crange, t_flags) noexcept;
+    t_n           send(t_err, R_byte_crange, t_flags) noexcept;
+
+    t_verify<t_n> recv(       r_byte_range, t_flags) noexcept;
+    t_n           recv(t_err, r_byte_range, t_flags) noexcept;
+
+    t_verify<t_n> sendmsg(       R_socket_msghdr, t_flags) noexcept;
+    t_n           sendmsg(t_err, R_socket_msghdr, t_flags) noexcept;
+
+    t_verify<t_n> recvmsg(       r_socket_msghdr, t_flags) noexcept;
+    t_n           recvmsg(t_err, r_socket_msghdr, t_flags) noexcept;
+
+    t_errn getsockopt(       t_socket_level, r_socket_option) const noexcept;
+    t_void getsockopt(t_err, t_socket_level, r_socket_option) const noexcept;
+
+    t_errn setsockopt(       t_socket_level, R_socket_option) noexcept;
+    t_void setsockopt(t_err, t_socket_level, R_socket_option) noexcept;
 
   private:
     t_socket socket_;

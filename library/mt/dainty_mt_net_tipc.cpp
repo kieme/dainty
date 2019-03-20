@@ -36,10 +36,30 @@ namespace net_tipc
   using named::utility::reset;
   using named::utility::x_cast;
 
+  using os::t_socket_domain;
+  using os::t_socket_type;
+  using os::t_socket_protocol;
+
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_tipc_stream_client::t_tipc_stream_client() noexcept :
-    socket_{t_socket_domain{0}, t_socket_type{0}, t_socket_protocol{0}} {
+  t_tipc_stream_client::t_tipc_stream_client(R_tipc_address server) noexcept
+      : socket_{t_socket_domain{0},
+                t_socket_type{0},
+                t_socket_protocol{0}} {
+    if (socket_.connect(server) == INVALID)
+      socket_.close();
+  }
+
+  t_tipc_stream_client::t_tipc_stream_client(t_err err,
+                                             R_tipc_address server) noexcept
+      : socket_{err, t_socket_domain{0},
+                     t_socket_type{0},
+                     t_socket_protocol{0}} {
+    ERR_GUARD(err) {
+      socket_.connect(err, server);
+      if (err)
+        socket_.close();
+    }
   }
 
   t_tipc_stream_client
@@ -53,17 +73,6 @@ namespace net_tipc
 
   t_fd t_tipc_stream_client::get_fd() const noexcept {
     return socket_.get_fd();
-  }
-
-  t_errn t_tipc_stream_client::connect(R_tipc_address addr) noexcept {
-    return socket_.connect(addr);
-  }
-
-  t_void t_tipc_stream_client::connect(t_err err,
-                                       R_tipc_address addr) noexcept {
-    ERR_GUARD(err) {
-      socket_.connect(err, addr);
-    }
   }
 
   t_errn t_tipc_stream_client::getpeername(r_tipc_address addr) const noexcept {
