@@ -873,7 +873,7 @@ namespace tracer
         dispatcher_.add_event (err, {que_processor_.get_fd(), RD_EVENT},
                                &que_proxy);
 
-        dispatcher_.event_loop(err, this);
+        dispatcher_.event_loop(err, *this);
       }
 
       if (err) {

@@ -1793,7 +1793,7 @@ namespace message
         // timed messages
         // fdtimer
         // tipc topology service
-        dispatcher_.event_loop(err, this);
+        dispatcher_.event_loop(err, *this);
       }
 
       if (err) {
