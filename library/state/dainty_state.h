@@ -29,42 +29,6 @@
 
 #include "dainty_named.h"
 
-///////////////////////////////////////////////////////////////////////////////
-
-#define DAINTY_SM_START                                          \
-      if (curr_ == stop_) {                                      \
-        debug_start(*this, next);                                \
-        curr_ = initial_point(next);                             \
-        debug(*this, stop_, curr_);                              \
-        return do_transition(get_state(curr_)->entry_point());   \
-      }                                                          \
-      return curr_;
-
-#define DAINTY_SM_STOP                                           \
-      if (curr_ != stop_) {                                      \
-        get_state(curr_)->exit_point();                          \
-        debug(*this, curr_, stop_);                              \
-        curr_ = stop_;                                           \
-        final_point();                                           \
-        debug_stop(*this);                                       \
-      }
-
-#define DAINTY_SM_TRANSITION                                     \
-      while (curr_ != next) {                                    \
-        if (next != stop_) {                                     \
-          get_state(curr_)->exit_point();                        \
-          debug(*this, curr_, next);                             \
-          curr_ = next;                                          \
-          next = get_state(curr_)->entry_point();                \
-        } else {                                                 \
-          stop();                                                \
-          break;                                                 \
-        }                                                        \
-      }                                                          \
-      return curr_;
-
-///////////////////////////////////////////////////////////////////////////////
-
 namespace dainty
 {
 namespace state
@@ -115,23 +79,6 @@ namespace state
            typename USER, // user type which is used by the states
            typename IF>   // enforced interface
   class t_statemachine;
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename ID, typename USER, typename IF>
-  inline
-  t_void debug_start(const t_statemachine<ID, USER, IF>&, ID start) {
-  }
-
-  template<typename ID, typename USER, typename IF>
-  inline
-  t_void debug_stop(const t_statemachine<ID, USER, IF>&) {
-  }
-
-  template<typename ID, typename USER, typename IF>
-  inline
-  t_void debug(const t_statemachine<ID, USER, IF>&, ID current, ID next) {
-  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -189,6 +136,66 @@ namespace state
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template<typename ID, typename USER, typename IF>
+  inline
+  t_void debug_start(const t_statemachine<ID, USER, IF>&, ID start) {
+  }
+
+  template<typename ID, typename USER, typename IF>
+  inline
+  t_void debug_stop(const t_statemachine<ID, USER, IF>&) {
+  }
+
+  template<typename ID, typename USER, typename IF>
+  inline
+  t_void debug(const t_statemachine<ID, USER, IF>&, ID current, ID next) {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename ID, typename USER, typename IF>
+  inline
+  ID statemachine_transition_(t_statemachine<ID, USER, IF>& sm, ID next) {
+    while (sm.curr_ != next) {
+      if (next != sm.stop_) {
+        sm.get_state(sm.curr_)->exit_point();
+        debug(sm, sm.curr_, next);
+        sm.curr_ = next;
+        next = sm.get_state(sm.curr_)->entry_point();
+      } else {
+        sm.stop();
+        break;
+      }
+    }
+    return sm.curr_;
+  }
+
+  template<typename ID, typename USER, typename IF>
+  inline
+  ID statemachine_start_(t_statemachine<ID, USER, IF>& sm, ID start) {
+    if (sm.curr_ == sm.stop_) {
+      debug_start(sm, start);
+      sm.curr_ = sm.initial_point(start);
+      debug(sm, sm.stop_, sm.curr_);
+      return sm.do_transition(sm.get_state(sm.curr_)->entry_point());
+    }
+    return sm.curr_;
+  }
+
+  template<typename ID, typename USER, typename IF>
+  inline
+  t_void statemachine_stop_(t_statemachine<ID, USER, IF>& sm) {
+    if (sm.curr_ != sm.stop_) {
+      sm.get_state(sm.curr_)->exit_point();
+      debug(sm, sm.curr_, sm.stop_);
+      sm.curr_ = sm.stop_;
+      sm.final_point();
+      debug_stop(sm);
+    }
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<typename ID, typename USER = t_no_user, typename IF = t_no_if>
   class t_state : public IF {
   public:
@@ -214,14 +221,20 @@ namespace state
 
     // use to indicate that a state change is requested or not.
     virtual t_state_id request_transition(t_state_id id) const {
-      return state_id_;
+      return id;
     }
 
     t_state_id no_transition() const noexcept { return state_id_; }
 
   private:
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_transition_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_start_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend t_void statemachine_stop_(t_statemachine<ID1, USER1, IF1>&);
+
     using T_state_id = typename t_prefix<t_state_id>::T_;
-    template<typename, typename, typename> friend class t_statemachine;
 
     // generic actions. entry_point can request a state change.
     virtual t_state_id entry_point() { return no_transition(); }
@@ -255,8 +268,14 @@ namespace state
     t_state_id no_transition() const noexcept { return state_id_; }
 
   private:
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_transition_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_start_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend t_void statemachine_stop_(t_statemachine<ID1, USER1, IF1>&);
+
     using T_state_id = typename t_prefix<t_state_id>::T_;
-    template<typename, typename, typename> friend class t_statemachine;
 
     // generic actions. entry_point can request a state change.
     virtual t_state_id entry_point() { return no_transition(); }
@@ -296,8 +315,14 @@ namespace state
     t_state_id no_transition() const noexcept { return state_id_; }
 
   private:
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_transition_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_start_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend t_void statemachine_stop_(t_statemachine<ID1, USER1, IF1>&);
+
     using T_state_id = typename t_prefix<t_state_id>::T_;
-    template<typename, typename, typename> friend class t_statemachine;
 
     // generic actions. entry_point can request a state change.
     virtual t_state_id entry_point() { return no_transition(); }
@@ -331,8 +356,14 @@ namespace state
     t_state_id no_transition() const noexcept { return state_id_; }
 
   private:
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_transition_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_start_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend t_void statemachine_stop_(t_statemachine<ID1, USER1, IF1>&);
+
     using T_state_id = typename t_prefix<t_state_id>::T_;
-    template<typename, typename, typename> friend class t_statemachine;
 
     // generic actions. entry_point can request a state change.
     virtual t_state_id entry_point() { return no_transition(); }
@@ -369,7 +400,7 @@ namespace state
 
     // start the statemachine in the id state.
     t_state_id start(t_state_id next) {
-      DAINTY_SM_START
+      return statemachine_start_(*this, next);
     }
 
     // start the statemachine in the id state.
@@ -380,12 +411,12 @@ namespace state
 
     // stop the statemachine in the id state. this is the terminating state.
     t_void stop() {
-      DAINTY_SM_STOP
+      statemachine_stop_(*this);
     }
 
     // control state changes if required. return indicate if state was changed
     t_state_id do_transition(t_state_id next) {
-      DAINTY_SM_TRANSITION
+      return statemachine_transition_(*this, next);
     }
 
     // access to current state pointer
@@ -394,6 +425,13 @@ namespace state
     P_state get_ccurrent() const noexcept { return get_current(curr_); }
 
   private:
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_transition_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_start_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend t_void statemachine_stop_(t_statemachine<ID1, USER1, IF1>&);
+
     using T_state_id = typename t_prefix<t_state_id>::T_;
 
     // provide methods that detect when the statemachine starts/stops
@@ -431,7 +469,7 @@ namespace state
 
     // start the statemachine in the id state.
     t_state_id start(t_state_id next) {
-      DAINTY_SM_START
+      return statemachine_start_(*this, next);
     }
 
     // start the statemachine in the id state.
@@ -442,12 +480,12 @@ namespace state
 
     // stop the statemachine in the id state. this is the terminating state.
     t_void stop() {
-      DAINTY_SM_STOP
+      statemachine_stop_(*this);
     }
 
     // control state changes if required. return indicate if state was changed
     t_state_id do_transition(t_state_id next) {
-      DAINTY_SM_TRANSITION
+      return statemachine_transition_(*this, next);
     }
 
     // access to current state pointer
@@ -456,6 +494,13 @@ namespace state
     P_state get_ccurrent() const noexcept { return get_cstate(curr_); }
 
   private:
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_transition_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_start_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend t_void statemachine_stop_(t_statemachine<ID1, USER1, IF1>&);
+
     using T_state_id = typename t_prefix<t_state_id>::T_;
 
     // provide methods that detect when the statemachine starts/stops
@@ -500,7 +545,7 @@ namespace state
 
     // start the statemachine in the id state.
     t_state_id start(t_state_id next) {
-      DAINTY_SM_START
+      return statemachine_start_(*this, next);
     }
 
     // start the statemachine in the id state.
@@ -511,12 +556,12 @@ namespace state
 
     // stop the statemachine in the id state. this is the terminating state.
     t_void stop() {
-      DAINTY_SM_STOP
+      statemachine_stop_(*this);
     }
 
     // control state changes if required. return indicate if state was changed
     t_state_id do_transition(t_state_id next) {
-      DAINTY_SM_TRANSITION
+      return statemachine_transition_(*this, next);
     }
 
     // NOTE:     current() is not given because there is no interface.
@@ -532,6 +577,13 @@ namespace state
     }
 
   private:
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_transition_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_start_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend t_void statemachine_stop_(t_statemachine<ID1, USER1, IF1>&);
+
     using T_state_id = typename t_prefix<t_state_id>::T_;
 
     // provide methods that detect when the statemachine starts/stops
@@ -561,7 +613,7 @@ namespace state
 
     // start the statemachine in the id state.
     t_state_id start(t_state_id next) {
-      DAINTY_SM_START
+      return statemachine_start_(*this, next);
     }
 
     // start the statemachine in the id state.
@@ -572,12 +624,12 @@ namespace state
 
     // stop the statemachine in the id state. this is the terminating state.
     t_void stop() {
-      DAINTY_SM_STOP
+      statemachine_stop_(*this);
     }
 
     // control state changes if required. return indicate if state was changed
     t_state_id do_transition(t_state_id next) {
-      DAINTY_SM_TRANSITION
+      return statemachine_transition_(*this, next);
     }
 
     // NOTE:     current() is not given because there is no interface.
@@ -593,6 +645,13 @@ namespace state
     }
 
   private:
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_transition_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend ID1 statemachine_start_(t_statemachine<ID1, USER1, IF1>&, ID1);
+    template<typename ID1, typename USER1, typename IF1>
+    friend t_void statemachine_stop_(t_statemachine<ID1, USER1, IF1>&);
+
     using T_state_id = typename t_prefix<t_state_id>::T_;
 
     // provide methods that detect when the statemachine starts/stops
