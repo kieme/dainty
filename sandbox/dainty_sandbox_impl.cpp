@@ -571,7 +571,7 @@ namespace sandbox
       return t_action{QUIT_EVENT_LOOP};
     } else if (ev_id == tmrs_ev_id_) {
       t_out{"internal timer expired - process timeouts"};
-      tmrs_.process(this);
+      tmrs_.process(*this);
     } else {
       t_fdevent_id id(params.user.id);
       auto entry_id = get_fdevents_id_(id);
@@ -624,7 +624,7 @@ namespace sandbox
     t_err err;
 
     start_(err.tag(1));
-    dispatcher_.event_loop(err.tag(2), this,
+    dispatcher_.event_loop(err.tag(2), *this,
                            t_msec{spin_cnt_ * spin_period_});
     cleanup_(err.tag(3));
 

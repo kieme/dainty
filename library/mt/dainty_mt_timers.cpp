@@ -46,7 +46,7 @@ namespace timers
 
   using t_tmr_          = os::clock::t_timer;
   using r_err           = t_prefix<t_err>::r_;
-  using p_logic         = t_timers::p_logic;
+  using r_logic         = t_timers::r_logic;
   using t_timerfd_      = os::fdbased::t_timerfd;
   using t_timerfd_flags = t_timerfd_::t_flags;
   using t_timerfd_spec  = t_timerfd_::t_timerspec;
@@ -296,12 +296,12 @@ namespace timers
                      ids.push_back(entry.info.id); });
     }
 
-    t_errn process(p_logic logic) noexcept {
+    t_errn process(r_logic logic) noexcept {
       //XXX
       return t_errn{-1};
     }
 
-    t_void process(r_err err, p_logic logic) noexcept {
+    t_void process(r_err err, r_logic logic) noexcept {
       t_timerfd_::t_data data;
       timerfd_.read(err, data);
       if (!err) {
@@ -312,7 +312,7 @@ namespace timers
             if (recalc_current_all_(now, expired_timers))
               set_timer_(err);
 
-            logic->notify_timers_reorder(expired_timers);
+            logic.notify_timers_reorder(expired_timers);
 
             t_ix_ end = get(expired_timers.get_size());
             for (t_ix_ ix = 0; ix < end; ++ix) {
@@ -326,15 +326,15 @@ namespace timers
                 t_msec timeout{entry->info.params.timeout};
                 t_msec overrun{get(expired) - get(timeout)};
                 if ((get(overrun)/get(timeout))*100 >= get(params_.overrun))
-                  logic->notify_timers_overrun(entry->info.id, overrun);
+                  logic.notify_timers_overrun(entry->info.id, overrun);
               }
 
               if (entry->info.logic)
                 entry->info.logic->notify_timers_timeout(entry->info.id,
                                                          entry->info.params);
               else
-                logic->notify_timers_timeout(entry->info.id,
-                                             entry->info.params);
+                logic.notify_timers_timeout(entry->info.id,
+                                            entry->info.params);
 
               if (entry->periodic) {
                 entry->start = now;
@@ -345,7 +345,7 @@ namespace timers
               }
             }
 
-            logic->notify_timers_processed();
+            logic.notify_timers_processed();
           }
         } else {
           current_ = t_msec{0};
@@ -662,13 +662,13 @@ namespace timers
       impl_->get_timer_ids(ids);
   }
 
-  t_errn t_timers::process(p_logic logic) noexcept {
+  t_errn t_timers::process(r_logic logic) noexcept {
     if (*this == VALID)
       return impl_->process(logic);
     return t_errn{-1};
   }
 
-  t_void t_timers::process(t_err err, p_logic logic) noexcept {
+  t_void t_timers::process(t_err err, r_logic logic) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
         return impl_->process(err, logic);

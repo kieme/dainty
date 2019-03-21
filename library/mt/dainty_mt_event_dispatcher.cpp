@@ -48,7 +48,7 @@ namespace event_dispatcher
   using t_id     = container::freelist::t_id;
   using t_events = container::freelist::t_freelist<t_event_info>;
   using r_events = t_prefix<t_events>::r_;
-  using p_logic = t_dispatcher::p_logic;
+  using r_logic  = t_dispatcher::r_logic;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -183,16 +183,16 @@ namespace event_dispatcher
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_quit process_events(r_event_infos infos, p_logic logic) noexcept {
+    t_quit process_events(r_event_infos infos, r_logic logic) noexcept {
       if (!infos.is_empty()) {
-        logic->notify_dispatcher_reorder(infos);
+        logic.notify_dispatcher_reorder(infos);
         t_ix_ end = get(infos.get_size());
         for (t_ix_ ix = 0; ix < end; ++ix) {
           auto     info   = infos.get(t_ix{ix});
           t_action action =
             info->logic ?
               info->logic->notify_dispatcher_event(info->id, info->params) :
-                    logic->notify_dispatcher_event(info->id, info->params);
+                    logic.notify_dispatcher_event(info->id, info->params);
           switch (action.cmd) {
             case CONTINUE: {
               p_event_logic next = action.next;
@@ -200,7 +200,7 @@ namespace event_dispatcher
                 info->logic = next;
             } break;
             case REMOVE_EVENT:
-              logic->notify_dispatcher_removed(*info);
+              logic.notify_dispatcher_removed(*info);
               del_event(info->id);
               break;
             case QUIT_EVENT_LOOP:
@@ -213,15 +213,15 @@ namespace event_dispatcher
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_n event_loop(p_logic logic) noexcept {
+    t_n event_loop(r_logic logic) noexcept {
       return event_loop(logic, t_msec{0});
     }
 
-    t_n event_loop(r_err err, p_logic logic) noexcept {
+    t_n event_loop(r_err err, r_logic logic) noexcept {
       return event_loop(err, logic, t_msec{0});
     }
 
-    t_n event_loop(p_logic logic, t_msec msec) noexcept {
+    t_n event_loop(r_logic logic, t_msec msec) noexcept {
       t_n_   cnt  = 0;
       t_quit quit{false};
       do {
@@ -230,15 +230,15 @@ namespace event_dispatcher
           if (!infos_.is_empty())
             quit = process_events(infos_, logic);
           else
-            quit = logic->notify_dispatcher_timeout(msec);
+            quit = logic.notify_dispatcher_timeout(msec);
         } else {
-          quit = logic->notify_dispatcher_error(errn);
+          quit = logic.notify_dispatcher_error(errn);
           if (quit == DONT_QUIT)
             errn = t_errn{0};
         }
 
         if (quit == DONT_QUIT)
-          quit = logic->notify_dispatcher_processed(msec);
+          quit = logic.notify_dispatcher_processed(msec);
 
         infos_.clear();
         ++cnt;
@@ -246,7 +246,7 @@ namespace event_dispatcher
       return t_n{cnt};
     }
 
-    t_n event_loop(r_err err, p_logic logic, t_msec msec) noexcept {
+    t_n event_loop(r_err err, r_logic logic, t_msec msec) noexcept {
       t_n_   cnt = 0;
       t_quit quit{false};
       do {
@@ -255,15 +255,15 @@ namespace event_dispatcher
           if (!infos_.is_empty())
             quit = process_events(infos_, logic);
           else
-            quit = logic->notify_dispatcher_timeout(msec);
+            quit = logic.notify_dispatcher_timeout(msec);
         } else {
-          quit = logic->notify_dispatcher_error(t_errn(err.id()));
+          quit = logic.notify_dispatcher_error(t_errn(err.id()));
           if (quit == DONT_QUIT)
             err.clear();
         }
 
         if (quit == DONT_QUIT)
-          quit = logic->notify_dispatcher_processed(msec);
+          quit = logic.notify_dispatcher_processed(msec);
 
         infos_.clear();
         ++cnt;
@@ -488,13 +488,13 @@ namespace event_dispatcher
     return false;
   }
 
-  t_n t_dispatcher::event_loop(p_logic logic) noexcept {
+  t_n t_dispatcher::event_loop(r_logic logic) noexcept {
     if (*this == VALID)
       return impl_->event_loop(logic);
     return t_n{0};
   }
 
-  t_n t_dispatcher::event_loop(t_err err, p_logic logic) noexcept {
+  t_n t_dispatcher::event_loop(t_err err, r_logic logic) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
         return impl_->event_loop(err, logic);
@@ -503,13 +503,13 @@ namespace event_dispatcher
     return t_n{0};
   }
 
-  t_n t_dispatcher::event_loop(p_logic logic, t_msec msec) noexcept {
+  t_n t_dispatcher::event_loop(r_logic logic, t_msec msec) noexcept {
     if (*this == VALID)
       return impl_->event_loop(logic, msec);
     return t_n{0};
   }
 
-  t_n t_dispatcher::event_loop(t_err err, p_logic logic, t_msec msec) noexcept {
+  t_n t_dispatcher::event_loop(t_err err, r_logic logic, t_msec msec) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
         return impl_->event_loop(err, logic, msec);

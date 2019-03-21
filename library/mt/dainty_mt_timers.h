@@ -160,7 +160,7 @@ namespace timers
       virtual t_void notify_timers_overrun  (t_timer_id, t_msec) noexcept;
       virtual t_void notify_timers_processed()                   noexcept;
     };
-    using p_logic = t_prefix<t_logic>::p_;
+    using r_logic = t_prefix<t_logic>::r_;
 
     t_timers(       R_params) noexcept;
     t_timers(t_err, R_params) noexcept;
@@ -197,8 +197,8 @@ namespace timers
 
     t_void get_timer_ids(r_timer_ids)        const noexcept;
 
-    t_errn process(       p_logic) noexcept;
-    t_void process(t_err, p_logic) noexcept;
+    t_errn process(       r_logic) noexcept;
+    t_void process(t_err, r_logic) noexcept;
 
   private:
     t_impl_owner_ impl_;

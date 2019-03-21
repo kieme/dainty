@@ -208,7 +208,7 @@ namespace event_dispatcher
       virtual t_quit notify_dispatcher_timeout  (t_msec)        noexcept = 0;
       virtual t_quit notify_dispatcher_error    (t_errn)        noexcept = 0;
     };
-    using p_logic = t_prefix<t_logic>::p_;
+    using r_logic = t_prefix<t_logic>::r_;
 
     t_dispatcher(       R_params) noexcept;
     t_dispatcher(t_err, R_params) noexcept;
@@ -239,11 +239,11 @@ namespace event_dispatcher
 
     t_bool        get_events(r_event_ids) const noexcept;
 
-    t_n           event_loop(       p_logic) noexcept;
-    t_n           event_loop(t_err, p_logic) noexcept;
+    t_n           event_loop(       r_logic) noexcept;
+    t_n           event_loop(t_err, r_logic) noexcept;
 
-    t_n           event_loop(       p_logic, t_msec) noexcept;
-    t_n           event_loop(t_err, p_logic, t_msec) noexcept;
+    t_n           event_loop(       r_logic, t_msec) noexcept;
+    t_n           event_loop(t_err, r_logic, t_msec) noexcept;
 
   private:
     t_impl_owner_ impl_;
