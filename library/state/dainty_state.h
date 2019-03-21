@@ -262,7 +262,7 @@ namespace state
 
     // use to indicate that a state change is requested or not.
     virtual t_state_id request_transition(t_state_id id) const {
-      return state_id_;
+      return id;
     }
 
     t_state_id no_transition() const noexcept { return state_id_; }
@@ -309,7 +309,7 @@ namespace state
 
     // use to indicate that a state change is requested or not.
     virtual t_state_id request_transition(t_state_id id) const {
-      return state_id_;
+      return id;
     }
 
     t_state_id no_transition() const noexcept { return state_id_; }
@@ -350,7 +350,7 @@ namespace state
 
     // use to indicate that a state change is requested or not.
     virtual t_state_id request_transition(t_state_id id) const {
-      return state_id_;
+      return id;
     }
 
     t_state_id no_transition() const noexcept { return state_id_; }
