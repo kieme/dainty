@@ -29,7 +29,7 @@ namespace coffee_machine
                               POUR_SMALL,
                               POUR_MEDIUM,
                               POUR_LARGE,
-                              WAIT_EXPIRE  };
+                              INACTIVITY  };
 
   const t_crange timeout_names[] = { mk_range("test_temp"),
                                      mk_range("pour small)"),
@@ -130,11 +130,13 @@ namespace coffee_machine
   public:
      virtual ~t_events() {}
 
-     virtual t_state_id off    ()               noexcept = 0;
-     virtual t_state_id timeout(t_timeout_id)   noexcept = 0;
-     virtual t_state_id select (t_selection_id) noexcept = 0;
-     virtual t_state_id insert (t_coin_id)      noexcept = 0;
-     virtual t_state_id cancel ()               noexcept = 0;
+     virtual t_state_id off               ()               noexcept = 0;
+     virtual t_state_id pour_expired      ()               noexcept = 0;
+     virtual t_state_id test_temp_expired ()               noexcept = 0;
+     virtual t_state_id inactivity_expired()               noexcept = 0;
+     virtual t_state_id select            (t_selection_id) noexcept = 0;
+     virtual t_state_id insert            (t_coin_id)      noexcept = 0;
+     virtual t_state_id cancel            ()               noexcept = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -154,7 +156,7 @@ namespace coffee_machine
     t_void       stop_heat       ()               noexcept;
     t_bool       accept_order    (t_selection_id) noexcept;
     t_void       keep_coin       (t_coin_id)      noexcept;
-    t_bool       valid_coin      (t_coin_id)      noexcept;
+    t_bool       is_valid_coin   (t_coin_id)      noexcept;
     t_void       return_coin     (t_coin_id)      noexcept;
     t_void       return_change   ()               noexcept;
     t_void       return_coins    ()               noexcept;
@@ -221,12 +223,22 @@ namespace coffee_machine
       return request_transition(CLEAN);
     }
 
-    t_state_id timeout(t_timeout_id) noexcept override {
+    t_state_id pour_expired() noexcept override {
+      // UNEXPECTED
+      return no_transition();
+    }
+
+    t_state_id test_temp_expired() noexcept override {
       if (action().is_temp_above_75()) {
         action().keep_heat();
         return request_transition(READY);
       }
       action().start_timer(TEST_TEMP);
+      return no_transition();
+    }
+
+    t_state_id inactivity_expired() noexcept override {
+      // UNEXPECTED
       return no_transition();
     }
 
@@ -267,17 +279,28 @@ namespace coffee_machine
       return request_transition(CLEAN);
     }
 
-    t_state_id timeout(t_timeout_id) noexcept override {
+    t_state_id pour_expired() noexcept override {
+      // UNEXPECTED
       return no_transition();
     }
 
-    t_state_id select (t_selection_id) noexcept override {
+    t_state_id test_temp_expired() noexcept override {
+      // UNEXPECTED
+      return no_transition();
+    }
+
+    t_state_id inactivity_expired() noexcept override {
+      // UNEXPECTED
+      return no_transition();
+    }
+
+    t_state_id select(t_selection_id) noexcept override {
       action().beep();
       return no_transition();
     }
 
     t_state_id insert(t_coin_id id) noexcept override {
-      if (action().valid_coin(id)) {
+      if (action().is_valid_coin(id)) {
         action().keep_coin(id);
         return request_transition(ORDER);
       }
@@ -301,12 +324,12 @@ namespace coffee_machine
   private:
     t_state_id entry_point() override {
       action().display(ORDER);
-      action().start_timer(WAIT_EXPIRE);
+      action().start_timer(INACTIVITY);
       return no_transition();
     }
 
     t_void exit_point() override {
-      action().stop_timer(WAIT_EXPIRE);
+      action().stop_timer(INACTIVITY);
     }
 
     t_state_id off() noexcept override {
@@ -314,7 +337,18 @@ namespace coffee_machine
       return request_transition(CLEAN);
     }
 
-    t_state_id timeout(t_timeout_id) noexcept override {
+    t_state_id pour_expired() noexcept override {
+      // UNEXPECTED
+      return no_transition();
+    }
+
+    t_state_id test_temp_expired() noexcept override {
+      // UNEXPECTED
+      return no_transition();
+    }
+
+    t_state_id inactivity_expired() noexcept override {
+      action().beep();
       action().return_coins();
       return request_transition(READY);
     }
@@ -329,7 +363,7 @@ namespace coffee_machine
     }
 
     t_state_id insert(t_coin_id id) noexcept override {
-      if (action().valid_coin(id)) {
+      if (action().is_valid_coin(id)) {
         action().keep_coin(id);
         action().display(ORDER);
       } else {
@@ -369,8 +403,18 @@ namespace coffee_machine
       return request_transition(CLEAN);
     }
 
-    t_state_id timeout(t_timeout_id) noexcept override {
+    t_state_id pour_expired() noexcept override {
       return request_transition(PREPARE);
+    }
+
+    t_state_id test_temp_expired() noexcept override {
+      // UNEXPECTED
+      return no_transition();
+    }
+
+    t_state_id inactivity_expired() noexcept override {
+      // UNEXPECTED
+      return request_transition(READY);
     }
 
     t_state_id select(t_selection_id) noexcept override {
@@ -393,48 +437,59 @@ namespace coffee_machine
 
   class t_clean_state final : public t_state {
   public:
-     t_clean_state(r_actions actions) : t_state(CLEAN, actions) {
-     }
+    t_clean_state(r_actions actions) : t_state(CLEAN, actions) {
+    }
 
   private:
-     t_state_id entry_point() override {
-       action().display(CLEAN);
-       action().stop_heat();
-       action().rinse();
-       return request_transition(STOP);
-     }
+    t_state_id entry_point() override {
+      action().display(CLEAN);
+      action().stop_heat();
+      action().rinse();
+      return request_transition(STOP);
+    }
 
-     t_void exit_point() override {
-       /* unexpected */
-       action().beep();
-       action().beep();
-       action().beep();
-       action().beep();
-       action().beep();
-     }
+    t_void exit_point() override {
+      /* unexpected */
+      action().beep();
+      action().beep();
+      action().beep();
+      action().beep();
+      action().beep();
+    }
 
-     t_state_id off() noexcept override {
-       return no_transition();
-     }
+    t_state_id off() noexcept override {
+      return no_transition();
+    }
 
-     t_state_id timeout(t_timeout_id) noexcept override {
-       return no_transition();
-     }
+    t_state_id pour_expired() noexcept override {
+      // UNEXPECTED
+      return no_transition();
+    }
 
-     t_state_id select (t_selection_id) noexcept override {
-       action().beep();
-       return no_transition();
-     }
+    t_state_id test_temp_expired() noexcept override {
+      // UNEXPECTED
+      return no_transition();
+    }
 
-     t_state_id insert(t_coin_id id) noexcept override {
-       action().beep();
-       action().return_coin(id);
-       return no_transition();
-     }
+    t_state_id inactivity_expired() noexcept override {
+      // UNEXPECTED
+      return no_transition();
+    }
 
-     t_state_id cancel() noexcept override {
-       return no_transition();
-     }
+    t_state_id select (t_selection_id) noexcept override {
+      action().beep();
+      return no_transition();
+    }
+
+    t_state_id insert(t_coin_id id) noexcept override {
+      action().beep();
+      action().return_coin(id);
+      return no_transition();
+    }
+
+    t_state_id cancel() noexcept override {
+      return no_transition();
+    }
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -466,8 +521,16 @@ namespace coffee_machine
       return do_transition(get_current()->off());
     } // never returns
 
-    t_state_id timeout(t_timeout_id id) noexcept override {
-      return do_transition(get_current()->timeout(id));
+    t_state_id pour_expired() noexcept override {
+      return do_transition(get_current()->pour_expired());
+    }
+
+    t_state_id test_temp_expired() noexcept override {
+      return do_transition(get_current()->test_temp_expired());
+    }
+
+    t_state_id inactivity_expired() noexcept override {
+      return do_transition(get_current()->inactivity_expired());
     }
 
     t_state_id select(t_selection_id id) noexcept override {
@@ -541,11 +604,6 @@ namespace coffee_machine
       actions_.what_happened();
     }
 
-    t_void timeout(t_timeout_id id) noexcept {
-      statemachine_.timeout(id);
-      actions_.what_happened();
-    }
-
     t_void select(t_selection_id id) noexcept {
       statemachine_.select(id);
       actions_.what_happened();
@@ -558,6 +616,25 @@ namespace coffee_machine
 
     t_void cancel() noexcept {
       statemachine_.cancel();
+      actions_.what_happened();
+    }
+
+    t_void timeout(t_timeout_id id) noexcept {
+      switch (id) {
+        case TEST_TEMP:
+          statemachine_.test_temp_expired();
+          break;
+
+        case POUR_SMALL:
+        case POUR_MEDIUM:
+        case POUR_LARGE:
+          statemachine_.pour_expired();
+          break;
+
+        case INACTIVITY:
+          statemachine_.inactivity_expired();
+          break;
+      }
       actions_.what_happened();
     }
 
@@ -647,8 +724,8 @@ namespace coffee_machine
     tracker.append(FMT, "keep_coin, total is now = %lu\n", total_);
   }
 
-  t_bool t_actions::valid_coin(t_coin_id id) noexcept {
-    tracker << BG << "valid_coin=" << id << CR;
+  t_bool t_actions::is_valid_coin(t_coin_id id) noexcept {
+    tracker << BG << "is_valid_coin=" << id << CR;
     return id != BADCOIN;
   }
 
