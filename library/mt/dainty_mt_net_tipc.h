@@ -79,6 +79,9 @@ namespace net_tipc
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  using t_user = named::t_int; //XXX
+  using r_user = t_prefix<t_user>::r_;
+
   enum  t_connect_id_tag_ {};
   using t_connect_id_ = named::t_int;
   using t_connect_id  = t_explicit<t_connect_id_, t_connect_id_tag_>;
@@ -86,13 +89,25 @@ namespace net_tipc
   using t_connect_ids = t_maybe<t_list<t_connect_id>>;
   using r_connect_ids = t_prefix<t_connect_ids>::r_;
 
+  class t_connect_result {
+  public:
+    constexpr
+    t_connect_result(t_connect_id _id, t_fd _fd) noexcept : id{_id}, fd{_fd} {
+    }
+
+    t_connect_id id;
+    t_fd         fd;
+  };
+
   struct t_connect_stats {
   };
 
   struct t_connect_info {
     t_fd            fd;
+    t_connect_id    id;
+    t_tipc_address  peer;
+    t_user          user;
     t_connect_stats stats;
-    // peername
   };
   using R_connect_info = t_prefix<t_connect_info>::R_;
 
@@ -158,8 +173,20 @@ namespace net_tipc
 
   class t_tipc_stream_server {
   public:
-    t_tipc_stream_server(       R_tipc_address server) noexcept;
-    t_tipc_stream_server(t_err, R_tipc_address server) noexcept;
+      //XXX define types
+    class t_logic {
+    public:
+      virtual ~t_logic() {}
+
+      virtual t_bool notify_tipc_stream_server_connection_accept(t_fd, R_tipc_address, r_user) noexcept = 0;
+      virtual t_void notify_tipc_stream_server_connection_add   (R_connect_info,       r_user) noexcept = 0;
+      virtual t_void notify_tipc_stream_server_connection_del   (R_connect_info)               noexcept = 0;
+      virtual t_void notify_tipc_stream_server_connection_error (t_errn)                       noexcept = 0;
+    };
+    using r_logic = t_prefix<t_logic>::r_;
+
+    t_tipc_stream_server(       R_tipc_address server, r_logic) noexcept;
+    t_tipc_stream_server(t_err, R_tipc_address server, r_logic) noexcept;
 
     t_tipc_stream_server(x_tipc_stream_server)         noexcept;
    ~t_tipc_stream_server();
@@ -173,8 +200,8 @@ namespace net_tipc
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_connect_id   accept_connection()            noexcept;
-    t_bool         close_connection(t_connect_id) noexcept;
+    t_connect_result accept_connection()            noexcept;
+    t_bool           close_connection(t_connect_id) noexcept;
 
     R_connect_info get_connection(t_connect_id)      const noexcept;
     t_void         get_connection_ids(r_connect_ids) const noexcept;
@@ -507,8 +534,20 @@ namespace net_tipc
 
   class t_tipc_seqpacket_server {
   public:
-    t_tipc_seqpacket_server(       R_tipc_address)   noexcept;
-    t_tipc_seqpacket_server(t_err, R_tipc_address)   noexcept;
+    class t_logic {
+    public:
+      //XXX define types
+      virtual ~t_logic() {}
+
+      virtual t_bool notify_tipc_seqpacket_server_connection_accept(t_fd, R_tipc_address, r_user) noexcept = 0;
+      virtual t_void notify_tipc_seqpacket_server_connection_add   (R_connect_info,       r_user) noexcept = 0;
+      virtual t_void notify_tipc_seqpacket_server_connection_del   (R_connect_info)               noexcept = 0;
+      virtual t_void notify_tipc_seqpacket_server_connection_error (t_errn)                       noexcept = 0;
+    };
+    using r_logic = t_prefix<t_logic>::r_;
+
+    t_tipc_seqpacket_server(       R_tipc_address, r_logic) noexcept;
+    t_tipc_seqpacket_server(t_err, R_tipc_address, r_logic) noexcept;
 
     t_tipc_seqpacket_server(x_tipc_seqpacket_server) noexcept;
    ~t_tipc_seqpacket_server();
@@ -522,8 +561,8 @@ namespace net_tipc
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_connect_id   accept_connection()            noexcept;
-    t_bool         close_connection(t_connect_id) noexcept;
+    t_connect_result accept_connection()            noexcept;
+    t_bool           close_connection(t_connect_id) noexcept;
 
     R_connect_info get_connection(t_connect_id)      const noexcept;
     t_void         get_connection_ids(r_connect_ids) const noexcept;
