@@ -57,6 +57,8 @@ namespace string
   using t_crange = range::t_crange<t_char, t_crange_tag_>;
   using R_crange = t_prefix<t_crange>::R_;
 
+  enum t_fmt { FMT };
+
 ///////////////////////////////////////////////////////////////////////////////
 
   template<t_n_ N>
@@ -84,8 +86,7 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  enum t_overflow_assert   { };
-  enum t_overflow_truncate { };
+  enum t_overflow { OVERFLOW_ASSERT, OVERFLOW_TRUNCATE, OVERFLOW_GROW };
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -100,14 +101,14 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  t_n_ build_(p_cstr_, t_n_, P_cstr_, va_list, t_overflow_assert);
-  t_n_ build_(p_cstr_, t_n_, P_cstr_, va_list, t_overflow_truncate);
-  t_n_ copy_ (p_cstr_, t_n_, P_cstr_, t_n_,    t_overflow_assert);
-  t_n_ copy_ (p_cstr_, t_n_, P_cstr_, t_n_,    t_overflow_truncate);
-  t_n_ copy_ (p_cstr_, t_n_, P_cstr_,          t_overflow_assert);
-  t_n_ copy_ (p_cstr_, t_n_, P_cstr_,          t_overflow_truncate);
-  t_n_ fill_ (p_cstr_, t_n_, R_block,          t_overflow_assert);
-  t_n_ fill_ (p_cstr_, t_n_, R_block,          t_overflow_truncate);
+  t_n_ build_assert_  (p_cstr_, t_n_, P_cstr_, va_list);
+  t_n_ build_truncate_(p_cstr_, t_n_, P_cstr_, va_list);
+  t_n_ copy_assert_   (p_cstr_, t_n_, P_cstr_, t_n_);
+  t_n_ copy_truncate_ (p_cstr_, t_n_, P_cstr_, t_n_);
+  t_n_ copy_assert_   (p_cstr_, t_n_, P_cstr_);
+  t_n_ copy_truncate_ (p_cstr_, t_n_, P_cstr_);
+  t_n_ fill_assert_   (p_cstr_, t_n_, R_block);
+  t_n_ fill_truncate_ (p_cstr_, t_n_, R_block);
 
   t_n_     calc_n_  (t_n_, t_n_);
   p_cstr_  alloc_   (t_n_);
@@ -132,180 +133,222 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<class I>
-  class t_string_impl_ {
+  class t_string_impl_base_ {
   public:
     using t_char   = named::t_char;
     using R_block = string::R_block;
 
-    inline
-    t_string_impl_() : len_{0} {
+    inline t_string_impl_base_() : len_{0} {
     }
 
-    inline
-    t_string_impl_(t_n_ len) : len_{len} {
+    inline t_string_impl_base_(t_n_ len) : len_{len} {
     }
 
-    inline
-    t_string_impl_(p_cstr_ str) : len_{0} {
+    inline t_string_impl_base_(p_cstr_ str) : len_{0} {
       str[0] = '\0';
     }
 
-    inline
-    t_string_impl_(p_cstr_ str, t_n_ max, P_cstr_ src)
-      : len_{copy_(str, max, src, I())} {
-    }
-
-    inline
-    t_string_impl_(p_cstr_ str, t_n_ max, P_cstr_ src, t_n_ cnt)
-      : len_{copy_(str, max, src, cnt, I())} {
-    }
-
-    inline
-    t_string_impl_(p_cstr_ str, t_n_ max, R_block block)
-      : len_{fill_(str, max, block, I())} {
-    }
-
-    inline
-    t_void assign(p_cstr_ str, t_n_ max, P_cstr_ src) {
-      len_ = copy_(str, max, src, I());
-    }
-
-    inline
-    t_void assign(p_cstr_ str, t_n_ max, P_cstr_ src, t_n_ cnt) {
-      len_ = copy_(str, max, src, cnt, I());
-    }
-
-    inline
-    t_void assign(p_cstr_ str, t_n_ max, R_block block) {
-      len_ = fill_(str, max, block, I());
-    }
-
-    inline
-    t_void append(p_cstr_ str, t_n_ max, P_cstr_ src) {
-      len_ += copy_(str + len_, max - len_, src, I());
-    }
-
-    inline
-    t_void append(p_cstr_ str, t_n_ max, P_cstr_ src, t_n_ cnt) {
-      len_ += copy_(str + len_, max - len_, src, cnt, I());
-    }
-
-    t_void append(p_cstr_ str, t_n_ max, R_block block) {
-      len_ += fill_(str + len_, max - len_, block, I());
-    }
-
-    inline
-    t_void va_assign(p_cstr_ str, t_n_ max, P_cstr_ fmt, va_list vars) {
-      len_ = build_(str, max, fmt, vars, I());
-    }
-
-    inline
-    t_void va_append(p_cstr_ str, t_n_ max, P_cstr_ fmt, va_list vars) {
-      len_ += build_(str + len_, max - len_, fmt, vars, I());
-    }
-
-    inline
-    t_void clear(p_cstr_ str) {
+    inline t_void clear(p_cstr_ str) {
       str[0] = '\0';
       len_ = 0;
     }
 
-    inline
-    t_void display(P_cstr_ str) const {
+    inline t_void display(P_cstr_ str) const {
       if (len_)
         display_(str);
     }
 
-    inline
-    t_void display_then_clear(p_cstr_ str) {
+    inline t_void display_then_clear(p_cstr_ str) {
       if (len_) {
         display_(str);
         clear(str);
       }
     }
 
-    inline
-    t_bool is_match(P_cstr_ str, P_cstr_ pattern) const {
+    inline t_bool is_match(P_cstr_ str, P_cstr_ pattern) const {
       return match_(str, pattern);
     }
 
-    inline
-    t_bool is_empty() const {
+    inline t_bool is_empty() const {
       return len_ == 0;
     }
 
-    inline
-    P_cstr_ get_cstr(P_cstr_ str) const {
+    inline P_cstr_ get_cstr(P_cstr_ str) const {
       return str;
     }
 
-    inline
-    t_n_ reset(t_n_ len = 0) {
+    inline t_n_ reset(t_n_ len = 0) {
       return utility::reset(len_, len);
     }
 
-    inline
-    t_n_ get_length() const {
+    inline t_n_ get_length() const {
       return len_;
     }
 
-    inline
-    t_n_ get_count(P_cstr_ str, t_char c) const {
+    inline t_n_ get_count(P_cstr_ str, t_char c) const {
       return count_(c, str);
     }
 
-    inline
-    t_char get_front(P_cstr_ str) const {
+    inline t_char get_front(P_cstr_ str) const {
       return len_ ? str[0] : '\0';
     }
 
-    inline
-    t_char get_back(P_cstr_ str) const {
+    inline t_char get_back(P_cstr_ str) const {
       return len_ ? str[len_ - 1] : '\0';
     }
 
-    inline
-    t_crange mk_range(P_cstr_ str) const {
+    inline t_crange mk_range(P_cstr_ str) const {
       return t_crange{str, t_n{len_}};
     }
 
-    inline
-    t_crange mk_range(P_cstr_ str, t_ix begin) const {
+    inline t_crange mk_range(P_cstr_ str, t_ix begin) const {
       return range::mk_crange<t_crange_tag_>(t_crange{str, t_n{len_}},
                                              begin, t_ix{len_});
     }
 
-    inline
-    t_crange mk_range(P_cstr_ str, t_ix begin, t_ix end) const {
+    inline t_crange mk_range(P_cstr_ str, t_ix begin, t_ix end) const {
       return range::mk_crange<t_crange_tag_>(t_crange{str, t_n{len_}},
                                              begin, end);
     }
 
     template<class F>
-    inline
-    t_void each(P_cstr_ str, F f) {
+    inline t_void each(P_cstr_ str, F f) {
       for (t_n_ n = 0; n < len_; ++n)
         f(str[n]);
     }
 
     template<class F>
-    inline
-    t_void each(P_cstr_ str, F f) const {
+    inline t_void each(P_cstr_ str, F f) const {
       for (t_n_ n = 0; n < len_; ++n)
         f(str[n]);
     }
 
-    inline
-    t_void mod_(p_cstr_ str, t_ix_ pos, t_char ch) {
+    inline t_void mod_(p_cstr_ str, t_ix_ pos, t_char ch) {
       if (pos < len_)
         str[pos] = ch;
       else
         assert_now(P_cstr{"not in range"});
     }
 
-  private:
     t_n_ len_ = 0;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<t_overflow> class t_string_impl_;
+
+  template<>
+  class t_string_impl_<OVERFLOW_ASSERT> : public t_string_impl_base_ {
+  public:
+    using base_ = t_string_impl_base_;
+
+    inline t_string_impl_(t_n_ len) : base_{len} {
+    }
+
+    inline t_string_impl_(p_cstr_ str) : base_{str} {
+    }
+
+    inline t_string_impl_(p_cstr_ str, t_n_ max, P_cstr_ src)
+      : base_{copy_assert_(str, max, src)} {
+    }
+
+    inline t_string_impl_(p_cstr_ str, t_n_ max, P_cstr_ src, t_n_ cnt)
+      : base_{copy_assert_(str, max, src, cnt)} {
+    }
+
+    inline t_string_impl_(p_cstr_ str, t_n_ max, R_block block)
+      : base_{fill_assert_(str, max, block)} {
+    }
+
+    inline t_void assign(p_cstr_ str, t_n_ max, P_cstr_ src) {
+      len_ = copy_assert_(str, max, src);
+    }
+
+    inline t_void assign(p_cstr_ str, t_n_ max, P_cstr_ src, t_n_ cnt) {
+      len_ = copy_assert_(str, max, src, cnt);
+    }
+
+    inline t_void assign(p_cstr_ str, t_n_ max, R_block block) {
+      len_ = fill_assert_(str, max, block);
+    }
+
+    inline t_void append(p_cstr_ str, t_n_ max, P_cstr_ src) {
+      len_ += copy_assert_(str + len_, max - len_, src);
+    }
+
+    inline t_void append(p_cstr_ str, t_n_ max, P_cstr_ src, t_n_ cnt) {
+      len_ += copy_assert_(str + len_, max - len_, src, cnt);
+    }
+
+    inline t_void append(p_cstr_ str, t_n_ max, R_block block) {
+      len_ += fill_assert_(str + len_, max - len_, block);
+    }
+
+    inline t_void va_assign(p_cstr_ str, t_n_ max, P_cstr_ fmt, va_list vars) {
+      len_ = build_assert_(str, max, fmt, vars);
+    }
+
+    inline t_void va_append(p_cstr_ str, t_n_ max, P_cstr_ fmt, va_list vars) {
+      len_ += build_assert_(str + len_, max - len_, fmt, vars);
+    }
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<>
+  class t_string_impl_<OVERFLOW_TRUNCATE> : public t_string_impl_base_ {
+  public:
+    using base_ = t_string_impl_base_;
+
+    inline t_string_impl_(t_n_ len) : base_{len} {
+    }
+
+    inline t_string_impl_(p_cstr_ str) : base_{str} {
+    }
+
+    inline t_string_impl_(p_cstr_ str, t_n_ max, P_cstr_ src)
+      : base_{copy_truncate_(str, max, src)} {
+    }
+
+    inline t_string_impl_(p_cstr_ str, t_n_ max, P_cstr_ src, t_n_ cnt)
+      : base_{copy_truncate_(str, max, src, cnt)} {
+    }
+
+    inline t_string_impl_(p_cstr_ str, t_n_ max, R_block block)
+      : base_{fill_truncate_(str, max, block)} {
+    }
+
+    inline t_void assign(p_cstr_ str, t_n_ max, P_cstr_ src) {
+      len_ = copy_truncate_(str, max, src);
+    }
+
+    inline t_void assign(p_cstr_ str, t_n_ max, P_cstr_ src, t_n_ cnt) {
+      len_ = copy_truncate_(str, max, src, cnt);
+    }
+
+    inline t_void assign(p_cstr_ str, t_n_ max, R_block block) {
+      len_ = fill_truncate_(str, max, block);
+    }
+
+    inline t_void append(p_cstr_ str, t_n_ max, P_cstr_ src) {
+      len_ += copy_truncate_(str + len_, max - len_, src);
+    }
+
+    inline t_void append(p_cstr_ str, t_n_ max, P_cstr_ src, t_n_ cnt) {
+      len_ += copy_truncate_(str + len_, max - len_, src, cnt);
+    }
+
+    inline t_void append(p_cstr_ str, t_n_ max, R_block block) {
+      len_ += fill_truncate_(str + len_, max - len_, block);
+    }
+
+    inline t_void va_assign(p_cstr_ str, t_n_ max, P_cstr_ fmt, va_list vars) {
+      len_ = build_truncate_(str, max, fmt, vars);
+    }
+
+    inline t_void va_append(p_cstr_ str, t_n_ max, P_cstr_ fmt, va_list vars) {
+      len_ += build_truncate_(str + len_, max - len_, fmt, vars);
+    }
   };
 
 ///////////////////////////////////////////////////////////////////////////////

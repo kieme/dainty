@@ -43,7 +43,7 @@ namespace terminal
 ////////////////////////////////////////////////////////////////////////////////
 
   enum  t_out_tag_ { };
-  using t_out_string = t_string<t_out_tag_, 80, t_overflow_truncate>;
+  using t_out_string = t_string<t_out_tag_, 80, OVERFLOW_TRUNCATE>;
   using r_out_string = t_prefix<t_out_string>::r_;
 
   class t_out : public t_out_string {

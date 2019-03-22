@@ -68,16 +68,14 @@ namespace string
     return str;
   }
 
-  t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars,
-              t_overflow_assert) {
+  t_n_ build_assert_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars) {
     auto n = std::vsnprintf(dst, max, fmt, vars);
     assert_if_false(n > 0 && (t_n_)n < max,
                     P_cstr("failed to build, buffer might be too small"));
     return n;
   }
 
-  t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars,
-              t_overflow_truncate) {
+  t_n_ build_truncate_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars) {
     auto n = std::vsnprintf(dst, max, fmt, vars);
     assert_if_false(n > 0, P_cstr("failed to build, std::vsnprintf failed"));
     if ((t_n_)n >= max)
@@ -85,7 +83,7 @@ namespace string
     return n;
   }
 
-  t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n, t_overflow_assert) {
+  t_n_ copy_assert_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n) {
     t_n_ cnt = 0, min = max - 1 < n ? max - 1 : n;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
@@ -95,7 +93,7 @@ namespace string
     return cnt;
   }
 
-  t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n, t_overflow_truncate) {
+  t_n_ copy_truncate_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n) {
     t_n_ cnt = 0, min = max - 1 < n ? max - 1 : n;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
@@ -103,7 +101,7 @@ namespace string
     return 0;
   }
 
-  t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_overflow_assert) {
+  t_n_ copy_assert_(p_cstr_ dst, t_n_ max, P_cstr_ src) {
     t_n_ cnt = 0, min = max - 1;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
@@ -113,7 +111,7 @@ namespace string
     return cnt;
   }
 
-  t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_overflow_truncate) {
+  t_n_ copy_truncate_(p_cstr_ dst, t_n_ max, P_cstr_ src) {
     t_n_ cnt = 0, min = max - 1;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
@@ -121,7 +119,7 @@ namespace string
     return cnt;
   }
 
-  t_n_ fill_(p_cstr_ dst, t_n_ max, R_block block, t_overflow_assert) {
+  t_n_ fill_assert_(p_cstr_ dst, t_n_ max, R_block block) {
     auto bmax = get(block.max);
     if (bmax > max - 1)
       assert_now(P_cstr("buffer not big enough"));
@@ -131,7 +129,7 @@ namespace string
     return bmax;
   }
 
-  t_n_ fill_(p_cstr_ dst, t_n_ max, R_block block, t_overflow_truncate) {
+  t_n_ fill_truncate_(p_cstr_ dst, t_n_ max, R_block block) {
     auto bmax = get(block.max);
     t_n_ min = max - 1 < bmax ? max - 1 : bmax;
     for (t_n_ cnt = 0; cnt < min; ++cnt)
