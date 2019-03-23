@@ -49,77 +49,81 @@ namespace string
     using t_char   = typename t_impl_::t_char;
     using R_block  = typename t_impl_::R_block;
 
-    t_string();
-    t_string(P_cstr);
-    t_string(R_block);
-    t_string(R_crange);
-    t_string(t_fmt, P_cstr_, ...) __attribute__((format(printf, 3, 4)));
-    t_string(R_string);
+    t_string()                    noexcept;
+    t_string(P_cstr)              noexcept;
+    t_string(R_block)             noexcept;
+    t_string(R_crange)            noexcept;
+    t_string(R_string)            noexcept;
+    t_string(t_fmt, P_cstr_, ...) noexcept
+      __attribute__((format(printf, 3, 4)));
 
     template<t_overflow O1>
-    t_string(t_string<TAG, 0, O1>&&);
+    t_string(t_string<TAG, 0, O1>&&)       noexcept;
 
     template<t_n_ N1>
-    t_string(const t_char (&)[N1]);
+    t_string(const t_char (&)[N1])         noexcept;
     template<t_n_ N1, t_overflow O1>
-    t_string(const t_string<TAG, N1, O1>&);
+    t_string(const t_string<TAG, N1, O1>&) noexcept;
 
-    r_string operator=(P_cstr);
-    r_string operator=(R_block);
-    r_string operator=(R_crange);
-    r_string operator=(R_string);
+    r_string operator=(P_cstr)   noexcept;
+    r_string operator=(R_block)  noexcept;
+    r_string operator=(R_crange) noexcept;
+    r_string operator=(R_string) noexcept;
     template<t_n_ N1>
-    r_string operator=(const t_char (&)[N1]);
+    r_string operator=(const t_char (&)[N1])         noexcept;
     template<t_n_ N1, t_overflow O1>
-    r_string operator=(const t_string<TAG, N1, O1>&);
+    r_string operator=(const t_string<TAG, N1, O1>&) noexcept;
     template<t_overflow O1>
-    r_string operator=(t_string<TAG, 0, O1>&&);
+    r_string operator=(t_string<TAG, 0, O1>&&)       noexcept;
 
-    r_string assign(t_fmt, P_cstr_, ...) __attribute__((format(printf, 3, 4)));
     template<class TAG1, t_n_ N1, t_overflow O1>
-    r_string assign(const t_string<TAG1, N1, O1>&);
+    r_string assign(const t_string<TAG1, N1, O1>&) noexcept;
+    r_string assign(t_fmt, P_cstr_, ...)           noexcept
+      __attribute__((format(printf, 3, 4)));
 
-    r_string append(P_cstr);
-    r_string append(R_block);
-    r_string append(R_crange);
-    r_string append(t_fmt, P_cstr_, ...) __attribute__((format(printf, 3, 4)));
+    r_string append(P_cstr)              noexcept;
+    r_string append(R_block)             noexcept;
+    r_string append(R_crange)            noexcept;
+    r_string append(t_fmt, P_cstr_, ...) noexcept
+      __attribute__((format(printf, 3, 4)));
+
     template<t_n_ N1>
-    r_string append(const t_char (&)[N1]);
+    r_string append(const t_char (&)[N1])          noexcept;
     template<class TAG1, t_n_ N1, t_overflow O1>
-    r_string append(const t_string<TAG1, N1, O1>&);
+    r_string append(const t_string<TAG1, N1, O1>&) noexcept;
 
-    r_string va_assign(P_cstr_ fmt, va_list vars);
-    r_string va_append(P_cstr_ fmt, va_list vars);
+    r_string va_assign(P_cstr_ fmt, va_list vars) noexcept;
+    r_string va_append(P_cstr_ fmt, va_list vars) noexcept;
 
-    t_void clear();
+    t_void clear() noexcept;
 
-    t_void display() const;
-    t_void display_then_clear();
+    t_void display           () const noexcept;
+    t_void display_then_clear()       noexcept;
 
-    t_bool is_match(P_cstr pattern) const;
+    t_bool is_match(P_cstr pattern)                        const noexcept;
     template<t_n_ N1>
-    t_bool is_match(const t_char (&pattern)[N1]) const;
+    t_bool is_match(const t_char (&pattern)[N1])           const noexcept;
     template<class TAG1, t_n_ N1, t_overflow O1>
-    t_bool is_match(const t_string<TAG1, N1, O1>& pattern) const;
+    t_bool is_match(const t_string<TAG1, N1, O1>& pattern) const noexcept;
 
     constexpr static
-    t_n    get_capacity();
-    t_n    get_count   (t_char) const;
-    P_cstr get_cstr    () const;
-    t_n    get_length  () const;
-    t_bool is_empty    () const;
-    t_char get_front   () const;
-    t_char get_back    () const;
+    t_n    get_capacity()             noexcept;
+    t_n    get_count   (t_char) const noexcept;
+    P_cstr get_cstr    ()       const noexcept;
+    t_n    get_length  ()       const noexcept;
+    t_bool is_empty    ()       const noexcept;
+    t_char get_front   ()       const noexcept;
+    t_char get_back    ()       const noexcept;
 
-    t_crange mk_range()           const;
-    t_crange mk_range(t_ix)       const;
-    t_crange mk_range(t_ix, t_ix) const;
+    t_crange mk_range()           const noexcept;
+    t_crange mk_range(t_ix)       const noexcept;
+    t_crange mk_range(t_ix, t_ix) const noexcept;
 
-    template<class F> void  each(F);
-    template<class F> void  each(F) const;
-    template<class F> void ceach(F) const;
+    template<class F> void  each(F)       noexcept; //XXX not certain F can throw
+    template<class F> void  each(F) const noexcept;
+    template<class F> void ceach(F) const noexcept;
 
-    t_void mod_(t_ix pos, t_char);
+    t_void mod_(t_ix pos, t_char) noexcept;
 
   private:
     template<class, t_n_, t_overflow> friend class t_string;

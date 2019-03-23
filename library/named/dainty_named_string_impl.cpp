@@ -38,44 +38,45 @@ namespace string
 {
 ////////////////////////////////////////////////////////////////////////////////
 
-  inline
-  t_n_ multiple_of_64_(t_n_ n) {
+  inline t_n_ multiple_of_64_(t_n_ n) noexcept {
     if (n%64)
       n = (n - n%64) + 64;
     return n;
   }
 
-  t_n_ calc_n_(t_n_ chars, t_n_ blks) {
+  t_n_ calc_n_(t_n_ chars, t_n_ blks) noexcept {
     return blks*64 + multiple_of_64_(chars + 1);
   }
 
-  p_cstr_ alloc_(t_n_ n) {
+  p_cstr_ alloc_(t_n_ n) noexcept {
     p_cstr_ str = (p_cstr_)std::malloc(n);
     if (!str)
       assert_now(P_cstr("malloc failed to allocate"));
     return str;
   }
 
-  t_void dealloc_(p_cstr_ str) {
+  t_void dealloc_(p_cstr_ str) noexcept {
     if (str)
       std::free(str);
   }
 
-  p_cstr_ realloc_(p_cstr_ str, t_n_ n) {
+  p_cstr_ realloc_(p_cstr_ str, t_n_ n) noexcept {
     str = (p_cstr_)std::realloc(str, n);
     if (!str)
       assert_now(P_cstr("realloc failed to allocate"));
     return str;
   }
 
-  t_n_ build_assert_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars) {
+  t_n_ build_assert_(p_cstr_ dst, t_n_ max, P_cstr_ fmt,
+                     va_list vars) noexcept {
     auto n = std::vsnprintf(dst, max, fmt, vars);
     assert_if_false(n > 0 && (t_n_)n < max,
                     P_cstr("failed to build, buffer might be too small"));
     return n;
   }
 
-  t_n_ build_truncate_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars) {
+  t_n_ build_truncate_(p_cstr_ dst, t_n_ max, P_cstr_ fmt,
+                       va_list vars) noexcept {
     auto n = std::vsnprintf(dst, max, fmt, vars);
     assert_if_false(n > 0, P_cstr("failed to build, std::vsnprintf failed"));
     if ((t_n_)n >= max)
@@ -83,7 +84,7 @@ namespace string
     return n;
   }
 
-  t_n_ copy_assert_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n) {
+  t_n_ copy_assert_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n) noexcept {
     t_n_ cnt = 0, min = max - 1 < n ? max - 1 : n;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
@@ -93,7 +94,7 @@ namespace string
     return cnt;
   }
 
-  t_n_ copy_truncate_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n) {
+  t_n_ copy_truncate_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n) noexcept {
     t_n_ cnt = 0, min = max - 1 < n ? max - 1 : n;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
@@ -101,7 +102,7 @@ namespace string
     return 0;
   }
 
-  t_n_ copy_assert_(p_cstr_ dst, t_n_ max, P_cstr_ src) {
+  t_n_ copy_assert_(p_cstr_ dst, t_n_ max, P_cstr_ src) noexcept {
     t_n_ cnt = 0, min = max - 1;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
@@ -111,7 +112,7 @@ namespace string
     return cnt;
   }
 
-  t_n_ copy_truncate_(p_cstr_ dst, t_n_ max, P_cstr_ src) {
+  t_n_ copy_truncate_(p_cstr_ dst, t_n_ max, P_cstr_ src) noexcept {
     t_n_ cnt = 0, min = max - 1;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
@@ -119,7 +120,7 @@ namespace string
     return cnt;
   }
 
-  t_n_ fill_assert_(p_cstr_ dst, t_n_ max, R_block block) {
+  t_n_ fill_assert_(p_cstr_ dst, t_n_ max, R_block block) noexcept {
     auto bmax = get(block.max);
     if (bmax > max - 1)
       assert_now(P_cstr("buffer not big enough"));
@@ -129,7 +130,7 @@ namespace string
     return bmax;
   }
 
-  t_n_ fill_truncate_(p_cstr_ dst, t_n_ max, R_block block) {
+  t_n_ fill_truncate_(p_cstr_ dst, t_n_ max, R_block block) noexcept {
     auto bmax = get(block.max);
     t_n_ min = max - 1 < bmax ? max - 1 : bmax;
     for (t_n_ cnt = 0; cnt < min; ++cnt)
@@ -138,19 +139,19 @@ namespace string
     return min;
   }
 
-  t_void display_(P_cstr_ str) {
+  t_void display_(P_cstr_ str) noexcept {
     std::printf("%s", str);
   }
 
-  t_int compare_(P_cstr_ lh, P_cstr_ rh) {
+  t_int compare_(P_cstr_ lh, P_cstr_ rh) noexcept {
     return std::strcmp(lh, rh);
   }
 
-  t_n_ length_(P_cstr_ str) {
+  t_n_ length_(P_cstr_ str) noexcept {
     return std::strlen(str);
   }
 
-  t_n_ length_(P_cstr_ fmt, va_list vars) {
+  t_n_ length_(P_cstr_ fmt, va_list vars) noexcept {
     va_list args;
     va_copy(args, vars);
     t_n_ require = std::vsnprintf(NULL, 0, fmt, args);
@@ -158,7 +159,7 @@ namespace string
     return require;
   }
 
-  t_bool match_(P_cstr_ str, P_cstr_ pattern) {
+  t_bool match_(P_cstr_ str, P_cstr_ pattern) noexcept {
     P_cstr_ l = 0; // XXX not fully correct
     while (*pattern && *str) {
              if (*pattern == *str)    ++pattern;
@@ -176,7 +177,7 @@ namespace string
     return *str ? (t_bool)l : !*pattern;
   }
 
-  t_n_ count_(t_char c,  P_cstr_ str) {
+  t_n_ count_(t_char c,  P_cstr_ str) noexcept {
     t_n_ cnt = 0;
     for (; *str; ++str)
       if (*str == c)

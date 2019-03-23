@@ -70,14 +70,14 @@ namespace string
   template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_bool operator<(const t_string<TAG, N, O>&   lh,
-                   const t_string<TAG, N1, O1>& rh) {
+                   const t_string<TAG, N1, O1>& rh) noexcept {
     return compare_(get(lh.get_cstr()), get(rh.get_cstr())) < 0;
   }
 
   template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_bool operator>(const t_string<TAG, N,  O>&  lh,
-                   const t_string<TAG, N1, O1>& rh) {
+                   const t_string<TAG, N1, O1>& rh) noexcept {
     return compare_(get(lh.get_cstr()), get(rh.get_cstr())) > 0;
   }
 
@@ -85,13 +85,13 @@ namespace string
 
   template<class TAG, t_n_ N, t_overflow O>
   inline
-  t_bool operator==(const t_string<TAG, N, O>& lh, P_cstr rh) {
+  t_bool operator==(const t_string<TAG, N, O>& lh, P_cstr rh) noexcept {
     return compare_(get(lh.get_cstr()), get(rh)) == 0;
   }
 
   template<class TAG, t_n_ N, t_overflow O>
   inline
-  t_bool operator!=(const t_string<TAG, N, O>& lh, P_cstr rh) {
+  t_bool operator!=(const t_string<TAG, N, O>& lh, P_cstr rh) noexcept {
     return !(lh == rh);
   }
 
@@ -99,13 +99,13 @@ namespace string
 
   template<class TAG, t_n_ N, t_overflow O>
   inline
-  t_bool operator==(P_cstr lh, const t_string<TAG, N, O>& rh) {
+  t_bool operator==(P_cstr lh, const t_string<TAG, N, O>& rh) noexcept {
     return rh == lh;
   }
 
   template<class TAG, t_n_ N, t_overflow O>
   inline
-  t_bool operator!=(P_cstr lh, const t_string<TAG, N, O>& rh) {
+  t_bool operator!=(P_cstr lh, const t_string<TAG, N, O>& rh) noexcept {
     return !(lh == rh);
   }
 
@@ -114,14 +114,14 @@ namespace string
   template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_bool operator==(const t_string<TAG, N,  O>&  lh,
-                    const t_string<TAG, N1, O1>& rh) {
+                    const t_string<TAG, N1, O1>& rh) noexcept {
     return get(lh.get_length()) == get(rh.get_length()) && lh == rh.get_cstr();
   }
 
   template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_bool operator!=(const t_string<TAG, N,  O>&  lh,
-                    const t_string<TAG, N1, O1>& rh) {
+                    const t_string<TAG, N1, O1>& rh) noexcept {
     return !(lh == rh);
   }
 
@@ -129,20 +129,22 @@ namespace string
 
   template<class TAG, t_n_ N, t_overflow O>
   inline
-  t_string<TAG, N, O>& operator+=(t_string<TAG, N, O>& lh, P_cstr rh) {
+  t_string<TAG, N, O>& operator+=(t_string<TAG, N, O>& lh,
+                                  P_cstr rh) noexcept {
     return lh.append(rh);
   }
 
   template<class TAG, class TAG1, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_string<TAG, N, O>& operator+=(t_string<TAG, N, O>& lh,
-                                  const t_string<TAG1, N1, O1>& rh) {
+                                  const t_string<TAG1, N1, O1>& rh) noexcept {
     return lh.append(rh);
   }
 
   template<class TAG, t_n_ N, t_overflow O, class T>
   inline
-  t_string<TAG, N, O>& operator+=(t_string<TAG, N, O>& lh, const T& rh) {
+  t_string<TAG, N, O>& operator+=(t_string<TAG, N, O>& lh,
+                                  const T& rh) noexcept {
     return lh.append(rh);
   }
 
@@ -150,20 +152,21 @@ namespace string
 
   template<class TAG, t_n_ N, t_overflow O>
   inline
-  t_string<TAG, N, O>& operator,(t_string<TAG, N, O>& lh, P_cstr rh) {
+  t_string<TAG, N, O>& operator,(t_string<TAG, N, O>& lh, P_cstr rh) noexcept {
     return (lh +=rh);
   }
 
   template<class TAG, class TAG1, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_string<TAG, N, O>& operator,(t_string<TAG, N, O>& lh,
-                                 const t_string<TAG1, N1, O1>& rh) {
+                                 const t_string<TAG1, N1, O1>& rh) noexcept {
     return (lh +=rh);
   }
 
   template<class TAG, t_n_ N, t_overflow O, class T>
   inline
-  t_string<TAG, N, O>& operator,(t_string<TAG, N, O>& lh, const T& rh) {
+  t_string<TAG, N, O>& operator,(t_string<TAG, N, O>& lh,
+                                 const T& rh) noexcept {
     return (lh += rh);
   }
 
