@@ -67,6 +67,23 @@ namespace string
     return str;
   }
 
+  p_cstr_ sso_alloc_(p_cstr_ sso, t_n_ max, t_n_ need) noexcept {
+    if (need > max)
+      return alloc_(need);
+    return sso;
+  }
+
+  p_cstr_ sso_alloc_(p_cstr_ sso, p_cstr_ curr, t_n_ max, t_n_ need) noexcept {
+    if (need > max) {
+      if (curr != sso)
+        return realloc_(curr, need);
+      p_cstr tmp = alloc_(need);
+      memcpy(tmp, curr, max);
+      return tmp;
+    }
+    return curr;
+  }
+
   t_n_ build_assert_(p_cstr_ dst, t_n_ max, P_cstr_ fmt,
                      va_list vars) noexcept {
     auto n = std::vsnprintf(dst, max, fmt, vars);

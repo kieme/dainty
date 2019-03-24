@@ -77,10 +77,10 @@ namespace string
     r_string assign(t_fmt, P_cstr_, ...)           noexcept
       __attribute__((format(printf, 3, 4)));
 
-    r_string append(P_cstr)               noexcept;
-    r_string append(R_block)              noexcept;
-    r_string append(R_crange)             noexcept;
-    r_string append(t_fmt, P_cstr_, ...)  noexcept
+    r_string append(P_cstr)              noexcept;
+    r_string append(R_block)             noexcept;
+    r_string append(R_crange)            noexcept;
+    r_string append(t_fmt, P_cstr_, ...) noexcept
       __attribute__((format(printf, 3, 4)));
 
     template<t_n_ N1>
@@ -88,12 +88,12 @@ namespace string
     template<class TAG1, t_n_ N1, t_overflow O1>
     r_string append(const t_string<TAG1, N1, O1>&) noexcept;
 
-    r_string va_assign(P_cstr_ fmt, va_list vars)  noexcept;
-    r_string va_append(P_cstr_ fmt, va_list vars)  noexcept;
+    r_string va_assign(P_cstr_ fmt, va_list vars) noexcept;
+    r_string va_append(P_cstr_ fmt, va_list vars) noexcept;
 
     t_void clear() noexcept;
 
-    t_void display()            const noexcept;
+    t_void display           () const noexcept;
     t_void display_then_clear()       noexcept;
 
     t_bool is_match(P_cstr pattern)                        const noexcept;

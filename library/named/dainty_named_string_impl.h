@@ -112,10 +112,12 @@ namespace string
   t_n_ fill_assert_   (p_cstr_, t_n_, R_block)          noexcept;
   t_n_ fill_truncate_ (p_cstr_, t_n_, R_block)          noexcept;
 
-  t_n_     calc_n_  (t_n_, t_n_)    noexcept;
-  p_cstr_  alloc_   (t_n_)          noexcept;
-  t_void   dealloc_ (p_cstr_)       noexcept;
-  p_cstr_  realloc_ (p_cstr_, t_n_) noexcept;
+  t_n_     calc_n_  (t_n_, t_n_)                    noexcept;
+  p_cstr_  alloc_   (t_n_)                          noexcept;
+  p_cstr_  sso_alloc_(p_cstr_, t_n_, p_cstr_, t_n_) noexcept;
+  p_cstr_  sso_alloc_(p_cstr_, t_n_, t_n_)          noexcept;
+  t_void   dealloc_ (p_cstr_)                       noexcept;
+  p_cstr_  realloc_ (p_cstr_, t_n_)                 noexcept;
 
   t_void   display_ (P_cstr_)                  noexcept;
   t_int    compare_ (P_cstr_, P_cstr_)         noexcept;

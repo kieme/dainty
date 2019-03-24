@@ -108,11 +108,11 @@ namespace string
     template<class TAG1, t_n_ N1, t_overflow O1>
     t_bool is_match(const t_string<TAG1, N1, O1>& pattern) const noexcept;
 
+    t_n    get_capacity()       const noexcept;
+    t_n    get_count   (t_char) const noexcept;
     P_cstr get_cstr    ()       const noexcept;
     t_n    get_length  ()       const noexcept;
-    t_n    get_capacity()       const noexcept;
     t_bool is_empty    ()       const noexcept;
-    t_n    get_count   (t_char) const noexcept;
     t_char get_front   ()       const noexcept;
     t_char get_back    ()       const noexcept;
 
