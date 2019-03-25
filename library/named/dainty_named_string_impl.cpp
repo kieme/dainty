@@ -84,6 +84,14 @@ namespace string
     return curr;
   }
 
+  t_n_ build_try_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars) noexcept {
+    va_list args;
+    va_copy(args, vars);
+    t_n_ require = std::vsnprintf(dst, max, fmt, args);
+    va_end(args);
+    return require;
+  }
+
   t_n_ build_assert_(p_cstr_ dst, t_n_ max, P_cstr_ fmt,
                      va_list vars) noexcept {
     auto n = std::vsnprintf(dst, max, fmt, vars);

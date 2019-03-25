@@ -103,6 +103,7 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  t_n_ build_try_     (p_cstr_, t_n_, P_cstr_, va_list) noexcept;
   t_n_ build_assert_  (p_cstr_, t_n_, P_cstr_, va_list) noexcept;
   t_n_ build_truncate_(p_cstr_, t_n_, P_cstr_, va_list) noexcept;
   t_n_ copy_assert_   (p_cstr_, t_n_, P_cstr_, t_n_)    noexcept;
