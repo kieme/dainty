@@ -113,19 +113,19 @@ namespace string
   t_n_ fill_assert_   (p_cstr_, t_n_, R_block)          noexcept;
   t_n_ fill_truncate_ (p_cstr_, t_n_, R_block)          noexcept;
 
-  t_n_     calc_n_  (t_n_, t_n_)                    noexcept;
-  p_cstr_  alloc_   (t_n_)                          noexcept;
+  t_n_     calc_n_   (t_n_, t_n_)                   noexcept;
+  p_cstr_  alloc_    (t_n_)                         noexcept;
+  p_cstr_  sso_alloc_(p_cstr_, t_n_, t_n_&)          noexcept; //XXX r_n_;
   p_cstr_  sso_alloc_(p_cstr_, t_n_, p_cstr_, t_n_) noexcept;
-  p_cstr_  sso_alloc_(p_cstr_, t_n_, t_n_)          noexcept;
-  t_void   dealloc_ (p_cstr_)                       noexcept;
-  p_cstr_  realloc_ (p_cstr_, t_n_)                 noexcept;
+  t_void   dealloc_  (p_cstr_)                      noexcept;
+  p_cstr_  realloc_  (p_cstr_, t_n_)                noexcept;
 
-  t_void   display_ (P_cstr_)                  noexcept;
-  t_int    compare_ (P_cstr_, P_cstr_)         noexcept;
-  t_bool   match_   (P_cstr_, P_cstr_ pattern) noexcept;
-  t_n_     count_   (t_char,  P_cstr_)         noexcept;
-  t_n_     length_  (P_cstr_)                  noexcept;
-  t_n_     length_  (P_cstr_, va_list)         noexcept;
+  t_void   display_  (P_cstr_)                  noexcept;
+  t_int    compare_  (P_cstr_, P_cstr_)         noexcept;
+  t_bool   match_    (P_cstr_, P_cstr_ pattern) noexcept;
+  t_n_     count_    (t_char,  P_cstr_)         noexcept;
+  t_n_     length_   (P_cstr_)                  noexcept;
+  t_n_     length_   (P_cstr_, va_list)         noexcept;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -236,6 +236,24 @@ namespace string
         assert_now(P_cstr{"not in range"});
     }
 
+    inline t_n_ va_assign_try(p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                              va_list vars) noexcept {
+      auto n = build_try_(str, max, fmt, vars);
+      if (n < max)
+        len_ = n;
+      return n;
+    }
+
+    inline t_n_ va_append_try(p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                              va_list vars) noexcept {
+      auto left = max - len_;
+      auto n = build_try_(str + len_, left, fmt, vars);
+      if (n < left)
+        len_ += n;
+      return n;
+    }
+
+  protected:
     t_n_ len_ = 0;
   };
 

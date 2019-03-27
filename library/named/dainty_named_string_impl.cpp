@@ -67,17 +67,19 @@ namespace string
     return str;
   }
 
-  p_cstr_ sso_alloc_(p_cstr_ sso, t_n_ max, t_n_ need) noexcept {
-    if (need > max)
-      return alloc_(need);
+  p_cstr_ sso_alloc_(p_cstr_ sso, t_n_ sso_max, t_n_& max) noexcept {
+    if (max > sso_max)
+      return alloc_(max);
+    max = sso_max;
     return sso;
   }
 
-  p_cstr_ sso_alloc_(p_cstr_ sso, p_cstr_ curr, t_n_ max, t_n_ need) noexcept {
-    if (need > max) {
+  p_cstr_ sso_alloc_(p_cstr_ sso, t_n_ sso_max, p_cstr_ curr,
+                     t_n_ max) noexcept {
+    if (max > sso_max) {
       if (curr != sso)
-        return realloc_(curr, need);
-      p_cstr tmp = alloc_(need);
+        return realloc_(curr, max);
+      p_cstr_ tmp = alloc_(max);
       memcpy(tmp, curr, max);
       return tmp;
     }
@@ -87,9 +89,9 @@ namespace string
   t_n_ build_try_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars) noexcept {
     va_list args;
     va_copy(args, vars);
-    t_n_ require = std::vsnprintf(dst, max, fmt, args);
+    t_n_ n = std::vsnprintf(dst, max, fmt, args);
     va_end(args);
-    return require;
+    return n;
   }
 
   t_n_ build_assert_(p_cstr_ dst, t_n_ max, P_cstr_ fmt,
