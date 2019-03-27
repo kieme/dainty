@@ -57,7 +57,17 @@ namespace string
   using t_crange = range::t_crange<t_char, t_crange_tag_>;
   using R_crange = t_prefix<t_crange>::R_;
 
-  enum t_fmt { FMT };
+  enum t_fmt      { FMT };
+  enum t_overflow { OVERFLOW_ASSERT, OVERFLOW_TRUNCATE, OVERFLOW_GROW };
+
+  struct t_block {
+    t_char c   = '\0';
+    t_n    max = t_n{0};
+
+    t_block() = default;
+    t_block(t_char _c, t_n _max) : c(_c), max(_max) { };
+  };
+  using R_block = named::t_prefix<t_block>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -85,21 +95,6 @@ namespace string
   inline t_crange mk_range(R_crange range, t_ix begin, t_ix end) noexcept {
     return range::mk_crange<t_crange_tag_>(range, begin, end);
   }
-
-////////////////////////////////////////////////////////////////////////////////
-
-  enum t_overflow { OVERFLOW_ASSERT, OVERFLOW_TRUNCATE, OVERFLOW_GROW };
-
-////////////////////////////////////////////////////////////////////////////////
-
-  struct t_block {
-    t_char c   = '\0';
-    t_n    max = t_n{0};
-
-    t_block() = default;
-    t_block(t_char _c, t_n _max) : c(_c), max(_max) { };
-  };
-  using R_block = named::t_prefix<t_block>::R_;
 
 ////////////////////////////////////////////////////////////////////////////////
 

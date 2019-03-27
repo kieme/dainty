@@ -132,28 +132,28 @@ namespace string
   template<class TAG, t_overflow O>
   inline
   t_string<TAG, 0, O>::t_string(t_n max) noexcept
-    : max_{get(max) + 1}, store_{alloc_(max_)}, impl_{store_} {
+    : max_{get(max) + 1}, store_{alloc_(max_)}, impl_{store_.get()} {
   }
 
   template<class TAG, t_overflow O>
   inline
   t_string<TAG, 0, O>::t_string(P_cstr str) noexcept
     : max_{length_(get(str)+1)}, store_{alloc_(max_)},
-      impl_{store_, max_, str} {
+      impl_{store_.get(), max_, str} {
   }
 
   template<class TAG, t_overflow O>
   inline
   t_string<TAG, 0, O>::t_string(R_block block) noexcept
     : max_{get(block.n) + 1}, store_{alloc_(max_)},
-      impl_{store_, max_, block} {
+      impl_{store_.get(), max_, block} {
   }
 
   template<class TAG, t_overflow O>
   inline
   t_string<TAG, 0, O>::t_string(R_crange range) noexcept
     : max_{get(range.n) + 1}, store_{alloc_(max_)},
-      impl_{store_, max_, begin(range), get(range.n)} {
+      impl_{store_.get(), max_, begin(range), get(range.n)} {
   }
 
   template<class TAG, t_overflow O>
@@ -163,7 +163,7 @@ namespace string
     va_start(vars, fmt);
     max_   = length_(fmt, vars) + 1;
     store_ = alloc_ (max_);
-    impl_.va_assign(store_, max_, fmt, vars);
+    impl_.va_assign(store_.get(), max_, fmt, vars);
     va_end(vars);
   }
 
@@ -171,29 +171,29 @@ namespace string
   inline
   t_string<TAG, 0, O>::t_string(R_string str) noexcept
     : max_{get(str.get_length) + 1}, store_{alloc_(max_)},
-      impl_{store_, max_, get(str.get_cstr())} {
+      impl_{store_.get(), max_, get(str.get_cstr())} {
   }
 
   template<class TAG, t_overflow O>
   template<t_n_ N1>
   inline
   t_string<TAG, 0, O>::t_string(const t_char (&str)[N1]) noexcept
-    : max_{N1}, store_{alloc_(max_)}, impl_{store_, max_, str} {
+    : max_{N1}, store_{alloc_(max_)}, impl_{store_.get(), max_, str} {
   }
 
   template<class TAG, t_overflow O>
   template<t_n_ N1, t_overflow O1>
   inline
   t_string<TAG, 0, O>::t_string(const t_string<TAG, N1, O1>& str) noexcept
-    : max_{get(str.get_length) + 1}, store_{alloc_(max_)},
-      impl_{store_, max_, get(str.get_cstr())} {
+    : max_{get(str.get_length()) + 1}, store_{alloc_(max_)},
+      impl_{store_.get(), max_, get(str.get_cstr())} {
   }
 
   template<class TAG, t_overflow O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::operator=(P_cstr str) noexcept {
-    impl_.assign(store_, max_, get(str));
+    impl_.assign(store_.get(), max_, get(str));
     return *this;
   }
 
@@ -201,7 +201,7 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::operator=(R_block block) noexcept {
-    impl_.assign(store_, max_, block);
+    impl_.assign(store_.get(), max_, block);
     return *this;
   }
 
@@ -209,7 +209,7 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::operator=(R_crange range) noexcept {
-    impl_.assign(store_, max_, begin(range), get(range.n));
+    impl_.assign(store_.get(), max_, begin(range), get(range.n));
     return *this;
   }
 
@@ -217,7 +217,7 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::operator=(R_string str) noexcept {
-    impl_.assign(store_, max_, get(str.get_cstr()));
+    impl_.assign(store_.get(), max_, get(str.get_cstr()));
     return *this;
   }
 
@@ -226,7 +226,7 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::operator=(const t_char (&str)[N1]) noexcept {
-    impl_.assign(store_, max_, str);
+    impl_.assign(store_.get(), max_, str);
     return *this;
   }
 
@@ -235,7 +235,7 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::operator=(const t_string<TAG, N1, O1>& str) noexcept {
-    impl_.assign(store_, max_, get(str.get_cstr()));
+    impl_.assign(store_.get(), max_, get(str.get_cstr()));
     return *this;
   }
 
@@ -245,7 +245,7 @@ namespace string
       ::assign(t_fmt, P_cstr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
-    impl_.va_assign(store_, max_, fmt, vars);
+    impl_.va_assign(store_.get(), max_, fmt, vars);
     va_end(vars);
     return *this;
   }
@@ -255,7 +255,7 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::assign(const t_string<TAG1, N1, O1>& str) noexcept {
-    impl_.assign(store_, max_, get(str.get_cstr()));
+    impl_.assign(store_.get(), max_, get(str.get_cstr()));
     return *this;
   }
 
@@ -263,7 +263,7 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::append(P_cstr str) noexcept {
-    impl_.append(store_, max_, get(str));
+    impl_.append(store_.get(), max_, get(str));
     return *this;
   }
 
@@ -271,7 +271,7 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::append(R_block block) noexcept {
-    impl_.append(store_, max_, block);
+    impl_.append(store_.get(), max_, block);
     return *this;
   }
 
@@ -279,7 +279,7 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::append(R_crange range) noexcept {
-    impl_.append(store_, max_, begin(range), get(range.n));
+    impl_.append(store_.get(), max_, begin(range), get(range.n));
     return *this;
   }
 
@@ -289,7 +289,7 @@ namespace string
       ::append(t_fmt, P_cstr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
-    impl_.va_append(store_, max_, fmt, vars);
+    impl_.va_append(store_.get(), max_, fmt, vars);
     va_end(vars);
     return *this;
   }
@@ -299,7 +299,7 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::append(const t_char (&str)[N1]) noexcept {
-    impl_.append(store_, max_, str);
+    impl_.append(store_.get(), max_, str);
     return *this;
   }
 
@@ -308,7 +308,7 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::append(const t_string<TAG1, N1, O1>& str) noexcept {
-    impl_.append(store_, max_, get(str.get_cstr()));
+    impl_.append(store_.get(), max_, get(str.get_cstr()));
     return *this;
   }
 
@@ -316,7 +316,7 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::va_assign(P_cstr_ fmt, va_list vars) noexcept {
-    impl_.va_assign(store_, max_, fmt, vars);
+    impl_.va_assign(store_.get(), max_, fmt, vars);
     return *this;
   }
 
@@ -324,26 +324,26 @@ namespace string
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::va_append(P_cstr_ fmt, va_list vars) noexcept {
-    impl_.va_append(store_, max_, fmt, vars);
+    impl_.va_append(store_.get(), max_, fmt, vars);
     return *this;
   }
 
   template<class TAG, t_overflow O>
   inline
   t_void t_string<TAG, 0, O>::display() const noexcept {
-    impl_.display(store_);
+    impl_.display(store_.get());
   }
 
   template<class TAG, t_overflow O>
   inline
   t_void t_string<TAG, 0, O>::display_then_clear() noexcept {
-    impl_.display_then_clear(store_);
+    impl_.display_then_clear(store_.get());
   }
 
   template<class TAG, t_overflow O>
   inline
   t_bool t_string<TAG, 0, O>::is_match(P_cstr pattern) const noexcept {
-    return impl_.is_match(store_, get(pattern));
+    return impl_.is_match(store_.get(), get(pattern));
   }
 
   template<class TAG, t_overflow O>
@@ -351,7 +351,7 @@ namespace string
   inline
   t_bool t_string<TAG, 0, O>
       ::is_match(const t_char (&pattern)[N1]) const noexcept {
-    return impl_.is_match(store_, pattern);
+    return impl_.is_match(store_.get(), pattern);
   }
 
   template<class TAG, t_overflow O>
@@ -359,19 +359,19 @@ namespace string
   inline
   t_bool t_string<TAG, 0, O>
       ::is_match(const t_string<TAG1, N1, O1>& pattern) const noexcept {
-    return impl_.is_match(store_, get(pattern.get_cstr()));
+    return impl_.is_match(store_.get(), get(pattern.get_cstr()));
   }
 
   template<class TAG, t_overflow O>
   inline
   t_void t_string<TAG, 0, O>::clear() noexcept {
-    return impl_.clear(store_);
+    return impl_.clear(store_.get());
   }
 
   template<class TAG, t_overflow O>
   inline
   P_cstr t_string<TAG, 0, O>::get_cstr() const noexcept {
-    return P_cstr{impl_.get_cstr(store_)};
+    return P_cstr{impl_.get_cstr(store_.get())};
   }
 
   template<class TAG, t_overflow O>
@@ -394,66 +394,66 @@ namespace string
   template<class TAG, t_overflow O>
   inline
   t_n t_string<TAG, 0, O>::get_count(t_char c) const noexcept {
-    return t_n{impl_.get_count(store_, c)};
+    return t_n{impl_.get_count(store_.get(), c)};
   }
 
   template<class TAG, t_overflow O>
   inline
   typename t_string<TAG, 0, O>::t_char t_string<TAG, 0, O>
       ::get_front() const noexcept {
-    return impl_.get_front(store_);
+    return impl_.get_front(store_.get());
   }
 
   template<class TAG, t_overflow O>
   inline
   typename t_string<TAG, 0, O>::t_char t_string<TAG, 0, O>
       ::get_back() const noexcept {
-    return impl_.get_back(store_);
+    return impl_.get_back(store_.get());
   }
 
   template<class TAG, t_overflow O>
   inline
   t_crange t_string<TAG, 0, O>::mk_range() const noexcept {
-    return impl_.mk_range(store_);
+    return impl_.mk_range(store_.get());
   }
 
   template<class TAG, t_overflow O>
   inline
   t_crange t_string<TAG, 0, O>::mk_range(t_ix begin) const noexcept {
-    return impl_.mk_range(store_, begin);
+    return impl_.mk_range(store_.get(), begin);
   }
 
   template<class TAG, t_overflow O>
   inline
   t_crange t_string<TAG, 0, O>::mk_range(t_ix begin, t_ix end) const noexcept {
-    return impl_.mk_range(store_, begin, end);
+    return impl_.mk_range(store_.get(), begin, end);
   }
 
   template<class TAG, t_overflow O>
   template<class F>
   inline
   t_void t_string<TAG, 0, O>::each(F f) noexcept {
-    impl_.each(store_, f);
+    impl_.each(store_.get(), f);
   }
 
   template<class TAG, t_overflow O>
   template<class F>
   inline
   t_void t_string<TAG, 0, O>::each(F f) const noexcept {
-    impl_.each(store_, f);
+    impl_.each(store_.get(), f);
   }
 
   template<class TAG, t_overflow O>
   template<class F>
   inline
   t_void t_string<TAG, 0, O>::ceach(F f) const noexcept {
-    impl_.each(store_, f);
+    impl_.each(store_.get(), f);
   }
 
   template<class TAG, t_overflow O>
   inline
   t_void t_string<TAG, 0, O>::mod_(t_ix pos, t_char ch) noexcept {
-    impl_.mod_(store_, get(pos), ch);
+    impl_.mod_(store_.get(), get(pos), ch);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
