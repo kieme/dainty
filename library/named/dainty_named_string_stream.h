@@ -39,47 +39,46 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator+=(t_string<TAG, N, O>& lh,
-                                  P_cstr rh) noexcept {
-    return lh.append(rh);
-  }
+  constexpr t_block SP  {' ', t_n{1}};
+  constexpr t_block SP_2{' ', t_n{2}};
+  constexpr t_block SP_3{' ', t_n{3}};
+  constexpr t_block SP_4{' ', t_n{4}};
+  constexpr t_block SP_5{' ', t_n{5}};
 
-  template<class TAG, class TAG1, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
-  inline
-  t_string<TAG, N, O>& operator+=(t_string<TAG, N, O>& lh,
-                                  const t_string<TAG1, N1, O1>& rh) noexcept {
-    return lh.append(rh);
-  }
+  template<t_n_ N>
+  constexpr t_block spaces() noexcept { return t_block{' ', t_n{N}}; }
 
-  template<class TAG, t_n_ N, t_overflow O, class T>
-  inline
-  t_string<TAG, N, O>& operator+=(t_string<TAG, N, O>& lh,
-                                  const T& rh) noexcept {
-    return lh.append(rh);
-  }
+////////////////////////////////////////////////////////////////////////////////
+
+  constexpr t_block NL  {'\n', t_n{1}};
+  constexpr t_block NL_2{'\n', t_n{2}};
+  constexpr t_block NL_3{'\n', t_n{3}};
+  constexpr t_block NL_4{'\n', t_n{4}};
+  constexpr t_block NL_5{'\n', t_n{5}};
+
+  template<t_n_ N>
+  constexpr t_block newlines() noexcept { return t_block{'\n', t_n{N}}; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
   template<class TAG, t_n_ N, t_overflow O>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh, P_cstr rh) noexcept {
-    return (lh +=rh);
+    return lh.append(rh);
   }
 
   template<class TAG, class TAG1, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
                                   const t_string<TAG1, N1, O1>& rh) noexcept {
-    return (lh +=rh);
+    return lh.append(rh);
   }
 
   template<class TAG, t_n_ N, t_overflow O, class T>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
                                   const T& rh) noexcept {
-    return (lh += rh);
+    return lh.append(rh);
   }
 
 ////////////////////////////////////////////////////////////////////////////////

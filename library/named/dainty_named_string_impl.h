@@ -64,8 +64,8 @@ namespace string
     t_char c   = '\0';
     t_n    max = t_n{0};
 
-    t_block() = default;
-    t_block(t_char _c, t_n _max) : c(_c), max(_max) { };
+    constexpr t_block() = default;
+    constexpr t_block(t_char _c, t_n _max) : c(_c), max(_max) { };
   };
   using R_block = named::t_prefix<t_block>::R_;
 
