@@ -115,7 +115,8 @@ namespace string
   t_void   dealloc_  (p_cstr_)                      noexcept;
   p_cstr_  realloc_  (p_cstr_, t_n_)                noexcept;
 
-  t_void   display_  (P_cstr_)                  noexcept;
+  t_void   display_  (P_cstr_, t_n_)            noexcept;
+  t_void   display_n_(P_cstr_, t_n_)            noexcept;
   t_int    compare_  (P_cstr_, P_cstr_)         noexcept;
   t_bool   match_    (P_cstr_, P_cstr_ pattern) noexcept;
   t_n_     count_    (t_char,  P_cstr_)         noexcept;
@@ -155,12 +156,12 @@ namespace string
 
     inline t_void display(P_cstr_ str) const noexcept {
       if (len_)
-        display_(str);
+        display_(str, len_);
     }
 
     inline t_void display_then_clear(p_cstr_ str) noexcept {
       if (len_) {
-        display_(str);
+        display_(str, len_);
         clear(str);
       }
     }

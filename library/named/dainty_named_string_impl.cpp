@@ -38,6 +38,13 @@ namespace string
 {
 ////////////////////////////////////////////////////////////////////////////////
 
+  t_void display(const t_char* fmt, ...) noexcept {
+    va_list args;
+    va_start(args, fmt);
+    std::vprintf(fmt, args);
+    va_end(args);
+  }
+
   inline t_n_ multiple_of_64_(t_n_ n) noexcept {
     if (n%64)
       n = (n - n%64) + 64;
@@ -166,8 +173,18 @@ namespace string
     return min;
   }
 
-  t_void display_(P_cstr_ str) noexcept {
-    std::printf("%s", str);
+  t_void display_(P_cstr_ str, t_n_ len) noexcept {
+    if (len && str[len] == '\n')
+      std::printf("%s", str);
+    else
+      std::printf("%s\n", str);
+  }
+
+  t_void display_n_(P_cstr_ str, t_n_ max) noexcept {
+    if (max && str[max-1] == '\n')
+      std::printf("%.*s", static_cast<t_int>(max), str);
+    else
+      std::printf("%.*s\n", static_cast<t_int>(max), str);
   }
 
   t_int compare_(P_cstr_ lh, P_cstr_ rh) noexcept {

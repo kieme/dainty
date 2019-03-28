@@ -31,6 +31,7 @@
 #include "dainty_named_string_2.h"
 #include "dainty_named_string_3.h"
 #include "dainty_named_string_4.h"
+#include "dainty_named_string_stream.h"
 
 namespace dainty
 {
@@ -65,6 +66,27 @@ namespace string
 // 6. t_string<TAG, 0,   OVERFLOW_GROW>
 //     * no sso, heap buf, will grow as needed.
 //
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void display(P_cstr_, ...) noexcept
+      __attribute__((format(printf, 1, 2)));
+
+  template<class TAG, t_n_ N = 0, t_overflow O = OVERFLOW_GROW>
+  inline t_void display(const t_string<TAG, N, O>& str) noexcept {
+    str.display();
+  }
+
+  inline t_void display(R_crange range) noexcept {
+    display_n_(range.ptr, get(range.n));
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<t_n_ N>
+  inline t_crange string_literal(const t_char (&value)[N]) noexcept {
+    return mk_range(static_cast<const t_char(&)[N]>(value));
+  }
+
 ///////////////////////////////////////////////////////////////////////////////
 
   template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
@@ -111,10 +133,6 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// XXX make range
-
-////////////////////////////////////////////////////////////////////////////////
-
   template<class TAG, t_n_ N, t_overflow O>
   inline
   t_bool operator==(const t_string<TAG, N, O>& lh, P_cstr rh) noexcept {
@@ -139,51 +157,6 @@ namespace string
   inline
   t_bool operator!=(P_cstr lh, const t_string<TAG, N, O>& rh) noexcept {
     return !(lh == rh);
-  }
-
-////////////////////////////////////////////////////////////////////////////////
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator+=(t_string<TAG, N, O>& lh,
-                                  P_cstr rh) noexcept {
-    return lh.append(rh);
-  }
-
-  template<class TAG, class TAG1, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
-  inline
-  t_string<TAG, N, O>& operator+=(t_string<TAG, N, O>& lh,
-                                  const t_string<TAG1, N1, O1>& rh) noexcept {
-    return lh.append(rh);
-  }
-
-  template<class TAG, t_n_ N, t_overflow O, class T>
-  inline
-  t_string<TAG, N, O>& operator+=(t_string<TAG, N, O>& lh,
-                                  const T& rh) noexcept {
-    return lh.append(rh);
-  }
-
-////////////////////////////////////////////////////////////////////////////////
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh, P_cstr rh) noexcept {
-    return (lh +=rh);
-  }
-
-  template<class TAG, class TAG1, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  const t_string<TAG1, N1, O1>& rh) noexcept {
-    return (lh +=rh);
-  }
-
-  template<class TAG, t_n_ N, t_overflow O, class T>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  const T& rh) noexcept {
-    return (lh += rh);
   }
 
 ////////////////////////////////////////////////////////////////////////////////
