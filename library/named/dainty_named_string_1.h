@@ -121,6 +121,17 @@ namespace string
 
     t_void mod_(t_ix pos, t_char) noexcept;
 
+  public: // custom interface - your responsibility
+    template<typename F> r_string custom_assign_(F& func) noexcept {
+      impl_.custom_assign_(store_, MAX_, func);
+      return *this;
+    }
+
+    template<typename F> r_string custom_append_(F& func) noexcept {
+      impl_.custom_append_(store_, MAX_, func);
+      return *this;
+    }
+
   private:
     constexpr static t_n_ MAX_ = N+1;
 

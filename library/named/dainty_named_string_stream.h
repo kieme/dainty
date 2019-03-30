@@ -72,6 +72,47 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  enum  t_indent_no_tag_ {};
+  using t_indent_no_ = t_int;
+  using t_indent_no  = t_explicit<t_indent_no_, t_indent_no_tag_>;
+
+  template<t_n_ INDENT_DEPTH = 2, t_char INDENT_CHAR = ' '>
+  struct t_indent_v_ {
+    constexpr t_indent_v_(t_indent_no _value) noexcept : value(_value) { }
+    t_indent_no value;
+  };
+
+  template<t_n_ INDENT_DEPTH>
+  constexpr t_indent_v_<INDENT_DEPTH> indent(t_indent_no no) noexcept {
+    return t_indent_v_<INDENT_DEPTH>(no);
+  }
+
+  template<t_n_ INDENT_DEPTH , t_char INDENT_CHAR>
+  constexpr t_indent_v_<INDENT_DEPTH, INDENT_CHAR>
+      indent(t_indent_no no) noexcept {
+    return t_indent_v_<INDENT_DEPTH, INDENT_CHAR>(no);
+  }
+
+  using t_indent_def_ = t_indent_v_<4, ' '>;
+  constexpr t_indent_def_ INDENT_0 {t_indent_no{0}};
+  constexpr t_indent_def_ INDENT_1 {t_indent_no{1}};
+  constexpr t_indent_def_ INDENT_2 {t_indent_no{2}};
+  constexpr t_indent_def_ INDENT_3 {t_indent_no{3}};
+  constexpr t_indent_def_ INDENT_4 {t_indent_no{4}};
+  constexpr t_indent_def_ INDENT_5 {t_indent_no{5}};
+  constexpr t_indent_def_ INDENT_6 {t_indent_no{6}};
+  constexpr t_indent_def_ INDENT_7 {t_indent_no{7}};
+  constexpr t_indent_def_ INDENT_8 {t_indent_no{8}};
+  constexpr t_indent_def_ INDENT_9 {t_indent_no{9}};
+  constexpr t_indent_def_ INDENT_10{t_indent_no{10}};
+  constexpr t_indent_def_ INDENT_11{t_indent_no{11}};
+  constexpr t_indent_def_ INDENT_12{t_indent_no{12}};
+  constexpr t_indent_def_ INDENT_13{t_indent_no{13}};
+  constexpr t_indent_def_ INDENT_14{t_indent_no{14}};
+  constexpr t_indent_def_ INDENT_15{t_indent_no{15}};
+
+////////////////////////////////////////////////////////////////////////////////
+
   enum t_align { ALIGN_RIGHT, ALIGN_LEFT, ALIGN_CENTER };
 
   enum  t_width_tag_ {};
@@ -117,7 +158,7 @@ namespace string
 
   template<typename T>
   constexpr t_ptr_v_<T*> pointer(T* value) noexcept {
-    return t_ptr_v_<T>{value};
+    return t_ptr_v_<T*>{value};
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -712,6 +753,19 @@ namespace string
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
                                   t_fmt_v_42_<P, WIDTH> value) noexcept {
     return lh.append(FMT, "%-*p", WIDTH, get(value.value));
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  template<class TAG, t_n_ N, t_overflow O, t_n_ INDENT_DEPTH,
+           t_char INDENT_CHAR>
+  inline
+  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
+                                  t_indent_v_<INDENT_DEPTH,
+                                              INDENT_CHAR> value) noexcept {
+    if (!lh.is_empty() && lh.get_back() != '\n')
+      lh.append(t_block{'\n', t_n{1}});
+    return lh.append(t_block{INDENT_CHAR, t_n{get(value.value)*INDENT_DEPTH}});
   }
 
 ////////////////////////////////////////////////////////////////////////////////

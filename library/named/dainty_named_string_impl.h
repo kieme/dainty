@@ -316,6 +316,20 @@ namespace string
                             va_list vars) noexcept {
       len_ += build_assert_(str + len_, max - len_, fmt, vars);
     }
+
+    template<typename F>
+    inline t_void custom_assign_(p_cstr_ str, t_n_ max, F& func) noexcept {
+      auto n = func(str, max);
+      if (n >= max)
+        assert_now(P_cstr{"buffer overflow"});
+    }
+
+    template<typename F>
+    inline t_void custom_append_(p_cstr_ str, t_n_ max, F& func) noexcept {
+      auto n = func(str + len_, max - len_);
+      if (n + len_ >= max)
+        assert_now(P_cstr{"buffer overflow"});
+    }
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -378,6 +392,16 @@ namespace string
     inline t_void va_append(p_cstr_ str, t_n_ max, P_cstr_ fmt,
                             va_list vars) noexcept {
       len_ += build_truncate_(str + len_, max - len_, fmt, vars);
+    }
+
+    template<typename F>
+    inline t_void custom_assign_(p_cstr_ str, t_n_ max, F& func) noexcept {
+      func(str, max);
+    }
+
+    template<typename F>
+    inline t_void custom_append_(p_cstr_ str, t_n_ max, F& func) noexcept {
+      func(str + len_, max - len_);
     }
   };
 

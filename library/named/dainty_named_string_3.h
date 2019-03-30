@@ -120,6 +120,17 @@ namespace string
 
     t_void mod_(t_ix pos, t_char) noexcept;
 
+  public: // custom interface - your responsibility
+    template<typename F> r_string custom_assign_(F& func) noexcept {
+      impl_.custom_assign_(store_, max_, func);
+      return *this;
+    }
+
+    template<typename F> r_string custom_append_(F& func) noexcept {
+      impl_.custom_append_(store_, max_, func);
+      return *this;
+    }
+
   private:
     template<class, t_n_, t_overflow> friend class t_string;
     t_n_    max_  = 0; // includes '\0'
