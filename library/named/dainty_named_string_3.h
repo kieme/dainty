@@ -122,12 +122,12 @@ namespace string
 
   public: // custom interface - your responsibility
     template<typename F> r_string custom_assign_(F& func) noexcept {
-      impl_.custom_assign_(store_, max_, func);
+      impl_.custom_assign(store_, max_, func);
       return *this;
     }
 
     template<typename F> r_string custom_append_(F& func) noexcept {
-      impl_.custom_append_(store_, max_, func);
+      impl_.custom_append(store_, max_, func);
       return *this;
     }
 

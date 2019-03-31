@@ -318,17 +318,19 @@ namespace string
     }
 
     template<typename F>
-    inline t_void custom_assign_(p_cstr_ str, t_n_ max, F& func) noexcept {
+    inline t_void custom_assign(p_cstr_ str, t_n_ max, F& func) noexcept {
       auto n = func(str, max);
       if (n >= max)
         assert_now(P_cstr{"buffer overflow"});
+      len_ = n;
     }
 
     template<typename F>
-    inline t_void custom_append_(p_cstr_ str, t_n_ max, F& func) noexcept {
+    inline t_void custom_append(p_cstr_ str, t_n_ max, F& func) noexcept {
       auto n = func(str + len_, max - len_);
       if (n + len_ >= max)
         assert_now(P_cstr{"buffer overflow"});
+      len_ += n;
     }
   };
 
@@ -395,13 +397,27 @@ namespace string
     }
 
     template<typename F>
-    inline t_void custom_assign_(p_cstr_ str, t_n_ max, F& func) noexcept {
-      func(str, max);
+    inline t_void custom_assign(p_cstr_ str, t_n_ max, F& func) noexcept {
+      auto len = func(str, max);
+      if (len < max)
+        len_ = len;
+      else {
+        len = max - 1;
+        str[len] = '\0';
+      }
+      return len;
     }
 
     template<typename F>
-    inline t_void custom_append_(p_cstr_ str, t_n_ max, F& func) noexcept {
-      func(str + len_, max - len_);
+    inline t_void custom_append(p_cstr_ str, t_n_ max, F& func) noexcept {
+      auto len = func(str + len_, max - len_);
+      if (len < max - len_)
+        len_ += len;
+      else {
+        len = max - len_ - 1;
+        str[len] = '\0';
+      }
+      return len;
     }
   };
 
