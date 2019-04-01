@@ -643,6 +643,15 @@ namespace named
   using p_fd        = t_prefix<t_fd>::p_;
   using P_fd        = t_prefix<t_fd>::P_;
 
+  enum t_cnt_tag_ {};
+  using t_cnt_      = t_ulong;
+  using t_cnt       = t_explicit<t_cnt_, t_cnt_tag_>;
+  using T_cnt       = t_prefix<t_cnt>::T_;
+  using r_cnt       = t_prefix<t_cnt>::r_;
+  using R_cnt       = t_prefix<t_cnt>::R_;
+  using p_cnt       = t_prefix<t_cnt>::p_;
+  using P_cnt       = t_prefix<t_cnt>::P_;
+
   enum t_n_tag_ {};
   using t_n_        = t_ulong;
   using t_n         = t_explicit<t_n_, t_n_tag_>;
@@ -711,6 +720,12 @@ namespace named
   using R_percentage  = t_prefix<t_percentage>::R_;
   using p_percentage  = t_prefix<t_percentage>::p_;
   using P_percentage  = t_prefix<t_percentage>::P_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  constexpr r_cnt operator++(r_cnt cnt) noexcept {
+    return cnt = t_cnt{get(cnt) + 1};
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
