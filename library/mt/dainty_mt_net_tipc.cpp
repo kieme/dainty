@@ -177,6 +177,171 @@ namespace net_tipc
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_tipc_stream_server::t_tipc_stream_server(R_tipc_address server,
+                                             r_logic) noexcept {
+  }
+
+  t_tipc_stream_server::t_tipc_stream_server(t_err, R_tipc_address server,
+                                             r_logic) noexcept {
+  }
+
+  t_tipc_stream_server::t_tipc_stream_server(x_tipc_stream_server) noexcept {
+  }
+
+  t_tipc_stream_server::~t_tipc_stream_server() {
+  }
+
+  t_tipc_stream_server::operator t_validity() const noexcept {
+  }
+
+  t_fd t_tipc_stream_server::get_fd() const noexcept {
+  }
+
+  t_connect_result t_tipc_stream_server::accept_connection() noexcept {
+  }
+
+  t_bool t_tipc_stream_server::close_connection(t_connect_id) noexcept {
+  }
+
+  R_connect_info t_tipc_stream_server
+      ::get_connection(t_connect_id) const noexcept {
+  }
+
+  t_void t_tipc_stream_server
+      ::get_connection_ids(r_connect_ids) const noexcept {
+  }
+
+  t_errn t_tipc_stream_server
+      ::getpeername(t_connect_id, r_tipc_address) const noexcept {
+  }
+
+  t_void t_tipc_stream_server
+      ::getpeername(t_err, t_connect_id, r_tipc_address) const noexcept {
+  }
+
+  t_errn t_tipc_stream_server
+      ::getsockname(t_connect_id, r_tipc_address) const noexcept {
+  }
+
+  t_void t_tipc_stream_server
+      ::getsockname(t_err, t_connect_id, r_tipc_address) const noexcept {
+  }
+
+  t_verify<t_n> t_tipc_stream_server
+      ::send(t_connect_id, R_byte_crange, t_flags) noexcept {
+  }
+
+  t_n t_tipc_stream_server
+      ::send(t_err, t_connect_id, R_byte_crange, t_flags) noexcept {
+  }
+
+  t_verify<t_n> t_tipc_stream_server
+      ::recv(t_connect_id, r_byte_range, t_flags) noexcept {
+  }
+
+  t_n t_tipc_stream_server
+      ::recv(t_err, t_connect_id, r_byte_range, t_flags) noexcept {
+  }
+
+  t_verify<t_n> t_tipc_stream_server
+      ::sendmsg(t_connect_id, R_socket_msghdr, t_flags) noexcept {
+  }
+
+  t_n t_tipc_stream_server
+      ::sendmsg(t_err, t_connect_id, R_socket_msghdr, t_flags) noexcept {
+  }
+
+  t_verify<t_n> t_tipc_stream_server
+      ::recvmsg(t_connect_id, r_socket_msghdr, t_flags) noexcept {
+  }
+
+  t_n t_tipc_stream_server
+      ::recvmsg(t_err, t_connect_id, r_socket_msghdr, t_flags) noexcept {
+  }
+
+  t_errn t_tipc_stream_server
+      ::getsockopt(t_connect_id, t_socket_level,
+                   r_socket_option) const noexcept {
+  }
+
+  t_void t_tipc_stream_server
+      ::getsockopt(t_err, t_connect_id, t_socket_level,
+                   r_socket_option) const noexcept {
+  }
+
+  t_errn t_tipc_stream_server
+      ::setsockopt(t_connect_id, t_socket_level, R_socket_option) noexcept {
+  }
+
+  t_void t_tipc_stream_server
+      ::setsockopt(t_err, t_connect_id, t_socket_level,
+                   R_socket_option) noexcept {
+  }
+
+  t_errn t_tipc_stream_server::getpeername(r_tipc_address) const noexcept {
+  }
+
+  t_void t_tipc_stream_server
+      ::getpeername(t_err, r_tipc_address) const noexcept {
+  }
+
+  t_errn t_tipc_stream_server
+      ::getsockname(r_tipc_address) const noexcept {
+  }
+
+  t_void t_tipc_stream_server
+      ::getsockname(t_err, r_tipc_address) const noexcept {
+  }
+
+  t_verify<t_n> t_tipc_stream_server
+      ::send(R_byte_crange, t_flags) noexcept {
+  }
+
+  t_n t_tipc_stream_server
+      ::send(t_err, R_byte_crange, t_flags) noexcept {
+  }
+
+  t_verify<t_n> t_tipc_stream_server
+      ::recv(r_byte_range, t_flags) noexcept {
+  }
+
+  t_n t_tipc_stream_server
+      ::recv(t_err, r_byte_range, t_flags) noexcept {
+  }
+
+  t_verify<t_n> t_tipc_stream_server
+      ::sendmsg(R_socket_msghdr, t_flags) noexcept {
+  }
+
+  t_n t_tipc_stream_server
+      ::sendmsg(t_err, R_socket_msghdr, t_flags) noexcept {
+  }
+
+  t_verify<t_n> t_tipc_stream_server
+      ::recvmsg(r_socket_msghdr, t_flags) noexcept {
+  }
+
+  t_n t_tipc_stream_server
+      ::recvmsg(t_err, r_socket_msghdr, t_flags) noexcept {
+  }
+
+  t_errn t_tipc_stream_server
+      ::getsockopt(t_socket_level, r_socket_option) const noexcept {
+  }
+
+  t_void t_tipc_stream_server
+      ::getsockopt(t_err, t_socket_level, r_socket_option) const noexcept {
+  }
+
+  t_errn t_tipc_stream_server
+      ::setsockopt(t_socket_level, R_socket_option) noexcept {
+  }
+
+  t_void t_tipc_stream_server
+      ::setsockopt(t_err, t_socket_level, R_socket_option) noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
 }
 }
 }
