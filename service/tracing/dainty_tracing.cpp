@@ -49,6 +49,8 @@ using namespace dainty::os;
 using namespace dainty::tracing::tracer;
 
 using string::FMT;
+using string::string_literal;
+using string::integer;
 using dainty::container::any::t_any;
 using dainty::os::threading::t_mutex_lock;
 using dainty::os::clock::t_time;
@@ -136,7 +138,7 @@ namespace tracer
           date.assign(FMT, "%lld.%.9ld", 0LL, 0L);
       } break;
       case DATE:
-        date += "date:...."; //XXX
+        date << string_literal("date:...."); //XXX
         break;
     }
     prev = time;
@@ -151,20 +153,14 @@ namespace tracer
   t_line make_line(t_n cnt, R_tracer_name& name, R_tracer_name point,
                    R_levelname level, R_text text) {
     t_line line;
-    line += level;
-    line += " ";
-    line += name;
-    line += " ";
+    line << level << string_literal(" ") << name << string_literal(" ");
     if (point == name)
-      line += "(*) ";
-    else {
-      line += "(";
-      line += point;
-      line += ") ";
-    }
+      line << string_literal("(*) ");
+    else
+      line << string_literal("(") << point << string_literal(") ");
     if (get(cnt) != 1)
-      line.append(FMT, "cnt=%lu ", get(cnt));
-    line += text;
+      line << string_literal("cnt=") << integer(get(cnt)) << SP;
+    line << text;
     return line;
   }
   using R_line = t_prefix<t_line>::R_;
