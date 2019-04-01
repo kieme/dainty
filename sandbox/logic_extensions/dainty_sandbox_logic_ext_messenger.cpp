@@ -37,6 +37,7 @@ namespace logic_messenger_ext
 {
   using namespace named::terminal;
   using named::utility::x_cast;
+  using named::string::string_literal;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +69,7 @@ namespace logic_messenger_ext
       t_out{"t_logic_messenger_ext::t_impl_::notify_start"};
 
       t_messenger_name name{get_logic_name().mk_range()};
-      name += "_messenger";
+      name << string_literal("_messenger");
       messenger_.emplace(messaging::create_messenger(err.tag(1), name,
                                                      {params_.scope,
                                                       params_.alive_period}));
