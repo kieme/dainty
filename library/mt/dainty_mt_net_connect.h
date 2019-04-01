@@ -45,11 +45,15 @@ namespace mt
 namespace net_connect
 {
   using named::t_prefix;
+  using named::t_explicit;
   using named::t_fd;
+  using named::BAD_FD;
   using named::t_user;
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
+
+  using os::t_tipc_address;
 
   using container::list::t_list;
   using container::maybe::t_maybe;
@@ -64,7 +68,7 @@ namespace net_connect
   using t_connect_id_ = named::t_int;
   using t_connect_id  = t_explicit<t_connect_id_, t_connect_id_tag_>;
 
-  constexpr t_connect_id BAD_CONNECT_ID{-1}; // BAD_ID
+  constexpr t_connect_id BAD_CONNECT_ID{-1}; // BAD_ID - XXX
 
   using t_connect_ids = t_maybe<t_list<t_connect_id>>;
   using r_connect_ids = t_prefix<t_connect_ids>::r_;
@@ -75,7 +79,7 @@ namespace net_connect
       : id{_id}, fd{_fd} {
     }
 
-    operator t_validity() const {
+    operator t_validity() const noexcept {
       return id == BAD_CONNECT_ID ? INVALID : VALID;
     }
 
@@ -90,7 +94,7 @@ namespace net_connect
     t_fd            fd;
     t_tipc_address  peer;
     t_connect_id    id;
-    t_connext_user  user;
+    t_connect_user  user;
     t_connect_stats stats;
   };
   using R_connect_info = t_prefix<t_connect_info>::R_;

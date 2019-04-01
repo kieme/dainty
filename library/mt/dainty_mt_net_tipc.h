@@ -31,6 +31,8 @@
 #include "dainty_mt_err.h"
 #include "dainty_mt_net_connect.h"
 
+// XXX - each class must get stats - count
+
 namespace dainty
 {
 namespace mt
@@ -178,7 +180,6 @@ namespace net_tipc
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    // shutdown/close
     t_errn getpeername(       t_connect_id, r_tipc_address) const noexcept;
     t_void getpeername(t_err, t_connect_id, r_tipc_address) const noexcept;
 
@@ -239,6 +240,7 @@ namespace net_tipc
 
   private:
     t_socket socket_;
+    r_logic  logic_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

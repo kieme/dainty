@@ -43,18 +43,18 @@ namespace net_tipc
 ///////////////////////////////////////////////////////////////////////////////
 
   t_tipc_stream_client::t_tipc_stream_client(R_tipc_address server) noexcept
-      : socket_{t_socket_domain{0},
-                t_socket_type{0},
-                t_socket_protocol{0}} {
+      : socket_{t_socket_domain{0}, //XXX
+                t_socket_type{0}, //XXX
+                t_socket_protocol{0}} { //XXX
     if (socket_.connect(server) == INVALID)
       socket_.close();
   }
 
   t_tipc_stream_client::t_tipc_stream_client(t_err err,
                                              R_tipc_address server) noexcept
-      : socket_{err, t_socket_domain{0},
-                     t_socket_type{0},
-                     t_socket_protocol{0}} {
+      : socket_{err, t_socket_domain{0}, //XXX
+                     t_socket_type{0}, //XXX
+                     t_socket_protocol{0}} { //XXX
     ERR_GUARD(err) {
       socket_.connect(err, server);
       if (err)
@@ -178,23 +178,43 @@ namespace net_tipc
 ///////////////////////////////////////////////////////////////////////////////
 
   t_tipc_stream_server::t_tipc_stream_server(R_tipc_address server,
-                                             r_logic) noexcept {
+                                             r_logic logic) noexcept
+      : socket_{t_socket_domain{0}, //XXX
+                t_socket_type{0},   //XXX
+                t_socket_protocol{0}}, logic_{logic} {
+    if (socket_ == VALID) {
+      // bind
+      // listen
+    }
   }
 
-  t_tipc_stream_server::t_tipc_stream_server(t_err, R_tipc_address server,
-                                             r_logic) noexcept {
+  t_tipc_stream_server::t_tipc_stream_server(t_err err, R_tipc_address server,
+                                             r_logic logic) noexcept
+      : socket_{err, t_socket_domain{0}, //XXX
+                     t_socket_type{0},   //XXX
+                     t_socket_protocol{0}}, logic_{logic} {
+    ERR_GUARD(err) {
+      // bind
+      // listen
+    }
   }
 
-  t_tipc_stream_server::t_tipc_stream_server(x_tipc_stream_server) noexcept {
+  t_tipc_stream_server
+    ::t_tipc_stream_server(x_tipc_stream_server server) noexcept
+      : socket_{x_cast(server.socket_)}, logic_{server.logic_} {
+    // XXX move - don't forget logic_
   }
 
   t_tipc_stream_server::~t_tipc_stream_server() {
+    // no sure I need this
   }
 
   t_tipc_stream_server::operator t_validity() const noexcept {
+    return socket_;
   }
 
   t_fd t_tipc_stream_server::get_fd() const noexcept {
+    return socket_.get_fd();
   }
 
   t_connect_result t_tipc_stream_server::accept_connection() noexcept {
