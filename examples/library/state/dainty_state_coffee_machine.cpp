@@ -8,15 +8,20 @@ namespace coffee_machine
   using dainty::named::P_cstr;
   using dainty::named::t_prefix;
   using dainty::named::t_void;
+  using dainty::named::P_char;
   using dainty::named::t_bool;
   using dainty::named::r_bool;
   using dainty::named::t_int;
   using dainty::named::t_n_;
+  using dainty::named::t_n;
   using dainty::named::t_ix_;
-  using dainty::named::string::FMT;
   using dainty::named::string::t_string;
   using dainty::named::string::t_crange;
-  using dainty::named::string::mk_range;
+  using dainty::named::string::string_literal;
+  using dainty::named::string::format;
+  using dainty::named::string::integer;
+  using dainty::named::string::NL;
+  using dainty::named::string::SP_2;
 
   enum  t_tracker_tag_ {};
   using t_tracker = t_string<t_tracker_tag_>;
@@ -31,11 +36,11 @@ namespace coffee_machine
                               POUR_LARGE,
                               INACTIVITY  };
 
-  const t_crange timeout_names[] = { mk_range("test_temp"),
-                                     mk_range("pour small)"),
-                                     mk_range("pour medium"),
-                                     mk_range("pour large"),
-                                     mk_range("inactive") };
+  const t_crange timeout_names[] = { string_literal("test_temp"),
+                                     string_literal("pour small)"),
+                                     string_literal("pour medium"),
+                                     string_literal("pour large"),
+                                     string_literal("inactive") };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -43,9 +48,9 @@ namespace coffee_machine
                                 MEDIUM,
                                 LARGE };
 
-  const t_crange select_names[] = { mk_range("small"),
-                                    mk_range("medium"),
-                                    mk_range("large") };
+  const t_crange select_names[] = { string_literal("small"),
+                                    string_literal("medium"),
+                                    string_literal("large") };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -56,12 +61,12 @@ namespace coffee_machine
                             CLEAN,
                             STOP };
 
-  const t_crange state_names[] = { mk_range("prepare"),
-                                   mk_range("ready"),
-                                   mk_range("order"),
-                                   mk_range("pour"),
-                                   mk_range("clean"),
-                                   mk_range("stop") };
+  const t_crange state_names[] = { string_literal("prepare"),
+                                   string_literal("ready"),
+                                   string_literal("order"),
+                                   string_literal("pour"),
+                                   string_literal("clean"),
+                                   string_literal("stop") };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -71,25 +76,20 @@ namespace coffee_machine
                            EURO,
                            BADCOIN };
 
-  const t_crange coin_names[] = { mk_range("10cent"),
-                                  mk_range("20cent"),
-                                  mk_range("50cent"),
-                                  mk_range("1euro"),
-                                  mk_range("uknown") };
+  const t_crange coin_names[] = { string_literal("10cent"),
+                                  string_literal("20cent"),
+                                  string_literal("50cent"),
+                                  string_literal("1euro"),
+                                  string_literal("uknown") };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum e_cr { CR };
   enum e_bg { BG };
-
-  inline r_tracker operator<<(r_tracker tracker, e_cr) {
-    tracker.append("\n");
-    return tracker;
-  }
 
   inline r_tracker operator<<(r_tracker tracker, e_bg) {
     static t_n_ cnt = 0;
-    tracker.append(FMT, "%03lu: ", ++cnt);
+    tracker << format<3>(integer(++cnt)) << string_literal(" - ");
+    //e.g. tracker.append(FMT, "%3lu - ", ++cnt); // the same as above
     return tracker;
   }
 
@@ -110,17 +110,6 @@ namespace coffee_machine
 
   inline r_tracker operator<<(r_tracker tracker, t_coin_id id) {
     tracker.append(coin_names[id]);
-    return tracker;
-  }
-
-  inline r_tracker operator<<(r_tracker tracker, t_crange string) {
-    tracker.append(string);
-    return tracker;
-  }
-
-  template<typename T>
-  inline r_tracker operator<<(r_tracker tracker, const T& value) {
-    tracker.append(value);
     return tracker;
   }
 
@@ -578,16 +567,19 @@ namespace coffee_machine
 
 #ifdef COFFEE_DEBUG
   t_void debug(R_statemachine_ sm, t_state_id current, t_state_id next) {
-    sm.get_user().tracker << BG << "statemachine transition from "
-                                << current << " to " << next << CR;
+    sm.get_user().tracker << BG
+                          << string_literal("statemachine transition from ")
+                          << current << string_literal(" to ") << next << NL;
   }
 
   t_void debug_start(R_statemachine_ sm, t_state_id start) {
-    sm.get_user().tracker << BG << "statemachine started in " << start << CR;
+    sm.get_user().tracker << BG
+                          << string_literal("statemachine started in ")
+                          << start << NL;
   }
 
   t_void debug_stop(R_statemachine_ sm) {
-    sm.get_user().tracker << BG << "statemachine stopped" << CR;
+    sm.get_user().tracker << BG << string_literal("statemachine stopped") << NL;
   }
 #endif
 
@@ -679,36 +671,34 @@ t_int main() {
 
 namespace coffee_machine
 {
-  using namespace dainty::named;
-
 ///////////////////////////////////////////////////////////////////////////////
 
   t_void t_actions::rinse() noexcept {
-    tracker << BG << "rinse" << CR;
+    tracker << BG << string_literal("rinse") << NL;
   }
 
   t_void t_actions::start_pour() noexcept {
-    tracker << BG << "pour" << CR;
+    tracker << BG << string_literal("pour") << NL;
   }
 
   t_void t_actions::stop_pour() noexcept {
-    tracker << BG << "stop_pour" << CR;
+    tracker << BG << string_literal("stop_pour") << NL;
   }
 
   t_void t_actions::fill() noexcept {
-    tracker << BG << "fill(beans&water)" << CR;
+    tracker << BG << string_literal("fill(beans&water)") << NL;
   }
 
   t_void t_actions::heatup() noexcept {
-    tracker << BG << "heatup" << CR;
+    tracker << BG << string_literal("heatup") << NL;
   }
 
   t_void t_actions::keep_heat() noexcept {
-    tracker << BG << "keep_heat" << CR;
+    tracker << BG << string_literal("keep_heat") << NL;
   }
 
   t_void t_actions::stop_heat() noexcept {
-    tracker << BG << "stop_heat" << CR;
+    tracker << BG << string_literal("stop_heat") << NL;
   }
 
   t_void t_actions::keep_coin(t_coin_id id) noexcept {
@@ -720,90 +710,90 @@ namespace coffee_machine
       case EURO:    total_ += 100; break;
       case BADCOIN:                break; // never happed due to assert
     }
-    tracker << BG;
-    tracker.append(FMT, "keep_coin, total is now = %lu\n", total_);
+    tracker << BG << string_literal("keep_coin, total is now = ")
+                  << integer(total_) << NL;
   }
 
   t_bool t_actions::is_valid_coin(t_coin_id id) noexcept {
-    tracker << BG << "is_valid_coin=" << id << CR;
+    tracker << BG << "is_valid_coin=" << id << NL;
     return id != BADCOIN;
   }
 
   t_void t_actions::return_coin(t_coin_id id) noexcept {
-    tracker << BG << "return coin=" << id << CR;
+    tracker << BG << "return coin=" << id << NL;
   }
 
   t_void t_actions::return_change() noexcept {
-    tracker << BG;
-    tracker.append(FMT,"return change in total of = %lu sent\n", total_);
+    tracker << BG << string_literal("return change in total of = ")
+                  << integer(total_) << string_literal(" sent") << NL;
     total_ = 0;
   }
 
   t_void t_actions::return_coins() noexcept {
-    tracker << BG;
-    tracker.append(FMT," return given coins in total of = %lu sent\n", total_);
+    tracker << BG << string_literal(" return given coins in total of = ")
+                  << integer(total_) << string_literal(" sent") << NL;
     total_ = 0;
   }
 
   t_void t_actions::beep() noexcept {
-    tracker << BG << "beep" << CR;
+    tracker << BG << string_literal("beep") << NL;
   }
 
   t_void t_actions::power_off() noexcept {
-    tracker << BG << "poweroff" << CR;
+    tracker << BG << string_literal("poweroff") << NL;
   }
 
   t_bool t_actions::is_temp_above_75() noexcept {
-    tracker << BG << "test temp" << CR;
+    tracker << BG << string_literal("test temp") << NL;
     return temp_ok_;
   }
 
   t_void t_actions::start_timer(t_timeout_id id) noexcept {
-    tracker << BG << "start_timer=" << id << CR;
+    tracker << BG << string_literal("start_timer=") << id << NL;
   }
 
   t_void t_actions::stop_timer(t_timeout_id id) noexcept {
-    tracker << BG << "stop_timer=" << id << CR;
+    tracker << BG << string_literal("stop_timer=") << id << NL;
   }
 
   t_timeout_id t_actions::pour_time() const noexcept {
-    tracker << BG << "fetch_pour_time" << CR;
+    tracker << BG << string_literal("fetch_pour_time") << NL;
     return pour_time_;
   }
 
   t_void t_actions::display(t_state_id id) noexcept {
     switch (id) {
       case ORDER:
-        tracker << BG << "display" << id;
-        tracker.append(FMT," total = %lu\n", total_);
+        tracker << BG << string_literal("display: ") << id
+                << string_literal(" total = ") << integer(total_) << NL;
         break;
 
       default:
-        tracker << BG << "display=" << id << CR;
+        tracker << BG << string_literal("display=") << id << NL;
         break;
     }
   }
 
   t_bool t_actions::accept_order(t_selection_id id) noexcept {
-    tracker << BG << "selected " << id << CR;
+    tracker << BG << "selected " << id << NL;
     t_bool enough = false;
     switch (id) {
       case SMALL: if (total_ >= 50) {
-                    tracker << BG << "accept order small" << CR;
+                    tracker << BG << string_literal("accept order small") << NL;
                     total_    -= 50;
                     pour_time_ = POUR_SMALL;
                     enough     = true;
                   }
                   break;
       case MEDIUM: if (total_ >= 100) {
-                    tracker << BG << "accept order medium" << CR;
+                    tracker << BG << string_literal("accept order medium") << NL;
                     total_    -= 100;
                     pour_time_ = POUR_MEDIUM;
                     enough     = true;
                   }
                   break;
       case LARGE: if (total_ >= 150) {
-                    tracker << BG << "accept order large" << CR;
+                    tracker << BG << string_literal("accept order large") << NL;
                     total_    -= 150;
                     pour_time_ = POUR_LARGE;
                     enough     = true;
@@ -811,7 +801,7 @@ namespace coffee_machine
                   break;
     }
     if (!enough)
-      tracker << BG << "insufficient funds" << CR;
+      tracker << BG << string_literal("insufficient funds") << NL;
     return enough;
   }
 
@@ -820,5 +810,5 @@ namespace coffee_machine
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
