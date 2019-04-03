@@ -174,7 +174,7 @@ namespace string
   }
 
   t_void display_(P_cstr_ str, t_n_ len) noexcept {
-    if (len && str[len] == '\n')
+    if (len && str[len - 1] == '\n')
       std::printf("%s", str);
     else
       std::printf("%s\n", str);
@@ -204,7 +204,7 @@ namespace string
   }
 
   t_bool match_(P_cstr_ str, P_cstr_ pattern) noexcept {
-    P_cstr_ l = 0; // XXX not fully correct
+    P_cstr_ l = nullptr; // XXX not fully correct
     while (*pattern && *str) {
              if (*pattern == *str)    ++pattern;
         else if (*pattern == '*') l = ++pattern;
