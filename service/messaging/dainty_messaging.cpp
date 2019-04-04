@@ -623,7 +623,7 @@ namespace message
 
       msg.mk_view(t_ix{sizeof(t_hdr_)},
                   t_ix{sizeof(t_hdr_) +
-                       get(fail_msg.get_capacity())}) = fail_msg.mk_view();
+                       get(fail_msg.get_capacity())}).copy(fail_msg.mk_view());
       return VALID;
     }
     return INVALID;
@@ -643,7 +643,7 @@ namespace message
         fail_msg = x_cast(tmp);
       }
       if (fail_msg == VALID) {
-        fail_msg.mk_view() = msg.mk_view(t_ix{sizeof(t_hdr_)}, t_ix{len});
+        fail_msg.mk_view().copy(msg.mk_view(t_ix{sizeof(t_hdr_)}, t_ix{len}));
         return VALID;
       }
     }

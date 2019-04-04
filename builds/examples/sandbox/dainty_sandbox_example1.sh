@@ -51,7 +51,6 @@ g++ -Wall -o run $DAINTY_ROOT/examples/sandbox/dainty_sandbox_example1.cpp \
                  $DAINTY_ROOT/library/named/dainty_named_string_impl.cpp \
                  $DAINTY_ROOT/library/named/dainty_named_assert.cpp \
                  $DAINTY_ROOT/library/named/dainty_named_terminal.cpp \
-                 $DAINTY_ROOT/library/named/dainty_named_range.cpp \
                  -I$DAINTY_ROOT/sandbox \
                  -I$DAINTY_ROOT/sandbox/logic_extensions \
                  -I$DAINTY_ROOT/library/named \

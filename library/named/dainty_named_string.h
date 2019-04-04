@@ -83,7 +83,7 @@ namespace string
 ///////////////////////////////////////////////////////////////////////////////
 
   template<t_n_ N>
-  inline t_crange string_literal(const t_char (&value)[N]) noexcept {
+  constexpr t_crange string_literal(const t_char (&value)[N]) noexcept {
     return mk_range(static_cast<const t_char(&)[N]>(value));
   }
 

@@ -36,7 +36,7 @@ namespace coffee_machine
                               POUR_LARGE,
                               INACTIVITY  };
 
-  const t_crange timeout_names[] = { string_literal("test_temp"),
+  constexpr t_crange timeout_names[] = { string_literal("test_temp"),
                                      string_literal("pour small)"),
                                      string_literal("pour medium"),
                                      string_literal("pour large"),
@@ -48,9 +48,9 @@ namespace coffee_machine
                                 MEDIUM,
                                 LARGE };
 
-  const t_crange select_names[] = { string_literal("small"),
-                                    string_literal("medium"),
-                                    string_literal("large") };
+  constexpr t_crange select_names[] = { string_literal("small"),
+                                        string_literal("medium"),
+                                        string_literal("large") };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -61,12 +61,12 @@ namespace coffee_machine
                             CLEAN,
                             STOP };
 
-  const t_crange state_names[] = { string_literal("prepare"),
-                                   string_literal("ready"),
-                                   string_literal("order"),
-                                   string_literal("pour"),
-                                   string_literal("clean"),
-                                   string_literal("stop") };
+  constexpr t_crange state_names[] = { string_literal("prepare"),
+                                       string_literal("ready"),
+                                       string_literal("order"),
+                                       string_literal("pour"),
+                                       string_literal("clean"),
+                                       string_literal("stop") };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -76,11 +76,11 @@ namespace coffee_machine
                            EURO,
                            BADCOIN };
 
-  const t_crange coin_names[] = { string_literal("10cent"),
-                                  string_literal("20cent"),
-                                  string_literal("50cent"),
-                                  string_literal("1euro"),
-                                  string_literal("uknown") };
+  constexpr t_crange coin_names[] = { string_literal("10cent"),
+                                      string_literal("20cent"),
+                                      string_literal("50cent"),
+                                      string_literal("1euro"),
+                                      string_literal("uknown") };
 
 ///////////////////////////////////////////////////////////////////////////////
 
