@@ -68,8 +68,8 @@ namespace string
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_void display(P_cstr_, ...) noexcept
-      __attribute__((format(printf, 1, 2)));
+  t_void display(t_fmt, P_cstr_, ...) noexcept
+      __attribute__((format(printf, 2, 3)));
 
   template<class TAG, t_n_ N = 0, t_overflow O = OVERFLOW_GROW>
   inline t_void display(const t_string<TAG, N, O>& str) noexcept {
@@ -84,8 +84,34 @@ namespace string
 
   template<t_n_ N>
   constexpr t_crange string_literal(const t_char (&value)[N]) noexcept {
-    return mk_range(static_cast<const t_char(&)[N]>(value));
+    return mk_range(value);
   }
+
+////////////////////////////////////////////////////////////////////////////////
+
+ inline t_bool operator==(R_crange lh, R_crange rh) {
+   return equal_(lh, rh);
+ }
+
+ inline t_bool operator!=(R_crange lh, R_crange rh) {
+   return !equal_(lh, rh);
+ }
+
+ inline t_bool operator<(R_crange lh, R_crange rh) {
+   return less_(lh, rh);
+ }
+
+ inline t_bool operator<=(R_crange lh, R_crange rh) {
+   return less_equal_(lh, rh);
+ }
+
+ inline t_bool operator>(R_crange lh, R_crange rh) {
+   return less_(rh, lh);
+ }
+
+ inline t_bool operator>=(R_crange lh, R_crange rh) {
+   return less_equal_(rh, lh);
+ }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -93,70 +119,116 @@ namespace string
   inline
   t_bool operator<(const t_string<TAG, N, O>&   lh,
                    const t_string<TAG, N1, O1>& rh) noexcept {
-    return compare_(get(lh.get_cstr()), get(rh.get_cstr())) < 0;
+    return less_(lh.mk_range(), rh.mk_range());
   }
 
   template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_bool operator<=(const t_string<TAG, N, O>&   lh,
                     const t_string<TAG, N1, O1>& rh) noexcept {
-    return compare_(get(lh.get_cstr()), get(rh.get_cstr())) <= 0;
+    return less_equal_(lh.mk_range(), rh.mk_range());
   }
 
   template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_bool operator>(const t_string<TAG, N,  O>&  lh,
                    const t_string<TAG, N1, O1>& rh) noexcept {
-    return compare_(get(lh.get_cstr()), get(rh.get_cstr())) > 0;
+    return less_(rh.mk_range(), lh.mk_range());
   }
 
   template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_bool operator>=(const t_string<TAG, N,  O>&  lh,
                     const t_string<TAG, N1, O1>& rh) noexcept {
-    return compare_(get(lh.get_cstr()), get(rh.get_cstr())) >= 0;
+    return less_equal_(rh.mk_range(), lh.mk_range());
   }
 
   template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_bool operator==(const t_string<TAG, N,  O>&  lh,
                     const t_string<TAG, N1, O1>& rh) noexcept {
-    return get(lh.get_length()) == get(rh.get_length()) && lh == rh.get_cstr();
+    return equal_(lh.mk_range(), rh.mk_range());
   }
 
   template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_bool operator!=(const t_string<TAG, N,  O>&  lh,
                     const t_string<TAG, N1, O1>& rh) noexcept {
-    return !(lh == rh);
+    return !equal_(lh.mk_range(), rh.mk_range());
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
   template<class TAG, t_n_ N, t_overflow O>
   inline
-  t_bool operator==(const t_string<TAG, N, O>& lh, P_cstr rh) noexcept {
-    return compare_(get(lh.get_cstr()), get(rh)) == 0;
+  t_bool operator<(const t_string<TAG, N, O>& lh, R_crange rh) noexcept {
+    return less_(lh.mk_range(), rh);
   }
 
   template<class TAG, t_n_ N, t_overflow O>
   inline
-  t_bool operator!=(const t_string<TAG, N, O>& lh, P_cstr rh) noexcept {
-    return !(lh == rh);
-  }
-
-////////////////////////////////////////////////////////////////////////////////
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator==(P_cstr lh, const t_string<TAG, N, O>& rh) noexcept {
-    return rh == lh;
+  t_bool operator<(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
+    return less_(lh, rh.mk_range());
   }
 
   template<class TAG, t_n_ N, t_overflow O>
   inline
-  t_bool operator!=(P_cstr lh, const t_string<TAG, N, O>& rh) noexcept {
-    return !(lh == rh);
+  t_bool operator<=(const t_string<TAG, N, O>& lh, R_crange rh) noexcept {
+    return less_equal_(lh.mk_range(), rh);
+  }
+
+  template<class TAG, t_n_ N, t_overflow O>
+  inline
+  t_bool operator<=(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
+    return less_equal_(lh, rh.mk_range());
+  }
+
+  template<class TAG, t_n_ N, t_overflow O>
+  inline
+  t_bool operator>(const t_string<TAG, N, O>&  lh, R_crange rh) noexcept {
+    return less_(rh, lh.mk_range());
+  }
+
+  template<class TAG, t_n_ N, t_overflow O>
+  inline
+  t_bool operator>(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
+    return less_(rh.mk_range(), lh);
+  }
+
+  template<class TAG, t_n_ N, t_overflow O>
+  inline
+  t_bool operator>=(const t_string<TAG, N, O>& lh, R_crange rh) noexcept {
+    return less_equal_(rh, lh.mk_range());
+  }
+
+  template<class TAG, t_n_ N, t_overflow O>
+  inline
+  t_bool operator>=(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
+    return less_equal_(rh.mk_range(), lh);
+  }
+
+  template<class TAG, t_n_ N, t_overflow O>
+  inline
+  t_bool operator==(const t_string<TAG, N, O>& lh, R_crange rh) noexcept {
+    return equal_(lh.mk_range(), rh);
+  }
+
+  template<class TAG, t_n_ N, t_overflow O>
+  inline
+  t_bool operator==(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
+    return equal_(lh, rh.mk_range());
+  }
+
+  template<class TAG, t_n_ N, t_overflow O>
+  inline
+  t_bool operator!=(const t_string<TAG, N, O>& lh, R_crange rh) noexcept {
+    return !equal_(lh.mk_range(), rh);
+  }
+
+  template<class TAG, t_n_ N, t_overflow O>
+  inline
+  t_bool operator!=(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
+    return !equal_(lh, rh.mk_range());
   }
 
 ////////////////////////////////////////////////////////////////////////////////

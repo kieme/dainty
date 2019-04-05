@@ -102,6 +102,10 @@ namespace string
     t_void display           () const noexcept;
     t_void display_then_clear()       noexcept;
 
+    t_void    scan(t_n, P_cstr_, ...) noexcept
+      __attribute__((format(scanf, 3, 4)));
+    t_void va_scan(t_n, P_cstr_ fmt, va_list vars) noexcept;
+
     t_bool is_match(P_cstr pattern)                        const noexcept;
     template<t_n_ N1>
     t_bool is_match(const t_char (&pattern)[N1])           const noexcept;
@@ -553,6 +557,23 @@ namespace string
   inline
   t_void t_string<TAG, 0, OVERFLOW_GROW>::mod_(t_ix pos, t_char ch) noexcept {
     impl_.mod_(store_.get(), get(pos), ch);
+  }
+
+  template<class TAG>
+  inline
+  t_void t_string<TAG, 0, OVERFLOW_GROW>::scan(t_n n, P_cstr_ fmt,
+                                               ...) noexcept {
+    va_list vars;
+    va_start(vars, fmt);
+    impl_.va_scan(store_.get(), get(n), fmt, vars);
+    va_end(vars);
+  }
+
+  template<class TAG>
+  inline
+  t_void t_string<TAG, 0, OVERFLOW_GROW>::va_scan(t_n n, P_cstr_ fmt,
+                                                  va_list vars) noexcept {
+    impl_.va_scan(store_.get(), get(n), fmt, vars);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

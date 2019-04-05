@@ -73,22 +73,62 @@ namespace string
   using t_crange = range::t_crange<t_char, t_crange_tag_>;
   using R_crange = t_prefix<t_crange>::R_;
 
-  template<t_n_ N>
-  constexpr t_crange mk_range(const t_char (&value)[N]) noexcept {
-    return t_crange{value, t_n{N-1}};
-  }
+///////////////////////////////////////////////////////////////////////////////
+
+  t_n_     build_try_     (p_cstr_, t_n_, P_cstr_, va_list) noexcept;
+  t_n_     build_assert_  (p_cstr_, t_n_, P_cstr_, va_list) noexcept;
+  t_n_     build_truncate_(p_cstr_, t_n_, P_cstr_, va_list) noexcept;
+  t_n_     copy_assert_   (p_cstr_, t_n_, P_cstr_, t_n_)    noexcept;
+  t_n_     copy_truncate_ (p_cstr_, t_n_, P_cstr_, t_n_)    noexcept;
+  t_n_     copy_assert_   (p_cstr_, t_n_, P_cstr_)          noexcept;
+  t_n_     copy_truncate_ (p_cstr_, t_n_, P_cstr_)          noexcept;
+  t_n_     fill_assert_   (p_cstr_, t_n_, R_block)          noexcept;
+  t_n_     fill_truncate_ (p_cstr_, t_n_, R_block)          noexcept;
+
+  t_n_     calc_n_        (t_n_, t_n_)                   noexcept;
+  p_cstr_  alloc_         (t_n_)                         noexcept;
+  p_cstr_  sso_alloc_     (p_cstr_, t_n_, t_n_&)         noexcept; //XXX
+  p_cstr_  sso_alloc_     (p_cstr_, t_n_, p_cstr_, t_n_) noexcept;
+  t_void   dealloc_       (p_cstr_)                      noexcept;
+  p_cstr_  realloc_       (p_cstr_, t_n_)                noexcept;
+
+  t_void   display_       (P_cstr_, t_n_)            noexcept;
+  t_void   display_n_     (P_cstr_, t_n_)            noexcept;
+
+  t_bool   match_         (P_cstr_, P_cstr_ pattern) noexcept;
+  t_n_     count_         (t_char,  P_cstr_)         noexcept;
+  t_n_     length_        (P_cstr_)                  noexcept;
+  t_n_     length_        (P_cstr_, va_list)         noexcept;
+  t_bool   equal_         (R_crange, R_crange)       noexcept;
+  t_bool   less_          (R_crange, R_crange)       noexcept;
+  t_bool   less_equal_    (R_crange, R_crange)       noexcept;
+
+  t_void   scan_          (R_crange,        t_n_, P_cstr_, va_list) noexcept;
+  t_crange scan_          (R_crange, t_n_&, t_n_, P_cstr_, ...)     noexcept;
+
+  t_crange skip_            (R_crange, t_char)   noexcept;
+  t_crange skip_            (R_crange, t_n_)     noexcept;
+  t_crange skip_            (R_crange, R_crange) noexcept;
+  t_crange skip_            (R_crange, R_block)  noexcept;
+  t_crange skip_until_      (R_crange, t_char)   noexcept;
+  t_crange skip_until_plus1_(R_crange, t_char)   noexcept;
+  t_crange skip_all_        (R_crange, t_char)   noexcept;
+
+////////////////////////////////////////////////////////////////////////////////
 
   template<t_n_ N>
-  constexpr t_crange mk_range(const t_char (&value)[N], t_ix begin) noexcept {
-    return range::mk_crange<t_crange_tag_>(t_crange{value, t_n{N-1}}, begin);
+  constexpr t_crange mk_range(const t_char (&str)[N]) noexcept {
+    return t_crange{str, t_n{N-1}, range::SKIP_};
   }
 
+////////////////////////////////////////////////////////////////////////////////
+
   template<t_n_ N>
-  constexpr t_crange mk_range(const t_char (&value)[N], t_ix begin,
-                                                        t_ix end) noexcept {
-    return range::mk_crange<t_crange_tag_>(t_crange{value, t_n{N-1}}, begin,
-                                                    end);
+  constexpr t_crange mk_range(P_cstr str) noexcept {
+    return t_crange{str, t_n{length_(get(str))}, range::SKIP_};
   }
+
+////////////////////////////////////////////////////////////////////////////////
 
   constexpr t_crange mk_range(R_crange range, t_ix begin) noexcept {
     return range::mk_crange<t_crange_tag_>(range, begin);
@@ -97,33 +137,6 @@ namespace string
   constexpr t_crange mk_range(R_crange range, t_ix begin, t_ix end) noexcept {
     return range::mk_crange<t_crange_tag_>(range, begin, end);
   }
-
-////////////////////////////////////////////////////////////////////////////////
-
-  t_n_ build_try_     (p_cstr_, t_n_, P_cstr_, va_list) noexcept;
-  t_n_ build_assert_  (p_cstr_, t_n_, P_cstr_, va_list) noexcept;
-  t_n_ build_truncate_(p_cstr_, t_n_, P_cstr_, va_list) noexcept;
-  t_n_ copy_assert_   (p_cstr_, t_n_, P_cstr_, t_n_)    noexcept;
-  t_n_ copy_truncate_ (p_cstr_, t_n_, P_cstr_, t_n_)    noexcept;
-  t_n_ copy_assert_   (p_cstr_, t_n_, P_cstr_)          noexcept;
-  t_n_ copy_truncate_ (p_cstr_, t_n_, P_cstr_)          noexcept;
-  t_n_ fill_assert_   (p_cstr_, t_n_, R_block)          noexcept;
-  t_n_ fill_truncate_ (p_cstr_, t_n_, R_block)          noexcept;
-
-  t_n_     calc_n_   (t_n_, t_n_)                   noexcept;
-  p_cstr_  alloc_    (t_n_)                         noexcept;
-  p_cstr_  sso_alloc_(p_cstr_, t_n_, t_n_&)          noexcept; //XXX r_n_;
-  p_cstr_  sso_alloc_(p_cstr_, t_n_, p_cstr_, t_n_) noexcept;
-  t_void   dealloc_  (p_cstr_)                      noexcept;
-  p_cstr_  realloc_  (p_cstr_, t_n_)                noexcept;
-
-  t_void   display_  (P_cstr_, t_n_)            noexcept;
-  t_void   display_n_(P_cstr_, t_n_)            noexcept;
-  t_int    compare_  (P_cstr_, P_cstr_)         noexcept;
-  t_bool   match_    (P_cstr_, P_cstr_ pattern) noexcept;
-  t_n_     count_    (t_char,  P_cstr_)         noexcept;
-  t_n_     length_   (P_cstr_)                  noexcept;
-  t_n_     length_   (P_cstr_, va_list)         noexcept;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -249,6 +262,11 @@ namespace string
       if (n < left)
         len_ += n;
       return n;
+    }
+
+    inline t_void va_scan(p_cstr_ str, t_n_ n, P_cstr_ fmt,
+                          va_list vars) noexcept {
+      scan_(t_crange{str, t_n{len_}}, n, fmt, vars);
     }
 
   protected:
