@@ -112,6 +112,7 @@ namespace string
   t_crange skip_            (R_crange, R_block)  noexcept;
   t_crange skip_until_      (R_crange, t_char)   noexcept;
   t_crange skip_until_plus1_(R_crange, t_char)   noexcept;
+  t_crange skip_until_plus1_(R_crange, R_crange) noexcept;
   t_crange skip_all_        (R_crange, t_char)   noexcept;
 
 ////////////////////////////////////////////////////////////////////////////////

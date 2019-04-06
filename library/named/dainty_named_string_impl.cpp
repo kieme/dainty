@@ -333,6 +333,19 @@ namespace string
     return {nullptr, t_n{0}};
   }
 
+  t_crange skip_until_plus1_(R_crange range, R_crange value) noexcept {
+    auto max = get(range.n), value_max = get(value.n);
+    if (max && max > value_max) {
+      t_ix_ ix = 0, k = 0;
+      for (; ix < max && k < value_max; ++ix)
+        k = range[t_ix{ix}] == value[t_ix{k}] ? k + 1 : 0;
+      if (k == value_max)
+        return mk_range(range, t_ix{ix});
+    }
+    assert_now(P_cstr("dont find substring"));
+    return {nullptr, t_n{0}};
+  }
+
   t_crange skip_all_(R_crange range, t_char ch) noexcept {
     auto max = get(range.n);
     if (max) {

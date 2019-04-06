@@ -799,7 +799,22 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  using t_walk_ = t_crange;
+  /*
+  struct t_snippet {
+    t_snippet() noexcept = default;
+
+    operator t_crange  () const noexcept { return t_crange{ptr, n}; }
+    operator t_validity() const noexcept { return ptr ? VALID : INVALID; }
+
+    P_cstr_ ptr = nullptr;
+    t_n     n   = t_n{0};
+  };
+  using r_snippet = t_prefix<t_snippet>::r_;
+
+  snippet_in(r_snippet snip, t_char ch, t_bool plus_1 = true,
+                                        t_bool include_char = false) {
+  }
+  */
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -807,6 +822,11 @@ namespace string
   struct t_skip_v_ {
     t_skip_v_(const T& _value) noexcept : value(_value) { }
     T value;
+  };
+
+  struct t_skip_until_plus1_range_v_ {
+    t_crange value;
+    t_skip_until_plus1_range_v_(R_crange _value) noexcept : value{_value} { }
   };
 
   enum  t_skip_n_v_tag_ {};
@@ -824,29 +844,37 @@ namespace string
 ////////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  inline t_skip_v_<T>          skip(const T& value) noexcept {
+  inline t_skip_v_<T>                skip(const T& value) noexcept {
     return {value};
   }
 
-  inline t_skip_n_v_           skip_n(t_n value) noexcept {
+  inline t_skip_n_v_                 skip_n(t_n value) noexcept {
     return t_skip_n_v_{get(value)};
   }
 
-  inline t_skip_until_v_       skip_until(t_char value) noexcept {
+  inline t_skip_until_v_             skip_until(t_char value) noexcept {
     return t_skip_until_v_{value};
   }
 
-  inline t_skip_until_plus1_v_ skip_until_plus1(t_char value) noexcept {
+  inline t_skip_until_plus1_v_       skip_until_plus1(t_char value) noexcept {
     return t_skip_until_plus1_v_{value};
   }
 
-  inline t_skip_all_v_         skip_all(t_char value) noexcept {
+  inline t_skip_until_plus1_range_v_ skip_until_plus1(R_crange value) noexcept {
+    return t_skip_until_plus1_range_v_{value};
+  }
+
+  inline t_skip_all_v_               skip_all(t_char value) noexcept {
     return t_skip_all_v_{value};
   }
 
-  inline t_skip_all_v_         skip_spaces() noexcept {
+  inline t_skip_all_v_               skip_spaces() noexcept {
     return t_skip_all_v_{' '};
   }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  using t_walk_ = t_crange;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -878,6 +906,12 @@ namespace string
   inline
   t_walk_ operator>>(const t_walk_& lh, t_skip_until_plus1_v_ value) noexcept {
     return skip_until_plus1_(lh, get(value));
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh,
+                     const t_skip_until_plus1_range_v_ value) noexcept {
+    return skip_until_plus1_(lh, value.value);
   }
 
   inline
