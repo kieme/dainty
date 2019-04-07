@@ -133,7 +133,7 @@ namespace string
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
     dst[cnt] = '\0';
-    return 0;
+    return cnt;
   }
 
   t_n_ copy_assert_(p_cstr_ dst, t_n_ max, P_cstr_ src) noexcept {
@@ -355,6 +355,35 @@ namespace string
         return mk_range(range, t_ix{ix});
     }
     return range;
+  }
+
+  t_crange snip_n_(R_crange range, p_snippet snip, t_n_ n) noexcept {
+    auto max = get(range.n);
+    if (max && max > n) {
+      snip->ptr = range.ptr;
+      snip->n   = t_n{n};
+      return mk_range(range, t_ix{n});
+    }
+    assert_now(P_cstr("not large enough"));
+    return {nullptr, t_n{0}};
+  }
+
+  t_crange snip_char_(R_crange range, p_snippet snip, t_char ch,
+                      t_bool plus1, t_bool incl_char) noexcept {
+    auto max = get(range.n);
+    if (max) {
+      t_ix_ ix = 0;
+      for (; ix < max && range[t_ix{ix}] != ch; ++ix);
+      if (ix < max) {
+        snip->ptr = range.ptr;
+        snip->n   = t_n{incl_char ? ix + 1: ix};
+        if (plus1)
+          ++ix;
+        return mk_range(range, t_ix{ix});
+      }
+    }
+    assert_now(P_cstr("not found"));
+    return {nullptr, t_n{0}};
   }
 
 ////////////////////////////////////////////////////////////////////////////////

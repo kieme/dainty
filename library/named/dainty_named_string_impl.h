@@ -58,6 +58,12 @@ namespace string
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  enum  t_crange_tag_ {};
+  using t_crange = range::t_crange<t_char, t_crange_tag_>;
+  using R_crange = t_prefix<t_crange>::R_;
+
+///////////////////////////////////////////////////////////////////////////////
+
   struct t_block {
     t_char c   = '\0';
     t_n    max = t_n{0};
@@ -67,11 +73,19 @@ namespace string
   };
   using R_block = named::t_prefix<t_block>::R_;
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-  enum  t_crange_tag_ {};
-  using t_crange = range::t_crange<t_char, t_crange_tag_>;
-  using R_crange = t_prefix<t_crange>::R_;
+  struct t_snippet {
+    t_snippet() noexcept = default;
+
+    operator t_crange  () const noexcept { return t_crange{ptr, n}; }
+    operator t_validity() const noexcept { return ptr ? VALID : INVALID; }
+
+    P_cstr_ ptr = nullptr;
+    t_n     n   = t_n{0};
+  };
+  using r_snippet = t_prefix<t_snippet>::r_;
+  using p_snippet = t_prefix<t_snippet>::p_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -114,6 +128,9 @@ namespace string
   t_crange skip_until_plus1_(R_crange, t_char)   noexcept;
   t_crange skip_until_plus1_(R_crange, R_crange) noexcept;
   t_crange skip_all_        (R_crange, t_char)   noexcept;
+
+  t_crange snip_n_   (R_crange, p_snippet, t_n_)                   noexcept;
+  t_crange snip_char_(R_crange, p_snippet, t_char, t_bool, t_bool) noexcept;
 
 ////////////////////////////////////////////////////////////////////////////////
 

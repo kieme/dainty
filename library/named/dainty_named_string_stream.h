@@ -165,6 +165,12 @@ namespace string
 
   template<class TAG, t_n_ N, t_overflow O>
   inline
+  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh, t_char rh) noexcept {
+    return lh.append(t_block{rh, t_n{1}});
+  }
+
+  template<class TAG, t_n_ N, t_overflow O>
+  inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh, P_cstr rh) noexcept {
     return lh.append(rh);
   }
@@ -799,22 +805,47 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /*
-  struct t_snippet {
-    t_snippet() noexcept = default;
+  struct t_snip_n_p_ {
+    t_snip_n_p_(p_snippet _value, t_n_ _n) noexcept
+      : value{_value}, n{_n} {
+    }
 
-    operator t_crange  () const noexcept { return t_crange{ptr, n}; }
-    operator t_validity() const noexcept { return ptr ? VALID : INVALID; }
-
-    P_cstr_ ptr = nullptr;
-    t_n     n   = t_n{0};
+    p_snippet value;
+    t_n_      n;
   };
-  using r_snippet = t_prefix<t_snippet>::r_;
 
-  snippet_in(r_snippet snip, t_char ch, t_bool plus_1 = true,
-                                        t_bool include_char = false) {
+  template<t_bool PLUS1 = true, t_bool INCL_CHAR = false>
+  struct t_snip_char_p_ {
+    t_snip_char_p_(p_snippet _value, t_char _ch) noexcept
+      : value{_value}, ch{_ch} {
+    }
+
+    p_snippet value;
+    t_char    ch;
+  };
+
+  inline
+  t_snip_n_p_ snippet_in(r_snippet snip, t_n n) noexcept {
+    return t_snip_n_p_{&snip, get(n)};
   }
-  */
+
+  inline
+  t_snip_char_p_<> snippet_in(r_snippet snip, t_char ch) noexcept {
+    return t_snip_char_p_<>{&snip, ch};
+  }
+
+  template<t_bool PLUS1>
+  inline
+  t_snip_char_p_<PLUS1> snippet_in(r_snippet snip, t_char ch) noexcept {
+    return t_snip_char_p_<PLUS1>{&snip, ch};
+  }
+
+  template<t_bool PLUS1, t_bool INCL_CHAR>
+  inline
+  t_snip_char_p_<PLUS1, INCL_CHAR> snippet_in(r_snippet snip,
+                                              t_char ch) noexcept {
+    return t_snip_char_p_<PLUS1, INCL_CHAR>{&snip, ch};
+  }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -917,6 +948,20 @@ namespace string
   inline
   t_walk_ operator>>(const t_walk_& lh, t_skip_all_v_ value) noexcept {
     return skip_all_(lh, get(value));
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_snip_n_p_ value) noexcept {
+    return snip_n_(lh, value.value, value.n);
+  }
+
+  template<t_bool PLUS1, t_bool INCL_CHAR>
+  inline
+  t_walk_ operator>>(const t_walk_& lh,
+                     const t_snip_char_p_<PLUS1, INCL_CHAR>& value) noexcept {
+    return snip_char_(lh, value.value, value.ch, PLUS1, INCL_CHAR);
   }
 
 ////////////////////////////////////////////////////////////////////////////////
