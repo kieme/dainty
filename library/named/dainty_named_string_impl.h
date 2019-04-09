@@ -76,16 +76,34 @@ namespace string
 ////////////////////////////////////////////////////////////////////////////////
 
   struct t_snippet {
-    t_snippet() noexcept = default;
+    constexpr t_snippet() noexcept = default;
 
-    operator t_crange  () const noexcept { return t_crange{ptr, n}; }
-    operator t_validity() const noexcept { return ptr ? VALID : INVALID; }
+    constexpr t_snippet(R_crange range) noexcept : ptr{range.ptr}, n{range.n} {
+    }
+
+    constexpr operator t_crange() const noexcept {
+      return t_crange{ptr, n};
+    }
+
+    constexpr operator t_validity() const noexcept {
+      return ptr && get(n)? VALID : INVALID;
+    }
 
     P_cstr_ ptr = nullptr;
     t_n     n   = t_n{0};
   };
   using r_snippet = t_prefix<t_snippet>::r_;
   using p_snippet = t_prefix<t_snippet>::p_;
+  using t_walk    = t_snippet;
+  using r_walk_   = r_snippet;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  inline r_snippet jump_forward_(r_snippet snip, t_n_ n) noexcept {
+    snip.ptr += n;
+    snip.n    = t_n{get(snip.n) - n};
+    return snip;
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -117,19 +135,19 @@ namespace string
   t_bool   less_          (R_crange, R_crange)       noexcept;
   t_bool   less_equal_    (R_crange, R_crange)       noexcept;
 
-  t_void   scan_          (R_crange,        t_n_, P_cstr_, va_list) noexcept;
-  t_crange scan_          (R_crange, t_n_&, t_n_, P_cstr_, ...)     noexcept;
+  t_void  scan_      (R_crange,        t_n_, P_cstr_, va_list) noexcept;
+  r_walk_ scan_      (r_walk_,  t_n_&, t_n_, P_cstr_, ...)     noexcept;
 
-  t_crange skip_      (R_crange, t_char)           noexcept;
-  t_crange skip_      (R_crange, t_n_)             noexcept;
-  t_crange skip_      (R_crange, R_crange)         noexcept;
-  t_crange skip_      (R_crange, R_block)          noexcept;
-  t_crange skip_until_(R_crange, t_char,   t_bool) noexcept;
-  t_crange skip_until_(R_crange, R_crange, t_bool) noexcept;
-  t_crange skip_all_  (R_crange, t_char)           noexcept;
+  r_walk_ skip_      (r_walk_, t_char)           noexcept;
+  r_walk_ skip_      (r_walk_, t_n_)             noexcept;
+  r_walk_ skip_      (r_walk_, R_crange)         noexcept;
+  r_walk_ skip_      (r_walk_, R_block)          noexcept;
+  r_walk_ skip_until_(r_walk_, t_char,   t_bool) noexcept;
+  r_walk_ skip_until_(r_walk_, R_crange, t_bool) noexcept;
+  r_walk_ skip_all_  (r_walk_, t_char)           noexcept;
 
-  t_crange snip_n_   (R_crange, p_snippet, t_n_)                   noexcept;
-  t_crange snip_char_(R_crange, p_snippet, t_char, t_bool, t_bool) noexcept;
+  r_walk_ snip_n_    (r_walk_, p_snippet, t_n_)                   noexcept;
+  r_walk_ snip_char_ (r_walk_, p_snippet, t_char, t_bool, t_bool) noexcept;
 
 ////////////////////////////////////////////////////////////////////////////////
 

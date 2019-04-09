@@ -261,117 +261,126 @@ namespace string
       assert_now(P_cstr("scanf could not find you value(s)"));
   }
 
-  t_crange scan_(R_crange range, t_n_& len, t_n_ n, P_cstr_ fmt, ...) noexcept {
+  r_walk_ scan_(r_walk_ walk, t_n_& len, t_n_ n, P_cstr_ fmt, ...) noexcept {
     va_list args;
     va_start(args, fmt);
-    auto cnt = std::vsscanf(range.ptr, fmt, args);
+    auto cnt = std::vsscanf(walk.ptr, fmt, args);
     va_end(args);
 
     if (cnt != static_cast<t_int>(n))
       assert_now(P_cstr("scanf could not find you value(s)"));
-    return {range.ptr + len, t_n{get(range.n) - len}, range::SKIP_};
+
+    return jump_forward_(walk, len);
   }
 
-  t_crange skip_(R_crange range, t_char ch) noexcept {
-    t_n_ max = get(range.n);
-    if (max >= 1 && range[t_ix{0}] == ch)
-      return mk_range(range, t_ix{1});
+  r_walk_ skip_(r_walk_ walk, t_char ch) noexcept {
+    t_n_ max = get(walk.n);
+    if (max >= 1 && walk.ptr[0] == ch)
+      return jump_forward_(walk, 1);
+
     assert_now(P_cstr("can't skip charater"));
-    return {nullptr, t_n{0}};
+    return walk;
   }
 
-  t_crange skip_(R_crange range, t_n_ n) noexcept {
-    t_n_ max = get(range.n);
+  r_walk_ skip_(r_walk_ walk, t_n_ n) noexcept {
+    t_n_ max = get(walk.n);
     if (n <= max)
-      return mk_range(range, t_ix{0}, t_ix{n});
+      return jump_forward_(walk, n);
+
     assert_now(P_cstr("buffer not big enough"));
-    return {nullptr, t_n{0}};
+    return walk;
   }
 
-  t_crange skip_(R_crange range, R_crange src) noexcept {
+  r_walk_ skip_(r_walk_ walk, R_crange src) noexcept {
     auto ix_begin = t_ix{0}, ix_end = t_ix{get(src.n)};
-    auto tmp = mk_range(range, ix_begin, ix_end);
+    auto tmp = mk_range(walk, ix_begin, ix_end);
     if (tmp == src)
-      return mk_range(range, ix_end);
+      return jump_forward_(walk, get(src.n));
+
     assert_now(P_cstr("range not the same"));
-    return {nullptr, t_n{0}};
+    return walk;
   }
 
-  t_crange skip_(R_crange range, R_block block) noexcept {
-    auto max = get(range.n), n = get(block.max);
+  r_walk_ skip_(r_walk_ walk, R_block block) noexcept {
+    auto max = get(walk.n), n = get(block.max);
     if (n <= max) {
       t_ix_ ix = 0;
-      for (; ix < n && range[t_ix{ix}] == block.c; ++ix);
+      for (; ix < n && walk.ptr[ix] == block.c; ++ix);
       if (ix == n)
-        return mk_range(range, t_ix{n});
+        return jump_forward_(walk, n);
     }
+
     assert_now(P_cstr("range not the same"));
-    return {nullptr, t_n{0}};
+    return walk;
   }
 
-  t_crange skip_until_(R_crange range, t_char ch, t_bool plus1) noexcept {
-    auto max = get(range.n);
+  r_walk_ skip_until_(r_walk_ walk, t_char ch, t_bool plus1) noexcept {
+    auto max = get(walk.n);
     if (max) {
       t_ix_ ix = 0;
-      for (; ix < max && range[t_ix{ix}] != ch; ++ix);
+      for (; ix < max && walk.ptr[ix] != ch; ++ix);
       if (ix < max)
-        return mk_range(range, t_ix{ix + plus1});
+        return jump_forward_(walk, ix + plus1);
     }
+
     assert_now(P_cstr("dont find char"));
-    return {nullptr, t_n{0}};
+    return walk;
   }
 
-  t_crange skip_until_(R_crange range, R_crange value, t_bool plus1) noexcept {
-    auto max = get(range.n), value_max = get(value.n);
+  r_walk_ skip_until_(r_walk_ walk, R_crange value, t_bool plus1) noexcept {
+    auto max = get(walk.n), value_max = get(value.n);
     if (max && max > value_max) {
       t_ix_ ix = 0, k = 0;
       for (; ix < max && k < value_max; ++ix)
-        k = range[t_ix{ix}] == value[t_ix{k}] ? k + 1 : 0;
+        k = walk.ptr[ix] == value[t_ix{k}] ? k + 1 : 0;
       if (k == value_max)
-        return mk_range(range, t_ix{plus1 ? ix : ix - value_max});
+        return jump_forward_(walk, plus1 ? ix : ix - value_max);
     }
+
     assert_now(P_cstr("dont find substring"));
-    return {nullptr, t_n{0}};
+    return walk;
   }
 
-  t_crange skip_all_(R_crange range, t_char ch) noexcept {
-    auto max = get(range.n);
+  r_walk_ skip_all_(r_walk_ walk, t_char ch) noexcept {
+    auto max = get(walk.n);
     if (max) {
       t_ix_ ix = 0;
-      for (; ix < max && range[t_ix{ix}] == ch; ++ix);
+      for (; ix < max && walk.ptr[ix] == ch; ++ix);
       if (ix <= max)
-        return mk_range(range, t_ix{ix});
+        return jump_forward_(walk, ix);
     }
-    return range;
+    return walk;
   }
 
-  t_crange snip_n_(R_crange range, p_snippet snip, t_n_ n) noexcept {
-    auto max = get(range.n);
+  r_walk_ snip_n_(r_walk_ walk, p_snippet snip, t_n_ n) noexcept {
+    auto max = get(walk.n);
     if (max && max > n) {
-      snip->ptr = range.ptr;
+      snip->ptr = walk.ptr;
       snip->n   = t_n{n};
-      return mk_range(range, t_ix{n});
+      return jump_forward_(walk, n);
     }
+
     assert_now(P_cstr("not large enough"));
-    return {nullptr, t_n{0}};
+    return walk;
   }
 
-  t_crange snip_char_(R_crange range, p_snippet snip, t_char ch,
+  r_walk_ snip_char_(r_walk_ walk, p_snippet snip, t_char ch,
                       t_bool plus1, t_bool incl_char) noexcept {
-    auto max = get(range.n);
+    auto max = get(walk.n);
     if (max) {
       t_ix_ ix = 0;
-      for (; ix < max && range[t_ix{ix}] != ch; ++ix);
+      for (; ix < max && walk.ptr[ix] != ch; ++ix);
       if (ix < max) {
-        snip->ptr = range.ptr;
+        snip->ptr = walk.ptr;
         snip->n   = t_n{incl_char ? ix + 1: ix};
         if (plus1)
           ++ix;
-        return mk_range(range, t_ix{ix});
+        return jump_forward_(walk, ix);
       }
     }
+
     assert_now(P_cstr("not found"));
-    return {nullptr, t_n{0}};
+    return walk;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
