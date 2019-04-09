@@ -120,14 +120,13 @@ namespace string
   t_void   scan_          (R_crange,        t_n_, P_cstr_, va_list) noexcept;
   t_crange scan_          (R_crange, t_n_&, t_n_, P_cstr_, ...)     noexcept;
 
-  t_crange skip_            (R_crange, t_char)   noexcept;
-  t_crange skip_            (R_crange, t_n_)     noexcept;
-  t_crange skip_            (R_crange, R_crange) noexcept;
-  t_crange skip_            (R_crange, R_block)  noexcept;
-  t_crange skip_until_      (R_crange, t_char)   noexcept;
-  t_crange skip_until_plus1_(R_crange, t_char)   noexcept;
-  t_crange skip_until_plus1_(R_crange, R_crange) noexcept;
-  t_crange skip_all_        (R_crange, t_char)   noexcept;
+  t_crange skip_      (R_crange, t_char)           noexcept;
+  t_crange skip_      (R_crange, t_n_)             noexcept;
+  t_crange skip_      (R_crange, R_crange)         noexcept;
+  t_crange skip_      (R_crange, R_block)          noexcept;
+  t_crange skip_until_(R_crange, t_char,   t_bool) noexcept;
+  t_crange skip_until_(R_crange, R_crange, t_bool) noexcept;
+  t_crange skip_all_  (R_crange, t_char)           noexcept;
 
   t_crange snip_n_   (R_crange, p_snippet, t_n_)                   noexcept;
   t_crange snip_char_(R_crange, p_snippet, t_char, t_bool, t_bool) noexcept;

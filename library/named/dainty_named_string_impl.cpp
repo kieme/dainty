@@ -309,38 +309,26 @@ namespace string
     return {nullptr, t_n{0}};
   }
 
-  t_crange skip_until_(R_crange range, t_char ch) noexcept {
+  t_crange skip_until_(R_crange range, t_char ch, t_bool plus1) noexcept {
     auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
       for (; ix < max && range[t_ix{ix}] != ch; ++ix);
       if (ix < max)
-        return mk_range(range, t_ix{ix});
+        return mk_range(range, t_ix{ix + plus1});
     }
     assert_now(P_cstr("dont find char"));
     return {nullptr, t_n{0}};
   }
 
-  t_crange skip_until_plus1_(R_crange range, t_char ch) noexcept {
-    auto max = get(range.n);
-    if (max) {
-      t_ix_ ix = 0;
-      for (; ix < max && range[t_ix{ix}] != ch; ++ix);
-      if (++ix <= max)
-        return mk_range(range, t_ix{ix});
-    }
-    assert_now(P_cstr("dont find char"));
-    return {nullptr, t_n{0}};
-  }
-
-  t_crange skip_until_plus1_(R_crange range, R_crange value) noexcept {
+  t_crange skip_until_(R_crange range, R_crange value, t_bool plus1) noexcept {
     auto max = get(range.n), value_max = get(value.n);
     if (max && max > value_max) {
       t_ix_ ix = 0, k = 0;
       for (; ix < max && k < value_max; ++ix)
         k = range[t_ix{ix}] == value[t_ix{k}] ? k + 1 : 0;
       if (k == value_max)
-        return mk_range(range, t_ix{ix});
+        return mk_range(range, t_ix{plus1 ? ix : ix - value_max});
     }
     assert_now(P_cstr("dont find substring"));
     return {nullptr, t_n{0}};

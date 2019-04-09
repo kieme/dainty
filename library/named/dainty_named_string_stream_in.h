@@ -35,6 +35,24 @@ namespace named
 {
 namespace string
 {
+  // 1. t_hex_p_ - store a pointer to a hex value
+  // -----------
+  // 1.1 hex_in(lvalue) use template dedecution to determine which type of hex.
+  //
+  // 2. t_int_p_ - store a pointer to an integer value
+  // -----------
+  // 2.1 integer_in(lvalue) use template dedecution to determine which type of
+  //     integer.
+  //
+  // 3. t_snippet - a character range that can be valid or not
+  // ------------
+  // 3.1 snippet_in(lvalue, t_n)           a snippet of t_n characters
+  // 3.1 snippet_in<true>(lvalue, ch)      a snippet until ch, plus one
+  // 3.1 snippet_in<true,true>(lvalue, ch) a snippet until and including ch
+  //                                       plus one
+  //
+  // 4. t_skip_ skip and something match characters
+  // ----------
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -106,19 +124,14 @@ namespace string
     T value;
   };
 
-  struct t_skip_until_plus1_range_v_ {
-    t_crange value;
-    t_skip_until_plus1_range_v_(R_crange _value) noexcept : value{_value} { }
+  template<typename T, t_bool PLUS1 = true>
+  struct t_skip_until_v_ {
+    t_skip_until_v_(const T& _value) noexcept : value{_value} { }
+    T value;
   };
 
   enum  t_skip_n_v_tag_ {};
   using t_skip_n_v_ = t_explicit<t_n_, t_skip_n_v_tag_>;
-
-  enum  t_skip_until_v_tag_ {};
-  using t_skip_until_v_ = t_explicit<t_char, t_skip_until_v_tag_>;
-
-  enum  t_skip_until_plus1_v_tag_ {};
-  using t_skip_until_plus1_v_ = t_explicit<t_char, t_skip_until_plus1_v_tag_>;
 
   enum  t_skip_all_v_tag_ {};
   using t_skip_all_v_ = t_explicit<t_char, t_skip_all_v_tag_>;
@@ -134,16 +147,14 @@ namespace string
     return t_skip_n_v_{get(value)};
   }
 
-  inline t_skip_until_v_             skip_until(t_char value) noexcept {
-    return t_skip_until_v_{value};
+  template<typename T>
+  inline t_skip_until_v_<T>          skip_until(const T& value) noexcept {
+    return t_skip_until_v_<T>{value};
   }
 
-  inline t_skip_until_plus1_v_       skip_until_plus1(t_char value) noexcept {
-    return t_skip_until_plus1_v_{value};
-  }
-
-  inline t_skip_until_plus1_range_v_ skip_until_plus1(R_crange value) noexcept {
-    return t_skip_until_plus1_range_v_{value};
+  template<t_bool PLUS1, typename T>
+  inline t_skip_until_v_<T, PLUS1>   skip_until(const T& value) noexcept {
+    return t_skip_until_v_<T, PLUS1>{value};
   }
 
   inline t_skip_all_v_               skip_all(t_char value) noexcept {
@@ -175,25 +186,25 @@ namespace string
     return skip_(lh, value.value);
   }
 
+////////////////////////////////////////////////////////////////////////////////
+
   inline
   t_walk_ operator>>(const t_walk_& lh, t_skip_n_v_ value) noexcept {
     return skip_(lh, get(value));
   }
 
-  inline
-  t_walk_ operator>>(const t_walk_& lh, t_skip_until_v_ value) noexcept {
-    return skip_until_(lh, get(value));
-  }
-
-  inline
-  t_walk_ operator>>(const t_walk_& lh, t_skip_until_plus1_v_ value) noexcept {
-    return skip_until_plus1_(lh, get(value));
-  }
-
+  template<t_bool PLUS1>
   inline
   t_walk_ operator>>(const t_walk_& lh,
-                     const t_skip_until_plus1_range_v_ value) noexcept {
-    return skip_until_plus1_(lh, value.value);
+                     t_skip_until_v_<t_char, PLUS1> value) noexcept {
+    return skip_until_(lh, value.value, PLUS1);
+  }
+
+  template<t_bool PLUS1>
+  inline
+  t_walk_ operator>>(const t_walk_& lh,
+                     t_skip_until_v_<t_crange, PLUS1> value) noexcept {
+    return skip_until_(lh, value.value, PLUS1);
   }
 
   inline
