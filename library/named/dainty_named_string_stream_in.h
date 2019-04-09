@@ -1,0 +1,358 @@
+/******************************************************************************
+
+ MIT License
+
+ Copyright (c) 2018 kieme, frits.germs@gmx.net
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+******************************************************************************/
+
+#ifndef _DAINTY_NAMED_STRING_STREAM_IN_H_
+#define _DAINTY_NAMED_STRING_STREAM_IN_H_
+
+#include "dainty_named_string_impl.h"
+
+namespace dainty
+{
+namespace named
+{
+namespace string
+{
+
+////////////////////////////////////////////////////////////////////////////////
+
+  enum t_hex_p_tag_ {};
+  template<typename T> using t_hex_p_ = t_explicit<T*, t_hex_p_tag_>;
+
+  enum t_int_p_tag_ {};
+  template<typename T> using t_int_p_ = t_explicit<T*, t_int_p_tag_>;
+
+  template<typename T>
+  constexpr t_hex_p_<T>  hex_in(T& value)  noexcept {
+    return t_hex_p_<T>{&value};
+  }
+
+  template<typename T>
+  constexpr t_int_p_<T>  integer_in(T& value)  noexcept {
+    return t_int_p_<T>{&value};
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  struct t_snip_n_p_ {
+    t_snip_n_p_(p_snippet _value, t_n_ _n) noexcept
+      : value{_value}, n{_n} {
+    }
+
+    p_snippet value;
+    t_n_      n;
+  };
+
+  template<t_bool PLUS1 = true, t_bool INCL_CHAR = false>
+  struct t_snip_char_p_ {
+    t_snip_char_p_(p_snippet _value, t_char _ch) noexcept
+      : value{_value}, ch{_ch} {
+    }
+
+    p_snippet value;
+    t_char    ch;
+  };
+
+  inline
+  t_snip_n_p_ snippet_in(r_snippet snip, t_n n) noexcept {
+    return t_snip_n_p_{&snip, get(n)};
+  }
+
+  inline
+  t_snip_char_p_<> snippet_in(r_snippet snip, t_char ch) noexcept {
+    return t_snip_char_p_<>{&snip, ch};
+  }
+
+  template<t_bool PLUS1>
+  inline
+  t_snip_char_p_<PLUS1> snippet_in(r_snippet snip, t_char ch) noexcept {
+    return t_snip_char_p_<PLUS1>{&snip, ch};
+  }
+
+  template<t_bool PLUS1, t_bool INCL_CHAR>
+  inline
+  t_snip_char_p_<PLUS1, INCL_CHAR> snippet_in(r_snippet snip,
+                                              t_char ch) noexcept {
+    return t_snip_char_p_<PLUS1, INCL_CHAR>{&snip, ch};
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  struct t_skip_v_ {
+    t_skip_v_(const T& _value) noexcept : value(_value) { }
+    T value;
+  };
+
+  struct t_skip_until_plus1_range_v_ {
+    t_crange value;
+    t_skip_until_plus1_range_v_(R_crange _value) noexcept : value{_value} { }
+  };
+
+  enum  t_skip_n_v_tag_ {};
+  using t_skip_n_v_ = t_explicit<t_n_, t_skip_n_v_tag_>;
+
+  enum  t_skip_until_v_tag_ {};
+  using t_skip_until_v_ = t_explicit<t_char, t_skip_until_v_tag_>;
+
+  enum  t_skip_until_plus1_v_tag_ {};
+  using t_skip_until_plus1_v_ = t_explicit<t_char, t_skip_until_plus1_v_tag_>;
+
+  enum  t_skip_all_v_tag_ {};
+  using t_skip_all_v_ = t_explicit<t_char, t_skip_all_v_tag_>;
+
+////////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  inline t_skip_v_<T>                skip(const T& value) noexcept {
+    return {value};
+  }
+
+  inline t_skip_n_v_                 skip_n(t_n value) noexcept {
+    return t_skip_n_v_{get(value)};
+  }
+
+  inline t_skip_until_v_             skip_until(t_char value) noexcept {
+    return t_skip_until_v_{value};
+  }
+
+  inline t_skip_until_plus1_v_       skip_until_plus1(t_char value) noexcept {
+    return t_skip_until_plus1_v_{value};
+  }
+
+  inline t_skip_until_plus1_range_v_ skip_until_plus1(R_crange value) noexcept {
+    return t_skip_until_plus1_range_v_{value};
+  }
+
+  inline t_skip_all_v_               skip_all(t_char value) noexcept {
+    return t_skip_all_v_{value};
+  }
+
+  inline t_skip_all_v_               skip_spaces() noexcept {
+    return t_skip_all_v_{' '};
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  using t_walk_ = t_crange;
+
+////////////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_skip_v_<t_char> value) noexcept {
+    return skip_(lh, value.value);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_skip_v_<t_block> value) noexcept {
+    return skip_(lh, value.value);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_skip_v_<t_crange> value) noexcept {
+    return skip_(lh, value.value);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_skip_n_v_ value) noexcept {
+    return skip_(lh, get(value));
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_skip_until_v_ value) noexcept {
+    return skip_until_(lh, get(value));
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_skip_until_plus1_v_ value) noexcept {
+    return skip_until_plus1_(lh, get(value));
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh,
+                     const t_skip_until_plus1_range_v_ value) noexcept {
+    return skip_until_plus1_(lh, value.value);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_skip_all_v_ value) noexcept {
+    return skip_all_(lh, get(value));
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_snip_n_p_ value) noexcept {
+    return snip_n_(lh, value.value, value.n);
+  }
+
+  template<t_bool PLUS1, t_bool INCL_CHAR>
+  inline
+  t_walk_ operator>>(const t_walk_& lh,
+                     const t_snip_char_p_<PLUS1, INCL_CHAR>& value) noexcept {
+    return snip_char_(lh, value.value, value.ch, PLUS1, INCL_CHAR);
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_hex_p_<t_char> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%hhx%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_hex_p_<t_uchar> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%hhx%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_hex_p_<t_short> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%hhx%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_hex_p_<t_ushort> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%hhx%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_hex_p_<t_int> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%x%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_hex_p_<t_uint> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%x%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_hex_p_<t_long> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%lx%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_hex_p_<t_ulong> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%lx%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_hex_p_<t_llong> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%llx%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_hex_p_<t_ullong> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%llx%n", get(value), &n);
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_int_p_<t_char> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%hhd%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_int_p_<t_uchar> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%hhu%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_int_p_<t_short> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%hhd%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_int_p_<t_ushort> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%hhu%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_int_p_<t_int> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%d%n$", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_int_p_<t_uint> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%u%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_int_p_<t_long> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%ld%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_int_p_<t_ulong> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%lu%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_int_p_<t_llong> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%lld%n", get(value), &n);
+  }
+
+  inline
+  t_walk_ operator>>(const t_walk_& lh, t_int_p_<t_ullong> value) noexcept {
+    t_n_ n = 0;
+    return scan_(lh, n, 1, "%llu%n", get(value), &n);
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  template<class, t_n_, t_overflow> class t_string;
+
+  template<class TAG, t_n_ N, t_overflow O, class T>
+  inline
+  t_walk_ operator>>(const t_string<TAG, N, O>& lh, T&& rh) noexcept {
+    auto walk = lh.mk_range();
+    return (walk >> utility::preserve<T>(rh));
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+}
+}
+}
+
+#endif

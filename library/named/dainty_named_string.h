@@ -31,7 +31,8 @@
 #include "dainty_named_string_2.h"
 #include "dainty_named_string_3.h"
 #include "dainty_named_string_4.h"
-#include "dainty_named_string_stream.h"
+#include "dainty_named_string_stream_in.h"
+#include "dainty_named_string_stream_out.h"
 
 namespace dainty
 {
