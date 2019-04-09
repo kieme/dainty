@@ -29,6 +29,68 @@
 
 #include "dainty_named_string_impl.h"
 
+// stream out types (<<)
+//
+// 1. t_block
+// ----------
+// 1.1  SP - space " "
+// 1.2  SP_2       "  "
+// 1.3  SP_3       "   "
+// 1.4  SP_4       "    "
+// 1.5  SP_5       "     "
+// 1.6  spaces<N>()
+// 1.7  spaces(t_n)
+// 1.8  NL - newline "\n"
+// 1.9  NL_2         "\n\n"
+// 1.10 NL_3         "\n\n\n"
+// 1.11 NL_4         "\n\n\n\n"
+// 1.12 NL_5         "\n\n\n\n\n"
+// 1.13 newlines<N>()
+// 1.14 newlines(t_n)
+// 1.15 line_of(t_n, t_char ch)  t_n ch characters. e.g. 3 '.' == "..."
+// 1.16 line(t_n)                t_n '-' characters. e.g. 4 '-' == "----"
+// 1.17 double_line(t_n)         t_n '=' characters. e.g. 6 '=' == "======"
+//
+// 2. t_indent_v_ - indention
+// --------------
+// 2.1  indent(3)        use default: char = ' ', depth=2. result="      "
+// 2.2  indent<4>(2)                  char = ' ', depth=4, result="        "
+// 2.3  indent<3,'#'>(2)              char = '#', depth=3, result="######"
+// 2.4  INDENT_0    ""
+// 2.5  INDENT_1    + "    "
+// 2.6  INDENT_2    + "    "
+// 2.7  INDENT_3    + "    "
+// 2.8  INDENT_4    + "    "
+// 2.9  INDENT_5    ...
+// 2.10 INDENT_6
+// 2.11 INDENT_7
+// 2.12 INDENT_8
+// 2.13 INDENT_9
+// 2.14 INDENT_10
+// 2.15 INDENT_11
+// 2.16 INDENT_12
+// 2.17 INDENT_13
+// 2.18 INDENT_14
+// 2.19 INDENT_15 + "    ".  // 15*4 = 60 characters
+//
+// 3. t_fmt_v_ - value(e.g.integer,hex,ptr) formatting with width and alignment
+// -----------
+// 3.1 format<5>(integer(1))     width=5,align=right,value=1,result="    1"
+// 3.1 format<5,ALIGN_LEFT>(...) width=5,align=left, value=1,result="1    "
+//
+// 4. t_int_v_ - represent an integer type - can be used with format
+// -----------
+// 4.1  integer(value) -> type deducation is used to construct t_int_v_
+//
+// 5. t_hex_v_ - represent a hexidecimal value - can be used with format
+// -----------
+// 5.1  hex(value) -> type deducation is used to construct t_hex_v_
+//
+// 6. t_ptr_v_ - represent a pointer value - can be used with format
+// -----------
+// 6.1  pointer(value) -> type deducation is used to construct t_ptr_v_
+//
+
 namespace dainty
 {
 namespace named
@@ -82,6 +144,10 @@ namespace string
     t_indent_no value;
   };
 
+  constexpr t_indent_v_<> indent(t_indent_no no) noexcept {
+    return t_indent_v_<>(no);
+  }
+
   template<t_n_ INDENT_DEPTH>
   constexpr t_indent_v_<INDENT_DEPTH> indent(t_indent_no no) noexcept {
     return t_indent_v_<INDENT_DEPTH>(no);
@@ -113,7 +179,7 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  enum t_align { ALIGN_RIGHT, ALIGN_LEFT, ALIGN_CENTER };
+  enum t_align { ALIGN_RIGHT, ALIGN_LEFT }; // ALIGN_CENTER can be added
 
   enum  t_width_tag_ {};
   using t_width_ = t_int;
