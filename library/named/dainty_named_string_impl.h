@@ -28,6 +28,7 @@
 #define _DAINTY_NAMED_STRING_IMPL_H_
 
 #include <stdarg.h>
+#include <initializer_list>
 #include "dainty_named.h"
 #include "dainty_named_utility.h"
 #include "dainty_named_range.h"
@@ -53,8 +54,16 @@ namespace string
   using named::t_int;
   using named::t_int;
 
+///////////////////////////////////////////////////////////////////////////////
+
   enum t_fmt      { FMT };
   enum t_overflow { OVERFLOW_ASSERT, OVERFLOW_TRUNCATE, OVERFLOW_GROW };
+
+  constexpr t_char EOL{'\0'};
+
+  enum t_plus1_     : t_n_   { NOT_PLUS1     = 0,     PLUS1     = 1    };
+  enum t_incl_char_ : t_n_   { NOT_INCL_CHAR = 0,     INCL_CHAR = 1 };
+  enum t_eol_       : t_bool { NOT_EOL_OK    = false, EOL_OK    = true };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -65,13 +74,32 @@ namespace string
 ///////////////////////////////////////////////////////////////////////////////
 
   struct t_block {
-    t_char c   = '\0';
+    t_char c   = EOL;
     t_n    max = t_n{0};
 
     constexpr t_block() = default;
     constexpr t_block(t_char _c, t_n _max) : c(_c), max(_max) { }
   };
   using R_block = named::t_prefix<t_block>::R_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  using t_select_list = std::initializer_list<t_char>;
+  using R_select_list = t_prefix<t_select_list>::R_;
+
+  struct t_char_select {
+    constexpr t_char_select(R_select_list _list) noexcept : list(_list) {
+    }
+
+    constexpr operator t_validity() const noexcept {
+      return choice != EOL ? VALID : INVALID;
+    }
+
+    t_select_list list;
+    t_char        choice = EOL;
+  };
+  using r_char_select = t_prefix<t_char_select>::r_;
+  using p_char_select = t_prefix<t_char_select>::p_;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -94,15 +122,16 @@ namespace string
   };
   using r_snippet = t_prefix<t_snippet>::r_;
   using p_snippet = t_prefix<t_snippet>::p_;
-  using t_walk    = t_snippet;
+  using t_walk    = t_snippet; // alias
   using r_walk_   = r_snippet;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  inline r_snippet jump_forward_(r_snippet snip, t_n_ n) noexcept {
-    snip.ptr += n;
-    snip.n    = t_n{get(snip.n) - n};
-    return snip;
+  constexpr r_walk_ jump_forward_(r_walk_ walk, t_n_ n) noexcept {
+    // does it need a test?
+    walk.ptr += n;
+    walk.n    = t_n{get(walk.n) - n};
+    return walk;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -135,19 +164,26 @@ namespace string
   t_bool   less_          (R_crange, R_crange)       noexcept;
   t_bool   less_equal_    (R_crange, R_crange)       noexcept;
 
-  t_void  scan_      (R_crange,        t_n_, P_cstr_, va_list) noexcept;
-  r_walk_ scan_      (r_walk_,  t_n_&, t_n_, P_cstr_, ...)     noexcept;
+  t_void   scan_      (R_crange,        t_n_, P_cstr_, va_list) noexcept;
+  r_walk_  scan_      (r_walk_,  t_n_&, t_n_, P_cstr_, ...)     noexcept;
 
-  r_walk_ skip_      (r_walk_, t_char)           noexcept;
-  r_walk_ skip_      (r_walk_, t_n_)             noexcept;
-  r_walk_ skip_      (r_walk_, R_crange)         noexcept;
-  r_walk_ skip_      (r_walk_, R_block)          noexcept;
-  r_walk_ skip_until_(r_walk_, t_char,   t_bool) noexcept;
-  r_walk_ skip_until_(r_walk_, R_crange, t_bool) noexcept;
-  r_walk_ skip_all_  (r_walk_, t_char)           noexcept;
+  r_walk_  skip_      (r_walk_, t_char)             noexcept;
+  r_walk_  skip_      (r_walk_, t_n_)               noexcept;
+  r_walk_  skip_      (r_walk_, R_crange)           noexcept;
+  r_walk_  skip_      (r_walk_, R_block)            noexcept;
+  r_walk_  skip_until_(r_walk_, t_char,   t_plus1_) noexcept;
+  r_walk_  skip_until_(r_walk_, R_crange, t_plus1_) noexcept;
+  r_walk_  skip_all_  (r_walk_, t_char)             noexcept;
 
-  r_walk_ snip_n_    (r_walk_, p_snippet, t_n_)                   noexcept;
-  r_walk_ snip_char_ (r_walk_, p_snippet, t_char, t_bool, t_bool) noexcept;
+  r_walk_  snip_n_       (r_walk_, p_snippet, t_n_) noexcept;
+  r_walk_  snip_char_    (r_walk_, p_snippet, t_char,
+                          t_plus1_, t_incl_char_)   noexcept;
+  r_walk_  snip_char_eol_(r_walk_, p_snippet, t_char,
+                          t_plus1_, t_incl_char_)   noexcept;
+  r_walk_  snip_char_    (r_walk_, p_snippet, p_char_select,
+                          t_plus1_, t_incl_char_)   noexcept;
+  r_walk_  snip_char_eol_(r_walk_, p_snippet, p_char_select,
+                          t_plus1_, t_incl_char_)   noexcept;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -156,14 +192,10 @@ namespace string
     return t_crange{str, t_n{N-1}, range::SKIP_};
   }
 
-////////////////////////////////////////////////////////////////////////////////
-
   template<t_n_ N>
   constexpr t_crange mk_range(P_cstr str) noexcept {
     return t_crange{str, t_n{length_(get(str))}, range::SKIP_};
   }
-
-////////////////////////////////////////////////////////////////////////////////
 
   constexpr t_crange mk_range(R_crange range, t_ix begin) noexcept {
     return range::mk_crange<t_crange_tag_>(range, begin);

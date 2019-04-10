@@ -93,7 +93,7 @@ namespace string
     t_n_      n;
   };
 
-  template<t_bool PLUS1 = true, t_bool INCL_CHAR = false>
+  template<t_plus1_ = PLUS1, t_incl_char_ = NOT_INCL_CHAR, t_eol_ = NOT_EOL_OK>
   struct t_snip_char_p_ {
     t_snip_char_p_(p_snippet _value, t_char _ch) noexcept
       : value{_value}, ch{_ch} {
@@ -103,27 +103,35 @@ namespace string
     t_char    ch;
   };
 
+  template<t_plus1_ = PLUS1, t_incl_char_ = NOT_INCL_CHAR, t_eol_ = NOT_EOL_OK>
+  struct t_snip_char_select_p_ {
+    t_snip_char_select_p_(p_snippet _value, p_char_select _select) noexcept
+      : value{_value}, select{_select} {
+    }
+
+    p_snippet     value;
+    p_char_select select;
+  };
+
   inline
-  t_snip_n_p_ snippet_in(r_snippet snip, t_n n) noexcept {
+  t_snip_n_p_ snippet_upto_in(r_snippet snip, t_n n) noexcept {
     return t_snip_n_p_{&snip, get(n)};
   }
 
+  template<t_plus1_ PLUS1_ = PLUS1, t_incl_char_ INCL_CHAR_ = INCL_CHAR,
+           t_eol_ EOL_OK_ = NOT_EOL_OK>
   inline
-  t_snip_char_p_<> snippet_in(r_snippet snip, t_char ch) noexcept {
-    return t_snip_char_p_<>{&snip, ch};
+  t_snip_char_p_<PLUS1_, INCL_CHAR_, EOL_OK_>
+      snippet_upto_in(r_snippet snip, t_char ch) noexcept {
+    return t_snip_char_p_<PLUS1_, INCL_CHAR_, EOL_OK_>{&snip, ch};
   }
 
-  template<t_bool PLUS1>
+  template<t_plus1_ PLUS1_ = PLUS1, t_incl_char_ INCL_CHAR_ = INCL_CHAR,
+           t_eol_ EOL_OK_ = NOT_EOL_OK>
   inline
-  t_snip_char_p_<PLUS1> snippet_in(r_snippet snip, t_char ch) noexcept {
-    return t_snip_char_p_<PLUS1>{&snip, ch};
-  }
-
-  template<t_bool PLUS1, t_bool INCL_CHAR>
-  inline
-  t_snip_char_p_<PLUS1, INCL_CHAR> snippet_in(r_snippet snip,
-                                              t_char ch) noexcept {
-    return t_snip_char_p_<PLUS1, INCL_CHAR>{&snip, ch};
+  t_snip_char_select_p_<PLUS1_, INCL_CHAR_, EOL_OK_>
+      snippet_upto_in(r_snippet snip, r_char_select select) noexcept {
+    return t_snip_char_select_p_<PLUS1_, INCL_CHAR_, EOL_OK_>{&snip, &select};
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +142,7 @@ namespace string
     T value;
   };
 
-  template<typename T, t_bool PLUS1 = true>
+  template<typename T, t_plus1_ = PLUS1>
   struct t_skip_until_v_ {
     t_skip_until_v_(const T& _value) noexcept : value{_value} { }
     T value;
@@ -162,9 +170,9 @@ namespace string
     return t_skip_until_v_<T>{value};
   }
 
-  template<t_bool PLUS1, typename T>
-  inline t_skip_until_v_<T, PLUS1>   skip_until(const T& value) noexcept {
-    return t_skip_until_v_<T, PLUS1>{value};
+  template<t_plus1_ PLUS1_, typename T>
+  inline t_skip_until_v_<T, PLUS1_>   skip_until(const T& value) noexcept {
+    return t_skip_until_v_<T, PLUS1_>{value};
   }
 
   inline t_skip_all_v_               skip_all(t_char value) noexcept {
@@ -200,18 +208,18 @@ namespace string
     return skip_(lh, get(value));
   }
 
-  template<t_bool PLUS1>
+  template<t_plus1_ PLUS1_>
   inline
   r_walk_ operator>>(r_walk_ lh,
-                     t_skip_until_v_<t_char, PLUS1> value) noexcept {
-    return skip_until_(lh, value.value, PLUS1);
+                     t_skip_until_v_<t_char, PLUS1_> value) noexcept {
+    return skip_until_(lh, value.value, PLUS1_);
   }
 
-  template<t_bool PLUS1>
+  template<t_plus1_ PLUS1_>
   inline
   r_walk_ operator>>(r_walk_ lh,
-                     t_skip_until_v_<t_crange, PLUS1> value) noexcept {
-    return skip_until_(lh, value.value, PLUS1);
+                     t_skip_until_v_<t_crange, PLUS1_> value) noexcept {
+    return skip_until_(lh, value.value, PLUS1_);
   }
 
   inline
@@ -226,11 +234,36 @@ namespace string
     return snip_n_(lh, value.value, value.n);
   }
 
-  template<t_bool PLUS1, t_bool INCL_CHAR>
+  template<t_plus1_ PLUS1_, t_incl_char_ INCL_CHAR_>
   inline
   r_walk_ operator>>(r_walk_ lh,
-                     const t_snip_char_p_<PLUS1, INCL_CHAR>& value) noexcept {
-    return snip_char_(lh, value.value, value.ch, PLUS1, INCL_CHAR);
+                     const t_snip_char_p_<PLUS1_, INCL_CHAR_,
+                                          NOT_EOL_OK>& value) noexcept {
+    return snip_char_(lh, value.value, value.ch, PLUS1_, INCL_CHAR_);
+  }
+
+  template<t_plus1_ PLUS1_, t_incl_char_ INCL_CHAR_>
+  inline
+  r_walk_ operator>>(r_walk_ lh,
+                     const t_snip_char_p_<PLUS1_, INCL_CHAR_,
+                                          EOL_OK>& value) noexcept {
+    return snip_char_eol_(lh, value.value, value.ch, PLUS1_, INCL_CHAR_);
+  }
+
+  template<t_plus1_ PLUS1_, t_incl_char_ INCL_CHAR_>
+  inline
+  r_walk_ operator>>(r_walk_ lh,
+                     t_snip_char_select_p_<PLUS1_, INCL_CHAR_,
+                                           NOT_EOL_OK> value) noexcept {
+    return snip_char_(lh, value.value, value.select, PLUS1_, INCL_CHAR_);
+  }
+
+  template<t_plus1_ PLUS1_, t_incl_char_ INCL_CHAR_>
+  inline
+  r_walk_ operator>>(r_walk_ lh,
+                     t_snip_char_select_p_<PLUS1_, INCL_CHAR_,
+                                           EOL_OK> value) noexcept {
+    return snip_char_eol_(lh, value.value, value.select, PLUS1_, INCL_CHAR_);
   }
 
 ////////////////////////////////////////////////////////////////////////////////
