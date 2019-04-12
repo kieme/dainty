@@ -185,7 +185,6 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
   inline
   r_walk_ operator>>(r_walk_ lh, t_skip_v_<t_char> value) noexcept {
     return skip_(lh, value.value);

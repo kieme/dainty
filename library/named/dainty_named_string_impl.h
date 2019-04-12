@@ -128,7 +128,6 @@ namespace string
 ///////////////////////////////////////////////////////////////////////////////
 
   constexpr r_walk_ jump_forward_(r_walk_ walk, t_n_ n) noexcept {
-    // does it need a test?
     walk.ptr += n;
     walk.n    = t_n{get(walk.n) - n};
     return walk;
