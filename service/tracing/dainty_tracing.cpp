@@ -49,7 +49,8 @@ using namespace dainty::os;
 using namespace dainty::tracing::tracer;
 
 using string::FMT;
-using string::string_literal;
+using string::SP;
+using string::operator""_SL;
 using string::integer;
 using dainty::container::any::t_any;
 using dainty::os::threading::t_mutex_lock;
@@ -123,7 +124,7 @@ namespace tracer
   inline t_date make_date(t_time_mode time_mode, const t_time& time) {
     static t_time prev;
     t_date date;
-    switch (time_mode) {
+    switch (time_mode) { // XXX use stream interface
       case NS:
         date.assign(FMT, "%lld.%.9ld", (long long)to_(time).tv_sec,
                                         to_(time).tv_nsec);
@@ -138,7 +139,7 @@ namespace tracer
           date.assign(FMT, "%lld.%.9ld", 0LL, 0L);
       } break;
       case DATE:
-        date << string_literal("date:...."); //XXX
+        date << "date:...."_SL;
         break;
     }
     prev = time;
@@ -153,13 +154,13 @@ namespace tracer
   t_line make_line(t_n cnt, R_tracer_name& name, R_tracer_name point,
                    R_levelname level, R_text text) {
     t_line line;
-    line << level << string_literal(" ") << name << string_literal(" ");
+    line << level << SP << name << SP;
     if (point == name)
-      line << string_literal("(*) ");
+      line << "(*) "_SL;
     else
-      line << string_literal("(") << point << string_literal(") ");
+      line << '(' << point << ") "_SL;
     if (get(cnt) != 1)
-      line << string_literal("cnt=") << integer(get(cnt)) << SP;
+      line << "cnt="_SL << integer(get(cnt)) << SP;
     line << text;
     return line;
   }
