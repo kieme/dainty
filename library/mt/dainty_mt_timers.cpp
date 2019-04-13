@@ -39,7 +39,7 @@ namespace timers
 {
   using named::t_ix_;
   using named::t_msec;
-  using named::t_cstr_cptr;
+  using named::string::operator""_SL;
   using os::clock::monotonic_now;
   using container::freelist::t_freelist;
   using container::ptrlist::t_ptrlist;
@@ -509,7 +509,9 @@ namespace timers
   }
 
   t_service_name get_supported_service(t_ix) noexcept {
-    return "timerfd_service";
+    // XXX only support for timerfd
+    // XXX should assert when t_ix doesn't equal zero
+    return "timerfd_service"_SL;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -529,7 +531,7 @@ namespace timers
 ///////////////////////////////////////////////////////////////////////////////
 
   t_timers::t_timers(R_params params) noexcept {
-    if (params.service_name == t_cstr_cptr{"timerfd_service"})
+    if (params.service_name == "timerfd_service"_SL)
       impl_ = new t_impl_{params};
     else {
       // not yet supported - required for non-linux systems
@@ -538,7 +540,7 @@ namespace timers
 
   t_timers::t_timers(t_err err, R_params params) noexcept {
     ERR_GUARD(err) {
-      if (params.service_name == t_cstr_cptr{"timerfd_service"})
+      if (params.service_name == "timerfd_service"_SL)
         impl_ = new t_impl_{err, params};
       else {
         err = err::E_XXX;
