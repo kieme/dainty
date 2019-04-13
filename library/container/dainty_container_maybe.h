@@ -27,7 +27,7 @@
 #ifndef _DAINTY_CONTAINER_MAYBE_H_
 #define _DAINTY_CONTAINER_MAYBE_H_
 
-#include "dainty_named.h"
+#include "dainty_named_utility.h"
 #include "dainty_container_valuestore.h"
 
 namespace dainty
@@ -40,6 +40,8 @@ namespace maybe
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
+
+  using named::utility::x_cast;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -86,11 +88,13 @@ namespace maybe
 
   template<typename T>
   inline T& set(t_maybe<T>& maybe) {
+    // assert - XXX
     return maybe.store_.ref();
   }
 
   template<typename T>
   inline const T& get(const t_maybe<T>& maybe) {
+    // assert - XXX
     return maybe.store_.cref();
   }
 
@@ -110,7 +114,7 @@ namespace maybe
   template<typename T>
   inline
   t_maybe<T>::t_maybe(x_value value) : valid_{VALID} {
-    store_.move_construct(std::move(value));
+    store_.move_construct(x_cast(value));
   }
 
   template<typename T>
@@ -124,7 +128,7 @@ namespace maybe
   inline
   t_maybe<T>::t_maybe(x_maybe maybe) : valid_{maybe.valid_} {
     if (valid_ == VALID)
-      store_.move_construct(std::move(maybe.store_.ref()));
+      store_.move_construct(x_cast(maybe.store_.ref()));
     maybe.release();
   }
 
@@ -150,9 +154,9 @@ namespace maybe
   inline
   typename t_maybe<T>::r_maybe t_maybe<T>::operator=(x_value value) {
     if (valid_ == VALID)
-      store_.ref() = std::move(value);
+      store_.ref() = x_cast(value);
     else
-      store_.move_construct(std::move(value));
+      store_.move_construct(x_cast(value));
     valid_ = VALID;
     return *this;
   }
@@ -176,9 +180,9 @@ namespace maybe
   typename t_maybe<T>::r_maybe t_maybe<T>::operator=(x_maybe maybe) {
     if (maybe == VALID) {
       if (valid_ == VALID)
-        store_.ref() = std::move(maybe.store_.ref());
+        store_.ref() = x_cast(maybe.store_.ref());
       else
-        store_.move_construct(std::move(maybe.store_.ref()));
+        store_.move_construct(x_cast(maybe.store_.ref()));
     } else if (valid_ == VALID)
       store_.destruct();
     valid_ = maybe.release() ? VALID : INVALID;
