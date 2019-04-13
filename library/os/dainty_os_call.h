@@ -219,6 +219,10 @@ namespace os
 
   class t_socket_address {
   public:
+    using p_sockaddr         = os::p_sockaddr;
+    using P_sockaddr         = os::P_sockaddr;
+    using t_sock_address_len = os::t_socket_address_len;
+
     t_socket_address(t_socket_address_len _len) noexcept : len{_len} {
     }
 
@@ -233,34 +237,6 @@ namespace os
   using R_socket_address = t_prefix<t_socket_address>::R_;
   using p_socket_address = t_prefix<t_socket_address>::p_;
   using P_socket_address = t_prefix<t_socket_address>::P_;
-
-  class t_ip_address final : public t_socket_address {
-  public:
-    // constructor
-    t_ip_address() noexcept : t_socket_address{t_socket_address_len{0}} {
-    }
-
-    operator p_sockaddr()       noexcept override final;
-    operator P_sockaddr() const noexcept override final;
-  };
-  using r_ip_address = t_prefix<t_ip_address>::r_;
-  using R_ip_address = t_prefix<t_ip_address>::R_;
-  using p_ip_address = t_prefix<t_ip_address>::p_;
-  using P_ip_address = t_prefix<t_ip_address>::P_;
-
-  class t_tipc_address final : public t_socket_address {
-  public:
-    // constructor
-    t_tipc_address() noexcept : t_socket_address{t_socket_address_len{0}} {
-    }
-
-    operator p_sockaddr()       noexcept override final;
-    operator P_sockaddr() const noexcept override final;
-  };
-  using r_tipc_address = t_prefix<t_tipc_address>::r_;
-  using R_tipc_address = t_prefix<t_tipc_address>::R_;
-  using p_tipc_address = t_prefix<t_tipc_address>::p_;
-  using P_tipc_address = t_prefix<t_tipc_address>::P_;
 
 ///////////////////////////////////////////////////////////////////////////////
 

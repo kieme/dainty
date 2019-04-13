@@ -33,8 +33,232 @@ namespace os
 {
 namespace networking
 {
+  using named::EMPLACE_IT;
   using named::utility::reset;
   using named::utility::x_cast;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_connect_socket::t_connect_socket(t_fd fd) noexcept : fd_{fd} {
+  }
+
+  t_connect_socket::t_connect_socket(x_connect_socket socket) noexcept
+    : fd_{reset(socket.fd_)} {
+  }
+
+  t_connect_socket::~t_connect_socket() {
+    if (fd_ != BAD_FD)
+      call_close(fd_);
+  }
+
+  t_connect_socket::operator t_validity() const noexcept {
+    return fd_ == BAD_FD ? INVALID : VALID;
+  }
+
+  t_fd t_connect_socket::get_fd() const noexcept {
+    return fd_;
+  }
+
+  t_errn t_connect_socket::close() noexcept {
+    if (fd_ != BAD_FD)
+      return call_close(fd_);
+    return BAD_ERRN;
+  }
+
+  t_void t_connect_socket::close(t_err err) noexcept {
+    ERR_GUARD(err) {
+      if (fd_ != BAD_FD)
+        call_close(err, fd_);
+      else
+        err = err::E_XXX;
+    }
+  }
+
+  t_errn t_connect_socket::getpeername(r_socket_address addr) const noexcept {
+    if (fd_ != BAD_FD)
+      return call_getpeername(fd_, addr);
+    return BAD_ERRN;
+  }
+
+  t_void t_connect_socket::getpeername(t_err err,
+                                       r_socket_address addr) const noexcept {
+    ERR_GUARD(err) {
+      if (fd_ != BAD_FD)
+        call_getpeername(err, fd_, addr);
+      else
+        err = err::E_XXX;
+    }
+  }
+
+  t_errn t_connect_socket::getsockname(r_socket_address addr) const noexcept {
+    if (fd_ != BAD_FD)
+      return call_getsockname(fd_, addr);
+    return BAD_ERRN;
+  }
+
+  t_void t_connect_socket::getsockname(t_err err,
+                                       r_socket_address addr) const noexcept {
+    ERR_GUARD(err) {
+      if (fd_ != BAD_FD)
+        call_getsockname(err, fd_, addr);
+      else
+        err = err::E_XXX;
+    }
+  }
+
+  t_errn t_connect_socket::getsockopt(t_socket_level level,
+                                      r_socket_option option) const noexcept {
+    if (fd_ != BAD_FD)
+      return call_getsockopt(fd_, level, option);
+    return BAD_ERRN;
+  }
+
+  t_void t_connect_socket::getsockopt(t_err err, t_socket_level level,
+                                      r_socket_option option) const noexcept {
+    ERR_GUARD(err) {
+      if (fd_ != BAD_FD)
+        call_getsockopt(err, fd_, level, option);
+      else
+        err = err::E_XXX;
+    }
+  }
+
+  t_errn t_connect_socket::setsockopt(t_socket_level level,
+                                      R_socket_option option) noexcept {
+    if (fd_ != BAD_FD)
+      return call_setsockopt(fd_, level, option);
+    return BAD_ERRN;
+  }
+
+  t_void t_connect_socket::setsockopt(t_err err, t_socket_level level,
+                                      R_socket_option option) noexcept {
+    ERR_GUARD(err) {
+      if (fd_ != BAD_FD)
+        call_setsockopt(err, fd_, level, option);
+      else
+        err = err::E_XXX;
+    }
+  }
+
+  t_verify<t_n> t_connect_socket::send(R_byte_crange range,
+                                       t_flags flags) noexcept {
+    if (fd_ != BAD_FD)
+      return call_send(fd_, range, flags);
+    return {t_n{0}, BAD_ERRN};
+  }
+
+  t_n t_connect_socket::send(t_err err, R_byte_crange range,
+                             t_flags flags) noexcept {
+    ERR_GUARD(err) {
+      if (fd_ != BAD_FD)
+        return call_send(err, fd_, range, flags);
+      err = err::E_XXX;
+    }
+    return t_n{0};
+  }
+
+  t_verify<t_n> t_connect_socket::recv(r_byte_range range,
+                                       t_flags flags) noexcept {
+    if (fd_ != BAD_FD)
+      return call_recv(fd_, range, flags);
+    return {t_n{0}, BAD_ERRN};
+  }
+
+  t_n t_connect_socket::recv(t_err err, r_byte_range range,
+                             t_flags flags) noexcept {
+    ERR_GUARD(err) {
+      if (fd_ != BAD_FD)
+        return call_recv(err, fd_, range, flags);
+      err = err::E_XXX;
+    }
+    return t_n{0};
+  }
+
+  t_verify<t_n> t_connect_socket::sendmsg(R_socket_msghdr msg,
+                                          t_flags flags) noexcept {
+    if (fd_ != BAD_FD)
+      return call_sendmsg(fd_, msg, flags);
+    return {t_n{0}, BAD_ERRN};
+  }
+
+  t_n t_connect_socket::sendmsg(t_err err, R_socket_msghdr msg,
+                                t_flags flags) noexcept {
+    ERR_GUARD(err) {
+      if (fd_ != BAD_FD)
+        return call_sendmsg(err, fd_, msg, flags);
+      err = err::E_XXX;
+    }
+    return t_n{0};
+  }
+
+  t_verify<t_n> t_connect_socket::recvmsg(r_socket_msghdr msg,
+                                          t_flags flags) noexcept {
+    if (fd_ != BAD_FD)
+      return call_recvmsg(fd_, msg, flags);
+    return {t_n{0}, BAD_ERRN};
+  }
+
+  t_n t_connect_socket::recvmsg(t_err err, r_socket_msghdr msg,
+                                t_flags flags) noexcept {
+    ERR_GUARD(err) {
+      if (fd_ != BAD_FD)
+        return call_recvmsg(err, fd_, msg, flags);
+      err = err::E_XXX;
+    }
+    return t_n{0};
+  }
+
+  t_verify<t_n> t_connect_socket::sendmmsg(R_socket_msghdr_crange range,
+                                           t_flags flags) noexcept {
+    if (fd_ != BAD_FD)
+      return call_sendmmsg(fd_, range, flags);
+    return {t_n{0}, BAD_ERRN};
+  }
+
+  t_n t_connect_socket::sendmmsg(t_err err, R_socket_msghdr_crange range,
+                                 t_flags flags) noexcept {
+    ERR_GUARD(err) {
+      if (fd_ != BAD_FD)
+        return call_sendmmsg(err, fd_, range, flags);
+      err = err::E_XXX;
+    }
+    return t_n{0};
+  }
+
+  t_verify<t_n> t_connect_socket::recvmmsg(r_socket_msghdr_range range,
+                                           t_flags flags) noexcept {
+    if (fd_ != BAD_FD)
+      return call_recvmmsg(fd_, range, flags);
+    return {t_n{0}, BAD_ERRN};
+  }
+
+  t_verify<t_n> t_connect_socket::recvmmsg(r_socket_msghdr_range range,
+                                           t_flags flags,
+                                           r_timespec timespec) noexcept {
+    if (fd_ != BAD_FD)
+      return call_recvmmsg(fd_, range, flags, timespec);
+    return {t_n{0}, BAD_ERRN};
+  }
+
+  t_n t_connect_socket::recvmmsg(t_err err, r_socket_msghdr_range range,
+                                 t_flags flags) noexcept {
+    ERR_GUARD(err) {
+      if (fd_ != BAD_FD)
+        return call_recvmmsg(err, fd_, range, flags);
+      err = err::E_XXX;
+    }
+    return t_n{0};
+  }
+
+  t_n t_connect_socket::recvmmsg(t_err err, r_socket_msghdr_range range,
+                                 t_flags flags, r_timespec timespec) noexcept {
+    ERR_GUARD(err) {
+      if (fd_ != BAD_FD)
+        return call_recvmmsg(err, fd_, range, flags, timespec);
+      err = err::E_XXX;
+    }
+    return t_n{0};
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -149,34 +373,36 @@ namespace networking
     }
   }
 
-  t_verify<t_fd> t_socket::accept() noexcept {
+  t_errn_transfer<t_connect_socket> t_socket::accept() noexcept {
     if (fd_ != BAD_FD)
-      return call_accept(fd_);
-    return {BAD_FD, BAD_ERRN};
+      return {EMPLACE_IT, call_accept(fd_)}; // consider XXX
+    return {BAD_ERRN};
   }
 
-  t_fd t_socket::accept(t_err err) noexcept {
+  t_transfer<t_connect_socket> t_socket::accept(t_err err) noexcept {
     ERR_GUARD(err) {
       if (fd_ != BAD_FD)
-        return call_accept(err, fd_);
+        return {EMPLACE_IT, call_accept(err, fd_)};
       err = err::E_XXX;
     }
-    return BAD_FD;
+    return {};
   }
 
-  t_verify<t_fd> t_socket::accept(r_socket_address addr) noexcept {
+  t_errn_transfer<t_connect_socket>
+      t_socket::accept(r_socket_address addr) noexcept {
     if (fd_ != BAD_FD)
-      return call_accept(fd_, addr);
-    return {BAD_FD, BAD_ERRN};
+      return {EMPLACE_IT, call_accept(fd_, addr)};
+    return {BAD_ERRN};
   }
 
-  t_fd t_socket::accept(t_err err, r_socket_address addr) noexcept {
+  t_transfer<t_connect_socket>
+      t_socket::accept(t_err err, r_socket_address addr) noexcept {
     ERR_GUARD(err) {
       if (fd_ != BAD_FD)
-        return call_accept(err, fd_, addr);
+        return {EMPLACE_IT, call_accept(err, fd_, addr)};
       err = err::E_XXX;
     }
-    return BAD_FD;
+    return {};
   }
 
   t_errn t_socket::shutdown(t_socket_howto howto) noexcept {
