@@ -37,7 +37,7 @@ namespace event_dispatcher
 {
   using named::t_n_;
   using named::t_ix_;
-  using named::P_cstr;
+  using named::string::operator""_SL;
   using named::t_uint32;
   using os::fdbased::t_epoll;
   using err::r_err;
@@ -356,7 +356,7 @@ namespace event_dispatcher
   }
 
   t_service_name get_supported_service(t_ix) noexcept {
-    return "epoll_service";
+    return "epoll_service"_SL;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -378,7 +378,7 @@ namespace event_dispatcher
 ///////////////////////////////////////////////////////////////////////////////
 
   t_dispatcher::t_dispatcher(R_params params) noexcept {
-    if (params.service_name == P_cstr("epoll_service"))
+    if (params.service_name == "epoll_service"_SL)
       impl_ = new t_epoll_impl_{params};
     else {
       // not yet supported - required for non-linux systems
@@ -387,7 +387,7 @@ namespace event_dispatcher
 
   t_dispatcher::t_dispatcher(t_err err, R_params params) noexcept {
     ERR_GUARD(err) {
-      if (params.service_name == P_cstr("epoll_service"))
+      if (params.service_name == "epoll_service"_SL)
         impl_ = new t_epoll_impl_{err, params};
       else {
         err = err::E_XXX;
@@ -412,7 +412,7 @@ namespace event_dispatcher
   t_params t_dispatcher::get_params() const noexcept {
     if (*this == VALID)
       return impl_->params;
-    return t_params{t_n{0}, ""};
+    return t_params{t_n{0}, ""_SL};
   }
 
   t_void t_dispatcher::display() const noexcept {
