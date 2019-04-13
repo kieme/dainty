@@ -38,11 +38,14 @@ namespace transfer
 {
   using named::t_errn;
   using named::t_validity;
+  using named::t_emplace_it;
+  using named::EMPLACE_IT;
   using named::VALID;
   using named::INVALID;
   using named::NO_ERRN;
   using named::BAD_ERRN;
   using named::utility::x_cast;
+  using named::utility::preserve;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -56,19 +59,21 @@ namespace transfer
     using x_transfer = typename named::t_prefix<t_transfer>::x_;
 
     t_transfer() = default;
+    template<typename... Args>
+    t_transfer(t_emplace_it, Args&&...);
     t_transfer(x_value);
     t_transfer(x_transfer);
 
     t_transfer(R_transfer)           = delete;
     r_transfer operator=(R_transfer) = delete;
 
-    operator t_validity() const;
+    operator t_validity() const noexcept;
 
-    T release();
+    T release() noexcept;
 
   private:
-    template<typename T1> friend       T1& set(      t_transfer<T1>&);
-    template<typename T1> friend const T1& get(const t_transfer<T1>&);
+    template<typename T1> friend       T1& set(      t_transfer<T1>&) noexcept;
+    template<typename T1> friend const T1& get(const t_transfer<T1>&) noexcept;
 
     maybe::t_maybe<T> maybe_;
   };
@@ -76,13 +81,13 @@ namespace transfer
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  inline T& set(t_transfer<T>& transfer) {
+  inline T& set(t_transfer<T>& transfer) noexcept {
      // XXX assert when invalid
     return set(transfer.maybe_);
   }
 
   template<typename T>
-  inline const T& get(const t_transfer<T>& transfer) {
+  inline const T& get(const t_transfer<T>& transfer) noexcept {
      // XXX assert when invalid
     return get(transfer.maybe_);
   }
@@ -98,20 +103,24 @@ namespace transfer
     using R_errn_transfer = typename named::t_prefix<t_errn_transfer>::R_;
     using x_errn_transfer = typename named::t_prefix<t_errn_transfer>::x_;
 
-    t_errn_transfer(t_errn);
+    template<typename... Args>
+    t_errn_transfer(t_emplace_it, Args&&...);
+    t_errn_transfer(t_errn) noexcept;
     t_errn_transfer(x_value);
     t_errn_transfer(x_errn_transfer);
 
     t_errn_transfer(R_errn_transfer)           = delete;
     r_errn_transfer operator=(R_errn_transfer) = delete;
 
-    operator t_errn() const;
+    operator t_errn() const noexcept;
 
-    T release();
+    T release() noexcept;
 
   private:
-    template<typename T1> friend       T1& set(      t_errn_transfer<T1>&);
-    template<typename T1> friend const T1& get(const t_errn_transfer<T1>&);
+    template<typename T1>
+    friend       T1& set(      t_errn_transfer<T1>&) noexcept;
+    template<typename T1>
+    friend const T1& get(const t_errn_transfer<T1>&) noexcept;
 
     maybe::t_maybe<T> maybe_;
     t_errn            errn_;
@@ -120,34 +129,45 @@ namespace transfer
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  inline T& set(t_errn_transfer<T>& transfer) {
+  inline T& set(t_errn_transfer<T>& transfer) noexcept {
     return set(transfer.maybe_);
   }
 
   template<typename T>
-  inline const T& get(const t_errn_transfer<T>& transfer) {
+  inline const T& get(const t_errn_transfer<T>& transfer) noexcept {
     return get(transfer.maybe_);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  inline t_transfer<T>::t_transfer(x_value value)
+  template<typename... Args>
+  inline
+  t_transfer<T>::t_transfer(t_emplace_it, Args&&... args)
+    : maybe_{EMPLACE_IT, preserve<Args>(args)...} {
+  }
+
+  template<typename T>
+  inline
+  t_transfer<T>::t_transfer(x_value value)
     : maybe_{x_cast(value)} {
   }
 
   template<typename T>
-  inline t_transfer<T>::t_transfer(x_transfer transfer)
+  inline
+  t_transfer<T>::t_transfer(x_transfer transfer)
     : maybe_{x_cast(transfer.maybe_)} {
   }
 
   template<typename T>
-  inline t_transfer<T>::operator t_validity() const {
+  inline
+  t_transfer<T>::operator t_validity() const noexcept {
     return maybe_;
   }
 
   template<typename T>
-  inline T t_transfer<T>::release() {
+  inline
+  T t_transfer<T>::release() noexcept {
     //if (maybe_ == INVALID)
     // assert
 
@@ -159,7 +179,15 @@ namespace transfer
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  inline t_errn_transfer<T>::t_errn_transfer(t_errn errn) : errn_{errn} {
+  template<typename... Args>
+  inline
+  t_errn_transfer<T>::t_errn_transfer(t_emplace_it, Args&&... args)
+    : maybe_{EMPLACE_IT, preserve<Args>(args)...}, errn_{NO_ERRN} {
+  }
+
+  template<typename T>
+  inline
+  t_errn_transfer<T>::t_errn_transfer(t_errn errn) noexcept : errn_{errn} {
     if (errn_ == NO_ERRN) {
       // assert when zero!!!
       errn_ = BAD_ERRN; // make sure this object is not mistaken
@@ -167,12 +195,14 @@ namespace transfer
   }
 
   template<typename T>
-  inline t_errn_transfer<T>::t_errn_transfer(x_value value)
+  inline
+  t_errn_transfer<T>::t_errn_transfer(x_value value)
     : maybe_{x_cast(value)}, errn_{NO_ERRN} {
   }
 
   template<typename T>
-  inline t_errn_transfer<T>::t_errn_transfer(x_errn_transfer transfer)
+  inline
+  t_errn_transfer<T>::t_errn_transfer(x_errn_transfer transfer)
       : errn_{transfer} {
     if (errn_ == NO_ERRN) {
       maybe_ = x_cast(transfer.maybe_);
@@ -181,12 +211,13 @@ namespace transfer
   }
 
   template<typename T>
-  inline t_errn_transfer<T>::operator t_errn() const {
+  inline
+  t_errn_transfer<T>::operator t_errn() const noexcept {
     return errn_;
   }
 
   template<typename T>
-  inline T t_errn_transfer<T>::release() {
+  inline T t_errn_transfer<T>::release() noexcept {
     //if (errn_ != NO_ERRN)
     // assert
 

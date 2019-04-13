@@ -36,12 +36,15 @@ namespace container
 {
 namespace maybe
 {
+  using named::t_emplace_it;
+  using named::EMPLACE_IT;
   using named::t_bool;
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
 
   using named::utility::x_cast;
+  using named::utility::preserve;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +60,9 @@ namespace maybe
     using R_maybe = typename named::t_prefix<t_maybe>::R_;
     using x_maybe = typename named::t_prefix<t_maybe>::x_;
 
-     t_maybe();
+     t_maybe() noexcept;
+     template<typename... Args>
+     t_maybe(t_emplace_it, Args&&...) ;
      t_maybe(R_value);
      t_maybe(x_value);
      t_maybe(R_maybe);
@@ -72,13 +77,13 @@ namespace maybe
     template<typename... Args>
     r_maybe emplace(Args&&...);
 
-    operator t_validity() const;
+    operator t_validity() const noexcept;
 
-    t_bool release();
+    t_bool release() noexcept;
 
   private:
-    template<typename T1> friend       T1& set(t_maybe<T1>&);
-    template<typename T1> friend const T1& get(const t_maybe<T1>&);
+    template<typename T1> friend       T1& set(      t_maybe<T1>&) noexcept;
+    template<typename T1> friend const T1& get(const t_maybe<T1>&) noexcept;
 
     valuestore::t_valuestore<t_value> store_;
     t_validity                        valid_;
@@ -87,13 +92,13 @@ namespace maybe
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  inline T& set(t_maybe<T>& maybe) {
+  inline T& set(t_maybe<T>& maybe) noexcept {
     // assert - XXX
     return maybe.store_.ref();
   }
 
   template<typename T>
-  inline const T& get(const t_maybe<T>& maybe) {
+  inline const T& get(const t_maybe<T>& maybe) noexcept {
     // assert - XXX
     return maybe.store_.cref();
   }
@@ -102,7 +107,14 @@ namespace maybe
 
   template<typename T>
   inline
-  t_maybe<T>::t_maybe() : valid_{INVALID} {
+  t_maybe<T>::t_maybe() noexcept : valid_{INVALID} {
+  }
+
+  template<typename T>
+  template<typename... Args>
+  inline
+  t_maybe<T>::t_maybe(t_emplace_it, Args&&... args) : valid_{VALID} {
+    store_.emplace_construct(preserve<Args>(args)...);
   }
 
   template<typename T>
@@ -202,13 +214,13 @@ namespace maybe
 
   template<typename T>
   inline
-  t_maybe<T>::operator t_validity() const {
+  t_maybe<T>::operator t_validity() const noexcept {
     return valid_;
   }
 
   template<typename T>
   inline
-  t_bool t_maybe<T>::release() {
+  t_bool t_maybe<T>::release() noexcept {
     if (valid_ == VALID) {
       store_.destruct();
       valid_ = INVALID;
