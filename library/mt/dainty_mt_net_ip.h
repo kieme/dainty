@@ -41,6 +41,22 @@ namespace net_ip
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  class t_ip_address final : public t_socket_address {
+  public:
+    // constructor
+    t_ip_address() noexcept : t_socket_address{t_socket_address_len{0}} {
+    }
+
+    operator p_sockaddr()       noexcept override final;
+    operator P_sockaddr() const noexcept override final;
+  };
+  using r_ip_address = t_prefix<t_ip_address>::r_;
+  using R_ip_address = t_prefix<t_ip_address>::R_;
+  using p_ip_address = t_prefix<t_ip_address>::p_;
+  using P_ip_address = t_prefix<t_ip_address>::P_;
+
+///////////////////////////////////////////////////////////////////////////////
+
   class t_tcp_client;
   using r_tcp_client = t_prefix<t_tcp_client>::r_;
   using x_tcp_client = t_prefix<t_tcp_client>::x_;

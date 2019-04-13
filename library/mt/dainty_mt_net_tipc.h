@@ -53,9 +53,8 @@ namespace net_tipc
   using named::t_errn;
 
   using os::t_verify;
-  using os::t_tipc_address;
-  using os::r_tipc_address;
-  using os::R_tipc_address;
+  using os::t_socket_address;
+  using os::t_socket_address_len;
   using os::t_socket_level;
   using os::t_socket_option;
   using os::r_socket_option;
@@ -66,6 +65,7 @@ namespace net_tipc
   using os::r_socket_msghdr;
   using os::t_flags;
   using os::networking::t_socket;
+  using os::networking::BAD_FD;
 
   using net_connect::t_connect_user;
   using net_connect::r_connect_user;
@@ -76,6 +76,25 @@ namespace net_tipc
   using net_connect::t_connect_stats;
   using net_connect::t_connect_info;
   using net_connect::R_connect_info;
+  using net_connect::BAD_CONNECT_ID;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  class t_tipc_address final : public t_socket_address {
+  public:
+    // constructor
+    t_tipc_address() noexcept : t_socket_address{t_socket_address_len{0}} {
+    }
+
+    operator p_sockaddr()       noexcept override;
+    operator P_sockaddr() const noexcept override;
+
+    //XXX - must store address
+  };
+  using r_tipc_address = t_prefix<t_tipc_address>::r_;
+  using R_tipc_address = t_prefix<t_tipc_address>::R_;
+  using p_tipc_address = t_prefix<t_tipc_address>::p_;
+  using P_tipc_address = t_prefix<t_tipc_address>::P_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -172,8 +191,9 @@ namespace net_tipc
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_connect_result accept_connection()            noexcept;
-    t_bool           close_connection(t_connect_id) noexcept;
+    t_connect_result accept_connection()             noexcept;
+    t_connect_result accept_connection(t_err)        noexcept;
+    t_bool           close_connection (t_connect_id) noexcept;
 
     R_connect_info get_connection(t_connect_id)      const noexcept;
     t_void         get_connection_ids(r_connect_ids) const noexcept;
@@ -241,6 +261,7 @@ namespace net_tipc
   private:
     t_socket socket_;
     r_logic  logic_;
+    // freelist of connections
   };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -53,8 +53,6 @@ namespace net_connect
   using named::VALID;
   using named::INVALID;
 
-  using os::t_tipc_address;
-
   using container::list::t_list;
   using container::maybe::t_maybe;
 
@@ -91,9 +89,8 @@ namespace net_connect
   };
 
   struct t_connect_info {
-    t_fd            fd;
-    t_tipc_address  peer;
-    t_connect_id    id;
+    t_fd            fd    = BAD_FD;
+    t_connect_id    id    = BAD_CONNECT_ID;
     t_connect_user  user;
     t_connect_stats stats;
   };

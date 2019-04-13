@@ -39,12 +39,23 @@ namespace net_tipc
   using os::t_socket_domain;
   using os::t_socket_type;
   using os::t_socket_protocol;
+  using os::t_socket_backlog;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_tipc_address::operator p_sockaddr() noexcept {
+    return nullptr; // XXX
+  }
+
+  t_tipc_address::operator P_sockaddr() const noexcept {
+    return nullptr; // XXX
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   t_tipc_stream_client::t_tipc_stream_client(R_tipc_address server) noexcept
-      : socket_{t_socket_domain{0}, //XXX
-                t_socket_type{0}, //XXX
+      : socket_{t_socket_domain  {0},   //XXX
+                t_socket_type    {0},   //XXX
                 t_socket_protocol{0}} { //XXX
     if (socket_.connect(server) == INVALID)
       socket_.close();
@@ -52,8 +63,8 @@ namespace net_tipc
 
   t_tipc_stream_client::t_tipc_stream_client(t_err err,
                                              R_tipc_address server) noexcept
-      : socket_{err, t_socket_domain{0}, //XXX
-                     t_socket_type{0}, //XXX
+      : socket_{err, t_socket_domain  {0},   //XXX
+                     t_socket_type    {0},   //XXX
                      t_socket_protocol{0}} { //XXX
     ERR_GUARD(err) {
       socket_.connect(err, server);
@@ -179,23 +190,28 @@ namespace net_tipc
 
   t_tipc_stream_server::t_tipc_stream_server(R_tipc_address server,
                                              r_logic logic) noexcept
-      : socket_{t_socket_domain{0}, //XXX
-                t_socket_type{0},   //XXX
+      : socket_{t_socket_domain  {0}, //XXX
+                t_socket_type    {0}, //XXX
                 t_socket_protocol{0}}, logic_{logic} {
     if (socket_ == VALID) {
-      // bind
-      // listen
+      auto errn = socket_.bind(server);
+      if (errn == VALID)
+        errn = socket_.listen(t_socket_backlog{0});
+      if (errn == INVALID)
+        socket_.close();
     }
   }
 
   t_tipc_stream_server::t_tipc_stream_server(t_err err, R_tipc_address server,
                                              r_logic logic) noexcept
-      : socket_{err, t_socket_domain{0}, //XXX
-                     t_socket_type{0},   //XXX
+      : socket_{err, t_socket_domain  {0}, //XXX
+                     t_socket_type    {0}, //XXX
                      t_socket_protocol{0}}, logic_{logic} {
     ERR_GUARD(err) {
-      // bind
-      // listen
+      socket_.bind  (err, server);
+      socket_.listen(err, t_socket_backlog{0});
+      if (err)
+        socket_.close();
     }
   }
 
@@ -206,7 +222,9 @@ namespace net_tipc
   }
 
   t_tipc_stream_server::~t_tipc_stream_server() {
-    // no sure I need this
+    if (socket_ == VALID) {
+      // must close all the file descriptors
+    }
   }
 
   t_tipc_stream_server::operator t_validity() const noexcept {
@@ -218,6 +236,18 @@ namespace net_tipc
   }
 
   t_connect_result t_tipc_stream_server::accept_connection() noexcept {
+    t_tipc_address client;
+    auto ret = socket_.accept(client);
+    if (ret == VALID) {
+      t_connect_user user;
+      if (logic_.notify_tipc_stream_connect_accept(set(ret).get_fd(), client, user)) {
+        t_connect_info info; // move ret into info
+        // add to table
+        logic_.notify_tipc_stream_connect_add(info, user);
+        return t_connect_result{BAD_CONNECT_ID, BAD_FD};
+      }
+      // if not moved then it will be closed
+    }
   }
 
   t_bool t_tipc_stream_server::close_connection(t_connect_id) noexcept {
