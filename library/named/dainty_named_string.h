@@ -88,34 +88,39 @@ namespace string
     return mk_range(value);
   }
 
+  constexpr t_crange operator""_SL (P_cstr_ cstr, t_n_ len) {
+    return {cstr, t_n{len}};
+  }
+
 ////////////////////////////////////////////////////////////////////////////////
 
- inline t_bool operator==(R_crange lh, R_crange rh) {
-   return equal_(lh, rh);
- }
+  inline t_bool operator==(R_crange lh, R_crange rh) {
+    return equal_(lh, rh);
+  }
 
- inline t_bool operator!=(R_crange lh, R_crange rh) {
-   return !equal_(lh, rh);
- }
+  inline t_bool operator!=(R_crange lh, R_crange rh) {
+    return !equal_(lh, rh);
+  }
 
- inline t_bool operator<(R_crange lh, R_crange rh) {
-   return less_(lh, rh);
- }
+  inline t_bool operator<(R_crange lh, R_crange rh) {
+    return less_(lh, rh);
+  }
 
- inline t_bool operator<=(R_crange lh, R_crange rh) {
-   return less_equal_(lh, rh);
- }
+  inline t_bool operator<=(R_crange lh, R_crange rh) {
+    return less_equal_(lh, rh);
+  }
 
- inline t_bool operator>(R_crange lh, R_crange rh) {
-   return less_(rh, lh);
- }
+  inline t_bool operator>(R_crange lh, R_crange rh) {
+    return less_(rh, lh);
+  }
 
- inline t_bool operator>=(R_crange lh, R_crange rh) {
-   return less_equal_(rh, lh);
- }
+  inline t_bool operator>=(R_crange lh, R_crange rh) {
+    return less_equal_(rh, lh);
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
   template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
   inline
   t_bool operator<(const t_string<TAG, N, O>&   lh,
@@ -157,9 +162,11 @@ namespace string
                     const t_string<TAG, N1, O1>& rh) noexcept {
     return !equal_(lh.mk_range(), rh.mk_range());
   }
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/*
   template<class TAG, t_n_ N, t_overflow O>
   inline
   t_bool operator<(const t_string<TAG, N, O>& lh, R_crange rh) noexcept {
@@ -231,6 +238,7 @@ namespace string
   t_bool operator!=(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
     return !equal_(lh, rh.mk_range());
   }
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 }

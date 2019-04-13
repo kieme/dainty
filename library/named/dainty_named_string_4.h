@@ -124,6 +124,8 @@ namespace string
     t_crange mk_range(t_ix)       const noexcept;
     t_crange mk_range(t_ix, t_ix) const noexcept;
 
+    operator t_crange() const noexcept;
+
     template<class F> void  each(F)       noexcept;
     template<class F> void  each(F) const noexcept;
     template<class F> void ceach(F) const noexcept;
@@ -530,6 +532,12 @@ namespace string
   t_crange t_string<TAG, 0, OVERFLOW_GROW>
       ::mk_range(t_ix begin, t_ix end) const noexcept {
     return impl_.mk_range(store_.get(), begin, end);
+  }
+
+  template<class TAG>
+  inline
+  t_string<TAG, 0, OVERFLOW_GROW>::operator t_crange() const noexcept {
+    return mk_range();
   }
 
   template<class TAG>
