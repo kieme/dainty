@@ -29,6 +29,7 @@
 
 #include "dainty_container_freelist.h"
 #include "dainty_named_string.h"
+#include "dainty_named_utility.h"
 #include "dainty_tracing_err.h"
 
 #define DAINTY_TR_(TR, LEVEL, TEXT)                                         \
@@ -69,6 +70,7 @@ namespace tracer
   using named::VALID;
   using named::INVALID;
   using named::string::FMT;
+  using named::utility::x_cast;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -261,13 +263,13 @@ namespace tracer
 
   inline
   t_point::t_point(x_point point)
-    : id_(point.id_.release()), name_(std::move(point.name_)) {
+    : id_(point.id_.release()), name_(x_cast(point.name_)) {
   }
 
   inline
   r_point t_point::operator=(x_point point) { // note: nothing to delete
     id_   = point.id_.release();
-    name_ = std::move(point.name_);
+    name_ = x_cast(point.name_);
     return *this;
   }
 
