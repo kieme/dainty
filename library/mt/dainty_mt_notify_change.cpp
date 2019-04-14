@@ -34,6 +34,8 @@ namespace mt
 {
 namespace notify_change
 {
+  using named::utility::x_cast;
+
   using err::r_err;
   using namespace os::threading;
   using namespace os::fdbased;
@@ -45,7 +47,7 @@ namespace notify_change
     using r_logic = t_processor::r_logic;
 
     t_impl_(r_err err, t_any&& any) noexcept
-      : lock_(err), eventfd_(err, t_n{0}), any_(std::move(any)) {
+      : lock_(err), eventfd_(err, t_n{0}), any_(x_cast(any)) {
       if (lock_ == VALID && eventfd_ == VALID)
         valid_ = VALID;
     }
@@ -73,7 +75,7 @@ namespace notify_change
             }
           %>
           if (!err && changed)
-            logic.process(user, std::move(any));
+            logic.process(user, x_cast(any));
         }
       }
     }
@@ -82,7 +84,7 @@ namespace notify_change
       <% auto scope = lock_.make_locked_scope();
         if (scope == VALID && any != any_) {
           user_    = user;
-          any_     = std::move(any);
+          any_     = x_cast(any);
           changed_ = true;
 
           t_eventfd::t_value value = 1;
@@ -96,7 +98,7 @@ namespace notify_change
       <% auto scope = lock_.make_locked_scope(err);
         if (!err && any != any_) {
           user_    = user;
-          any_     = std::move(any);
+          any_     = x_cast(any);
           changed_ = true;
 
           t_eventfd::t_value value = 1;
@@ -145,14 +147,14 @@ namespace notify_change
 
   t_errn t_client::post(t_any&& any) noexcept {
     if (*this == VALID)
-      return impl_->post(user_, std::move(any));
+      return impl_->post(user_, x_cast(any));
     return t_errn{-1};
   }
 
   t_void t_client::post(t_err err, t_any&& any) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
-        impl_->post(err, user_, std::move(any));
+        impl_->post(err, user_, x_cast(any));
       else
         err = err::E_XXX;
     }
@@ -162,7 +164,7 @@ namespace notify_change
 
   t_processor::t_processor(t_err err, t_any&& any) noexcept {
     ERR_GUARD(err) {
-      impl_ = new t_impl_(err, std::move(any));
+      impl_ = new t_impl_(err, x_cast(any));
       if (impl_ == VALID) {
         if (err)
           impl_.clear();

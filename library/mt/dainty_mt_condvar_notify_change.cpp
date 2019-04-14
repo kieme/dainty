@@ -24,6 +24,7 @@
 
 ******************************************************************************/
 
+#include "dainty_named_utility.h"
 #include "dainty_os_threading.h"
 #include "dainty_mt_condvar_notify_change.h"
 
@@ -33,6 +34,7 @@ namespace mt
 {
 namespace condvar_notify_change
 {
+  using named::utility::x_cast;
   using named::t_n_;
   using err::r_err;
   using namespace dainty::os::threading;
@@ -44,7 +46,7 @@ namespace condvar_notify_change
     using r_logic = t_processor::r_logic;
 
     t_impl_(r_err err, t_any&& any) noexcept
-      : lock_(err), cond_(err), any_(std::move(any)) {
+      : lock_(err), cond_(err), any_(x_cast(any)) {
       if (lock_ == VALID && cond_ == VALID)
         valid_ = VALID;
     }
@@ -69,7 +71,7 @@ namespace condvar_notify_change
           }
         %>
         if (!err)
-          logic.process(user, std::move(any));
+          logic.process(user, x_cast(any));
       }
     }
 
@@ -80,7 +82,7 @@ namespace condvar_notify_change
           errn = cond_.signal();
           if (errn == VALID) {
             user_    = user;
-            any_     = std::move(any);
+            any_     = x_cast(any);
             changed_ = true;
           }
         }
@@ -94,7 +96,7 @@ namespace condvar_notify_change
           cond_.signal(err);
           if (!err) {
             user_    = user;
-            any_     = std::move(any);
+            any_     = x_cast(any);
             changed_ = true;
           }
         }
@@ -137,14 +139,14 @@ namespace condvar_notify_change
 
   t_errn t_client::post(t_any&& any) noexcept {
     if (*this == VALID)
-      return impl_->post(user_, std::move(any));
+      return impl_->post(user_, x_cast(any));
     return t_errn{-1};
   }
 
   t_void t_client::post(t_err err, t_any&& any) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
-        impl_->post(err, user_, std::move(any));
+        impl_->post(err, user_, x_cast(any));
       else
         err = err::E_XXX;
     }
@@ -154,7 +156,7 @@ namespace condvar_notify_change
 
   t_processor::t_processor(t_err err, t_any&& any) noexcept {
     ERR_GUARD(err) {
-      impl_ = new t_impl_(err, std::move(any));
+      impl_ = new t_impl_(err, x_cast(any));
       if (impl_ == VALID) {
         if (err)
           impl_.release();
