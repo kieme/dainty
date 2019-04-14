@@ -27,7 +27,6 @@
 #ifndef _DAINTY_CONTAINER_VALUESTORE_H_
 #define _DAINTY_CONTAINER_VALUESTORE_H_
 
-#include <utility>
 #include <memory>
 #include "dainty_container_bytebuf.h"
 
@@ -40,6 +39,8 @@ namespace valuestore
   using named::t_void;
   using named::t_uchar;
   using named::t_n;
+  using named::utility::x_cast;
+  using named::utility::preserve;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -58,13 +59,13 @@ namespace valuestore
   template<typename T>
   inline
   T* move_construct_(T* ptr, T&& value) {
-    return new (ptr) T(std::move(value));
+    return new (ptr) T(x_cast(value));
   }
 
   template<typename T, typename... Args>
   inline
   T* emplace_construct_(T* ptr, Args&&... args) {
-    return new (ptr) T(std::forward<Args>(args)...);
+    return new (ptr) T(preserve<Args>(args)...);
   }
 
   template<typename T>
@@ -105,13 +106,13 @@ namespace valuestore
 
     inline
     p_value move_construct(x_value value) {
-      return move_construct_(ptr(), std::move(value));
+      return move_construct_(ptr(), x_cast(value));
     }
 
     template<typename... Args>
     inline
     p_value emplace_construct(Args&&... args) {
-      return emplace_construct_(ptr(), std::forward<Args>(args)...);
+      return emplace_construct_(ptr(), preserve<Args>(args)...);
     }
 
     inline

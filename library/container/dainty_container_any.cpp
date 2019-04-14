@@ -38,11 +38,10 @@ namespace any
   }
 
   r_any t_any::operator=(R_any any) {
-    if (store_ == VALID && any.store_ == VALID &&
-        same_type_(*store_, *any.store_))
+    if (store_ == VALID && any.store_ == VALID && same_type_(*store_,
+                                                             *any.store_))
       store_->copy(*any.store_);
     else {
-      store_.clear();
       if (any.store_ == VALID) {
         user_  = any.user_;
         store_ = any.store_->clone();
@@ -52,10 +51,8 @@ namespace any
   }
 
   r_any t_any::operator=(x_any any) {
-    store_.clear();
-    user_  = any.user_;
-    store_ = std::move(any.store_);
-    any.user_.id = 0;
+    user_  = reset (any.user_);
+    store_ = x_cast(any.store_);
     return *this;
   }
 

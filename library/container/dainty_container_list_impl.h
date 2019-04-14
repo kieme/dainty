@@ -27,7 +27,7 @@
 #ifndef _DAINTY_CONTAINER_LIST_IMPL_H_
 #define _DAINTY_CONTAINER_LIST_IMPL_H_
 
-#include "dainty_named.h"
+#include "dainty_named_utility.h"
 #include "dainty_container_err.h"
 #include "dainty_container_valuestore.h"
 
@@ -45,6 +45,9 @@ namespace list
   using named::t_n;
   using named::t_n_;
   using named::t_ix_;
+
+  using named::utility::x_cast;
+  using named::utility::preserve;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -108,7 +111,7 @@ namespace list
     inline
     p_value push_back(p_store store, t_n_ max, x_value value) {
       if (next_ < max)
-        return store[next_++].move_construct(std::move(value));
+        return store[next_++].move_construct(x_cast(value));
       return nullptr;
     }
 
@@ -117,7 +120,7 @@ namespace list
       ERR_GUARD(err) {
         if (store) {
           if (next_ < max)
-            return store[next_++].move_construct(std::move(value));
+            return store[next_++].move_construct(x_cast(value));
           err =  err::E_NO_SPACE;
         } else
           err = err::E_INVALID_INST;
@@ -193,9 +196,9 @@ namespace list
       if (next_ < max) {
         if (ix < next_) {
           move_up_(store, ix, next_++);
-          return store[ix].move_construct(std::move(value));
+          return store[ix].move_construct(x_cast(value));
         } else if ((!next_ && !ix) || (ix == next_))
-          return push_back(store, max, std::move(value));
+          return push_back(store, max, x_cast(value));
       }
       return nullptr;
     }
@@ -208,9 +211,9 @@ namespace list
           if (next_ < max) {
             if (ix < next_) {
               move_up_(store, ix, next_++);
-              return store[ix].move_construct(std::move(value));
+              return store[ix].move_construct(x_cast(value));
             } else if ((!next_ && !ix) || (ix == next_))
-              return push_back(store, max, std::move(value));
+              return push_back(store, max, x_cast(value));
             err = err::E_INVALID_IX;
           } else
             err = err::E_NO_SPACE;
@@ -407,7 +410,7 @@ namespace list
     t_void move_up_(p_store store, t_ix_ ix, t_ix_ max) {
       for (t_ix_ i = max; i > ix; /**/) {
         const t_ix_ x = i--;
-        store[x].move_construct(std::move(store[i].ref()));
+        store[x].move_construct(x_cast(store[i].ref()));
         store[i].destruct();
       }
     }
@@ -416,7 +419,7 @@ namespace list
     t_void move_down_(p_store store, t_ix_ ix, t_ix_ max) {
       for (t_ix_ i = ix; i < max; /**/) {
         const t_ix_ x = i++;
-        store[x].move_construct(std::move(store[i].ref()));
+        store[x].move_construct(x_cast(store[i].ref()));
         store[i].destruct();
       }
     }

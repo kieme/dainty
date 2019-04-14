@@ -244,14 +244,14 @@ namespace list
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::push_back(x_value value) {
-    return impl_.push_back(store_, N, std::move(value));
+    return impl_.push_back(store_, N, x_cast(value));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::push_back(t_err err,
                                                          x_value value) {
-    return impl_.push_back(err, store_, N, std::move(value));
+    return impl_.push_back(err, store_, N, x_cast(value));
   }
 
   template<typename T, t_n_ N>
@@ -282,14 +282,14 @@ namespace list
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::insert(t_ix ix, x_value value) {
-    return impl_.insert(store_, N, named::get(ix), std::move(value));
+    return impl_.insert(store_, N, named::get(ix), x_cast(value));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::insert(t_err err, t_ix ix,
                                                       x_value value) {
-    return impl_.insert(err, store_, N, named::get(ix), std::move(value));
+    return impl_.insert(err, store_, N, named::get(ix), x_cast(value));
   }
 
   template<typename T, t_n_ N>
@@ -523,14 +523,14 @@ namespace list
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::push_back(x_value value) {
-    return impl_.push_back(store_, max_, std::move(value));
+    return impl_.push_back(store_, max_, x_cast(value));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::push_back(t_err err,
                                                          x_value value) {
-    return impl_.push_back(err, store_, max_, std::move(value));
+    return impl_.push_back(err, store_, max_, x_cast(value));
   }
 
   template<typename T>
@@ -561,14 +561,14 @@ namespace list
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_ix ix, x_value value) {
-    return impl_.insert(store_, max_, named::get(ix), std::move(value));
+    return impl_.insert(store_, max_, named::get(ix), x_cast(value));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_err err, t_ix ix,
                                                       x_value value) {
-    return impl_.insert(err, store_, max_, named::get(ix), std::move(value));
+    return impl_.insert(err, store_, max_, named::get(ix), x_cast(value));
   }
 
   template<typename T>

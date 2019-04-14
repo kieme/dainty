@@ -207,7 +207,7 @@ namespace maybe
   typename t_maybe<T>::r_maybe t_maybe<T>::emplace(Args&&... args) {
     if (valid_ == VALID)
       store_.destruct();
-    store_.emplace_construct(std::forward<Args>(args)...);
+    store_.emplace_construct(preserve<Args>(args)...);
     valid_ = VALID;
     return *this;
   }

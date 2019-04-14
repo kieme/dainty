@@ -27,8 +27,8 @@
 #ifndef _DAINTY_CONTAINER_ANY_H_
 #define _DAINTY_CONTAINER_ANY_H_
 
-#include <utility>
 #include "dainty_named.h"
+#include "dainty_named_utility.h"
 #include "dainty_named_ptr.h"
 
 namespace dainty
@@ -44,6 +44,10 @@ namespace any
   using named::VALID;
   using named::INVALID;
 
+  using named::utility::preserve;
+  using named::utility::reset;
+  using named::utility::x_cast;
+
   enum  t_user_tag_ { };
   using t_user = named::t_user<t_user_tag_>;
 
@@ -51,6 +55,7 @@ namespace any
 
   class t_type_;
   using R_type_ = t_prefix<t_type_>::R_;
+  using p_type_ = t_prefix<t_type_>::p_;
 
   class t_type_ {
   public:
@@ -72,8 +77,8 @@ namespace any
 
     T value_;
 
-    template<class... Args> t_store_(Args&&... args)
-      : value_(std::forward<Args>(args)...) {
+    template<typename... Args> t_store_(Args&&... args)
+      : value_(preserve<Args>(args)...) {
     }
 
     t_store_(R_store_)           = delete;
@@ -104,11 +109,15 @@ namespace any
 
   class t_any final {
   public:
+    template<typename T, typename... Args>
+    static t_any construct(t_user, Args&&...);
+
     t_any() = default;
     t_any(R_any);
     t_any(x_any);
     t_any(t_user);
-    template<typename T> t_any(t_user, T&&);
+    template<typename T>
+    t_any(t_user, T&&);
 
     r_any operator=(R_any);
     r_any operator=(x_any);
@@ -123,11 +132,12 @@ namespace any
     t_bool   same_type (R_any) const;
     t_bool   is_equal  (R_any) const;
 
-    template<class T> T&        ref();
+    template<class T>       T&  ref();
     template<class T> const T&  ref() const;
     template<class T> const T& cref() const;
 
   private:
+    t_any(t_user, p_type_ store);
     t_user          user_  = t_user{0L};
     t_type_::t_ptr_ store_;
   };
@@ -144,14 +154,25 @@ namespace any
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  template<typename T, typename... Args>
+  inline
+  t_any t_any::construct(t_user user, Args&&... args) {
+    return {user,
+            static_cast<p_type_>(new t_store_<T>(preserve<Args>(args)...))};
+  }
+
   inline
   t_any::t_any(t_user user) : user_{user} {
+  }
+
+  inline
+  t_any::t_any(t_user user, p_type_ store) : user_{user}, store_{store} {
   }
 
   template<typename T>
   inline
   t_any::t_any(t_user user, T&& value)
-    : user_{user}, store_{new t_store_<T>(std::forward<T>(value))} {
+    : user_{user}, store_{new t_store_<T>(preserve<T>(value))} {
   }
 
   inline
@@ -161,8 +182,8 @@ namespace any
   }
 
   inline
-  t_any::t_any(x_any any) : user_{any.user_}, store_{std::move(any.store_)} {
-    any.user_.id = 0L; // reset
+  t_any::t_any(x_any any) : user_{any.user_}, store_{x_cast(any.store_)} {
+    reset(any.user_);
   }
 
   inline
@@ -178,9 +199,8 @@ namespace any
   template<typename T, typename... Args>
   inline
   T& t_any::emplace(t_user user, Args&&... args) {
-    store_.clear();
     user_  = user;
-    store_ = new t_store_<T>(std::forward<Args>(args)...);
+    store_ = new t_store_<T>(preserve<Args>(args)...);
     return ref<T>();
   }
 

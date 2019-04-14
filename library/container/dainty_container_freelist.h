@@ -27,7 +27,6 @@
 #ifndef _DAINTY_CONTAINTER_FREELIST_H_
 #define _DAINTY_CONTAINTER_FREELIST_H_
 
-#include "dainty_named.h"
 #include "dainty_container_freelist_impl.h"
 
 namespace dainty
@@ -232,14 +231,14 @@ namespace freelist
   inline
   typename t_freelist<T, N, CLEANUP>::t_result
     t_freelist<T, N, CLEANUP>::insert(x_value value) {
-    return impl_.insert(store_, N, std::move(value));
+    return impl_.insert(store_, N, x_cast(value));
   }
 
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
   inline
   typename t_freelist<T, N, CLEANUP>::t_result
     t_freelist<T, N, CLEANUP>::insert(t_err err, x_value value) {
-    return impl_.insert(err, store_, N, std::move(value));
+    return impl_.insert(err, store_, N, x_cast(value));
   }
 
   template<typename T, t_n_ N, t_void (*CLEANUP)(T&)>
@@ -467,14 +466,14 @@ namespace freelist
   inline
   typename t_freelist<T, 0, CLEANUP>::t_result
     t_freelist<T, 0, CLEANUP>::insert(x_value value) {
-    return impl_.insert(store_, max_, std::move(value));
+    return impl_.insert(store_, max_, x_cast(value));
   }
 
   template<typename T, t_void (*CLEANUP)(T&)>
   inline
   typename t_freelist<T, 0, CLEANUP>::t_result
     t_freelist<T, 0, CLEANUP>::insert(t_err err, x_value value) {
-    return impl_.insert(err, store_, max_, std::move(value));
+    return impl_.insert(err, store_, max_, x_cast(value));
   }
 
   template<typename T, t_void (*CLEANUP)(T&)>

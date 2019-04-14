@@ -27,8 +27,9 @@
 #ifndef _DAINTY_CONTAINER_HOLDER_H_
 #define _DAINTY_CONTAINER_HOLDER_H_
 
-#include <utility>
 #include "dainty_named.h"
+#include "dainty_named_utility.h"
+#include "dainty_named_ptr.h"
 
 namespace dainty
 {
@@ -40,36 +41,58 @@ namespace holder
   using named::VALID;
   using named::INVALID;
 
-  enum  t_user_tag_ { };
-  using t_user = named::t_user<t_user_tag_>;
+  using named::utility::x_cast;
+  using named::utility::preserve;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  struct t_it_ { virtual ~t_it_() {} };
+  struct t_it_ {
+    virtual ~t_it_() {}
+  };
+  using p_it_ = t_prefix<t_it_>::p_;
+
+  using t_ptr_ = named::ptr::t_ptr<t_it_, t_it_, named::ptr::t_deleter>;
 
   template<class T>
   struct t_store_ final : t_it_ {
+    using R_store_ = typename t_prefix<t_store_>::R_;
+    using x_store_ = typename t_prefix<t_store_>::x_;
+    using r_store_ = typename t_prefix<t_store_>::r_;
+
     T value_;
 
-    template<class U> t_store_(U&& u) : value_(std::forward<U>(u)) { }
-    t_store_()                           = delete;
-    t_store_(const t_store_&)            = delete;
-    t_store_& operator=(const t_store_&) = delete;
-    t_store_(t_store_&&)                 = delete;
-    t_store_& operator=(t_store_&&)      = delete;
+    template<class... Args> t_store_(Args&&... args)
+      : value_(preserve<Args>(args)...) {
+    }
+
+    t_store_()                   = delete;
+    t_store_(R_store_)           = delete;
+    t_store_(x_store_)           = delete;
+    r_store_ operator=(R_store_) = delete;
+    r_store_ operator=(x_store_) = delete;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  class t_holder;
+  using r_holder = t_prefix<t_holder>::r_;
+  using x_holder = t_prefix<t_holder>::x_;
+  using R_holder = t_prefix<t_holder>::R_;
+
   class t_holder final {
   public:
-     t_holder() = default;
-     t_holder(t_holder&&);
-    ~t_holder();
+    template<typename T, typename... Args>
+    t_holder construct(Args&&...);
 
-    t_holder& operator=(t_holder&&);
-    t_holder(const t_holder&)            = delete;
-    t_holder& operator=(const t_holder&) = delete;
+    t_holder() = default;
+    template<typename T>
+    t_holder(T&&);
+    t_holder(x_holder);
+
+    r_holder operator=(x_holder);
+
+    t_holder(R_holder)           = delete;
+    r_holder operator=(R_holder) = delete;
 
     operator t_validity() const;
 
@@ -81,28 +104,36 @@ namespace holder
     template<class T> const T& cref() const;
 
   private:
-    t_it_* store_ = nullptr;
+    t_holder(p_it_);
+
+    t_ptr_ store_;
   };
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  template<typename T, typename... Args>
   inline
-  t_holder::t_holder(t_holder&& holder) : store_{holder.store_} {
-    holder.store_ = nullptr;
+  t_holder t_holder::construct(Args&&... args) {
+    return {static_cast<p_it>(new t_store_<T>(preserve<Args>(args)...))};
   }
 
   inline
-  t_holder::~t_holder() {
-    if (store_)
-      delete store_;
+  t_holder::t_holder(p_it_ store) : store_{store} {
   }
 
   inline
-  t_holder& t_holder::operator=(t_holder&& holder) {
-    if (store_)
-      delete store_;
-    store_ = holder.store_;
-    holder.store_ = nullptr;
+  t_holder::t_holder(x_holder holder) : store_{reset(holder.store_)} {
+  }
+
+  template<typename T>
+  inline
+  t_holder::t_holder(T&& value)
+    : store_{new t_store_<T>(preserve<T>(value))} {
+  }
+
+  inline
+  r_holder t_holder::operator=(x_holder holder) {
+    store_ = x_cast(holder.store_);
     return *this;
   }
 
@@ -114,9 +145,7 @@ namespace holder
   template<typename T, typename... Args>
   inline
   T& t_holder::emplace(Args&&... args) {
-    if (store_)
-      delete store_;
-    store_ = new t_store_<T>(std::forward<Args>(args)...);
+    store_ = new t_store_<T>(preserve<Args>(args)...);
     return ref<T>();
   }
 

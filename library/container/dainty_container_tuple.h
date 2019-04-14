@@ -27,6 +27,7 @@
 #ifndef _DAINTY_CONTAINER_TUPLE_H_
 #define _DAINTY_CONTAINER_TUPLE_H_
 
+#include "dainty_named_utility.h"
 #include "dainty_container_any.h"
 #include "dainty_container_list.h"
 
@@ -44,8 +45,11 @@ namespace tuple
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
+  using named::utility::preserve;
   using any::t_any;
   using any::t_user;
+
+///////////////////////////////////////////////////////////////////////////////
 
   template<t_n_ N>
   using t_store_ = list::t_list<t_any, N>;
@@ -61,8 +65,8 @@ namespace tuple
     }
     template<typename Arg, typename... Args>
     t_tuple_(r_store_ store, Arg&& arg, Args&&... args)
-      : tuple_ {store, std::forward<Arg> (arg)},
-        tuples_{store, std::forward<Args>(args)...} {
+      : tuple_ {store, preserve<Arg> (arg)},
+        tuples_{store, preserve<Args>(args)...} {
     }
   };
 
@@ -76,7 +80,7 @@ namespace tuple
     template<typename Arg>
     t_tuple_(r_store_ store, Arg&& arg) {
       (store.push_back())->template emplace<T>(t_user{0L},
-                                               std::forward<Arg>(arg));
+                                               preserve<Arg>(arg));
     }
   };
 
@@ -88,7 +92,7 @@ namespace tuple
     }
 
     template<typename... Args>
-    t_tuple(Args&&... args) : tuple_{store_, std::forward<Args>(args)...} {
+    t_tuple(Args&&... args) : tuple_{store_, preserve<Args>(args)...} {
     }
 
     inline

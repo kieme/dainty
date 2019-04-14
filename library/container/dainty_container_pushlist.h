@@ -184,14 +184,14 @@ namespace pushlist
   inline
   typename t_pushlist<T, N>::p_value
     t_pushlist<T, N>::push_back(x_value value) {
-    return impl_.push_back(std::move(value));
+    return impl_.push_back(x_cast(value));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_pushlist<T, N>::p_value
     t_pushlist<T, N>::push_back(t_err err, x_value value) {
-    return impl_.push_back(err, std::move(value));
+    return impl_.push_back(err, x_cast(value));
   }
 
   template<typename T, t_n_ N>
@@ -347,14 +347,14 @@ namespace pushlist
   inline
   typename t_pushlist<T, 0>::p_value
     t_pushlist<T, 0>::push_back(x_value value) {
-    return impl_.push_back(std::move(value));
+    return impl_.push_back(x_cast(value));
   }
 
   template<typename T>
   inline
   typename t_pushlist<T, 0>::p_value
     t_pushlist<T, 0>::push_back(t_err err, x_value value) {
-    return impl_.push_back(err, std::move(value));
+    return impl_.push_back(err, x_cast(value));
   }
 
   template<typename T>
