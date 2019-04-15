@@ -44,9 +44,14 @@ namespace mt
 {
 namespace net_connect
 {
+  using err::t_err;
+
   using named::t_prefix;
   using named::t_explicit;
   using named::t_fd;
+  using named::t_n;
+  using named::t_void;
+  using named::t_bool;
   using named::BAD_FD;
   using named::t_user;
   using named::t_validity;
@@ -56,11 +61,16 @@ namespace net_connect
   using container::list::t_list;
   using container::maybe::t_maybe;
 
+  using os::networking::t_connect_socket;
+  using os::networking::x_connect_socket;
+
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_connect_user_tag_ {};
   using t_connect_user = t_user<t_connect_user_tag_>;
   using r_connect_user = t_prefix<t_connect_user>::r_;
+
+///////////////////////////////////////////////////////////////////////////////
 
   enum  t_connect_id_tag_ {};
   using t_connect_id_ = named::t_int;
@@ -71,13 +81,15 @@ namespace net_connect
   using t_connect_ids = t_maybe<t_list<t_connect_id>>;
   using r_connect_ids = t_prefix<t_connect_ids>::r_;
 
+///////////////////////////////////////////////////////////////////////////////
+
   class t_connect_result {
   public:
     constexpr t_connect_result(t_connect_id _id, t_fd _fd) noexcept
       : id{_id}, fd{_fd} {
     }
 
-    operator t_validity() const noexcept {
+    constexpr operator t_validity() const noexcept {
       return id == BAD_CONNECT_ID ? INVALID : VALID;
     }
 
@@ -85,16 +97,59 @@ namespace net_connect
     t_fd         fd = BAD_FD;
   };
 
+///////////////////////////////////////////////////////////////////////////////
+
   struct t_connect_stats {
   };
 
+///////////////////////////////////////////////////////////////////////////////
+
   struct t_connect_info {
-    t_fd            fd    = BAD_FD;
-    t_connect_id    id    = BAD_CONNECT_ID;
-    t_connect_user  user;
-    t_connect_stats stats;
+    t_connect_id     id    = BAD_CONNECT_ID;
+    t_connect_socket socket;
+    t_connect_user   user;
+    t_connect_stats  stats;
   };
   using R_connect_info = t_prefix<t_connect_info>::R_;
+  using p_connect_info = t_prefix<t_connect_info>::p_;
+  using P_connect_info = t_prefix<t_connect_info>::P_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  class t_connect_table;
+  using R_connect_table = t_prefix<t_connect_table>::R_;
+  using x_connect_table = t_prefix<t_connect_table>::x_;
+
+  class t_connect_table {
+  public:
+    t_connect_table(       t_n)    noexcept;
+    t_connect_table(t_err, t_n)    noexcept;
+    t_connect_table(x_connect_table) noexcept;
+   ~t_connect_table();
+
+    t_connect_table(R_connect_table)           = delete;
+    R_connect_table operator=(R_connect_table) = delete;
+
+    operator t_validity() const noexcept;
+
+    t_connect_id   add_connect(       x_connect_socket, t_connect_user) noexcept;
+    t_connect_id   add_connect(t_err, x_connect_socket, t_connect_user) noexcept;
+
+    t_bool         del_connect(       t_connect_id) noexcept;
+    t_bool         del_connect(t_err, t_connect_id) noexcept;
+
+    p_connect_info get_connect(       t_connect_id)       noexcept;
+    p_connect_info get_connect(t_err, t_connect_id)       noexcept;
+
+    P_connect_info get_connect(       t_connect_id) const noexcept;
+    P_connect_info get_connect(t_err, t_connect_id) const noexcept;
+
+    t_n            get_size       () const noexcept;
+    t_n            get_capacity   () const noexcept;
+    t_void         get_connect_ids(r_connect_ids) const noexcept;
+
+  private:
+  };
 
 ///////////////////////////////////////////////////////////////////////////////
 

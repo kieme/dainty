@@ -51,6 +51,8 @@ namespace net_tipc
   using named::t_n;
   using named::t_fd;
   using named::t_errn;
+  using named::NO_ERRN;
+  using named::BAD_ERRN;
 
   using os::t_verify;
   using os::t_socket_address;
@@ -76,6 +78,8 @@ namespace net_tipc
   using net_connect::t_connect_stats;
   using net_connect::t_connect_info;
   using net_connect::R_connect_info;
+  using net_connect::P_connect_info;
+  using net_connect::t_connect_table;
   using net_connect::BAD_CONNECT_ID;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -158,6 +162,18 @@ namespace net_tipc
 
   class t_tipc_stream_server {
   public:
+    class t_params {
+    public:
+      t_params(R_tipc_address _server, t_n _max_connects)
+        : server(_server), max_connects(_max_connects) {
+      }
+
+      t_tipc_address server;
+      t_n            max_connects;
+    };
+    using T_params = t_prefix<t_params>::T_;
+    using R_params = t_prefix<t_params>::R_;
+
     class t_logic {
     public:
       using t_fd           = net_tipc::t_fd;
@@ -167,7 +183,7 @@ namespace net_tipc
       using r_connect_user = net_tipc::r_connect_user;
 
       virtual ~t_logic() {}
-      virtual t_bool notify_tipc_stream_connect_accept(t_fd, R_tipc_address,
+      virtual t_bool notify_tipc_stream_connect_accept(R_tipc_address,
                                                        r_connect_user) noexcept = 0;
       virtual t_void notify_tipc_stream_connect_add   (R_connect_info,
                                                        r_connect_user) noexcept = 0;
@@ -176,8 +192,8 @@ namespace net_tipc
     };
     using r_logic = t_prefix<t_logic>::r_;
 
-    t_tipc_stream_server(       R_tipc_address server, r_logic) noexcept;
-    t_tipc_stream_server(t_err, R_tipc_address server, r_logic) noexcept;
+    t_tipc_stream_server(       R_params, r_logic) noexcept;
+    t_tipc_stream_server(t_err, R_params, r_logic) noexcept;
 
     t_tipc_stream_server(x_tipc_stream_server) noexcept;
    ~t_tipc_stream_server();
@@ -195,7 +211,7 @@ namespace net_tipc
     t_connect_result accept_connection(t_err)        noexcept;
     t_bool           close_connection (t_connect_id) noexcept;
 
-    R_connect_info get_connection(t_connect_id)      const noexcept;
+    P_connect_info get_connection    (t_connect_id)  const noexcept;
     t_void         get_connection_ids(r_connect_ids) const noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -259,9 +275,10 @@ namespace net_tipc
     t_void setsockopt(t_err, t_socket_level, R_socket_option) noexcept;
 
   private:
-    t_socket socket_;
-    r_logic  logic_;
-    // freelist of connections
+    T_params        params_;
+    t_socket        socket_;
+    r_logic         logic_;
+    t_connect_table table_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
