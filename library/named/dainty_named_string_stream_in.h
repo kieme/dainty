@@ -171,7 +171,7 @@ namespace string
   }
 
   template<t_plus1_ PLUS1_, typename T>
-  inline t_skip_until_v_<T, PLUS1_>   skip_until(const T& value) noexcept {
+  inline t_skip_until_v_<T, PLUS1_>  skip_until(const T& value) noexcept {
     return t_skip_until_v_<T, PLUS1_>{value};
   }
 
@@ -185,208 +185,275 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  class t_slider;
+  using r_slider = t_prefix<t_slider>::r_;
+
+  class t_slider : public t_snippet {
+  public:
+    using t_snippet::t_snippet;
+    using t_snippet::operator t_crange;
+    using t_snippet::operator t_validity;
+    using t_snippet::operator=;
+
+    constexpr r_slider operator+=(t_n n) noexcept {
+      auto add_n = get(n);
+      if (add_n <= n_) {
+        ptr_ += add_n;
+        n_   -= add_n;
+      } else
+        assert_now(P_cstr{"move to far"});
+      return *this;
+    }
+
+    constexpr P_cstr_ begin() const noexcept {
+      return ptr_;
+    }
+
+    constexpr P_cstr_ end() const noexcept {
+      return ptr_ + n_;
+    }
+
+  private:
+    P_cstr_ ptr_ = nullptr;
+    t_n_    n_   = 0;
+  };
+
+////////////////////////////////////////////////////////////////////////////////
+
   inline
-  r_walk_ operator>>(r_walk_ lh, t_skip_v_<t_char> value) noexcept {
-    return skip_(lh, value.value);
+  r_slider operator>>(r_slider lh, t_skip_v_<t_char> value) noexcept {
+    t_n n{skip_(lh, value.value)};
+    return lh += n;
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_skip_v_<t_block> value) noexcept {
-    return skip_(lh, value.value);
+  r_slider operator>>(r_slider lh, t_skip_v_<t_block> value) noexcept {
+    t_n n{skip_(lh, value.value)};
+    return lh += n;
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_skip_v_<t_crange> value) noexcept {
-    return skip_(lh, value.value);
+  r_slider operator>>(r_slider lh, t_skip_v_<t_crange> value) noexcept {
+    t_n n{skip_(lh, value.value)};
+    return lh += n;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_skip_n_v_ value) noexcept {
-    return skip_(lh, get(value));
+  r_slider operator>>(r_slider lh, t_skip_n_v_ value) noexcept {
+    t_n n{skip_(lh, get(value))};
+    return lh += n;
   }
 
   template<t_plus1_ PLUS1_>
   inline
-  r_walk_ operator>>(r_walk_ lh,
+  r_slider operator>>(r_slider lh,
                      t_skip_until_v_<t_char, PLUS1_> value) noexcept {
-    return skip_until_(lh, value.value, PLUS1_);
+    t_n n{skip_until_(lh, value.value, PLUS1_)};
+    return lh += n;
   }
 
   template<t_plus1_ PLUS1_>
   inline
-  r_walk_ operator>>(r_walk_ lh,
+  r_slider operator>>(r_slider lh,
                      t_skip_until_v_<t_crange, PLUS1_> value) noexcept {
-    return skip_until_(lh, value.value, PLUS1_);
+    t_n n{skip_until_(lh, value.value, PLUS1_)};
+    return lh += n;
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_skip_all_v_ value) noexcept {
-    return skip_all_(lh, get(value));
+  r_slider operator>>(r_slider lh, t_skip_all_v_ value) noexcept {
+    t_n n{skip_all_(lh, get(value))};
+    return lh += n;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_snip_n_p_ value) noexcept {
-    return snip_n_(lh, value.value, value.n);
+  r_slider operator>>(r_slider lh, t_snip_n_p_ value) noexcept {
+    t_n n{snip_n_(lh, value.value, value.n)};
+    return lh += n;
   }
 
   template<t_plus1_ PLUS1_, t_incl_char_ INCL_CHAR_>
   inline
-  r_walk_ operator>>(r_walk_ lh,
+  r_slider operator>>(r_slider lh,
                      const t_snip_char_p_<PLUS1_, INCL_CHAR_,
                                           NOT_EOL_OK>& value) noexcept {
-    return snip_char_(lh, value.value, value.ch, PLUS1_, INCL_CHAR_);
+    t_n n{snip_char_(lh, value.value, value.ch, PLUS1_, INCL_CHAR_)};
+    return lh += n;
   }
 
   template<t_plus1_ PLUS1_, t_incl_char_ INCL_CHAR_>
   inline
-  r_walk_ operator>>(r_walk_ lh,
+  r_slider operator>>(r_slider lh,
                      const t_snip_char_p_<PLUS1_, INCL_CHAR_,
                                           EOL_OK>& value) noexcept {
-    return snip_char_eol_(lh, value.value, value.ch, PLUS1_, INCL_CHAR_);
+    t_n n{snip_char_eol_(lh, value.value, value.ch, PLUS1_, INCL_CHAR_)};
+    return lh += n;
   }
 
   template<t_plus1_ PLUS1_, t_incl_char_ INCL_CHAR_>
   inline
-  r_walk_ operator>>(r_walk_ lh,
+  r_slider operator>>(r_slider lh,
                      t_snip_char_select_p_<PLUS1_, INCL_CHAR_,
                                            NOT_EOL_OK> value) noexcept {
-    return snip_char_(lh, value.value, value.select, PLUS1_, INCL_CHAR_);
+    t_n n{snip_char_(lh, value.value, value.select, PLUS1_, INCL_CHAR_)};
+    return lh += n;
   }
 
   template<t_plus1_ PLUS1_, t_incl_char_ INCL_CHAR_>
   inline
-  r_walk_ operator>>(r_walk_ lh,
+  r_slider operator>>(r_slider lh,
                      t_snip_char_select_p_<PLUS1_, INCL_CHAR_,
                                            EOL_OK> value) noexcept {
-    return snip_char_eol_(lh, value.value, value.select, PLUS1_, INCL_CHAR_);
+    t_n n{snip_char_eol_(lh, value.value, value.select, PLUS1_, INCL_CHAR_)};
+    return lh += n;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_hex_p_<t_char> value) noexcept {
+  r_slider operator>>(r_slider lh, t_hex_p_<t_char> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%hhx%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%hhx%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_hex_p_<t_uchar> value) noexcept {
+  r_slider operator>>(r_slider lh, t_hex_p_<t_uchar> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%hhx%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%hhx%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_hex_p_<t_short> value) noexcept {
+  r_slider operator>>(r_slider lh, t_hex_p_<t_short> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%hhx%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%hhx%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_hex_p_<t_ushort> value) noexcept {
+  r_slider operator>>(r_slider lh, t_hex_p_<t_ushort> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%hhx%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%hhx%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_hex_p_<t_int> value) noexcept {
+  r_slider operator>>(r_slider lh, t_hex_p_<t_int> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%x%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%x%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_hex_p_<t_uint> value) noexcept {
+  r_slider operator>>(r_slider lh, t_hex_p_<t_uint> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%x%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%x%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_hex_p_<t_long> value) noexcept {
+  r_slider operator>>(r_slider lh, t_hex_p_<t_long> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%lx%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%lx%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_hex_p_<t_ulong> value) noexcept {
+  r_slider operator>>(r_slider lh, t_hex_p_<t_ulong> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%lx%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%lx%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_hex_p_<t_llong> value) noexcept {
+  r_slider operator>>(r_slider lh, t_hex_p_<t_llong> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%llx%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%llx%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_hex_p_<t_ullong> value) noexcept {
+  r_slider operator>>(r_slider lh, t_hex_p_<t_ullong> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%llx%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%llx%n", get(value), &n);
+    return lh += t_n{n};
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_int_p_<t_char> value) noexcept {
+  r_slider operator>>(r_slider lh, t_int_p_<t_char> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%hhd%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%hhd%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_int_p_<t_uchar> value) noexcept {
+  r_slider operator>>(r_slider lh, t_int_p_<t_uchar> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%hhu%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%hhu%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_int_p_<t_short> value) noexcept {
+  r_slider operator>>(r_slider lh, t_int_p_<t_short> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%hhd%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%hhd%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_int_p_<t_ushort> value) noexcept {
+  r_slider operator>>(r_slider lh, t_int_p_<t_ushort> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%hhu%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%hhu%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_int_p_<t_int> value) noexcept {
+  r_slider operator>>(r_slider lh, t_int_p_<t_int> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%d%n$", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%d%n$", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_int_p_<t_uint> value) noexcept {
+  r_slider operator>>(r_slider lh, t_int_p_<t_uint> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%u%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%u%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_int_p_<t_long> value) noexcept {
+  r_slider operator>>(r_slider lh, t_int_p_<t_long> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%ld%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%ld%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_int_p_<t_ulong> value) noexcept {
+  r_slider operator>>(r_slider lh, t_int_p_<t_ulong> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%lu%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%lu%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_int_p_<t_llong> value) noexcept {
+  r_slider operator>>(r_slider lh, t_int_p_<t_llong> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%lld%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%lld%n", get(value), &n);
+    return lh += t_n{n};
   }
 
   inline
-  r_walk_ operator>>(r_walk_ lh, t_int_p_<t_ullong> value) noexcept {
+  r_slider operator>>(r_slider lh, t_int_p_<t_ullong> value) noexcept {
     t_n_ n = 0;
-    return scan_(lh, n, 1, "%llu%n", get(value), &n);
+    scan_fmt_(lh.begin(), 1, "%llu%n", get(value), &n);
+    return lh += t_n{n};
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -395,8 +462,8 @@ namespace string
 
   template<class TAG, t_n_ N, t_overflow O>
   inline
-  t_walk mk_walk(const t_string<TAG, N, O>& lh) noexcept {
-    return lh.mk_range();
+  t_slider mk_slider(const t_string<TAG, N, O>& lh) noexcept {
+    return {lh.mk_range()};
   }
 
 ////////////////////////////////////////////////////////////////////////////////

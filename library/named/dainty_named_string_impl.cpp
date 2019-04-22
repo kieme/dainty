@@ -255,192 +255,184 @@ namespace string
     return cnt;
   }
 
-  t_void scan_(R_crange range, t_n_ n, P_cstr_ fmt, va_list args) noexcept {
-    auto cnt = std::vsscanf(range.ptr, fmt, args);
+  t_void scan_(P_cstr_ str, t_n_ n, P_cstr_ fmt, va_list args) noexcept {
+    auto cnt = std::vsscanf(str, fmt, args);
     if (cnt != static_cast<t_int>(n))
       assert_now(P_cstr("scanf could not find you value(s)"));
   }
 
-  r_walk_ scan_(r_walk_ walk, t_n_& len, t_n_ n, P_cstr_ fmt, ...) noexcept {
+  t_void scan_fmt_(P_cstr_ str, t_n_ n, P_cstr_ fmt, ...) noexcept {
     va_list args;
     va_start(args, fmt);
-    auto cnt = std::vsscanf(walk.ptr, fmt, args);
+    scan_(str, n, fmt, args);
     va_end(args);
-
-    if (cnt != static_cast<t_int>(n))
-      assert_now(P_cstr("scanf could not find you value(s)"));
-
-    return jump_forward_(walk, len);
   }
 
-  r_walk_ skip_(r_walk_ walk, t_char ch) noexcept {
-    t_n_ max = get(walk.n);
-    if (max >= 1 && walk.ptr[0] == ch)
-      return jump_forward_(walk, 1);
+  t_n_ skip_(R_crange range, t_char ch) noexcept {
+    t_n_ max = get(range.n);
+    if (max >= 1 && range[t_ix{0}] == ch)
+      return 1;
 
     assert_now(P_cstr("can't skip charater"));
-    return walk;
+    return 0;
   }
 
-  r_walk_ skip_(r_walk_ walk, t_n_ n) noexcept {
-    t_n_ max = get(walk.n);
+  t_n_ skip_(R_crange range, t_n_ n) noexcept {
+    t_n_ max = get(range.n);
     if (n <= max)
-      return jump_forward_(walk, n);
+      return n;
 
     assert_now(P_cstr("buffer not big enough"));
-    return walk;
+    return 0;
   }
 
-  r_walk_ skip_(r_walk_ walk, R_crange src) noexcept {
+  t_n_ skip_(R_crange range, R_crange src) noexcept {
     auto ix_begin = t_ix{0}, ix_end = t_ix{get(src.n)};
-    auto tmp = mk_range(walk, ix_begin, ix_end);
+    auto tmp = mk_range(range, ix_begin, ix_end);
     if (tmp == src)
-      return jump_forward_(walk, get(src.n));
+      return get(src.n);
 
     assert_now(P_cstr("range not the same"));
-    return walk;
+    return 0;
   }
 
-  r_walk_ skip_(r_walk_ walk, R_block block) noexcept {
-    auto max = get(walk.n), n = get(block.max);
+  t_n_ skip_(R_crange range, R_block block) noexcept {
+    auto max = get(range.n), n = get(block.max);
     if (n <= max) {
       t_ix_ ix = 0;
-      for (; ix < n && walk.ptr[ix] == block.c; ++ix);
+      for (; ix < n && range[t_ix{ix}] == block.c; ++ix);
       if (ix == n)
-        return jump_forward_(walk, n);
+        return n;
     }
 
     assert_now(P_cstr("range not the same"));
-    return walk;
+    return 0;
   }
 
-  r_walk_ skip_until_(r_walk_ walk, t_char ch, t_plus1_ plus1) noexcept {
-    auto max = get(walk.n);
+  t_n_ skip_until_(R_crange range, t_char ch, t_plus1_ plus1) noexcept {
+    auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
-      for (; ix < max && walk.ptr[ix] != ch; ++ix);
+      for (; ix < max && range[t_ix{ix}] != ch; ++ix);
       if (ix < max)
-        return jump_forward_(walk, ix + plus1);
+        return ix + plus1;
     }
 
     assert_now(P_cstr("dont find char"));
-    return walk;
+    return 0;
   }
 
-  r_walk_ skip_until_(r_walk_ walk, R_crange value, t_plus1_ plus1) noexcept {
-    auto max = get(walk.n), value_max = get(value.n);
+  t_n_ skip_until_(R_crange range, R_crange value, t_plus1_ plus1) noexcept {
+    auto max = get(range.n), value_max = get(value.n);
     if (max && max > value_max) {
       t_ix_ ix = 0, k = 0;
       for (; ix < max && k < value_max; ++ix)
-        k = walk.ptr[ix] == value[t_ix{k}] ? k + 1 : 0;
+        k = range[t_ix{ix}] == value[t_ix{k}] ? k + 1 : 0;
       if (k == value_max)
-        return jump_forward_(walk, plus1 == PLUS1 ? ix : ix - value_max);
+        return plus1 == PLUS1 ? ix : ix - value_max;
     }
 
     assert_now(P_cstr("dont find substring"));
-    return walk;
+    return 0;
   }
 
-  r_walk_ skip_all_(r_walk_ walk, t_char ch) noexcept {
-    auto max = get(walk.n);
+  t_n_ skip_all_(R_crange range, t_char ch) noexcept {
+    auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
-      for (; ix < max && walk.ptr[ix] == ch; ++ix);
+      for (; ix < max && range[t_ix{ix}] == ch; ++ix);
       if (ix <= max)
-        return jump_forward_(walk, ix);
+        return ix;
     }
-    return walk;
+    return 0;
   }
 
-  r_walk_ snip_n_(r_walk_ walk, p_snippet snip, t_n_ n) noexcept {
-    auto max = get(walk.n); // upto_n
+  t_n_ snip_n_(R_crange range, p_snippet snip, t_n_ n) noexcept {
+    auto max = get(range.n);
     if (max && max > n) {
-      snip->ptr = walk.ptr;
-      snip->n   = t_n{n};
-      return jump_forward_(walk, n);
+      *snip = range;
+      return max;
     }
 
     assert_now(P_cstr("not large enough"));
-    return walk;
+    return 0;
   }
 
-  r_walk_ snip_char_(r_walk_ walk, p_snippet snip, t_char ch,
+  t_n_ snip_char_(R_crange range, p_snippet snip, t_char ch,
+                  t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
+    auto max = get(range.n);
+    if (max) {
+      t_ix_ ix = 0;
+      for (; ix < max && range[t_ix{ix}] != ch; ++ix);
+      if (ix < max) {
+        *snip = t_crange{range.ptr, t_n{ix + incl_char}};
+        return ix + plus1;
+      }
+    }
+
+    assert_now(P_cstr("not found"));
+    return 0;
+  }
+
+  t_n_ snip_char_eol_(R_crange range, p_snippet snip, t_char ch,
                       t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
-    auto max = get(walk.n);
+    auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
-      for (; ix < max && walk.ptr[ix] != ch; ++ix);
+      for (; ix < max && range[t_ix{ix}] != ch; ++ix);
       if (ix < max) {
-        snip->ptr = walk.ptr;
-        snip->n   = t_n{ix + incl_char};
-        return jump_forward_(walk, ix + plus1);
+        *snip = t_crange{range.ptr, t_n{ix + incl_char}};
+        return ix + plus1;
       }
+      *snip = range;
+      return max;
     }
 
     assert_now(P_cstr("not found"));
-    return walk;
+    return 0;
   }
 
-  r_walk_ snip_char_eol_(r_walk_ walk, p_snippet snip, t_char ch,
-                         t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
-    auto max = get(walk.n);
-    if (max) {
-      t_ix_ ix = 0;
-      for (; ix < max && walk.ptr[ix] != ch; ++ix);
-      if (ix < max) {
-        snip->ptr = walk.ptr;
-        snip->n   = t_n{ix + incl_char};
-        return jump_forward_(walk, ix + plus1);
-      }
-      snip->ptr = walk.ptr;
-      snip->n   = t_n{max};
-      return jump_forward_(walk, max);
-    }
-
-    assert_now(P_cstr("not found"));
-    return walk;
-  }
-
-  r_walk_ snip_char_(r_walk_ walk, p_snippet snip, p_char_select select,
-                     t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
-    auto max = get(walk.n);
+  t_n_ snip_char_(R_crange range, p_snippet snip, p_char_select select,
+                  t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
+    auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
       for (; ix < max; ++ix) {
         for (t_char ch : select->list) {
-          if (walk.ptr[ix] == ch) {
+          if (range[t_ix{ix}] == ch) {
             select->choice = ch;
-            snip->ptr = walk.ptr;
-            snip->n   = t_n{ix + incl_char};
-            return jump_forward_(walk, ix + plus1);
+            *snip = t_crange{range.ptr, t_n{ix + incl_char}};
+            return ix + plus1;
           }
         }
       }
     }
 
     select->choice = EOL;
-    return walk;
+    return 0;
   }
 
-  r_walk_ snip_char_eol_(r_walk_ walk, p_snippet snip, p_char_select select,
-                         t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
-    auto max = get(walk.n);
+  t_n_ snip_char_eol_(R_crange range, p_snippet snip, p_char_select select,
+                      t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
+    auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
       for (; ix < max; ++ix) {
         for (t_char ch : select->list) {
-          if (walk.ptr[ix] == ch) {
+          if (range[t_ix{ix}] == ch) {
             select->choice = ch;
-            snip->ptr = walk.ptr;
-            snip->n   = t_n{ix + incl_char};
-            return jump_forward_(walk, ix + plus1);
+            *snip = t_crange{range.ptr, t_n{ix + incl_char}};
+            return ix + plus1;
           }
         }
       }
+      select->choice = EOL;
+      *snip = range;
+      return max;
     }
 
     select->choice = EOL;
-    return walk;
+    return 0;
   }
 
 ////////////////////////////////////////////////////////////////////////////////

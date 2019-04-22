@@ -103,35 +103,36 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  struct t_snippet {
+  struct t_snippet;
+  using  r_snippet = t_prefix<t_snippet>::r_;
+  using  p_snippet = t_prefix<t_snippet>::p_;
+
+  class t_snippet {
+  public:
     constexpr t_snippet() noexcept = default;
 
-    constexpr t_snippet(R_crange range) noexcept : ptr{range.ptr}, n{range.n} {
+    constexpr t_snippet(R_crange range) noexcept
+      : ptr_{range.ptr}, n_{range.n} {
     }
 
     constexpr operator t_crange() const noexcept {
-      return t_crange{ptr, n};
+      return t_crange{ptr_, n_, range::SKIP_};
     }
 
     constexpr operator t_validity() const noexcept {
-      return ptr && get(n)? VALID : INVALID;
+      return ptr_ && get(n_) ? VALID : INVALID;
     }
 
-    P_cstr_ ptr = nullptr;
-    t_n     n   = t_n{0};
+    constexpr r_snippet operator=(R_crange range) noexcept {
+      ptr_ = range.ptr;
+      n_   = range.n;
+      return *this;
+    }
+
+  private:
+    P_cstr_ ptr_ = nullptr;
+    t_n     n_   = t_n{0};
   };
-  using r_snippet = t_prefix<t_snippet>::r_;
-  using p_snippet = t_prefix<t_snippet>::p_;
-  using t_walk    = t_snippet; // alias
-  using r_walk_   = r_snippet;
-
-///////////////////////////////////////////////////////////////////////////////
-
-  constexpr r_walk_ jump_forward_(r_walk_ walk, t_n_ n) noexcept {
-    walk.ptr += n;
-    walk.n    = t_n{get(walk.n) - n};
-    return walk;
-  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -159,30 +160,31 @@ namespace string
   t_n_     count_         (t_char,  P_cstr_)         noexcept;
   t_n_     length_        (P_cstr_)                  noexcept;
   t_n_     length_        (P_cstr_, va_list)         noexcept;
+
   t_bool   equal_         (R_crange, R_crange)       noexcept;
   t_bool   less_          (R_crange, R_crange)       noexcept;
   t_bool   less_equal_    (R_crange, R_crange)       noexcept;
 
-  t_void   scan_      (R_crange,        t_n_, P_cstr_, va_list) noexcept;
-  r_walk_  scan_      (r_walk_,  t_n_&, t_n_, P_cstr_, ...)     noexcept;
+  t_void   scan_          (P_cstr_, t_n_, P_cstr_, va_list) noexcept;
+  t_void   scan_fmt_      (P_cstr_, t_n_, P_cstr_, ...)     noexcept;
 
-  r_walk_  skip_      (r_walk_, t_char)             noexcept;
-  r_walk_  skip_      (r_walk_, t_n_)               noexcept;
-  r_walk_  skip_      (r_walk_, R_crange)           noexcept;
-  r_walk_  skip_      (r_walk_, R_block)            noexcept;
-  r_walk_  skip_until_(r_walk_, t_char,   t_plus1_) noexcept;
-  r_walk_  skip_until_(r_walk_, R_crange, t_plus1_) noexcept;
-  r_walk_  skip_all_  (r_walk_, t_char)             noexcept;
+  t_n_     skip_          (R_crange, t_char)             noexcept;
+  t_n_     skip_          (R_crange, t_n_)               noexcept;
+  t_n_     skip_          (R_crange, R_crange)           noexcept;
+  t_n_     skip_          (R_crange, R_block)            noexcept;
+  t_n_     skip_until_    (R_crange, t_char,   t_plus1_) noexcept;
+  t_n_     skip_until_    (R_crange, R_crange, t_plus1_) noexcept;
+  t_n_     skip_all_      (R_crange, t_char)             noexcept;
 
-  r_walk_  snip_n_       (r_walk_, p_snippet, t_n_) noexcept;
-  r_walk_  snip_char_    (r_walk_, p_snippet, t_char,
-                          t_plus1_, t_incl_char_)   noexcept;
-  r_walk_  snip_char_eol_(r_walk_, p_snippet, t_char,
-                          t_plus1_, t_incl_char_)   noexcept;
-  r_walk_  snip_char_    (r_walk_, p_snippet, p_char_select,
-                          t_plus1_, t_incl_char_)   noexcept;
-  r_walk_  snip_char_eol_(r_walk_, p_snippet, p_char_select,
-                          t_plus1_, t_incl_char_)   noexcept;
+  t_n_     snip_n_        (R_crange, p_snippet, t_n_) noexcept;
+  t_n_     snip_char_     (R_crange, p_snippet, t_char, t_plus1_,
+                           t_incl_char_)              noexcept;
+  t_n_     snip_char_eol_ (R_crange, p_snippet, t_char, t_plus1_,
+                           t_incl_char_)              noexcept;
+  t_n_     snip_char_     (R_crange, p_snippet, p_char_select, t_plus1_,
+                           t_incl_char_)              noexcept;
+  t_n_     snip_char_eol_ (R_crange, p_snippet, p_char_select, t_plus1_,
+                           t_incl_char_)              noexcept;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -332,7 +334,7 @@ namespace string
 
     inline t_void va_scan(p_cstr_ str, t_n_ n, P_cstr_ fmt,
                           va_list vars) noexcept {
-      scan_(t_crange{str, t_n{len_}}, n, fmt, vars);
+      scan_(str, n, fmt, vars);
     }
 
   protected:
