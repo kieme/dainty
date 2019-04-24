@@ -310,74 +310,10 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  template<typename T>
   inline
-  r_slider operator>>(r_slider lh, t_hex_p_<t_char> value) noexcept {
-    t_n_ n = 0;
-    scan_fmt_(lh.begin(), 1, "%hhx%n", get(value), &n);
-    return lh += t_n{n};
-  }
-
-  inline
-  r_slider operator>>(r_slider lh, t_hex_p_<t_uchar> value) noexcept {
-    t_n_ n = 0;
-    scan_fmt_(lh.begin(), 1, "%hhx%n", get(value), &n);
-    return lh += t_n{n};
-  }
-
-  inline
-  r_slider operator>>(r_slider lh, t_hex_p_<t_short> value) noexcept {
-    t_n_ n = 0;
-    scan_fmt_(lh.begin(), 1, "%hhx%n", get(value), &n);
-    return lh += t_n{n};
-  }
-
-  inline
-  r_slider operator>>(r_slider lh, t_hex_p_<t_ushort> value) noexcept {
-    t_n_ n = 0;
-    scan_fmt_(lh.begin(), 1, "%hhx%n", get(value), &n);
-    return lh += t_n{n};
-  }
-
-  inline
-  r_slider operator>>(r_slider lh, t_hex_p_<t_int> value) noexcept {
-    t_n_ n = 0;
-    scan_fmt_(lh.begin(), 1, "%x%n", get(value), &n);
-    return lh += t_n{n};
-  }
-
-  inline
-  r_slider operator>>(r_slider lh, t_hex_p_<t_uint> value) noexcept {
-    t_n_ n = 0;
-    scan_fmt_(lh.begin(), 1, "%x%n", get(value), &n);
-    return lh += t_n{n};
-  }
-
-  inline
-  r_slider operator>>(r_slider lh, t_hex_p_<t_long> value) noexcept {
-    t_n_ n = 0;
-    scan_fmt_(lh.begin(), 1, "%lx%n", get(value), &n);
-    return lh += t_n{n};
-  }
-
-  inline
-  r_slider operator>>(r_slider lh, t_hex_p_<t_ulong> value) noexcept {
-    t_n_ n = 0;
-    scan_fmt_(lh.begin(), 1, "%lx%n", get(value), &n);
-    return lh += t_n{n};
-  }
-
-  inline
-  r_slider operator>>(r_slider lh, t_hex_p_<t_llong> value) noexcept {
-    t_n_ n = 0;
-    scan_fmt_(lh.begin(), 1, "%llx%n", get(value), &n);
-    return lh += t_n{n};
-  }
-
-  inline
-  r_slider operator>>(r_slider lh, t_hex_p_<t_ullong> value) noexcept {
-    t_n_ n = 0;
-    scan_fmt_(lh.begin(), 1, "%llx%n", get(value), &n);
-    return lh += t_n{n};
+  r_slider operator>>(r_slider lh, t_hex_p_<T> value) noexcept {
+    return lh += to_hexidecimal(*get(value), P_cstr(lh.begin()));
   }
 
 ////////////////////////////////////////////////////////////////////////////////

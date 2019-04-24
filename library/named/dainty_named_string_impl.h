@@ -165,8 +165,9 @@ namespace string
   t_bool   less_          (R_crange, R_crange)       noexcept;
   t_bool   less_equal_    (R_crange, R_crange)       noexcept;
 
-  t_ullong to_uint_(t_n_&, t_char, t_char,         t_n_, P_cstr_) noexcept;
-  t_llong  to_sint_(t_n_&, t_char, t_char, t_char, t_n_, P_cstr_) noexcept;
+  t_ullong to_uint_    (t_n_&, t_char, t_char,         t_n_, P_cstr_) noexcept;
+  t_llong  to_sint_    (t_n_&, t_char, t_char, t_char, t_n_, P_cstr_) noexcept;
+  t_ullong hex_to_uint_(t_n_&,                         t_n_, P_cstr_) noexcept;
 
   t_void   scan_          (P_cstr_, t_n_, P_cstr_, va_list) noexcept;
   t_void   scan_fmt_      (P_cstr_, t_n_, P_cstr_, ...)     noexcept;
@@ -598,9 +599,100 @@ namespace string
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  inline t_n_ to_hexidecimal_(r_char value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_char>(hex_to_uint_(use, 2, str));
+    return use;
+  }
+
+  inline t_n_ to_hexidecimal_(r_schar value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_schar>(hex_to_uint_(use, 2, str));
+    return use;
+  }
+
+  inline t_n_ to_hexidecimal_(r_uchar value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_uchar>(hex_to_uint_(use, 2, str));
+    return use;
+  }
+
+  inline t_n_ to_hexidecimal_(r_short value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_short>(hex_to_uint_(use, 4, str));
+    return use;
+  }
+
+  inline t_n_ to_hexidecimal_(r_ushort value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_ushort>(hex_to_uint_(use, 4, str));
+    return use;
+  }
+
+  inline t_n_ to_hexidecimal_(r_int value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_int>(hex_to_uint_(use, 8, str));
+    return use;
+  }
+
+  inline t_n_ to_hexidecimal_(r_uint value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_uint>(hex_to_uint_(use, 8, str));
+    return use;
+  }
+
+#if __LONG_WIDTH__ == 32
+  inline t_n_ to_hexidecimal_(r_long value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_long>(hex_to_uint_(use, 8, str));
+    return use;
+  }
+
+  inline t_n_ to_hexidecimal_(r_ulong value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_ulong>(hex_to_uint_(use, 8, str));
+    return use;
+  }
+#elif __LONG_WIDTH__ == 64
+  inline t_n_ to_hexidecimal_(r_long value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_long>(hex_to_uint_(use, 16, str));
+    return use;
+  }
+
+  inline t_n_ to_hexidecimal_(r_ulong value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_ulong>(hex_to_uint_(use, 16, str));
+    return use;
+  }
+#else
+#error unknown compiler
+#endif
+
+  inline t_n_ to_hexidecimal_(r_llong value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = hex_to_uint_(use, 16, str);
+    return use;
+  }
+
+  inline t_n_ to_hexidecimal_(r_ullong value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = hex_to_uint_(use, 16, str);
+    return use;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<typename T>
   inline t_n to_integer(T& value, P_cstr str) {
     return t_n{to_integer_(value, get(str))};
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  inline t_n to_hexidecimal(T& value, P_cstr str) {
+    return t_n{to_hexidecimal_(value, get(str))};
   }
 
 ///////////////////////////////////////////////////////////////////////////////

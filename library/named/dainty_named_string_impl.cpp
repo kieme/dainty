@@ -281,6 +281,28 @@ namespace string
            * (neg ? -1 : 1);
   }
 
+  t_ullong hex_to_uint_(t_n_& use, t_n_ max_n, P_cstr_ str) noexcept {
+    t_ullong value = 0;
+    P_cstr_ p = str, max_p = str + max_n;
+    for (; p < max_p &&
+         ((*p <= '9' && *p >= '0') ||
+          (*p <= 'f' && *p >= 'a') ||
+          (*p <= 'F' && *p >= 'A')); ++p);
+    if (p != str) {
+      use = p-- - str;
+      for (t_ullong i = 1; p >= str; i *= 16) {
+        if (*p >= '0' && *p <= '9')
+          value += (*p-- - '0') * i;
+        else if (*p >= 'a' && *p <= 'f')
+          value += (*p-- - 'a' + 10) * i;
+        else
+          value += (*p-- - 'A' + 10) * i;
+      }
+    } else
+      use = 0;
+    return value;
+  }
+
   t_void scan_(P_cstr_ str, t_n_ n, P_cstr_ fmt, va_list args) noexcept {
     auto cnt = std::vsscanf(str, fmt, args);
     if (cnt != static_cast<t_int>(n))
