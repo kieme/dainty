@@ -202,6 +202,13 @@ namespace named
   using p_char         = t_prefix<t_char>::p_;
   using P_char         = t_prefix<t_char>::P_;
 
+  using t_schar        = t_prefix<signed char>::t_;
+  using T_schar        = t_prefix<t_schar>::T_;
+  using r_schar        = t_prefix<t_schar>::r_;
+  using R_schar        = t_prefix<t_schar>::R_;
+  using p_schar        = t_prefix<t_schar>::p_;
+  using P_schar        = t_prefix<t_schar>::P_;
+
   using t_uchar        = t_prefix<unsigned char>::t_;
   using T_uchar        = t_prefix<t_uchar>::T_;
   using r_uchar        = t_prefix<t_uchar>::r_;

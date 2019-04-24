@@ -112,26 +112,26 @@ namespace string
     constexpr t_snippet() noexcept = default;
 
     constexpr t_snippet(R_crange range) noexcept
-      : ptr_{range.ptr}, n_{range.n} {
+      : ptr_{range.ptr}, n_{get(range.n)} {
     }
 
     constexpr operator t_crange() const noexcept {
-      return t_crange{ptr_, n_, range::SKIP_};
+      return t_crange{ptr_, t_n{n_}, range::SKIP_};
     }
 
     constexpr operator t_validity() const noexcept {
-      return ptr_ && get(n_) ? VALID : INVALID;
+      return ptr_ && n_ ? VALID : INVALID;
     }
 
     constexpr r_snippet operator=(R_crange range) noexcept {
       ptr_ = range.ptr;
-      n_   = range.n;
+      n_   = get(range.n);
       return *this;
     }
 
-  private:
+  protected:
     P_cstr_ ptr_ = nullptr;
-    t_n     n_   = t_n{0};
+    t_n_    n_   = 0;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -164,6 +164,9 @@ namespace string
   t_bool   equal_         (R_crange, R_crange)       noexcept;
   t_bool   less_          (R_crange, R_crange)       noexcept;
   t_bool   less_equal_    (R_crange, R_crange)       noexcept;
+
+  t_ullong to_uint_(t_n_&, t_char, t_char,         t_n_, P_cstr_) noexcept;
+  t_llong  to_sint_(t_n_&, t_char, t_char, t_char, t_n_, P_cstr_) noexcept;
 
   t_void   scan_          (P_cstr_, t_n_, P_cstr_, va_list) noexcept;
   t_void   scan_fmt_      (P_cstr_, t_n_, P_cstr_, ...)     noexcept;
@@ -508,6 +511,97 @@ namespace string
       return len;
     }
   };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  inline t_n_ to_integer_(r_char value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_char>(to_sint_(use, '1', '8', '7', 4, str));
+    return use;
+  }
+
+  inline t_n_ to_integer_(r_schar value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_schar>(to_sint_(use, '1', '8', '7', 4, str));
+    return use;
+  }
+
+  inline t_n_ to_integer_(r_uchar value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_uchar>(to_uint_(use, '2', '5', 3, str));
+    return use;
+  }
+
+  inline t_n_ to_integer_(r_short value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_short>(to_sint_(use, '3', '8', '7', 6, str));
+    return use;
+  }
+
+  inline t_n_ to_integer_(r_ushort value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_ushort>(to_uint_(use, '6', '5', 5, str));
+    return use;
+  }
+
+  inline t_n_ to_integer_(r_int value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_int>(to_sint_(use, '9', '8', '7', 20, str));
+    return use;
+  }
+
+  inline t_n_ to_integer_(r_uint value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_uint>(to_uint_(use, '1', '5', 20, str));
+    return use;
+  }
+
+#if __LONG_WIDTH__ == 32
+  inline t_n_ to_integer_(r_long value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_long>(to_sint_(use, '9', '8', '7', 20, str));
+    return use;
+  }
+
+  inline t_n_ to_integer_(r_ulong value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_ulong>(to_uint_(use, '1', '5', 20, str));
+    return use;
+  }
+#elif __LONG_WIDTH__ == 64
+  inline t_n_ to_integer_(r_long value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_long>(to_sint_(use, '9', '8', '7', 20, str));
+    return use;
+  }
+
+  inline t_n_ to_integer_(r_ulong value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = static_cast<t_ulong>(to_uint_(use, '1', '5', 20, str));
+    return use;
+  }
+#else
+#error unknown compiler
+#endif
+
+  inline t_n_ to_integer_(r_llong value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = to_sint_(use, '9', '8', '7', 20, str);
+    return use;
+  }
+
+  inline t_n_ to_integer_(r_ullong value, P_cstr_ str) {
+    t_n_ use = 0;
+    value = to_uint_(use, '1', '5', 20, str);
+    return use;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  inline t_n to_integer(T& value, P_cstr str) {
+    return t_n{to_integer_(value, get(str))};
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 }

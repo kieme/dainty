@@ -255,6 +255,32 @@ namespace string
     return cnt;
   }
 
+  t_ullong to_uint_(t_n_& use, t_char first, t_char last, t_n_ max_n,
+                    P_cstr_ str) noexcept {
+    t_ullong value = 0;
+    P_cstr_ p = str, max_p = str + max_n;
+    for (; p < max_p && *p <= '9' && *p >= '0'; ++p);
+    if (p != str) {
+      if (p == max_p && (*str > first || (*str == first && p[-1] > last)))
+        --p;
+      use = p-- - str;
+      for (t_ullong i = 1; p >= str; i *= 10)
+        value += (*p-- - '0') * i;
+    } else
+      use = 0;
+    return value;
+  }
+
+  t_llong to_sint_(t_n_& use, t_char first, t_char last_min,
+                   t_char last_max, t_n_ max_n, P_cstr_ str) noexcept {
+    const t_bool neg   = *str == '-';
+    const t_char last  = neg ? last_min : last_max;
+    P_cstr_      begin = str + (neg || *str == '+');
+    return static_cast<t_llong>(
+             to_uint_(use, first, last, max_n - (begin == str), begin))
+           * (neg ? -1 : 1);
+  }
+
   t_void scan_(P_cstr_ str, t_n_ n, P_cstr_ fmt, va_list args) noexcept {
     auto cnt = std::vsscanf(str, fmt, args);
     if (cnt != static_cast<t_int>(n))
