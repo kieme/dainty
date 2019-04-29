@@ -39,7 +39,7 @@ namespace string
 
   template<class TAG, t_n_ N>
   class t_string<TAG, N, OVERFLOW_GROW> {
-    using t_impl_ = t_string_impl_<OVERFLOW_ASSERT>;
+    using t_impl_ = t_string_impl_<OVERFLOW_TRUNCATE>;
   public:
     using t_n      = named::t_n;
     using P_cstr   = named::P_cstr;
