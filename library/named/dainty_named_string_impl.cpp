@@ -303,6 +303,61 @@ namespace string
     return value;
   }
 
+  t_n_ uint_to_str_(p_cstr_ dst, t_n_ max, t_ullong value) noexcept {
+    t_n_ req = 0;
+    if (!value) {
+      if (max > 1) {
+        dst[0] = '0';
+        dst[1] = '\0';
+      }
+      req = 1;
+    } else {
+      t_char tmp[20];
+      for (; value; value/=10)
+        tmp[req++] = value%10 + '0';
+      if (max > req) {
+        t_ix_ tmp_ix = req - 1;
+        for (t_ix_ ix = 0; ix < req; ++ix)
+          dst[ix] = tmp[tmp_ix--];
+        dst[req] = '\0';
+      }
+    }
+    return req;
+  }
+
+  t_n_ int_to_str_(p_cstr_ dst, t_n_ max, t_llong value) noexcept {
+    T_bool neg = value < 0;
+    if (neg) {
+      if (max > 2)
+        *dst++ = '-';
+    }
+    return uint_to_str_(dst, max - neg, neg ? -value : value) + neg;
+  }
+
+  t_n_ hex_to_str_(p_cstr_ dst, t_n_ max, t_ullong value) noexcept {
+    t_n_ req = 0;
+    if (!value) {
+      if (max > 1) {
+        dst[0] = '0';
+        dst[1] = '\0';
+      }
+      req = 1;
+    } else {
+      T_char tbl[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                       'a', 'b', 'c', 'd', 'e', 'f'};
+      t_char tmp[16];
+      for (; value; value/=16)
+        tmp[req++] = tbl[value%16];
+      if (max > req) {
+        t_ix_ tmp_ix = req - 1;
+        for (t_ix_ ix = 0; ix < req; ++ix)
+          dst[ix] = tmp[tmp_ix--];
+        dst[req] = '\0';
+      }
+    }
+    return req;
+  }
+
   t_void scan_(P_cstr_ str, t_n_ n, P_cstr_ fmt, va_list args) noexcept {
     auto cnt = std::vsscanf(str, fmt, args);
     if (cnt != static_cast<t_int>(n))

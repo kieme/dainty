@@ -250,146 +250,25 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<class TAG, t_n_ N, t_overflow O>
+  template<typename T>
+  struct t_int_to_hex_str_helper_ {
+    constexpr
+    t_int_to_hex_str_helper_(const T& _value) noexcept : value{_value} {
+    }
+
+    inline t_n_ operator()(p_cstr_ str, t_n_ max) noexcept {
+      return hex_to_str_(str, max, static_cast<t_ullong>(value));
+    }
+
+    T value;
+  };
+
+  template<class TAG, t_n_ N, t_overflow O, typename T>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_hex_v_<t_char> value) noexcept {
-    return lh.append(FMT, "%hhx", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_hex_v_<t_uchar> value) noexcept {
-    return lh.append(FMT, "%hhx", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_hex_v_<t_short> value) noexcept {
-    return lh.append(FMT, "%hhx", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_hex_v_<t_ushort> value) noexcept {
-    return lh.append(FMT, "%hhx", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_hex_v_<t_int> value) noexcept {
-    return lh.append(FMT, "%x", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_hex_v_<t_uint> value) noexcept {
-    return lh.append(FMT, "%x", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_hex_v_<t_long> value) noexcept {
-    return lh.append(FMT, "%lx", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_hex_v_<t_ulong> value) noexcept {
-    return lh.append(FMT, "%lx", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_hex_v_<t_llong> value) noexcept {
-    return lh.append(FMT, "%llx", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_hex_v_<t_ullong> value) noexcept {
-    return lh.append(FMT, "%llx", get(value));
-  }
-
-////////////////////////////////////////////////////////////////////////////////
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_int_v_<t_char> value) noexcept {
-    return lh.append(FMT, "%hhd", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_int_v_<t_uchar> value) noexcept {
-    return lh.append(FMT, "%hhu", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_int_v_<t_short> value) noexcept {
-    return lh.append(FMT, "%hhd", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_int_v_<t_ushort> value) noexcept {
-    return lh.append(FMT, "%hhu", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_int_v_<t_int> value) noexcept {
-    return lh.append(FMT, "%d", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_int_v_<t_uint> value) noexcept {
-    return lh.append(FMT, "%u", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_int_v_<t_long> value) noexcept {
-    return lh.append(FMT, "%ld", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_int_v_<t_ulong> value) noexcept {
-    return lh.append(FMT, "%lu", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_int_v_<t_llong> value) noexcept {
-    return lh.append(FMT, "%lld", get(value));
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_int_v_<t_ullong> value) noexcept {
-    return lh.append(FMT, "%llu", get(value));
+                                  t_hex_v_<T> value) noexcept {
+    t_int_to_hex_str_helper_<T> helper{get(value)};
+    return lh.custom_append_(helper);
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -398,7 +277,46 @@ namespace string
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
                                   t_ptr_v_<P> value) noexcept {
-    return lh.append(FMT, "%p", get(value));
+    t_int_to_hex_str_helper_<t_uintptr>
+      helper{static_cast<t_uintptr>(get(value))};
+    return lh.custom_append_(helper);
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  template<typename T,
+           typename = typename utility::t_is_unsigned<T>::t_result>
+  struct t_int_to_str_helper_ {
+    constexpr
+    t_int_to_str_helper_(const T& _value) noexcept : value{_value} {
+    }
+
+    inline t_n_ operator()(p_cstr_ str, t_n_ max) noexcept {
+      return uint_to_str_(str, max, value);
+    }
+
+    T value;
+  };
+
+  template<typename T>
+  struct t_int_to_str_helper_<T, utility::t_false> {
+    constexpr
+    t_int_to_str_helper_(const T& _value) noexcept : value{_value} {
+    }
+
+    inline t_n_ operator()(p_cstr_ str, t_n_ max) noexcept {
+      return int_to_str_(str, max, value);
+    }
+
+    T value;
+  };
+
+  template<class TAG, t_n_ N, t_overflow O, typename T>
+  inline
+  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
+                                  t_int_v_<T> value) noexcept {
+    t_int_to_str_helper_<T> helper{get(value)};
+    return lh.custom_append_(helper);
   }
 
 ////////////////////////////////////////////////////////////////////////////////

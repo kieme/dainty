@@ -40,7 +40,7 @@ namespace string
 
   template<class TAG>
   class t_string<TAG, 0, OVERFLOW_GROW> {
-    using t_impl_ = t_string_impl_<OVERFLOW_ASSERT>;
+    using t_impl_ = t_string_impl_<OVERFLOW_TRUNCATE>;
   public:
     using t_n      = named::t_n;
     using P_cstr   = named::P_cstr;
@@ -134,14 +134,14 @@ namespace string
 
   public: // custom interface - your responsibility
     template<typename F> r_string custom_assign_(F& func) noexcept {
-      if (assign_size_(impl_.custom_assign(store_, max_, func)))
-        impl_.custom_assign(store_, max_, func);
+      if (assign_size_(impl_.custom_assign(store_.get(), max_, func)))
+        impl_.custom_assign(store_.get(), max_, func);
       return *this;
     }
 
     template<typename F> r_string custom_append_(F& func) noexcept {
-      if (append_size_(impl_.custom_append(store_, max_, func)))
-        impl_.custom_append(store_, max_, func);
+      if (append_size_(impl_.custom_append(store_.get(), max_, func)))
+        impl_.custom_append(store_.get(), max_, func);
       return *this;
     }
 

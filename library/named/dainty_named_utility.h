@@ -37,6 +37,56 @@ namespace utility
 {
 ///////////////////////////////////////////////////////////////////////////////
 
+  struct t_true  { constexpr static t_bool VALUE = true;  };
+  struct t_false { constexpr static t_bool VALUE = false; };
+
+  template<bool> struct t_bool_result       { using t_result = t_false; };
+  template<>     struct t_bool_result<true> { using t_result = t_true;  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename RESULT, typename THEN> struct t_if_then;
+
+  template<typename THEN>
+  struct t_if_then<t_true, THEN>              { using t_result = THEN; };
+
+  template<typename THEN>
+  struct t_if_then<t_bool_result<true>, THEN> { using t_result = THEN; };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> struct t_is_unsigned : t_bool_result<false> { };
+
+  template<> struct t_is_unsigned<t_uchar>    : t_bool_result<true> { };
+  template<> struct t_is_unsigned<t_ushort>   : t_bool_result<true> { };
+  template<> struct t_is_unsigned<t_uint>     : t_bool_result<true> { };
+  template<> struct t_is_unsigned<t_ulong>    : t_bool_result<true> { };
+  template<> struct t_is_unsigned<t_ullong>   : t_bool_result<true> { };
+
+  template<typename T, typename THEN = void>
+  struct t_if_unsigned {
+    using t_result = typename t_if_then<t_is_unsigned<T>, THEN>::t_result;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  struct t_remove_ref {
+    using t_result = T;
+  };
+
+  template<typename T>
+  struct t_remove_ref<T&> {
+    using t_result = T;
+  };
+
+  template<typename T>
+  struct t_remove_ref<T&&> {
+    using t_result = T;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
   constexpr t_bool reset(t_bool& t, t_bool value) {
     t_bool tmp = t;
     t = value;
@@ -132,35 +182,17 @@ namespace utility
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  struct t_remove_ref {
-    using t_ = T;
-  };
-
-  template<typename T>
-  struct t_remove_ref<T&> {
-    using t_ = T;
-  };
-
-  template<typename T>
-  struct t_remove_ref<T&&> {
-    using t_ = T;
-  };
-
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename T>
-  constexpr auto x_cast(T&& in) -> typename t_remove_ref<T>::t_&& {
-    return static_cast<typename t_remove_ref<T>::t_&&>(in);
+  constexpr auto x_cast(T&& in) -> typename t_remove_ref<T>::t_result&& {
+    return static_cast<typename t_remove_ref<T>::t_result&&>(in);
   }
 
   template<typename T>
-  constexpr T&& preserve(typename t_remove_ref<T>::t_& in) {
+  constexpr T&& preserve(typename t_remove_ref<T>::t_result& in) {
     return static_cast<T&&>(in);
   }
 
   template<typename T>
-  constexpr T&& preserve(typename t_remove_ref<T>::t_&& in) {
+  constexpr T&& preserve(typename t_remove_ref<T>::t_result&& in) {
     return x_cast(in);
   }
 

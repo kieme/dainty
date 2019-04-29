@@ -169,6 +169,10 @@ namespace string
   t_llong  to_sint_    (t_n_&, t_char, t_char, t_char, t_n_, P_cstr_) noexcept;
   t_ullong hex_to_uint_(t_n_&,                         t_n_, P_cstr_) noexcept;
 
+  t_n_     uint_to_str_(p_cstr_, t_n_, t_ullong) noexcept;
+  t_n_     int_to_str_ (p_cstr_, t_n_, t_llong)  noexcept;
+  t_n_     hex_to_str_ (p_cstr_, t_n_, t_ullong) noexcept;
+
   t_void   scan_          (P_cstr_, t_n_, P_cstr_, va_list) noexcept;
   t_void   scan_fmt_      (P_cstr_, t_n_, P_cstr_, ...)     noexcept;
 
@@ -489,7 +493,7 @@ namespace string
     }
 
     template<typename F>
-    inline t_void custom_assign(p_cstr_ str, t_n_ max, F& func) noexcept {
+    inline t_n_ custom_assign(p_cstr_ str, t_n_ max, F& func) noexcept {
       auto len = func(str, max);
       if (len < max)
         len_ = len;
@@ -501,7 +505,7 @@ namespace string
     }
 
     template<typename F>
-    inline t_void custom_append(p_cstr_ str, t_n_ max, F& func) noexcept {
+    inline t_n_ custom_append(p_cstr_ str, t_n_ max, F& func) noexcept {
       auto len = func(str + len_, max - len_);
       if (len < max - len_)
         len_ += len;
