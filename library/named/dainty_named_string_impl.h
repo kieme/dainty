@@ -28,7 +28,6 @@
 #define _DAINTY_NAMED_STRING_IMPL_H_
 
 #include <stdarg.h>
-#include <initializer_list>
 #include "dainty_named.h"
 #include "dainty_named_utility.h"
 #include "dainty_named_range.h"
@@ -78,25 +77,27 @@ namespace string
     t_n    max = t_n{0};
 
     constexpr t_block() = default;
-    constexpr t_block(t_char _c, t_n _max) : c(_c), max(_max) { }
+    constexpr t_block(t_char _c, t_n _max) : c{_c}, max{_max} { }
   };
   using R_block = named::t_prefix<t_block>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_select_list = std::initializer_list<t_char>;
-  using R_select_list = t_prefix<t_select_list>::R_;
-
   struct t_char_select {
-    constexpr t_char_select(R_select_list _list) noexcept : list(_list) {
+    template<t_n_ N>
+    constexpr t_char_select(const t_char (&literal)[N]) noexcept
+      : range{literal, t_n{N - 1}} {
+    }
+
+    constexpr t_char_select(R_crange _range) noexcept : range{_range} {
     }
 
     constexpr operator t_validity() const noexcept {
       return choice != EOL ? VALID : INVALID;
     }
 
-    t_select_list list;
-    t_char        choice = EOL;
+    t_crange range;
+    t_char   choice = EOL;
   };
   using r_char_select = t_prefix<t_char_select>::r_;
   using p_char_select = t_prefix<t_char_select>::p_;

@@ -37,18 +37,18 @@ namespace string
 {
   // 1. t_hex_p_ - store a pointer to a hex value
   // -----------
-  // 1.1 hex_in(lvalue) use template dedecution to determine which type of hex.
+  // 1.1 read_hex(lvalue) use template dedecution to determine which type of hex.
   //
   // 2. t_int_p_ - store a pointer to an integer value
   // -----------
-  // 2.1 integer_in(lvalue) use template dedecution to determine which type of
+  // 2.1 read_integer(lvalue) use template dedecution to determine which type of
   //     integer.
   //
   // 3. t_snippet - a character range that can be valid or not
   // ------------
-  // 3.1 snippet_in(lvalue, t_n)           a snippet of t_n characters
-  // 3.1 snippet_in<true>(lvalue, ch)      a snippet until ch, plus one
-  // 3.1 snippet_in<true,true>(lvalue, ch) a snippet until and including ch
+  // 3.1 read_snippet(lvalue, t_n)           a snippet of t_n characters
+  // 3.1 read_snippet<true>(lvalue, ch)      a snippet until ch, plus one
+  // 3.1 read_snippet<true,true>(lvalue, ch) a snippet until and including ch
   //                                       plus one
   // 4. t_skip_ skip and something match characters
   // ----------
@@ -73,18 +73,19 @@ namespace string
   template<typename T> using t_int_p_ = t_explicit<T*, t_int_p_tag_>;
 
   template<typename T>
-  constexpr t_hex_p_<T>  hex_in(T& value)  noexcept {
+  constexpr t_hex_p_<T>  read_hex(T& value)  noexcept {
     return t_hex_p_<T>{&value};
   }
 
   template<typename T>
-  constexpr t_int_p_<T>  integer_in(T& value)  noexcept {
+  constexpr t_int_p_<T>  read_integer(T& value)  noexcept {
     return t_int_p_<T>{&value};
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
   struct t_snip_n_p_ {
+    constexpr
     t_snip_n_p_(p_snippet _value, t_n_ _n) noexcept
       : value{_value}, n{_n} {
     }
@@ -93,8 +94,11 @@ namespace string
     t_n_      n;
   };
 
-  template<t_plus1_ = PLUS1, t_incl_char_ = NOT_INCL_CHAR, t_eol_ = NOT_EOL_OK>
+  template<t_plus1_     = PLUS1,
+           t_incl_char_ = NOT_INCL_CHAR,
+           t_eol_       = NOT_EOL_OK>
   struct t_snip_char_p_ {
+    constexpr
     t_snip_char_p_(p_snippet _value, t_char _ch) noexcept
       : value{_value}, ch{_ch} {
     }
@@ -103,8 +107,11 @@ namespace string
     t_char    ch;
   };
 
-  template<t_plus1_ = PLUS1, t_incl_char_ = NOT_INCL_CHAR, t_eol_ = NOT_EOL_OK>
+  template<t_plus1_     = PLUS1,
+           t_incl_char_ = NOT_INCL_CHAR,
+           t_eol_       = NOT_EOL_OK>
   struct t_snip_char_select_p_ {
+    constexpr
     t_snip_char_select_p_(p_snippet _value, p_char_select _select) noexcept
       : value{_value}, select{_select} {
     }
@@ -113,24 +120,26 @@ namespace string
     p_char_select select;
   };
 
-  inline
-  t_snip_n_p_ snippet_upto_in(r_snippet snip, t_n n) noexcept {
+  constexpr
+  t_snip_n_p_ read_snippet_upto(r_snippet snip, t_n n) noexcept {
     return t_snip_n_p_{&snip, get(n)};
   }
 
-  template<t_plus1_ PLUS1_ = PLUS1, t_incl_char_ INCL_CHAR_ = INCL_CHAR,
-           t_eol_ EOL_OK_ = NOT_EOL_OK>
-  inline
+  template<t_plus1_     PLUS1_ = PLUS1,
+           t_incl_char_ INCL_CHAR_ = INCL_CHAR,
+           t_eol_       EOL_OK_ = NOT_EOL_OK>
+  constexpr
   t_snip_char_p_<PLUS1_, INCL_CHAR_, EOL_OK_>
-      snippet_upto_in(r_snippet snip, t_char ch) noexcept {
+      read_snippet_upto(r_snippet snip, t_char ch) noexcept {
     return t_snip_char_p_<PLUS1_, INCL_CHAR_, EOL_OK_>{&snip, ch};
   }
 
-  template<t_plus1_ PLUS1_ = PLUS1, t_incl_char_ INCL_CHAR_ = INCL_CHAR,
-           t_eol_ EOL_OK_ = NOT_EOL_OK>
-  inline
+  template<t_plus1_     PLUS1_     = PLUS1,
+           t_incl_char_ INCL_CHAR_ = INCL_CHAR,
+           t_eol_       EOL_OK_    = NOT_EOL_OK>
+  constexpr
   t_snip_char_select_p_<PLUS1_, INCL_CHAR_, EOL_OK_>
-      snippet_upto_in(r_snippet snip, r_char_select select) noexcept {
+      read_snippet_upto(r_snippet snip, r_char_select select) noexcept {
     return t_snip_char_select_p_<PLUS1_, INCL_CHAR_, EOL_OK_>{&snip, &select};
   }
 
@@ -138,13 +147,15 @@ namespace string
 
   template<typename T>
   struct t_skip_v_ {
-    t_skip_v_(const T& _value) noexcept : value(_value) { }
+    constexpr t_skip_v_(const T& _value) noexcept : value(_value) {
+    }
     T value;
   };
 
   template<typename T, t_plus1_ = PLUS1>
   struct t_skip_until_v_ {
-    t_skip_until_v_(const T& _value) noexcept : value{_value} { }
+    constexpr t_skip_until_v_(const T& _value) noexcept : value{_value} {
+    }
     T value;
   };
 
@@ -157,29 +168,29 @@ namespace string
 ////////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  inline t_skip_v_<T>                skip(const T& value) noexcept {
+  constexpr t_skip_v_<T>               skip(const T& value) noexcept {
     return {value};
   }
 
-  inline t_skip_n_v_                 skip_n(t_n value) noexcept {
+  constexpr t_skip_n_v_                skip_n(t_n value) noexcept {
     return t_skip_n_v_{get(value)};
   }
 
   template<typename T>
-  inline t_skip_until_v_<T>          skip_until(const T& value) noexcept {
+  constexpr t_skip_until_v_<T>         skip_until(const T& value) noexcept {
     return t_skip_until_v_<T>{value};
   }
 
   template<t_plus1_ PLUS1_, typename T>
-  inline t_skip_until_v_<T, PLUS1_>  skip_until(const T& value) noexcept {
+  constexpr t_skip_until_v_<T, PLUS1_> skip_until(const T& value) noexcept {
     return t_skip_until_v_<T, PLUS1_>{value};
   }
 
-  inline t_skip_all_v_               skip_all(t_char value) noexcept {
+  constexpr t_skip_all_v_              skip_all(t_char value) noexcept {
     return t_skip_all_v_{value};
   }
 
-  inline t_skip_all_v_               skip_spaces() noexcept {
+  constexpr t_skip_all_v_              skip_spaces() noexcept {
     return t_skip_all_v_{' '};
   }
 
@@ -326,13 +337,13 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<class, t_n_, t_overflow> class t_string;
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_slider mk_slider(const t_string<TAG, N, O>& lh) noexcept {
-    return {lh.mk_range()};
-  }
+//  template<class, t_n_, t_overflow> class t_string;
+//
+//  template<class TAG, t_n_ N, t_overflow O>
+//  inline
+//  t_slider mk_slider(const t_string<TAG, N, O>& lh) noexcept {
+//    return {lh.mk_range()};
+//  }
 
 ////////////////////////////////////////////////////////////////////////////////
 }

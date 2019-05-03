@@ -250,7 +250,7 @@ namespace range
 
   constexpr
   t_void check_valid_(P_void item, t_n_ n) noexcept {
-    if (!item || !n) // allow n == 0
+    if (!item)
       assert_now(P_cstr{"range: init error"});
   }
 

@@ -460,43 +460,34 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> struct t_explicit_ { };
+  template<typename T> struct t_explicit_value;
 
-  template<> struct t_explicit_<t_bool>   { using t_type_ = t_bool;   };
-  template<> struct t_explicit_<t_char>   { using t_type_ = t_char;   };
-  template<> struct t_explicit_<t_uchar>  { using t_type_ = t_uchar;  };
-  template<> struct t_explicit_<t_int>    { using t_type_ = t_int;    };
-  template<> struct t_explicit_<t_uint>   { using t_type_ = t_uint;   };
-  template<> struct t_explicit_<t_short>  { using t_type_ = t_short;  };
-  template<> struct t_explicit_<t_ushort> { using t_type_ = t_ushort; };
-  template<> struct t_explicit_<t_long>   { using t_type_ = t_long;   };
-  template<> struct t_explicit_<t_ulong>  { using t_type_ = t_ulong;  };
-  template<> struct t_explicit_<t_llong>  { using t_type_ = t_llong;  };
-  template<> struct t_explicit_<t_ullong> { using t_type_ = t_ullong; };
-  template<> struct t_explicit_<t_double> { using t_type_ = t_double; };
-  template<> struct t_explicit_<t_void>   { using t_type_ = t_void;   };
+  template<> struct t_explicit_value<t_bool>   { using t_value = t_bool;   };
+  template<> struct t_explicit_value<t_char>   { using t_value = t_char;   };
+  template<> struct t_explicit_value<t_uchar>  { using t_value = t_uchar;  };
+  template<> struct t_explicit_value<t_int>    { using t_value = t_int;    };
+  template<> struct t_explicit_value<t_uint>   { using t_value = t_uint;   };
+  template<> struct t_explicit_value<t_short>  { using t_value = t_short;  };
+  template<> struct t_explicit_value<t_ushort> { using t_value = t_ushort; };
+  template<> struct t_explicit_value<t_long>   { using t_value = t_long;   };
+  template<> struct t_explicit_value<t_ulong>  { using t_value = t_ulong;  };
+  template<> struct t_explicit_value<t_llong>  { using t_value = t_llong;  };
+  template<> struct t_explicit_value<t_ullong> { using t_value = t_ullong; };
+  template<> struct t_explicit_value<t_double> { using t_value = t_double; };
+  template<> struct t_explicit_value<t_void>   { using t_value = t_void;   };
 
   template<typename T>
-  struct t_explicit_<T*> {
-    using t_type_ = typename t_explicit_<T>::t_type_*;
+  struct t_explicit_value<const T> {
+    using t_value = const typename t_explicit_value<T>::t_value;
   };
 
   template<typename T>
-  struct t_explicit_<const T*> {
-    using t_type_ = const typename t_explicit_<T>::t_type_*;
+  struct t_explicit_value<T*> {
+    using t_value = typename t_explicit_value<T>::t_value*;
   };
 
-  template<typename T>
-  struct t_explicit_<T* const> {
-    using t_type_ = typename t_explicit_<T>::t_type_* const;
-  };
-
-  template<typename T>
-  struct t_explicit_<const T* const> {
-    using t_type_ = const typename t_explicit_<T>::t_type_* const;
-  };
-
-  template<typename T> struct t_explicit_<T**>;
+  template<typename T> struct t_explicit_value<T&>;
+  template<typename T> struct t_explicit_value<T**>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -506,15 +497,17 @@ namespace named
 
   template<class T, class TAG>
   struct t_check {
-    static constexpr T test(T t) { return t; }
+    using t_value = typename t_explicit_value<T>::t_value;
+    using t_tag   = TAG;
+    constexpr static t_value test(t_value value) { return value; }
   };
 
   template<class T, class TAG, class CHECK = void>
   class t_explicit {
   public:
-    using t_value    = typename t_explicit_<T>::t_type_;
-    using t_tag      = TAG;
-    using t_check    = CHECK;
+    using t_value = typename t_explicit_value<T>::t_value;
+    using t_tag   = TAG;
+    using t_check = CHECK;
 
     constexpr
     explicit t_explicit(t_value value)
@@ -561,7 +554,7 @@ namespace named
   template<class T, class TAG>
   class t_explicit<T, TAG, void> {
   public:
-    using t_value = typename t_explicit_<T>::t_type_;
+    using t_value = typename t_explicit_value<T>::t_value;
     using t_tag   = TAG;
     using t_check = void;
 

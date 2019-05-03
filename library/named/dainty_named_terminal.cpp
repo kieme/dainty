@@ -32,7 +32,7 @@ namespace named
 {
 namespace terminal
 {
-  t_out::t_out(t_fmt, P_cstr_ fmt, ...) {
+  t_out::t_out(t_fmt, P_cstr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
     va_assign(fmt, vars);
@@ -40,25 +40,12 @@ namespace terminal
   }
 
   t_out::~t_out() {
-    if (!is_empty()) {
-      if (get_back() != '\n') {
-        if (get_length() == get_capacity())
-          mod_(t_ix{get(get_length()) - 1}, '\n');
-        else
-          append("\n");
-      }
+    if (!is_empty())
       display();
-    }
   }
 
-  r_out_string operator+=(r_out_string out, t_flush) {
+  r_out_string operator<<(r_out_string out, t_flush) noexcept {
     if (!out.is_empty()) {
-      if (out.get_back() != '\n') {
-        if (out.get_length() == out.get_capacity())
-          out.mod_(t_ix{get(out.get_length()) - 1}, '\n');
-        else
-          out.append("\n");
-      }
       out.display();
       out.clear();
     }

@@ -42,38 +42,35 @@ namespace terminal
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  enum  t_out_tag_ { };
-  using t_out_string = t_string<t_out_tag_, 80, OVERFLOW_TRUNCATE>;
+  enum  t_out_string_tag_ { };
+  using t_out_string = t_string<t_out_string_tag_, 120, OVERFLOW_GROW>;
   using r_out_string = t_prefix<t_out_string>::r_;
+  using R_out_string = t_prefix<t_out_string>::R_;
 
   class t_out : public t_out_string {
   public:
     using t_out_string::t_out_string;
+    using t_out_string::operator=;
+    using t_out_string::operator t_crange;
 
-    t_out(t_fmt, P_cstr_ fmt, ...) __attribute__((format(printf, 3, 4)));
+    t_out(t_fmt, P_cstr_ fmt, ...) noexcept
+      __attribute__((format(printf, 3, 4)));
+
     ~t_out();
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  r_out_string operator+=(r_out_string out, t_flush);
+  r_out_string operator<<(r_out_string, t_flush) noexcept;
 
-  inline r_out_string operator,(r_out_string out, t_flush) {
-    return (out += FLUSH);
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
-  inline r_out_string operator+=(r_out_string out, t_clear) {
+  inline
+  r_out_string operator<<(r_out_string out, t_clear) noexcept {
     out.clear();
     return out;
   }
 
-  inline r_out_string operator,(r_out_string out, t_clear) {
-    return (out += CLEAR);
-  }
-
 ///////////////////////////////////////////////////////////////////////////////
+
 }
 }
 }

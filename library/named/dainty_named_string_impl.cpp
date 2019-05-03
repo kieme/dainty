@@ -501,7 +501,7 @@ namespace string
     if (max) {
       t_ix_ ix = 0;
       for (; ix < max; ++ix) {
-        for (t_char ch : select->list) {
+        for (t_char ch : select->range) {
           if (range[t_ix{ix}] == ch) {
             select->choice = ch;
             *snip = t_crange{range.ptr, t_n{ix + incl_char}};
@@ -521,7 +521,7 @@ namespace string
     if (max) {
       t_ix_ ix = 0;
       for (; ix < max; ++ix) {
-        for (t_char ch : select->list) {
+        for (t_char ch : select->range) {
           if (range[t_ix{ix}] == ch) {
             select->choice = ch;
             *snip = t_crange{range.ptr, t_n{ix + incl_char}};
