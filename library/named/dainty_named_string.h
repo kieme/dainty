@@ -72,11 +72,6 @@ namespace string
   t_void display(t_fmt, P_cstr_, ...) noexcept
       __attribute__((format(printf, 2, 3)));
 
-  template<class TAG, t_n_ N = 0, t_overflow O = OVERFLOW_GROW>
-  inline t_void display(const t_string<TAG, N, O>& str) noexcept {
-    str.display();
-  }
-
   inline t_void display(R_crange range) noexcept {
     display_n_(range.ptr, get(range.n));
   }
@@ -120,127 +115,6 @@ namespace string
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
-  template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
-  inline
-  t_bool operator<(const t_string<TAG, N, O>&   lh,
-                   const t_string<TAG, N1, O1>& rh) noexcept {
-    return less_(lh.mk_range(), rh.mk_range());
-  }
-
-  template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
-  inline
-  t_bool operator<=(const t_string<TAG, N, O>&   lh,
-                    const t_string<TAG, N1, O1>& rh) noexcept {
-    return less_equal_(lh.mk_range(), rh.mk_range());
-  }
-
-  template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
-  inline
-  t_bool operator>(const t_string<TAG, N,  O>&  lh,
-                   const t_string<TAG, N1, O1>& rh) noexcept {
-    return less_(rh.mk_range(), lh.mk_range());
-  }
-
-  template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
-  inline
-  t_bool operator>=(const t_string<TAG, N,  O>&  lh,
-                    const t_string<TAG, N1, O1>& rh) noexcept {
-    return less_equal_(rh.mk_range(), lh.mk_range());
-  }
-
-  template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
-  inline
-  t_bool operator==(const t_string<TAG, N,  O>&  lh,
-                    const t_string<TAG, N1, O1>& rh) noexcept {
-    return equal_(lh.mk_range(), rh.mk_range());
-  }
-
-  template<class TAG, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
-  inline
-  t_bool operator!=(const t_string<TAG, N,  O>&  lh,
-                    const t_string<TAG, N1, O1>& rh) noexcept {
-    return !equal_(lh.mk_range(), rh.mk_range());
-  }
-*/
-
-////////////////////////////////////////////////////////////////////////////////
-
-/*
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator<(const t_string<TAG, N, O>& lh, R_crange rh) noexcept {
-    return less_(lh.mk_range(), rh);
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator<(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
-    return less_(lh, rh.mk_range());
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator<=(const t_string<TAG, N, O>& lh, R_crange rh) noexcept {
-    return less_equal_(lh.mk_range(), rh);
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator<=(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
-    return less_equal_(lh, rh.mk_range());
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator>(const t_string<TAG, N, O>&  lh, R_crange rh) noexcept {
-    return less_(rh, lh.mk_range());
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator>(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
-    return less_(rh.mk_range(), lh);
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator>=(const t_string<TAG, N, O>& lh, R_crange rh) noexcept {
-    return less_equal_(rh, lh.mk_range());
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator>=(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
-    return less_equal_(rh.mk_range(), lh);
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator==(const t_string<TAG, N, O>& lh, R_crange rh) noexcept {
-    return equal_(lh.mk_range(), rh);
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator==(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
-    return equal_(lh, rh.mk_range());
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator!=(const t_string<TAG, N, O>& lh, R_crange rh) noexcept {
-    return !equal_(lh.mk_range(), rh);
-  }
-
-  template<class TAG, t_n_ N, t_overflow O>
-  inline
-  t_bool operator!=(R_crange lh, const t_string<TAG, N, O>& rh) noexcept {
-    return !equal_(lh, rh.mk_range());
-  }
-*/
-
-////////////////////////////////////////////////////////////////////////////////
 }
 }
 }

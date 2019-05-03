@@ -85,6 +85,7 @@ namespace string
 
     template<t_n_ N1>
     r_string append(const t_char (&)[N1])          noexcept;
+
     template<class TAG1, t_n_ N1, t_overflow O1>
     r_string append(const t_string<TAG1, N1, O1>&) noexcept;
 

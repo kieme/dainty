@@ -50,21 +50,32 @@ namespace string
     using t_char   = typename t_impl_::t_char;
     using R_block  = typename t_impl_::R_block;
 
-    t_string(t_n max = t_n{64}, t_n blks = t_n{1}) noexcept;
-    t_string(P_cstr)                               noexcept;
-    t_string(R_block)                              noexcept;
-    t_string(R_crange)                             noexcept;
-    t_string(R_string)                             noexcept;
-    t_string(t_fmt, P_cstr_, ...)                  noexcept
+    t_string()                                       noexcept;
+    t_string(t_n max, t_n blks)                      noexcept;
+    t_string(                   P_cstr)              noexcept;
+    t_string(t_n max, t_n blks, P_cstr)              noexcept;
+    t_string(                   R_block)             noexcept;
+    t_string(t_n max, t_n blks, R_block)             noexcept;
+    t_string(                   R_crange)            noexcept;
+    t_string(t_n max, t_n blks, R_crange)            noexcept;
+    t_string(                   R_string)            noexcept;
+    t_string(t_n max, t_n blks, R_string)            noexcept;
+    t_string(                   t_fmt, P_cstr_, ...) noexcept
       __attribute__((format(printf, 3, 4)));
+    t_string(t_n max, t_n blks, t_fmt, P_cstr_, ...) noexcept
+      __attribute__((format(printf, 5, 6)));
+
+    template<t_n_ N1>
+    t_string(                   const t_char (&)[N1])         noexcept;
+    template<t_n_ N1>
+    t_string(t_n max, t_n blks, const t_char (&)[N1])         noexcept;
+    template<t_n_ N1, t_overflow O1>
+    t_string(                   const t_string<TAG, N1, O1>&) noexcept;
+    template<t_n_ N1, t_overflow O1>
+    t_string(t_n max, t_n blks, const t_string<TAG, N1, O1>&) noexcept;
 
     template<t_overflow O1>
     t_string(t_string<TAG, 0, O1>&&) noexcept;
-
-    template<t_n_ N1>
-    t_string(const t_char (&)[N1])         noexcept;
-    template<t_n_ N1, t_overflow O1>
-    t_string(const t_string<TAG, N1, O1>&) noexcept;
 
     r_string operator=(P_cstr)   noexcept;
     r_string operator=(R_block)  noexcept;
@@ -157,6 +168,13 @@ namespace string
   };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  template<class TAG>
+  inline
+  t_string<TAG, 0, OVERFLOW_GROW>::t_string() noexcept
+    : blks_{1}, max_{calc_n_(64, blks_)}, store_{alloc_(max_)},
+      impl_{store_.get()} {
+  }
 
   template<class TAG>
   inline

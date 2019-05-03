@@ -49,22 +49,33 @@ namespace string
     using t_char   = typename t_impl_::t_char;
     using R_block  = typename t_impl_::R_block;
 
-    t_string()                    noexcept;
-    t_string(t_n max)             noexcept;
-    t_string(P_cstr)              noexcept;
-    t_string(R_block)             noexcept;
-    t_string(R_crange)            noexcept;
-    t_string(R_string)            noexcept;
-    t_string(t_fmt, P_cstr_, ...) noexcept
+    t_string()                              noexcept;
+    t_string(t_n max)                       noexcept;
+    t_string(         P_cstr)               noexcept;
+    t_string(t_n max, P_cstr)               noexcept;
+    t_string(         R_block)              noexcept;
+    t_string(t_n max, R_block)              noexcept;
+    t_string(         R_crange)             noexcept;
+    t_string(t_n max, R_crange)             noexcept;
+    t_string(         R_string)             noexcept;
+    t_string(t_n max, R_string)             noexcept;
+    t_string(         t_fmt, P_cstr_, ...)  noexcept
       __attribute__((format(printf, 3, 4)));
+    t_string(t_n max, t_fmt, P_cstr_, ...)  noexcept
+      __attribute__((format(printf, 4, 5)));
+
+    template<t_n_ N1>
+    t_string(         const t_char (&)[N1]) noexcept;
+    template<t_n_ N1>
+    t_string(t_n max, const t_char (&)[N1]) noexcept;
+    template<t_n_ N1, t_overflow O1>
+    t_string(         const t_string<TAG, N1, O1>&) noexcept;
+    template<t_n_ N1, t_overflow O1>
+    t_string(t_n max, const t_string<TAG, N1, O1>&) noexcept;
 
     template<t_overflow O1>
     t_string(t_string<TAG, 0, O1>&&) noexcept;
 
-    template<t_n_ N1>
-    t_string(const t_char (&)[N1])         noexcept;
-    template<t_n_ N1, t_overflow O1>
-    t_string(const t_string<TAG, N1, O1>&) noexcept;
    ~t_string();
 
     r_string operator=(P_cstr)   noexcept;
