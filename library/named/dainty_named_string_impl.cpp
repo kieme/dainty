@@ -538,6 +538,29 @@ namespace string
     return 0;
   }
 
+  t_n_ copy_left_(p_cstr_ str, t_n_ max, t_n_ need, t_n_ width) noexcept {
+    if (max > width && need >= width) { // unfinished
+      for (t_ix_ ix = need; ix < width; ++ix)
+        str[ix] = ' ';
+      str[width] = '\0';
+    } else
+      assert_now(P_cstr("does not fit in width"));
+    return width;
+  }
+
+  t_n_ copy_right_(p_cstr_ str, t_n_ max, t_n_ need, t_n_ width) noexcept {
+    if (max > width && need >= width) { // unfinished
+      for (t_ix_ ix = need; ix < width; ++ix)
+        str[ix] = ' ';
+      str[width] = '\0';
+    }
+    return width;
+  }
+
+  t_n_ copy_centre_(p_cstr_ str, t_n_ max, t_n_ need, t_n_ width) noexcept {
+    return width; // unfinished
+  }
+
 ////////////////////////////////////////////////////////////////////////////////
 }
 }

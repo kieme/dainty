@@ -179,30 +179,6 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  enum t_align { ALIGN_RIGHT, ALIGN_LEFT }; // ALIGN_CENTER can be added
-
-  enum  t_width_tag_ {};
-  using t_width_ = t_int;
-  using t_width  = t_explicit<t_width_, t_width_tag_>;
-
-  template<typename T, t_width_ WIDTH, t_align ALIGN = ALIGN_RIGHT>
-  struct t_fmt_v_ {
-    constexpr t_fmt_v_(T _value) noexcept : value(_value) { }
-    T value;
-  };
-
-  template<t_width_ WIDTH, typename T>
-  constexpr t_fmt_v_<T, WIDTH> format(T value) noexcept {
-    return t_fmt_v_<T, WIDTH>{value};
-  }
-
-  template<t_width_ WIDTH, t_align ALIGN, typename T>
-  constexpr t_fmt_v_<T, WIDTH, ALIGN> format(T value) noexcept {
-    return t_fmt_v_<T, WIDTH, ALIGN>{value};
-  }
-
-////////////////////////////////////////////////////////////////////////////////
-
   enum t_hex_v_tag_ {};
   template<typename T> using t_hex_v_ = t_explicit<T, t_hex_v_tag_>;
 
@@ -321,428 +297,158 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<t_width_ WIDTH>
-  using t_fmt_v_1_ = t_fmt_v_<t_hex_v_<t_char>, WIDTH, ALIGN_RIGHT>;
+  enum t_align { ALIGN_RIGHT, ALIGN_LEFT, ALIGN_CENTRE };
 
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_1_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*hhx", WIDTH, get(value.value));
+  enum  t_width_tag_ {};
+  using t_width_ = t_int;
+  using t_width  = t_explicit<t_width_, t_width_tag_>;
+
+  template<typename T, t_width_ WIDTH, t_align ALIGN = ALIGN_RIGHT>
+  struct t_fmt_v_;
+
+////////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, t_width_ WIDTH>
+  struct t_fmt_v_<t_int_v_<T>, WIDTH, ALIGN_LEFT> {
+    constexpr t_fmt_v_(t_int_v_<T> value) noexcept
+      : helper_(get(value)) {
+    }
+
+    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
+      return copy_left_(str, max, helper_(str, max), WIDTH);
+    }
+
+    t_int_to_str_helper_<T> helper_;
+  };
+
+  template<typename T, t_width_ WIDTH>
+  struct t_fmt_v_<t_int_v_<T>, WIDTH, ALIGN_RIGHT> {
+    constexpr t_fmt_v_(t_int_v_<T> value) noexcept
+      : helper_(get(value)) {
+    }
+
+    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
+      return copy_right_(str, max, helper_(str, max), WIDTH);
+    }
+
+    t_int_to_str_helper_<T> helper_;
+  };
+
+  template<typename T, t_width_ WIDTH>
+  struct t_fmt_v_<t_int_v_<T>, WIDTH, ALIGN_CENTRE> {
+    constexpr t_fmt_v_(t_int_v_<T> value) noexcept
+      : helper_(get(value)) {
+    }
+
+    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
+      return copy_centre_(str, max, helper_(str, max), WIDTH);
+    }
+
+    t_int_to_str_helper_<T> helper_;
+  };
+
+////////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, t_width_ WIDTH>
+  struct t_fmt_v_<t_hex_v_<T>, WIDTH, ALIGN_LEFT> {
+    constexpr t_fmt_v_(t_hex_v_<T> value) noexcept
+      : helper(get(value)) {
+    }
+
+    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
+      return copy_left_(str, max, helper(str, max), WIDTH);
+    }
+
+    t_int_to_hex_str_helper_<T> helper;
+  };
+
+  template<typename T, t_width_ WIDTH>
+  struct t_fmt_v_<t_hex_v_<T>, WIDTH, ALIGN_RIGHT> {
+    constexpr t_fmt_v_(t_hex_v_<T> value) noexcept
+      : helper(get(value)) {
+    }
+
+    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
+      return copy_right_(str, max, helper(str, max), WIDTH);
+    }
+
+    t_int_to_hex_str_helper_<T> helper;
+  };
+
+  template<typename T, t_width_ WIDTH>
+  struct t_fmt_v_<t_hex_v_<T>, WIDTH, ALIGN_CENTRE> {
+    constexpr t_fmt_v_(t_hex_v_<T> value) noexcept
+      : helper(get(value)) {
+    }
+
+    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
+      return copy_centre_(str, max, helper(str, max), WIDTH);
+    }
+
+    t_int_to_hex_str_helper_<T> helper;
+  };
+
+////////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, t_width_ WIDTH>
+  struct t_fmt_v_<t_ptr_v_<T>, WIDTH, ALIGN_LEFT> {
+    constexpr t_fmt_v_(t_ptr_v_<T> value) noexcept
+      : helper{reinterpret_cast<t_uintptr>(get(value))} {
+    }
+
+    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
+      return copy_left_(str, max, helper(str, max), WIDTH);
+    }
+
+    t_int_to_hex_str_helper_<t_uintptr> helper;
+  };
+
+  template<typename T, t_width_ WIDTH>
+  struct t_fmt_v_<t_ptr_v_<T>, WIDTH, ALIGN_RIGHT> {
+    constexpr t_fmt_v_(t_ptr_v_<T> value) noexcept
+      : helper{reinterpret_cast<t_uintptr>(get(value))} {
+    }
+
+    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
+      return copy_right_(str, max, helper(str, max), WIDTH);
+    }
+
+    t_int_to_hex_str_helper_<t_uintptr> helper;
+  };
+
+  template<typename T, t_width_ WIDTH>
+  struct t_fmt_v_<t_ptr_v_<T>, WIDTH, ALIGN_CENTRE> {
+    constexpr t_fmt_v_(t_ptr_v_<T> value) noexcept
+      : helper{reinterpret_cast<t_uintptr>(get(value))} {
+    }
+
+    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
+      return copy_centre_(str, max, helper(str, max), WIDTH);
+    }
+
+    t_int_to_hex_str_helper_<t_uintptr> helper;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<t_width_ WIDTH, typename T>
+  constexpr t_fmt_v_<T, WIDTH> format(T value) noexcept {
+    return t_fmt_v_<T, WIDTH>{value};
   }
 
-  template<t_width_ WIDTH>
-  using t_fmt_v_2_ = t_fmt_v_<t_hex_v_<t_char>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_2_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*hhx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_3_ = t_fmt_v_<t_hex_v_<t_uchar>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_3_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*hhx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_4_ = t_fmt_v_<t_hex_v_<t_uchar>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_4_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*hhx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_5_ = t_fmt_v_<t_hex_v_<t_short>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_5_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*hx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_6_ = t_fmt_v_<t_hex_v_<t_short>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_6_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*hx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_7_ = t_fmt_v_<t_hex_v_<t_ushort>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_7_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*hx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_8_ = t_fmt_v_<t_hex_v_<t_ushort>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_8_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*hx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_9_ = t_fmt_v_<t_hex_v_<t_int>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_9_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*x", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_10_ = t_fmt_v_<t_hex_v_<t_int>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_10_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*x", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_11_ = t_fmt_v_<t_hex_v_<t_uint>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_11_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*x", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_12_ = t_fmt_v_<t_hex_v_<t_uint>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_12_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*x", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_13_ = t_fmt_v_<t_hex_v_<t_long>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_13_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*lx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_14_ = t_fmt_v_<t_hex_v_<t_long>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_14_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*lx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_15_ = t_fmt_v_<t_hex_v_<t_ulong>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_15_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*lx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_16_ = t_fmt_v_<t_hex_v_<t_ulong>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_16_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*lx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_17_ = t_fmt_v_<t_hex_v_<t_llong>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_17_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*llx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_18_ = t_fmt_v_<t_hex_v_<t_llong>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_18_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*llx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_19_ = t_fmt_v_<t_hex_v_<t_ullong>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_19_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*llx", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_20_ = t_fmt_v_<t_hex_v_<t_ullong>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_20_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*llx", WIDTH, get(value.value));
+  template<t_width_ WIDTH, t_align ALIGN, typename T>
+  constexpr t_fmt_v_<T, WIDTH, ALIGN> format(T value) noexcept {
+    return t_fmt_v_<T, WIDTH, ALIGN>{value};
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<t_width_ WIDTH>
-  using t_fmt_v_21_ = t_fmt_v_<t_int_v_<t_char>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
+  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH, t_align ALIGN,
+           typename T>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_21_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*hhd", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_22_ = t_fmt_v_<t_int_v_<t_char>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_22_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*hhd", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_23_ = t_fmt_v_<t_int_v_<t_uchar>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_23_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*hhu", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_24_ = t_fmt_v_<t_int_v_<t_uchar>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_24_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*hhu", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_25_ = t_fmt_v_<t_int_v_<t_short>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_25_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*hd", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_26_ = t_fmt_v_<t_int_v_<t_short>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_26_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*hd", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_27_ = t_fmt_v_<t_int_v_<t_ushort>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_27_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*hu", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_28_ = t_fmt_v_<t_int_v_<t_ushort>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_28_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*hu", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_29_ = t_fmt_v_<t_int_v_<t_int>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_29_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*d", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_30_ = t_fmt_v_<t_int_v_<t_int>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_30_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*d", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_31_ = t_fmt_v_<t_int_v_<t_uint>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_31_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*u", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_32_ = t_fmt_v_<t_int_v_<t_uint>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_32_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*u", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_33_ = t_fmt_v_<t_int_v_<t_long>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_33_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*ld", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_34_ = t_fmt_v_<t_int_v_<t_long>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_34_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*ld", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_35_ = t_fmt_v_<t_int_v_<t_ulong>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_35_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*lu", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_36_ = t_fmt_v_<t_int_v_<t_ulong>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_36_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*lu", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_37_ = t_fmt_v_<t_int_v_<t_llong>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_37_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*lld", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_38_ = t_fmt_v_<t_int_v_<t_llong>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_38_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*lld", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_39_ = t_fmt_v_<t_int_v_<t_ullong>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_39_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%*llu", WIDTH, get(value.value));
-  }
-
-  template<t_width_ WIDTH>
-  using t_fmt_v_40_ = t_fmt_v_<t_int_v_<t_ullong>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_40_<WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*llu", WIDTH, get(value.value));
-  }
-
-////////////////////////////////////////////////////////////////////////////////
-
-  template<typename P, t_width_ WIDTH>
-  using t_fmt_v_41_ = t_fmt_v_<t_ptr_v_<P>, WIDTH, ALIGN_RIGHT>;
-
-  template<class TAG, t_n_ N, t_overflow O, typename P, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_41_<P, WIDTH> value) noexcept {
-    return lh.append(FMT, "%*p", WIDTH, get(value.value));
-  }
-
-  template<typename P, t_width_ WIDTH>
-  using t_fmt_v_42_ = t_fmt_v_<t_ptr_v_<P>, WIDTH, ALIGN_LEFT>;
-
-  template<class TAG, t_n_ N, t_overflow O, typename P, t_width_ WIDTH>
-  inline
-  t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
-                                  t_fmt_v_42_<P, WIDTH> value) noexcept {
-    return lh.append(FMT, "%-*p", WIDTH, get(value.value));
+                                  t_fmt_v_<T, WIDTH, ALIGN> fmt) noexcept {
+    return lh.custom_append_(fmt);
   }
 
 ////////////////////////////////////////////////////////////////////////////////

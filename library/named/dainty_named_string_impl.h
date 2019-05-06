@@ -147,24 +147,24 @@ namespace string
   t_n_     fill_assert_   (p_cstr_, t_n_, R_block)          noexcept;
   t_n_     fill_truncate_ (p_cstr_, t_n_, R_block)          noexcept;
 
-  t_n_     calc_n_        (t_n_, t_n_)                   noexcept;
-  p_cstr_  alloc_         (t_n_)                         noexcept;
-  p_cstr_  sso_alloc_     (p_cstr_, t_n_, t_n_&)         noexcept; //XXX
-  p_cstr_  sso_alloc_     (p_cstr_, t_n_, p_cstr_, t_n_) noexcept;
-  t_void   dealloc_       (p_cstr_)                      noexcept;
-  p_cstr_  realloc_       (p_cstr_, t_n_)                noexcept;
+  t_n_     calc_n_     (t_n_, t_n_)                   noexcept;
+  p_cstr_  alloc_      (t_n_)                         noexcept;
+  p_cstr_  sso_alloc_  (p_cstr_, t_n_, t_n_&)         noexcept; //XXX
+  p_cstr_  sso_alloc_  (p_cstr_, t_n_, p_cstr_, t_n_) noexcept;
+  t_void   dealloc_    (p_cstr_)                      noexcept;
+  p_cstr_  realloc_    (p_cstr_, t_n_)                noexcept;
 
-  t_void   display_       (P_cstr_, t_n_)            noexcept;
-  t_void   display_n_     (P_cstr_, t_n_)            noexcept;
+  t_void   display_    (P_cstr_, t_n_)            noexcept;
+  t_void   display_n_  (P_cstr_, t_n_)            noexcept;
 
-  t_bool   match_         (P_cstr_, P_cstr_ pattern) noexcept;
-  t_n_     count_         (t_char,  P_cstr_)         noexcept;
-  t_n_     length_        (P_cstr_)                  noexcept;
-  t_n_     length_        (P_cstr_, va_list)         noexcept;
+  t_bool   match_      (P_cstr_, P_cstr_ pattern) noexcept;
+  t_n_     count_      (t_char,  P_cstr_)         noexcept;
+  t_n_     length_     (P_cstr_)                  noexcept;
+  t_n_     length_     (P_cstr_, va_list)         noexcept;
 
-  t_bool   equal_         (R_crange, R_crange)       noexcept;
-  t_bool   less_          (R_crange, R_crange)       noexcept;
-  t_bool   less_equal_    (R_crange, R_crange)       noexcept;
+  t_bool   equal_      (R_crange, R_crange)       noexcept;
+  t_bool   less_       (R_crange, R_crange)       noexcept;
+  t_bool   less_equal_ (R_crange, R_crange)       noexcept;
 
   t_ullong to_uint_    (t_n_&, t_char, t_char,         t_n_, P_cstr_) noexcept;
   t_llong  to_sint_    (t_n_&, t_char, t_char, t_char, t_n_, P_cstr_) noexcept;
@@ -174,26 +174,30 @@ namespace string
   t_n_     int_to_str_ (p_cstr_, t_n_, t_llong)  noexcept;
   t_n_     hex_to_str_ (p_cstr_, t_n_, t_ullong) noexcept;
 
-  t_void   scan_          (P_cstr_, t_n_, P_cstr_, va_list) noexcept;
-  t_void   scan_fmt_      (P_cstr_, t_n_, P_cstr_, ...)     noexcept;
+  t_void   scan_       (P_cstr_, t_n_, P_cstr_, va_list) noexcept;
+  t_void   scan_fmt_   (P_cstr_, t_n_, P_cstr_, ...)     noexcept;
 
-  t_n_     skip_          (R_crange, t_char)             noexcept;
-  t_n_     skip_          (R_crange, t_n_)               noexcept;
-  t_n_     skip_          (R_crange, R_crange)           noexcept;
-  t_n_     skip_          (R_crange, R_block)            noexcept;
-  t_n_     skip_until_    (R_crange, t_char,   t_plus1_) noexcept;
-  t_n_     skip_until_    (R_crange, R_crange, t_plus1_) noexcept;
-  t_n_     skip_all_      (R_crange, t_char)             noexcept;
+  t_n_     skip_       (R_crange, t_char)             noexcept;
+  t_n_     skip_       (R_crange, t_n_)               noexcept;
+  t_n_     skip_       (R_crange, R_crange)           noexcept;
+  t_n_     skip_       (R_crange, R_block)            noexcept;
+  t_n_     skip_until_ (R_crange, t_char,   t_plus1_) noexcept;
+  t_n_     skip_until_ (R_crange, R_crange, t_plus1_) noexcept;
+  t_n_     skip_all_   (R_crange, t_char)             noexcept;
 
-  t_n_     snip_n_        (R_crange, p_snippet, t_n_) noexcept;
-  t_n_     snip_char_     (R_crange, p_snippet, t_char, t_plus1_,
-                           t_incl_char_)              noexcept;
-  t_n_     snip_char_eol_ (R_crange, p_snippet, t_char, t_plus1_,
-                           t_incl_char_)              noexcept;
-  t_n_     snip_char_     (R_crange, p_snippet, p_char_select, t_plus1_,
-                           t_incl_char_)              noexcept;
-  t_n_     snip_char_eol_ (R_crange, p_snippet, p_char_select, t_plus1_,
-                           t_incl_char_)              noexcept;
+  t_n_     snip_n_       (R_crange, p_snippet, t_n_) noexcept;
+  t_n_     snip_char_    (R_crange, p_snippet, t_char, t_plus1_,
+                          t_incl_char_)              noexcept;
+  t_n_     snip_char_eol_(R_crange, p_snippet, t_char, t_plus1_,
+                          t_incl_char_)              noexcept;
+  t_n_     snip_char_    (R_crange, p_snippet, p_char_select, t_plus1_,
+                          t_incl_char_)              noexcept;
+  t_n_     snip_char_eol_(R_crange, p_snippet, p_char_select, t_plus1_,
+                          t_incl_char_)              noexcept;
+
+  t_n_     copy_left_  (p_cstr_, t_n_, t_n_, t_n_) noexcept;
+  t_n_     copy_right_ (p_cstr_, t_n_, t_n_, t_n_) noexcept;
+  t_n_     copy_centre_(p_cstr_, t_n_, t_n_, t_n_) noexcept;
 
 ////////////////////////////////////////////////////////////////////////////////
 
