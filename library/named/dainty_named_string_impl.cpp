@@ -93,7 +93,8 @@ namespace string
     return curr;
   }
 
-  t_n_ build_try_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars) noexcept {
+  t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars,
+              t_overflow_grow) noexcept {
     va_list args;
     va_copy(args, vars);
     t_n_ n = std::vsnprintf(dst, max, fmt, args);
@@ -101,16 +102,16 @@ namespace string
     return n;
   }
 
-  t_n_ build_assert_(p_cstr_ dst, t_n_ max, P_cstr_ fmt,
-                     va_list vars) noexcept {
+  t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars,
+              t_overflow_assert) noexcept {
     auto n = std::vsnprintf(dst, max, fmt, vars);
     assert_if_false(n > 0 && (t_n_)n < max,
                     P_cstr("failed to build, buffer might be too small"));
     return n;
   }
 
-  t_n_ build_truncate_(p_cstr_ dst, t_n_ max, P_cstr_ fmt,
-                       va_list vars) noexcept {
+  t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars,
+              t_overflow_truncate) noexcept {
     auto n = std::vsnprintf(dst, max, fmt, vars);
     assert_if_false(n > 0, P_cstr("failed to build, std::vsnprintf failed"));
     if ((t_n_)n >= max)
@@ -118,7 +119,8 @@ namespace string
     return n;
   }
 
-  t_n_ copy_assert_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n) noexcept {
+  t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n,
+             t_overflow_assert) noexcept {
     t_n_ cnt = 0, min = max - 1 < n ? max - 1 : n;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
@@ -128,7 +130,8 @@ namespace string
     return cnt;
   }
 
-  t_n_ copy_truncate_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n) noexcept {
+  t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n,
+             t_overflow_truncate) noexcept {
     t_n_ cnt = 0, min = max - 1 < n ? max - 1 : n;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
@@ -136,7 +139,8 @@ namespace string
     return cnt;
   }
 
-  t_n_ copy_assert_(p_cstr_ dst, t_n_ max, P_cstr_ src) noexcept {
+  t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src,
+             t_overflow_assert) noexcept {
     t_n_ cnt = 0, min = max - 1;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
@@ -146,7 +150,8 @@ namespace string
     return cnt;
   }
 
-  t_n_ copy_truncate_(p_cstr_ dst, t_n_ max, P_cstr_ src) noexcept {
+  t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src,
+             t_overflow_truncate) noexcept {
     t_n_ cnt = 0, min = max - 1;
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
@@ -154,7 +159,8 @@ namespace string
     return cnt;
   }
 
-  t_n_ fill_assert_(p_cstr_ dst, t_n_ max, R_block block) noexcept {
+  t_n_ fill_(p_cstr_ dst, t_n_ max, R_block block,
+             t_overflow_assert) noexcept {
     auto bmax = get(block.max);
     if (bmax > max - 1)
       assert_now(P_cstr("buffer not big enough"));
@@ -164,7 +170,8 @@ namespace string
     return bmax;
   }
 
-  t_n_ fill_truncate_(p_cstr_ dst, t_n_ max, R_block block) noexcept {
+  t_n_ fill_(p_cstr_ dst, t_n_ max, R_block block,
+             t_overflow_truncate) noexcept {
     auto bmax = get(block.max);
     t_n_ min = max - 1 < bmax ? max - 1 : bmax;
     for (t_n_ cnt = 0; cnt < min; ++cnt)
@@ -255,6 +262,8 @@ namespace string
     return cnt;
   }
 
+///////////////////////////////////////////////////////////////////////////////
+
   t_ullong to_uint_(t_n_& use, t_char first, t_char last, t_n_ max_n,
                     P_cstr_ str) noexcept {
     t_ullong value = 0;
@@ -303,23 +312,26 @@ namespace string
     return value;
   }
 
+///////////////////////////////////////////////////////////////////////////////
+
   t_n_ uint_to_str_(p_cstr_ dst, t_n_ max, t_ullong value) noexcept {
     t_n_ req = 0;
-    if (!value) {
-      if (max > 1) {
-        dst[0] = '0';
-        dst[1] = '\0';
-      }
-      req = 1;
-    } else {
-      t_char tmp[20];
-      for (; value; value/=10)
-        tmp[req++] = value%10 + '0';
-      if (max > req) {
-        t_ix_ tmp_ix = req - 1;
-        for (t_ix_ ix = 0; ix < req; ++ix)
-          dst[ix] = tmp[tmp_ix--];
-        dst[req] = '\0';
+    if (max) {
+      if (!value) {
+        if (max > 1)
+          *dst++ = '0';
+        *dst = '\0';
+        req = 1;
+      } else {
+        t_char tmp[20];
+        for (; value; value/=10)
+          tmp[req++] = value%10 + '0';
+        t_ix_ ix  = max - 1;
+        t_ix_ end = (ix < req ? ix : req);
+        ix = 0;
+        for (t_ix_ last = req - 1; ix < end; ++ix)
+          dst[ix] = tmp[last--];
+        dst[ix] = '\0';
       }
     }
     return req;
@@ -336,27 +348,30 @@ namespace string
 
   t_n_ hex_to_str_(p_cstr_ dst, t_n_ max, t_ullong value) noexcept {
     t_n_ req = 0;
-    if (!value) {
-      if (max > 1) {
-        dst[0] = '0';
-        dst[1] = '\0';
-      }
-      req = 1;
-    } else {
-      T_char tbl[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                       'a', 'b', 'c', 'd', 'e', 'f'};
-      t_char tmp[16];
-      for (; value; value/=16)
-        tmp[req++] = tbl[value%16];
-      if (max > req) {
-        t_ix_ tmp_ix = req - 1;
-        for (t_ix_ ix = 0; ix < req; ++ix)
-          dst[ix] = tmp[tmp_ix--];
-        dst[req] = '\0';
+    if (max) {
+      if (!value) {
+        if (max > 1)
+          *dst++ = '0';
+        *dst = '\0';
+        req = 1;
+      } else {
+        T_char tbl[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                         'a', 'b', 'c', 'd', 'e', 'f'};
+        t_char tmp[16];
+        for (; value; value/=16)
+          tmp[req++] = tbl[value%16];
+        t_ix_ last = req - 1;
+        t_ix_ end  = (max < req ? max - 1 : last);
+        t_ix_ ix   = 0;
+        for (; ix < end; ++ix)
+          dst[ix] = tmp[last--];
+        dst[ix] = '\0';
       }
     }
     return req;
   }
+
+///////////////////////////////////////////////////////////////////////////////
 
   t_void scan_(P_cstr_ str, t_n_ n, P_cstr_ fmt, va_list args) noexcept {
     auto cnt = std::vsscanf(str, fmt, args);
@@ -370,6 +385,8 @@ namespace string
     scan_(str, n, fmt, args);
     va_end(args);
   }
+
+///////////////////////////////////////////////////////////////////////////////
 
   t_n_ skip_(R_crange range, t_char ch) noexcept {
     t_n_ max = get(range.n);
@@ -449,6 +466,8 @@ namespace string
     }
     return 0;
   }
+
+///////////////////////////////////////////////////////////////////////////////
 
   t_n_ snip_n_(R_crange range, p_snippet snip, t_n_ n) noexcept {
     auto max = get(range.n);
@@ -538,27 +557,18 @@ namespace string
     return 0;
   }
 
-  t_n_ copy_left_(p_cstr_ str, t_n_ max, t_n_ need, t_n_ width) noexcept {
-    if (max > width && need >= width) { // unfinished
-      for (t_ix_ ix = need; ix < width; ++ix)
-        str[ix] = ' ';
-      str[width] = '\0';
-    } else
-      assert_now(P_cstr("does not fit in width"));
-    return width;
+///////////////////////////////////////////////////////////////////////////////
+
+  t_n_ shift_left_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
+    return len < max ? len : max - 1; // ignore width
   }
 
-  t_n_ copy_right_(p_cstr_ str, t_n_ max, t_n_ need, t_n_ width) noexcept {
-    if (max > width && need >= width) { // unfinished
-      for (t_ix_ ix = need; ix < width; ++ix)
-        str[ix] = ' ';
-      str[width] = '\0';
-    }
-    return width;
+  t_n_ shift_right_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
+    return len < max ? len : max - 1; // ignore width
   }
 
-  t_n_ copy_centre_(p_cstr_ str, t_n_ max, t_n_ need, t_n_ width) noexcept {
-    return width; // unfinished
+  t_n_ shift_centre_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
+    return shift_left_(str, max, len, width);
   }
 
 ////////////////////////////////////////////////////////////////////////////////

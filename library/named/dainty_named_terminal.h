@@ -43,7 +43,7 @@ namespace terminal
 ////////////////////////////////////////////////////////////////////////////////
 
   enum  t_out_string_tag_ { };
-  using t_out_string = t_string<t_out_string_tag_, 120, OVERFLOW_GROW>;
+  using t_out_string = t_string<t_out_string_tag_, 120, t_overflow_grow>;
   using r_out_string = t_prefix<t_out_string>::r_;
   using R_out_string = t_prefix<t_out_string>::R_;
 

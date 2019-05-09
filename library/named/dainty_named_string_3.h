@@ -37,7 +37,7 @@ namespace string
 {
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   class t_string<TAG, 0, O> {
     using t_impl_ = t_string_impl_<O>;
   public:
@@ -67,9 +67,9 @@ namespace string
     t_string(         const t_char (&)[N1])         noexcept;
     template<t_n_ N1>
     t_string(t_n max, const t_char (&)[N1])         noexcept;
-    template<t_n_ N1, t_overflow O1>
+    template<t_n_ N1, typename O1>
     t_string(         const t_string<TAG, N1, O1>&) noexcept;
-    template<t_n_ N1, t_overflow O1>
+    template<t_n_ N1, typename O1>
     t_string(t_n max, const t_string<TAG, N1, O1>&) noexcept;
 
     r_string operator=(P_cstr)   noexcept;
@@ -79,10 +79,10 @@ namespace string
 
     template<t_n_ N1>
     r_string operator=(const t_char (&)[N1])         noexcept;
-    template<t_n_ N1, t_overflow O1>
+    template<t_n_ N1, typename O1>
     r_string operator=(const t_string<TAG, N1, O1>&) noexcept;
 
-    template<class TAG1, t_n_ N1, t_overflow O1>
+    template<class TAG1, t_n_ N1, typename O1>
     r_string assign(const t_string<TAG1, N1, O1>&) noexcept;
     r_string assign(t_fmt, P_cstr_, ...)           noexcept
       __attribute__((format(printf, 3, 4)));
@@ -95,7 +95,7 @@ namespace string
 
     template<t_n_ N1>
     r_string append(const t_char (&)[N1])          noexcept;
-    template<class TAG1, t_n_ N1, t_overflow O1>
+    template<class TAG1, t_n_ N1, typename O1>
     r_string append(const t_string<TAG1, N1, O1>&) noexcept;
 
     r_string va_assign(P_cstr_ fmt, va_list vars) noexcept;
@@ -113,7 +113,7 @@ namespace string
     t_bool is_match(P_cstr pattern)                        const noexcept;
     template<t_n_ N1>
     t_bool is_match(const t_char (&pattern)[N1])           const noexcept;
-    template<class TAG1, t_n_ N1, t_overflow O1>
+    template<class TAG1, t_n_ N1, typename O1>
     t_bool is_match(const t_string<TAG1, N1, O1>& pattern) const noexcept;
 
     t_n    get_capacity()       const noexcept;
@@ -148,7 +148,7 @@ namespace string
     }
 
   private:
-    template<class, t_n_, t_overflow> friend class t_string;
+    template<typename, t_n_, typename> friend class t_string;
     t_n_    max_  = 0; // includes '\0'
     t_ptr_  store_;
     t_impl_ impl_;
@@ -156,34 +156,34 @@ namespace string
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_string<TAG, 0, O>::t_string(t_n max) noexcept
     : max_{get(max) + 1}, store_{alloc_(max_)}, impl_{store_.get()} {
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_string<TAG, 0, O>::t_string(P_cstr str) noexcept
     : max_{length_(get(str)+1)}, store_{alloc_(max_)},
       impl_{store_.get(), max_, str} {
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_string<TAG, 0, O>::t_string(R_block block) noexcept
     : max_{get(block.n) + 1}, store_{alloc_(max_)},
       impl_{store_.get(), max_, block} {
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_string<TAG, 0, O>::t_string(R_crange range) noexcept
     : max_{get(range.n) + 1}, store_{alloc_(max_)},
       impl_{store_.get(), max_, begin(range), get(range.n)} {
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_string<TAG, 0, O>::t_string(t_fmt, P_cstr_ fmt, ...) noexcept {
     va_list vars;
@@ -194,29 +194,29 @@ namespace string
     va_end(vars);
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_string<TAG, 0, O>::t_string(R_string str) noexcept
     : max_{get(str.get_length) + 1}, store_{alloc_(max_)},
       impl_{store_.get(), max_, get(str.get_cstr())} {
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   template<t_n_ N1>
   inline
   t_string<TAG, 0, O>::t_string(const t_char (&str)[N1]) noexcept
     : max_{N1}, store_{alloc_(max_)}, impl_{store_.get(), max_, str} {
   }
 
-  template<class TAG, t_overflow O>
-  template<t_n_ N1, t_overflow O1>
+  template<class TAG, typename O>
+  template<t_n_ N1, typename O1>
   inline
   t_string<TAG, 0, O>::t_string(const t_string<TAG, N1, O1>& str) noexcept
     : max_{get(str.get_length()) + 1}, store_{alloc_(max_)},
       impl_{store_.get(), max_, get(str.get_cstr())} {
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::operator=(P_cstr str) noexcept {
@@ -224,7 +224,7 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::operator=(R_block block) noexcept {
@@ -232,7 +232,7 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::operator=(R_crange range) noexcept {
@@ -240,7 +240,7 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::operator=(R_string str) noexcept {
@@ -248,7 +248,7 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   template<t_n_ N1>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
@@ -257,8 +257,8 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
-  template<t_n_ N1, t_overflow O1>
+  template<class TAG, typename O>
+  template<t_n_ N1, typename O1>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::operator=(const t_string<TAG, N1, O1>& str) noexcept {
@@ -266,7 +266,7 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::assign(t_fmt, P_cstr_ fmt, ...) noexcept {
@@ -277,8 +277,8 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
-  template<class TAG1, t_n_ N1, t_overflow O1>
+  template<class TAG, typename O>
+  template<class TAG1, t_n_ N1, typename O1>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::assign(const t_string<TAG1, N1, O1>& str) noexcept {
@@ -286,7 +286,7 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::append(P_cstr str) noexcept {
@@ -294,7 +294,7 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::append(R_block block) noexcept {
@@ -302,7 +302,7 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::append(R_crange range) noexcept {
@@ -310,7 +310,7 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::append(t_fmt, P_cstr_ fmt, ...) noexcept {
@@ -321,7 +321,7 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   template<t_n_ N1>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
@@ -330,8 +330,8 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
-  template<class TAG1, t_n_ N1, t_overflow O1>
+  template<class TAG, typename O>
+  template<class TAG1, t_n_ N1, typename O1>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::append(const t_string<TAG1, N1, O1>& str) noexcept {
@@ -339,7 +339,7 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::va_assign(P_cstr_ fmt, va_list vars) noexcept {
@@ -347,7 +347,7 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
       ::va_append(P_cstr_ fmt, va_list vars) noexcept {
@@ -355,25 +355,25 @@ namespace string
     return *this;
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_void t_string<TAG, 0, O>::display() const noexcept {
     impl_.display(store_.get());
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_void t_string<TAG, 0, O>::display_then_clear() noexcept {
     impl_.display_then_clear(store_.get());
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_bool t_string<TAG, 0, O>::is_match(P_cstr pattern) const noexcept {
     return impl_.is_match(store_.get(), get(pattern));
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   template<t_n_ N1>
   inline
   t_bool t_string<TAG, 0, O>
@@ -381,116 +381,116 @@ namespace string
     return impl_.is_match(store_.get(), pattern);
   }
 
-  template<class TAG, t_overflow O>
-  template<class TAG1, t_n_ N1, t_overflow O1>
+  template<class TAG, typename O>
+  template<class TAG1, t_n_ N1, typename O1>
   inline
   t_bool t_string<TAG, 0, O>
       ::is_match(const t_string<TAG1, N1, O1>& pattern) const noexcept {
     return impl_.is_match(store_.get(), get(pattern.get_cstr()));
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_void t_string<TAG, 0, O>::clear() noexcept {
     return impl_.clear(store_.get());
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   P_cstr t_string<TAG, 0, O>::get_cstr() const noexcept {
     return P_cstr{impl_.get_cstr(store_.get())};
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_n t_string<TAG, 0, O>::get_length() const noexcept {
     return t_n{impl_.get_length()};
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_n t_string<TAG, 0, O>::get_capacity() const noexcept {
     return t_n{max_ - 1};
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_bool t_string<TAG, 0, O>::is_empty() const noexcept {
     return impl_.is_empty();
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_n t_string<TAG, 0, O>::get_count(t_char c) const noexcept {
     return t_n{impl_.get_count(store_.get(), c)};
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::t_char t_string<TAG, 0, O>
       ::get_front() const noexcept {
     return impl_.get_front(store_.get());
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::t_char t_string<TAG, 0, O>
       ::get_back() const noexcept {
     return impl_.get_back(store_.get());
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_crange t_string<TAG, 0, O>::mk_range() const noexcept {
     return impl_.mk_range(store_.get());
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_crange t_string<TAG, 0, O>::mk_range(t_ix begin) const noexcept {
     return impl_.mk_range(store_.get(), begin);
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_crange t_string<TAG, 0, O>::mk_range(t_ix begin, t_ix end) const noexcept {
     return impl_.mk_range(store_.get(), begin, end);
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_string<TAG, 0, O>::operator t_crange() const noexcept {
     return mk_range();
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   template<class F>
   inline
   t_void t_string<TAG, 0, O>::each(F f) noexcept {
     impl_.each(store_.get(), f);
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   template<class F>
   inline
   t_void t_string<TAG, 0, O>::each(F f) const noexcept {
     impl_.each(store_.get(), f);
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   template<class F>
   inline
   t_void t_string<TAG, 0, O>::ceach(F f) const noexcept {
     impl_.each(store_.get(), f);
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_void t_string<TAG, 0, O>::mod_(t_ix pos, t_char ch) noexcept {
     impl_.mod_(store_.get(), get(pos), ch);
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_void t_string<TAG, 0, O>::scan(t_n n, P_cstr_ fmt, ...) noexcept {
     va_list vars;
@@ -499,7 +499,7 @@ namespace string
     va_end(vars);
   }
 
-  template<class TAG, t_overflow O>
+  template<class TAG, typename O>
   inline
   t_void t_string<TAG, 0, O>::va_scan(t_n n, P_cstr_ fmt,
                                       va_list vars) noexcept {

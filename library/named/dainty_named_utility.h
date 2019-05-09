@@ -55,6 +55,24 @@ namespace utility
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template <typename, typename> struct t_is_same : t_bool_result<false> { };
+  template <typename T> struct t_is_same<T, T>   : t_bool_result<true>  { };
+
+  template<typename T, typename T1, typename THEN = void>
+  struct t_if_same {
+    using t_result = typename t_if_then<t_is_same<T, T1>, THEN>::t_result;
+  };
+
+  template <typename, typename> struct t_is_not_same : t_bool_result<true>  { };
+  template <typename T> struct t_is_not_same<T, T>   : t_bool_result<false> { };
+
+  template<typename T, typename T1, typename THEN = void>
+  struct t_if_not_same {
+    using t_result = typename t_if_then<t_is_not_same<T, T1>, THEN>::t_result;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<typename T> struct t_is_unsigned : t_bool_result<false> { };
 
   template<> struct t_is_unsigned<t_uchar>    : t_bool_result<true> { };

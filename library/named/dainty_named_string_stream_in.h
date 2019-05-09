@@ -337,9 +337,9 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//  template<class, t_n_, t_overflow> class t_string;
+//  template<typename, t_n_, typename> class t_string;
 //
-//  template<class TAG, t_n_ N, t_overflow O>
+//  template<typename TAG, t_n_ N, typename O>
 //  inline
 //  t_slider mk_slider(const t_string<TAG, N, O>& lh) noexcept {
 //    return {lh.mk_range()};

@@ -97,7 +97,7 @@ namespace named
 {
 namespace string
 {
-  template<class TAG, t_n_ N, t_overflow O> class t_string;
+  template<class TAG, t_n_ N, typename O> class t_string;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -205,19 +205,19 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<class TAG, t_n_ N, t_overflow O>
+  template<class TAG, t_n_ N, typename O>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh, t_char rh) noexcept {
     return lh.append(t_block{rh, t_n{1}});
   }
 
-  template<class TAG, t_n_ N, t_overflow O>
+  template<class TAG, t_n_ N, typename O>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh, P_cstr rh) noexcept {
     return lh.append(rh);
   }
 
-  template<class TAG, class TAG1, t_n_ N, t_n_ N1, t_overflow O, t_overflow O1>
+  template<class TAG, class TAG1, t_n_ N, t_n_ N1, typename O, typename O1>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
                                   const t_string<TAG1, N1, O1>& rh) noexcept {
@@ -232,14 +232,15 @@ namespace string
     t_int_to_hex_str_helper_(const T& _value) noexcept : value{_value} {
     }
 
-    inline t_n_ operator()(p_cstr_ str, t_n_ max) noexcept {
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O) noexcept {
       return hex_to_str_(str, max, static_cast<t_ullong>(value));
     }
 
     T value;
   };
 
-  template<class TAG, t_n_ N, t_overflow O, typename T>
+  template<class TAG, t_n_ N, typename O, typename T>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
                                   t_hex_v_<T> value) noexcept {
@@ -249,7 +250,7 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<class TAG, t_n_ N, t_overflow O, typename P>
+  template<class TAG, t_n_ N, typename O, typename P>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
                                   t_ptr_v_<P> value) noexcept {
@@ -267,7 +268,8 @@ namespace string
     t_int_to_str_helper_(const T& _value) noexcept : value{_value} {
     }
 
-    inline t_n_ operator()(p_cstr_ str, t_n_ max) noexcept {
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O) noexcept {
       return uint_to_str_(str, max, value);
     }
 
@@ -280,14 +282,15 @@ namespace string
     t_int_to_str_helper_(const T& _value) noexcept : value{_value} {
     }
 
-    inline t_n_ operator()(p_cstr_ str, t_n_ max) noexcept {
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O) noexcept {
       return int_to_str_(str, max, value);
     }
 
     T value;
   };
 
-  template<class TAG, t_n_ N, t_overflow O, typename T>
+  template<class TAG, t_n_ N, typename O, typename T>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
                                   t_int_v_<T> value) noexcept {
@@ -308,14 +311,82 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  template<typename H>
+  inline t_n_ add_left_(p_cstr_ str, t_n_ max, H& helper, t_n_ width,
+                        t_overflow_assert) {
+    return width < max ?
+      shift_left_(str, max, helper(str, max, OVERFLOW_ASSERT), width) :
+      width;
+  }
+
+  template<typename H>
+  inline t_n_ add_left_(p_cstr_ str, t_n_ max, H& helper, t_n_ width,
+                        t_overflow_truncate) {
+    return shift_left_(str, max, helper(str, max, OVERFLOW_TRUNCATE), width);
+  }
+
+  template<typename H>
+  inline t_n_ add_left_(p_cstr_ str, t_n_ max, H& helper, t_n_ width,
+                        t_overflow_grow) {
+    return width < max ?
+      shift_left_(str, max, helper(str, max, OVERFLOW_GROW), width) :
+      width;
+  }
+
+  template<typename H>
+  inline t_n_ add_right_(p_cstr_ str, t_n_ max, H& helper, t_n_ width,
+                         t_overflow_assert) {
+    return width < max ?
+      shift_right_(str, max, helper(str, max, OVERFLOW_ASSERT), width) :
+      width;
+  }
+
+  template<typename H>
+  inline t_n_ add_right_(p_cstr_ str, t_n_ max, H& helper, t_n_ width,
+                         t_overflow_truncate) {
+    return shift_right_(str, max, helper(str, max, OVERFLOW_TRUNCATE), width);
+  }
+
+  template<typename H>
+  inline t_n_ add_right_(p_cstr_ str, t_n_ max, H& helper, t_n_ width,
+                         t_overflow_grow) {
+    return width < max ?
+      shift_right_(str, max, helper(str, max, OVERFLOW_GROW), width) :
+      width;
+  }
+
+  template<typename H>
+  inline t_n_ add_centre_(p_cstr_ str, t_n_ max, H& helper, t_n_ width,
+                          t_overflow_assert) {
+    return width < max ?
+      shift_centre_(str, max, helper(str, max, OVERFLOW_ASSERT), width) :
+      width;
+  }
+
+  template<typename H>
+  inline t_n_ add_centre_(p_cstr_ str, t_n_ max, H& helper, t_n_ width,
+                          t_overflow_truncate) {
+    return shift_centre_(str, max, helper(str, max, OVERFLOW_TRUNCATE), width);
+  }
+
+  template<typename H>
+  inline t_n_ add_centre_(p_cstr_ str, t_n_ max, H& helper, t_n_ width,
+                          t_overflow_grow) {
+    return width < max ?
+      shift_centre_(str, max, helper(str, max, OVERFLOW_GROW), width) :
+      width;
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
   template<typename T, t_width_ WIDTH>
   struct t_fmt_v_<t_int_v_<T>, WIDTH, ALIGN_LEFT> {
-    constexpr t_fmt_v_(t_int_v_<T> value) noexcept
-      : helper_(get(value)) {
+    constexpr t_fmt_v_(t_int_v_<T> value) noexcept : helper_(get(value)) {
     }
 
-    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
-      return copy_left_(str, max, helper_(str, max), WIDTH);
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return add_left_(str, max, helper_, WIDTH, overflow);
     }
 
     t_int_to_str_helper_<T> helper_;
@@ -323,12 +394,12 @@ namespace string
 
   template<typename T, t_width_ WIDTH>
   struct t_fmt_v_<t_int_v_<T>, WIDTH, ALIGN_RIGHT> {
-    constexpr t_fmt_v_(t_int_v_<T> value) noexcept
-      : helper_(get(value)) {
+    constexpr t_fmt_v_(t_int_v_<T> value) noexcept : helper_(get(value)) {
     }
 
-    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
-      return copy_right_(str, max, helper_(str, max), WIDTH);
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return add_right_(str, max, helper_, WIDTH, overflow);
     }
 
     t_int_to_str_helper_<T> helper_;
@@ -336,12 +407,12 @@ namespace string
 
   template<typename T, t_width_ WIDTH>
   struct t_fmt_v_<t_int_v_<T>, WIDTH, ALIGN_CENTRE> {
-    constexpr t_fmt_v_(t_int_v_<T> value) noexcept
-      : helper_(get(value)) {
+    constexpr t_fmt_v_(t_int_v_<T> value) noexcept : helper_(get(value)) {
     }
 
-    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
-      return copy_centre_(str, max, helper_(str, max), WIDTH);
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return add_centre_(str, max, helper_, WIDTH, overflow);
     }
 
     t_int_to_str_helper_<T> helper_;
@@ -351,41 +422,41 @@ namespace string
 
   template<typename T, t_width_ WIDTH>
   struct t_fmt_v_<t_hex_v_<T>, WIDTH, ALIGN_LEFT> {
-    constexpr t_fmt_v_(t_hex_v_<T> value) noexcept
-      : helper(get(value)) {
+    constexpr t_fmt_v_(t_hex_v_<T> value) noexcept : helper_(get(value)) {
     }
 
-    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
-      return copy_left_(str, max, helper(str, max), WIDTH);
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return add_left_(str, max, helper_, WIDTH, overflow);
     }
 
-    t_int_to_hex_str_helper_<T> helper;
+    t_int_to_hex_str_helper_<T> helper_;
   };
 
   template<typename T, t_width_ WIDTH>
   struct t_fmt_v_<t_hex_v_<T>, WIDTH, ALIGN_RIGHT> {
-    constexpr t_fmt_v_(t_hex_v_<T> value) noexcept
-      : helper(get(value)) {
+    constexpr t_fmt_v_(t_hex_v_<T> value) noexcept : helper_(get(value)) {
     }
 
-    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
-      return copy_right_(str, max, helper(str, max), WIDTH);
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return add_right_(str, max, helper_, WIDTH, overflow);
     }
 
-    t_int_to_hex_str_helper_<T> helper;
+    t_int_to_hex_str_helper_<T> helper_;
   };
 
   template<typename T, t_width_ WIDTH>
   struct t_fmt_v_<t_hex_v_<T>, WIDTH, ALIGN_CENTRE> {
-    constexpr t_fmt_v_(t_hex_v_<T> value) noexcept
-      : helper(get(value)) {
+    constexpr t_fmt_v_(t_hex_v_<T> value) noexcept : helper_(get(value)) {
     }
 
-    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
-      return copy_centre_(str, max, helper(str, max), WIDTH);
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return add_centre_(str, max, helper_, WIDTH, overflow);
     }
 
-    t_int_to_hex_str_helper_<T> helper;
+    t_int_to_hex_str_helper_<T> helper_;
   };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -393,57 +464,126 @@ namespace string
   template<typename T, t_width_ WIDTH>
   struct t_fmt_v_<t_ptr_v_<T>, WIDTH, ALIGN_LEFT> {
     constexpr t_fmt_v_(t_ptr_v_<T> value) noexcept
-      : helper{reinterpret_cast<t_uintptr>(get(value))} {
+      : helper_{reinterpret_cast<t_uintptr>(get(value))} {
     }
 
-    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
-      return copy_left_(str, max, helper(str, max), WIDTH);
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return add_left_(str, max, helper_, WIDTH, overflow);
     }
 
-    t_int_to_hex_str_helper_<t_uintptr> helper;
+    t_int_to_hex_str_helper_<t_uintptr> helper_;
   };
 
   template<typename T, t_width_ WIDTH>
   struct t_fmt_v_<t_ptr_v_<T>, WIDTH, ALIGN_RIGHT> {
     constexpr t_fmt_v_(t_ptr_v_<T> value) noexcept
-      : helper{reinterpret_cast<t_uintptr>(get(value))} {
+      : helper_{reinterpret_cast<t_uintptr>(get(value))} {
     }
 
-    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
-      return copy_right_(str, max, helper(str, max), WIDTH);
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return add_right_(str, max, helper_, WIDTH, overflow);
     }
 
-    t_int_to_hex_str_helper_<t_uintptr> helper;
+    t_int_to_hex_str_helper_<t_uintptr> helper_;
   };
 
   template<typename T, t_width_ WIDTH>
   struct t_fmt_v_<t_ptr_v_<T>, WIDTH, ALIGN_CENTRE> {
     constexpr t_fmt_v_(t_ptr_v_<T> value) noexcept
-      : helper{reinterpret_cast<t_uintptr>(get(value))} {
+      : helper_{reinterpret_cast<t_uintptr>(get(value))} {
     }
 
-    inline t_n_ operator()(p_cstr_ str, t_n_ max) {
-      return copy_centre_(str, max, helper(str, max), WIDTH);
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return add_centre_(str, max, helper_, WIDTH, overflow);
     }
 
-    t_int_to_hex_str_helper_<t_uintptr> helper;
+    t_int_to_hex_str_helper_<t_uintptr> helper_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<t_width_ WIDTH, typename T>
+  struct t_crange_to_str_helper_ {
+    constexpr
+    t_crange_to_str_helper_(R_crange _value) noexcept : value{_value} {
+    }
+
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return copy_(str, max, value.ptr, get(value.n), overflow);
+    }
+
+    t_crange value;
+  };
+
+  template<t_width_ WIDTH>
+  struct t_fmt_v_<t_crange, WIDTH, ALIGN_LEFT> {
+    constexpr t_fmt_v_(R_crange _value) noexcept : helper_(_value) {
+    }
+
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return add_left_(str, max, helper_, WIDTH, overflow);
+    }
+
+    t_crange_to_str_helper_ helper_;
+  };
+
+  template<t_width_ WIDTH>
+  struct t_fmt_v_<t_crange, WIDTH, ALIGN_RIGHT> {
+    constexpr t_fmt_v_(R_crange _value) noexcept : helper_(_value) {
+    }
+
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return add_right_(str, max, helper_, WIDTH, overflow);
+    }
+
+    t_crange_to_str_helper_ helper_;
+  };
+
+  template<t_width_ WIDTH>
+  struct t_fmt_v_<t_crange, WIDTH, ALIGN_CENTRE> {
+    constexpr t_fmt_v_(R_crange _value) noexcept : helper_(_value) {
+    }
+
+    template<typename O>
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, O overflow) noexcept {
+      return add_centre_(str, max, helper_, WIDTH, overflow);
+    }
+
+    t_crange_to_str_helper_ helper_;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<t_width_ WIDTH>
+  constexpr t_fmt_v_<t_crange, WIDTH> format(t_crange value) noexcept {
+    return t_fmt_v_<t_crange, WIDTH>{value};
+  }
+
+  template<t_width_ WIDTH, t_align ALIGN>
+  constexpr t_fmt_v_<t_crange, WIDTH, ALIGN> format(t_crange value) noexcept {
+    return t_fmt_v_<t_crange, WIDTH, ALIGN>{value};
+  }
+
+  template<t_width_ WIDTH, typename T,
+           typename = typename utility::t_if_not_same<T, t_crange>::t_result>
   constexpr t_fmt_v_<T, WIDTH> format(T value) noexcept {
     return t_fmt_v_<T, WIDTH>{value};
   }
 
-  template<t_width_ WIDTH, t_align ALIGN, typename T>
+  template<t_width_ WIDTH, t_align ALIGN, typename T,
+           typename = typename utility::t_if_not_same<T, t_crange>::t_result>
   constexpr t_fmt_v_<T, WIDTH, ALIGN> format(T value) noexcept {
     return t_fmt_v_<T, WIDTH, ALIGN>{value};
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<class TAG, t_n_ N, t_overflow O, t_width_ WIDTH, t_align ALIGN,
+  template<class TAG, t_n_ N, typename O, t_width_ WIDTH, t_align ALIGN,
            typename T>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
@@ -453,7 +593,7 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<class TAG, t_n_ N, t_overflow O, t_n_ INDENT_DEPTH,
+  template<class TAG, t_n_ N, typename O, t_n_ INDENT_DEPTH,
            t_char INDENT_CHAR>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
@@ -466,7 +606,7 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<class TAG, t_n_ N, t_overflow O, class T>
+  template<class TAG, t_n_ N, typename O, class T>
   inline
   t_string<TAG, N, O>& operator<<(t_string<TAG, N, O>& lh,
                                   const T& rh) noexcept {

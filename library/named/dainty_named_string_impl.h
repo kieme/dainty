@@ -55,14 +55,20 @@ namespace string
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum t_fmt      { FMT };
-  enum t_overflow { OVERFLOW_ASSERT, OVERFLOW_TRUNCATE, OVERFLOW_GROW };
+  enum t_overflow_assert   { OVERFLOW_ASSERT   };
+  enum t_overflow_truncate { OVERFLOW_TRUNCATE };
+  enum t_overflow_grow     { OVERFLOW_GROW     };
 
-  constexpr t_char EOL{'\0'};
+  template<typename> class t_string_impl_;
 
+///////////////////////////////////////////////////////////////////////////////
+
+  enum t_fmt                 { FMT };
   enum t_plus1_     : t_n_   { NOT_PLUS1     = 0,     PLUS1     = 1    };
   enum t_incl_char_ : t_n_   { NOT_INCL_CHAR = 0,     INCL_CHAR = 1 };
   enum t_eol_       : t_bool { NOT_EOL_OK    = false, EOL_OK    = true };
+
+  constexpr t_char EOL{'\0'};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -137,15 +143,18 @@ namespace string
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_n_     build_try_     (p_cstr_, t_n_, P_cstr_, va_list) noexcept;
-  t_n_     build_assert_  (p_cstr_, t_n_, P_cstr_, va_list) noexcept;
-  t_n_     build_truncate_(p_cstr_, t_n_, P_cstr_, va_list) noexcept;
-  t_n_     copy_assert_   (p_cstr_, t_n_, P_cstr_, t_n_)    noexcept;
-  t_n_     copy_truncate_ (p_cstr_, t_n_, P_cstr_, t_n_)    noexcept;
-  t_n_     copy_assert_   (p_cstr_, t_n_, P_cstr_)          noexcept;
-  t_n_     copy_truncate_ (p_cstr_, t_n_, P_cstr_)          noexcept;
-  t_n_     fill_assert_   (p_cstr_, t_n_, R_block)          noexcept;
-  t_n_     fill_truncate_ (p_cstr_, t_n_, R_block)          noexcept;
+  t_n_ build_(p_cstr_, t_n_, P_cstr_, va_list, t_overflow_grow)     noexcept;
+  t_n_ build_(p_cstr_, t_n_, P_cstr_, va_list, t_overflow_assert)   noexcept;
+  t_n_ build_(p_cstr_, t_n_, P_cstr_, va_list, t_overflow_truncate) noexcept;
+
+  t_n_ copy_(p_cstr_, t_n_, P_cstr_, t_n_, t_overflow_assert)   noexcept;
+  t_n_ copy_(p_cstr_, t_n_, P_cstr_, t_n_, t_overflow_truncate) noexcept;
+
+  t_n_ copy_(p_cstr_, t_n_, P_cstr_, t_overflow_assert)   noexcept;
+  t_n_ copy_(p_cstr_, t_n_, P_cstr_, t_overflow_truncate) noexcept;
+
+  t_n_ fill_ (p_cstr_, t_n_, R_block, t_overflow_assert)   noexcept;
+  t_n_ fill_ (p_cstr_, t_n_, R_block, t_overflow_truncate) noexcept;
 
   t_n_     calc_n_     (t_n_, t_n_)                   noexcept;
   p_cstr_  alloc_      (t_n_)                         noexcept;
@@ -165,6 +174,10 @@ namespace string
   t_bool   equal_      (R_crange, R_crange)       noexcept;
   t_bool   less_       (R_crange, R_crange)       noexcept;
   t_bool   less_equal_ (R_crange, R_crange)       noexcept;
+
+  t_n_     shift_left_  (p_cstr_, t_n_, t_n_, t_n_) noexcept;
+  t_n_     shift_right_ (p_cstr_, t_n_, t_n_, t_n_) noexcept;
+  t_n_     shift_centre_(p_cstr_, t_n_, t_n_, t_n_) noexcept;
 
   t_ullong to_uint_    (t_n_&, t_char, t_char,         t_n_, P_cstr_) noexcept;
   t_llong  to_sint_    (t_n_&, t_char, t_char, t_char, t_n_, P_cstr_) noexcept;
@@ -194,10 +207,6 @@ namespace string
                           t_incl_char_)              noexcept;
   t_n_     snip_char_eol_(R_crange, p_snippet, p_char_select, t_plus1_,
                           t_incl_char_)              noexcept;
-
-  t_n_     copy_left_  (p_cstr_, t_n_, t_n_, t_n_) noexcept;
-  t_n_     copy_right_ (p_cstr_, t_n_, t_n_, t_n_) noexcept;
-  t_n_     copy_centre_(p_cstr_, t_n_, t_n_, t_n_) noexcept;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -328,23 +337,6 @@ namespace string
         assert_now(P_cstr{"not in range"});
     }
 
-    inline t_n_ va_assign_try(p_cstr_ str, t_n_ max, P_cstr_ fmt,
-                              va_list vars) noexcept {
-      auto n = build_try_(str, max, fmt, vars);
-      if (n < max)
-        len_ = n;
-      return n;
-    }
-
-    inline t_n_ va_append_try(p_cstr_ str, t_n_ max, P_cstr_ fmt,
-                              va_list vars) noexcept {
-      auto left = max - len_;
-      auto n = build_try_(str + len_, left, fmt, vars);
-      if (n < left)
-        len_ += n;
-      return n;
-    }
-
     inline t_void va_scan(p_cstr_ str, t_n_ n, P_cstr_ fmt,
                           va_list vars) noexcept {
       scan_(str, n, fmt, vars);
@@ -356,71 +348,65 @@ namespace string
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<t_overflow> class t_string_impl_;
-
   template<>
-  class t_string_impl_<OVERFLOW_ASSERT> : public t_string_impl_base_ {
+  class t_string_impl_<t_overflow_assert> : public t_string_impl_base_ {
   public:
     using base_ = t_string_impl_base_;
 
-    inline t_string_impl_(t_n_ len) noexcept : base_{len} {
-    }
-
-    inline t_string_impl_(p_cstr_ str) noexcept : base_{str} {
-    }
+    using base_::base_;
 
     inline t_string_impl_(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept
-      : base_{copy_assert_(str, max, src)} {
+      : base_{copy_(str, max, src, OVERFLOW_ASSERT)} {
     }
 
     inline t_string_impl_(p_cstr_ str, t_n_ max, P_cstr_ src,
                           t_n_ cnt) noexcept
-      : base_{copy_assert_(str, max, src, cnt)} {
+      : base_{copy_(str, max, src, cnt, OVERFLOW_ASSERT)} {
     }
 
     inline t_string_impl_(p_cstr_ str, t_n_ max, R_block block) noexcept
-      : base_{fill_assert_(str, max, block)} {
+      : base_{fill_(str, max, block, OVERFLOW_ASSERT)} {
     }
 
     inline t_void assign(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept {
-      len_ = copy_assert_(str, max, src);
+      len_ = copy_(str, max, src, OVERFLOW_ASSERT);
     }
 
     inline t_void assign(p_cstr_ str, t_n_ max, P_cstr_ src,
                          t_n_ cnt) noexcept {
-      len_ = copy_assert_(str, max, src, cnt);
+      len_ = copy_(str, max, src, cnt, OVERFLOW_ASSERT);
     }
 
     inline t_void assign(p_cstr_ str, t_n_ max, R_block block) noexcept {
-      len_ = fill_assert_(str, max, block);
+      len_ = fill_(str, max, block, OVERFLOW_ASSERT);
     }
 
     inline t_void append(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept {
-      len_ += copy_assert_(str + len_, max - len_, src);
+      len_ += copy_(str + len_, max - len_, src, OVERFLOW_ASSERT);
     }
 
     inline t_void append(p_cstr_ str, t_n_ max, P_cstr_ src,
                          t_n_ cnt) noexcept {
-      len_ += copy_assert_(str + len_, max - len_, src, cnt);
+      len_ += copy_(str + len_, max - len_, src, cnt, OVERFLOW_ASSERT);
     }
 
     inline t_void append(p_cstr_ str, t_n_ max, R_block block) noexcept {
-      len_ += fill_assert_(str + len_, max - len_, block);
+      len_ += fill_(str + len_, max - len_, block, OVERFLOW_ASSERT);
     }
 
     inline t_void va_assign(p_cstr_ str, t_n_ max, P_cstr_ fmt,
                             va_list vars) noexcept {
-      len_ = build_assert_(str, max, fmt, vars);
+      len_ = build_(str, max, fmt, vars, OVERFLOW_ASSERT);
     }
 
     inline t_void va_append(p_cstr_ str, t_n_ max, P_cstr_ fmt,
                             va_list vars) noexcept {
-      len_ += build_assert_(str + len_, max - len_, fmt, vars);
+      len_ += build_(str + len_, max - len_, fmt, vars, OVERFLOW_ASSERT);
     }
 
     template<typename F>
     inline t_void custom_assign(p_cstr_ str, t_n_ max, F& func) noexcept {
-      auto n = func(str, max);
+      auto n = func(str, max, OVERFLOW_ASSERT);
       if (n >= max)
         assert_now(P_cstr{"buffer overflow"});
       len_ = n;
@@ -428,7 +414,7 @@ namespace string
 
     template<typename F>
     inline t_void custom_append(p_cstr_ str, t_n_ max, F& func) noexcept {
-      auto n = func(str + len_, max - len_);
+      auto n = func(str + len_, max - len_, OVERFLOW_ASSERT);
       if (n + len_ >= max)
         assert_now(P_cstr{"buffer overflow"});
       len_ += n;
@@ -438,68 +424,162 @@ namespace string
 ///////////////////////////////////////////////////////////////////////////////
 
   template<>
-  class t_string_impl_<OVERFLOW_TRUNCATE> : public t_string_impl_base_ {
+  class t_string_impl_<t_overflow_truncate> : public t_string_impl_base_ {
   public:
     using base_ = t_string_impl_base_;
 
-    inline t_string_impl_(t_n_ len) noexcept : base_{len} {
-    }
-
-    inline t_string_impl_(p_cstr_ str) noexcept : base_{str} {
-    }
+    using base_::base_;
 
     inline t_string_impl_(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept
-      : base_{copy_truncate_(str, max, src)} {
+      : base_{copy_(str, max, src, OVERFLOW_TRUNCATE)} {
     }
 
     inline t_string_impl_(p_cstr_ str, t_n_ max, P_cstr_ src,
                           t_n_ cnt) noexcept
-      : base_{copy_truncate_(str, max, src, cnt)} {
+      : base_{copy_(str, max, src, cnt, OVERFLOW_TRUNCATE)} {
     }
 
     inline t_string_impl_(p_cstr_ str, t_n_ max, R_block block) noexcept
-      : base_{fill_truncate_(str, max, block)} {
+      : base_{fill_(str, max, block, OVERFLOW_TRUNCATE)} {
     }
 
     inline t_void assign(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept {
-      len_ = copy_truncate_(str, max, src);
+      len_ = copy_(str, max, src, OVERFLOW_TRUNCATE);
     }
 
     inline t_void assign(p_cstr_ str, t_n_ max, P_cstr_ src,
                          t_n_ cnt) noexcept {
-      len_ = copy_truncate_(str, max, src, cnt);
+      len_ = copy_(str, max, src, cnt, OVERFLOW_TRUNCATE);
     }
 
     inline t_void assign(p_cstr_ str, t_n_ max, R_block block) noexcept {
-      len_ = fill_truncate_(str, max, block);
+      len_ = fill_(str, max, block, OVERFLOW_TRUNCATE);
     }
 
     inline t_void append(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept {
-      len_ += copy_truncate_(str + len_, max - len_, src);
+      len_ += copy_(str + len_, max - len_, src, OVERFLOW_TRUNCATE);
     }
 
     inline t_void append(p_cstr_ str, t_n_ max, P_cstr_ src,
                          t_n_ cnt) noexcept {
-      len_ += copy_truncate_(str + len_, max - len_, src, cnt);
+      len_ += copy_(str + len_, max - len_, src, cnt, OVERFLOW_TRUNCATE);
     }
 
     inline t_void append(p_cstr_ str, t_n_ max, R_block block) noexcept {
-      len_ += fill_truncate_(str + len_, max - len_, block);
+      len_ += fill_(str + len_, max - len_, block, OVERFLOW_TRUNCATE);
     }
 
     inline t_void va_assign(p_cstr_ str, t_n_ max, P_cstr_ fmt,
                             va_list vars) noexcept {
-      len_ = build_truncate_(str, max, fmt, vars);
+      len_ = build_(str, max, fmt, vars, OVERFLOW_TRUNCATE);
     }
 
     inline t_void va_append(p_cstr_ str, t_n_ max, P_cstr_ fmt,
                             va_list vars) noexcept {
-      len_ += build_truncate_(str + len_, max - len_, fmt, vars);
+      len_ += build_(str + len_, max - len_, fmt, vars, OVERFLOW_TRUNCATE);
+    }
+
+    template<typename F>
+    inline t_void custom_assign(p_cstr_ str, t_n_ max, F& func) noexcept {
+      auto len = func(str, max, OVERFLOW_TRUNCATE);
+      if (len < max)
+        len_ = len;
+      else {
+        len_ = max - 1;
+        str[len] = '\0';
+      }
+    }
+
+    template<typename F>
+    inline t_void custom_append(p_cstr_ str, t_n_ max, F& func) noexcept {
+      auto len = func(str + len_, max - len_, OVERFLOW_TRUNCATE);
+      if (len < max - len_)
+        len_ += len;
+      else {
+        len_ = max - len_ - 1;
+        str[len] = '\0';
+      }
+    }
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<>
+  class t_string_impl_<t_overflow_grow> : public t_string_impl_base_ {
+  public:
+    using base_ = t_string_impl_base_;
+
+    using base_::base_;
+
+    inline t_string_impl_(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept
+      : base_{copy_(str, max, src, OVERFLOW_TRUNCATE)} {
+    }
+
+    inline t_string_impl_(p_cstr_ str, t_n_ max, P_cstr_ src,
+                          t_n_ cnt) noexcept
+      : base_{copy_(str, max, src, cnt, OVERFLOW_TRUNCATE)} {
+    }
+
+    inline t_string_impl_(p_cstr_ str, t_n_ max, R_block block) noexcept
+      : base_{fill_(str, max, block, OVERFLOW_TRUNCATE)} {
+    }
+
+    inline t_void assign(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept {
+      len_ = copy_(str, max, src, OVERFLOW_TRUNCATE);
+    }
+
+    inline t_void assign(p_cstr_ str, t_n_ max, P_cstr_ src,
+                         t_n_ cnt) noexcept {
+      len_ = copy_(str, max, src, cnt, OVERFLOW_TRUNCATE);
+    }
+
+    inline t_void assign(p_cstr_ str, t_n_ max, R_block block) noexcept {
+      len_ = fill_(str, max, block, OVERFLOW_TRUNCATE);
+    }
+
+    inline t_void append(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept {
+      len_ += copy_(str + len_, max - len_, src, OVERFLOW_TRUNCATE);
+    }
+
+    inline t_void append(p_cstr_ str, t_n_ max, P_cstr_ src,
+                         t_n_ cnt) noexcept {
+      len_ += copy_(str + len_, max - len_, src, cnt, OVERFLOW_TRUNCATE);
+    }
+
+    inline t_void append(p_cstr_ str, t_n_ max, R_block block) noexcept {
+      len_ += fill_(str + len_, max - len_, block, OVERFLOW_TRUNCATE);
+    }
+
+    inline t_n_ va_assign_try(p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                              va_list vars) noexcept {
+      auto n = build_(str, max, fmt, vars, OVERFLOW_GROW);
+      if (n < max)
+        len_ = n;
+      return n;
+    }
+
+    inline t_n_ va_append_try(p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                              va_list vars) noexcept {
+      auto left = max - len_;
+      auto n = build_(str + len_, left, fmt, vars, OVERFLOW_GROW);
+      if (n < left)
+        len_ += n;
+      return n;
+    }
+
+    inline t_void va_assign(p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                            va_list vars) noexcept {
+      len_ = build_(str, max, fmt, vars, OVERFLOW_TRUNCATE);
+    }
+
+    inline t_void va_append(p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                            va_list vars) noexcept {
+      len_ += build_(str + len_, max - len_, fmt, vars, OVERFLOW_TRUNCATE);
     }
 
     template<typename F>
     inline t_n_ custom_assign(p_cstr_ str, t_n_ max, F& func) noexcept {
-      auto len = func(str, max);
+      auto len = func(str, max, OVERFLOW_GROW);
       if (len < max)
         len_ = len;
       else {
@@ -511,7 +591,7 @@ namespace string
 
     template<typename F>
     inline t_n_ custom_append(p_cstr_ str, t_n_ max, F& func) noexcept {
-      auto len = func(str + len_, max - len_);
+      auto len = func(str + len_, max - len_, OVERFLOW_GROW);
       if (len < max - len_)
         len_ += len;
       else {
