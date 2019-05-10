@@ -560,11 +560,25 @@ namespace string
 ///////////////////////////////////////////////////////////////////////////////
 
   t_n_ shift_left_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
-    return len < max ? len : max - 1; // ignore width
+    t_n_ n = max - 1;
+    if (len < max) {
+      if (len <= width) {
+        if (width < max)
+          n = width;
+        for (t_ix_ ix = len; ix < n; ++ix)
+          str[ix] = ' ';
+      } else
+        n = width;
+      str[n] = '\0';
+    } else if (width < max) {
+      str[width] = '\0';
+      n = width;
+    }
+    return n;
   }
 
   t_n_ shift_right_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
-    return len < max ? len : max - 1; // ignore width
+    return len < max ? len : max - 1; // XXX do next
   }
 
   t_n_ shift_centre_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {

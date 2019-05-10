@@ -582,10 +582,8 @@ namespace string
       auto len = func(str, max, OVERFLOW_GROW);
       if (len < max)
         len_ = len;
-      else {
-        len = max - 1;
-        str[len] = '\0';
-      }
+      else
+        str[len_] = '\0';
       return len;
     }
 
@@ -594,10 +592,8 @@ namespace string
       auto len = func(str + len_, max - len_, OVERFLOW_GROW);
       if (len < max - len_)
         len_ += len;
-      else {
-        len = max - len_ - 1;
-        str[len] = '\0';
-      }
+      else
+        str[len_] = '\0';
       return len;
     }
   };

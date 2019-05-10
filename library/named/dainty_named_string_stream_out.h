@@ -515,6 +515,10 @@ namespace string
       return copy_(str, max, value.ptr, get(value.n), overflow);
     }
 
+    inline t_n_ operator()(p_cstr_ str, t_n_ max, t_overflow_grow) noexcept {
+      return copy_(str, max, value.ptr, get(value.n), OVERFLOW_TRUNCATE);
+    }
+
     t_crange value;
   };
 
@@ -560,25 +564,51 @@ namespace string
 ///////////////////////////////////////////////////////////////////////////////
 
   template<t_width_ WIDTH>
-  constexpr t_fmt_v_<t_crange, WIDTH> format(t_crange value) noexcept {
+  constexpr t_fmt_v_<t_crange, WIDTH>
+      format(t_crange value) noexcept {
     return t_fmt_v_<t_crange, WIDTH>{value};
   }
 
   template<t_width_ WIDTH, t_align ALIGN>
-  constexpr t_fmt_v_<t_crange, WIDTH, ALIGN> format(t_crange value) noexcept {
+  constexpr t_fmt_v_<t_crange, WIDTH, ALIGN>
+      format(t_crange value) noexcept {
     return t_fmt_v_<t_crange, WIDTH, ALIGN>{value};
   }
 
-  template<t_width_ WIDTH, typename T,
-           typename = typename utility::t_if_not_same<T, t_crange>::t_result>
-  constexpr t_fmt_v_<T, WIDTH> format(T value) noexcept {
-    return t_fmt_v_<T, WIDTH>{value};
+  template<t_width_ WIDTH, typename T>
+  constexpr t_fmt_v_<t_int_v_<T>, WIDTH>
+      format(t_int_v_<T> value) noexcept {
+    return t_fmt_v_<t_int_v_<T>, WIDTH>{value};
   }
 
-  template<t_width_ WIDTH, t_align ALIGN, typename T,
-           typename = typename utility::t_if_not_same<T, t_crange>::t_result>
-  constexpr t_fmt_v_<T, WIDTH, ALIGN> format(T value) noexcept {
-    return t_fmt_v_<T, WIDTH, ALIGN>{value};
+  template<t_width_ WIDTH, t_align ALIGN, typename T>
+  constexpr t_fmt_v_<t_int_v_<T>, WIDTH, ALIGN>
+      format(t_int_v_<T> value) noexcept {
+    return t_fmt_v_<t_int_v_<T>, WIDTH, ALIGN>{value};
+  }
+
+  template<t_width_ WIDTH, typename T>
+  constexpr t_fmt_v_<t_hex_v_<T>, WIDTH>
+      format(t_hex_v_<T> value) noexcept {
+    return t_fmt_v_<t_hex_v_<T>, WIDTH>{value};
+  }
+
+  template<t_width_ WIDTH, t_align ALIGN, typename T>
+  constexpr t_fmt_v_<t_hex_v_<T>, WIDTH, ALIGN>
+      format(t_hex_v_<T> value) noexcept {
+    return t_fmt_v_<t_hex_v_<T>, WIDTH, ALIGN>{value};
+  }
+
+  template<t_width_ WIDTH, typename T>
+  constexpr t_fmt_v_<t_ptr_v_<T>, WIDTH>
+      format(t_ptr_v_<T> value) noexcept {
+    return t_fmt_v_<t_ptr_v_<T>, WIDTH>{value};
+  }
+
+  template<t_width_ WIDTH, t_align ALIGN, typename T>
+  constexpr t_fmt_v_<t_ptr_v_<T>, WIDTH, ALIGN>
+      format(t_ptr_v_<T> value) noexcept {
+    return t_fmt_v_<t_ptr_v_<T>, WIDTH, ALIGN>{value};
   }
 
 ////////////////////////////////////////////////////////////////////////////////
