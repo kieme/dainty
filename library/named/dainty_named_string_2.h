@@ -75,6 +75,8 @@ namespace string
 
     template<typename O1>
     t_string(t_string<TAG, 0, O1>&&) noexcept;
+    template<t_n_ N1>
+    t_string(t_string<TAG, N1, t_overflow_grow>&&) noexcept; //XXX
 
    ~t_string();
 
@@ -87,8 +89,11 @@ namespace string
     r_string operator=(const t_char (&)[N1])         noexcept;
     template<t_n_ N1, typename O1>
     r_string operator=(const t_string<TAG, N1, O1>&) noexcept;
+
     template<typename O1>
     r_string operator=(t_string<TAG, 0, O1>&&)       noexcept;
+    template<t_n_ N1>
+    r_string operator=(t_string<TAG, N1, t_overflow_grow>&&) noexcept; // XXX
 
     template<class TAG1, t_n_ N1, typename O1>
     r_string assign(const t_string<TAG1, N1, O1>&) noexcept;
@@ -194,9 +199,23 @@ namespace string
 
   template<class TAG, t_n_ N>
   inline
+  t_string<TAG, N, t_overflow_grow>::t_string(t_n max, P_cstr str) noexcept
+      : t_string{max} {
+     operator=(str);
+  }
+
+  template<class TAG, t_n_ N>
+  inline
   t_string<TAG, N, t_overflow_grow>::t_string(R_block block) noexcept
     : max_{get(block.max) + 1}, store_{sso_alloc_(sso_, MAX_, max_)},
       impl_{store_, max_, block} {
+  }
+
+  template<class TAG, t_n_ N>
+  inline
+  t_string<TAG, N, t_overflow_grow>::t_string(t_n max, R_block block) noexcept
+      : t_string{max} {
+     operator=(block);
   }
 
   template<class TAG, t_n_ N>
@@ -208,7 +227,25 @@ namespace string
 
   template<class TAG, t_n_ N>
   inline
+  t_string<TAG, N, t_overflow_grow>::t_string(t_n max, R_crange range) noexcept
+      : t_string{max} {
+    operator=(range);
+  }
+
+  template<class TAG, t_n_ N>
+  inline
   t_string<TAG, N, t_overflow_grow>::t_string(t_fmt, P_cstr_ fmt, ...) noexcept {
+    va_list vars;
+    va_start(vars, fmt);
+    va_assign(fmt, vars);
+    va_end(vars);
+  }
+
+  template<class TAG, t_n_ N>
+  inline
+  t_string<TAG, N, t_overflow_grow>::t_string(t_n max, t_fmt, P_cstr_ fmt,
+                                              ...) noexcept
+      : t_string{max} {
     va_list vars;
     va_start(vars, fmt);
     va_assign(fmt, vars);
@@ -223,11 +260,27 @@ namespace string
   }
 
   template<class TAG, t_n_ N>
+  inline
+  t_string<TAG, N, t_overflow_grow>::t_string(t_n max, R_string str) noexcept
+      : t_string{max} {
+    operator=(str);
+  }
+
+  template<class TAG, t_n_ N>
   template<t_n_ N1>
   inline
   t_string<TAG, N, t_overflow_grow>::t_string(const t_char (&str)[N1]) noexcept
     : max_{N1}, store_{sso_alloc_(sso_, MAX_, max_)},
       impl_{store_, max_, str} {
+  }
+
+  template<class TAG, t_n_ N>
+  template<t_n_ N1>
+  inline
+  t_string<TAG, N, t_overflow_grow>::t_string(t_n max,
+                                              const t_char (&str)[N1]) noexcept
+      : t_string{max} {
+    operator=(t_crange{str, t_n{N1-1}});
   }
 
   template<class TAG, t_n_ N>
@@ -240,10 +293,19 @@ namespace string
   }
 
   template<class TAG, t_n_ N>
+  template<t_n_ N1, typename O1>
+  inline
+  t_string<TAG, N, t_overflow_grow>
+      ::t_string(t_n max, const t_string<TAG, N1, O1>& str) noexcept
+      : t_string{max} {
+    operator=(str);
+  }
+
+  template<class TAG, t_n_ N>
   template<typename O1>
   inline
   t_string<TAG, N, t_overflow_grow>
-      ::t_string(t_string<TAG, 0, O1>&& str) noexcept
+      ::t_string(t_string<TAG, 0, O1>&& str) noexcept //XXX - incorrect
     : max_{utility::reset(str.max_)}, store_{str.store_.release()},
       impl_{str.impl_.reset()} {
   }
@@ -343,7 +405,7 @@ namespace string
   inline
   typename t_string<TAG, N, t_overflow_grow>::r_string
     t_string<TAG, N, t_overflow_grow>
-      ::operator=(t_string<TAG, 0, O1>&& str) noexcept {
+      ::operator=(t_string<TAG, 0, O1>&& str) noexcept { // XXX incorrect
     if (store_ != sso_)
       dealloc_(store_);
     impl_.reset(str.impl_.reset());
