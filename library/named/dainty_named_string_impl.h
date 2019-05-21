@@ -72,14 +72,12 @@ namespace string
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum  t_crange_tag_ {};
-  using t_crange = range::t_crange<t_char, t_crange_tag_>;
-  using R_crange = t_prefix<t_crange>::R_;
+  using t_range  = range::t_cstr_range;
+  using R_range  = range::R_cstr_range;
+  using t_crange = range::t_cstr_crange;
+  using R_crange = range::R_cstr_crange;
 
   constexpr t_crange NO_RANGE;
-
-  enum  t_range_tag_ {};
-  using t_range = range::t_range<t_char, t_range_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -227,11 +225,11 @@ namespace string
   }
 
   constexpr t_crange mk_range(R_crange range, t_ix begin) noexcept {
-    return range::mk_crange<t_crange_tag_>(range, begin);
+    return range::mk_crange<range::t_cstr_range_tag_>(range, begin);
   }
 
   constexpr t_crange mk_range(R_crange range, t_ix begin, t_ix end) noexcept {
-    return range::mk_crange<t_crange_tag_>(range, begin, end);
+    return range::mk_crange<range::t_cstr_range_tag_>(range, begin, end);
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -321,14 +319,11 @@ namespace string
     }
 
     inline t_crange mk_range(P_cstr_ str, t_ix begin) const noexcept {
-      return range::mk_crange<t_crange_tag_>(t_crange{str, t_n{len_}},
-                                             begin, t_ix{len_});
+      return string::mk_range(t_crange{str, t_n{len_}}, begin, t_ix{len_});
     }
 
-    inline t_crange mk_range(P_cstr_ str, t_ix begin,
-                             t_ix end) const noexcept {
-      return range::mk_crange<t_crange_tag_>(t_crange{str, t_n{len_}},
-                                             begin, end);
+    inline t_crange mk_range(P_cstr_ str, t_ix begin, t_ix end) const noexcept {
+      return string::mk_range(t_crange{str, t_n{len_}}, begin, end);
     }
 
     template<class F>

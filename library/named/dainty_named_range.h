@@ -44,6 +44,7 @@ namespace range
   using named::t_n_;
   using named::t_n;
   using named::t_byte;
+  using named::t_char;
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
@@ -133,6 +134,23 @@ namespace range
   using r_byte_crange = t_prefix<t_byte_crange>::r_;
   using P_byte_crange = t_prefix<t_byte_crange>::P_;
   using p_byte_crange = t_prefix<t_byte_crange>::p_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  enum  t_cstr_range_tag_ {};
+  using t_cstr_range  = t_range<t_char, t_cstr_range_tag_>;
+  using T_cstr_range  = t_prefix<t_cstr_range>::T_;
+  using R_cstr_range  = t_prefix<t_cstr_range>::R_;
+  using r_cstr_range  = t_prefix<t_cstr_range>::r_;
+  using P_cstr_range  = t_prefix<t_cstr_range>::P_;
+  using p_cstr_range  = t_prefix<t_cstr_range>::p_;
+
+  using t_cstr_crange = t_crange<t_char, t_cstr_range_tag_>;
+  using T_cstr_crange = t_prefix<t_cstr_crange>::T_;
+  using R_cstr_crange = t_prefix<t_cstr_crange>::R_;
+  using r_cstr_crange = t_prefix<t_cstr_crange>::r_;
+  using P_cstr_crange = t_prefix<t_cstr_crange>::P_;
+  using p_cstr_crange = t_prefix<t_cstr_crange>::p_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
