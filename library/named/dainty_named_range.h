@@ -66,6 +66,7 @@ namespace range
     using p_item = typename t_prefix<T>::p_;
     using P_item = typename t_prefix<T>::P_;
 
+    constexpr t_range()                     noexcept = default;
     constexpr t_range(p_item, t_n)          noexcept;
     constexpr t_range(p_item, t_n, t_skip_) noexcept;
 
@@ -84,8 +85,8 @@ namespace range
     template<typename F> t_void  each(F) const;
     template<typename F> t_void ceach(F) const;
 
-    p_item const ptr;
-    t_n          n;
+    p_item const ptr = nullptr;
+    t_n          n   = t_n{0};
   };
 
   template<typename T, typename TAG>
@@ -96,6 +97,7 @@ namespace range
     using R_item = typename t_prefix<T>::R_;
     using P_item = typename t_prefix<T>::P_;
 
+    constexpr t_crange()                       noexcept = default;
     constexpr t_crange(P_item, t_n)            noexcept;
     constexpr t_crange(P_item, t_n, t_skip_)   noexcept;
     constexpr t_crange(const t_range<T, TAG>&) noexcept;
@@ -109,8 +111,8 @@ namespace range
     template<typename F> t_void  each(F) const;
     template<typename F> t_void ceach(F) const;
 
-    P_item const ptr;
-    t_n          n;
+    P_item const ptr = nullptr;
+    t_n          n   = t_n{0};
   };
 
   template<typename T, typename TAG> class t_range<const T, TAG>;

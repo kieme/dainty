@@ -42,27 +42,27 @@ namespace string
   class t_string<TAG, 0, t_overflow_grow> {
     using t_impl_ = t_string_impl_<t_overflow_grow>;
   public:
-    using t_n      = named::t_n;
-    using P_cstr   = named::P_cstr;
-    using R_crange = t_prefix<t_crange>::R_;
-    using r_string = typename t_prefix<t_string>::r_;
-    using R_string = typename t_prefix<t_string>::R_;
-    using t_char   = typename t_impl_::t_char;
-    using R_block  = typename t_impl_::R_block;
+    using t_n         = named::t_n;
+    using t_cstr_cptr = named::t_cstr_cptr;
+    using R_crange    = t_prefix<t_crange>::R_;
+    using r_string    = typename t_prefix<t_string>::r_;
+    using R_string    = typename t_prefix<t_string>::R_;
+    using t_char      = typename t_impl_::t_char;
+    using R_block     = typename t_impl_::R_block;
 
     t_string()                                       noexcept;
     t_string(t_n max, t_n blks)                      noexcept;
-    t_string(                   P_cstr)              noexcept;
-    t_string(t_n max, t_n blks, P_cstr)              noexcept;
+    t_string(                   t_cstr_cptr)         noexcept;
+    t_string(t_n max, t_n blks, t_cstr_cptr)         noexcept;
     t_string(                   R_block)             noexcept;
     t_string(t_n max, t_n blks, R_block)             noexcept;
     t_string(                   R_crange)            noexcept;
     t_string(t_n max, t_n blks, R_crange)            noexcept;
     t_string(                   R_string)            noexcept;
     t_string(t_n max, t_n blks, R_string)            noexcept;
-    t_string(                   t_fmt, P_cstr_, ...) noexcept
+    t_string(                   t_fmt, t_cstr_cptr_, ...) noexcept
       __attribute__((format(printf, 3, 4)));
-    t_string(t_n max, t_n blks, t_fmt, P_cstr_, ...) noexcept
+    t_string(t_n max, t_n blks, t_fmt, t_cstr_cptr_, ...) noexcept
       __attribute__((format(printf, 5, 6)));
 
     template<t_n_ N1>
@@ -79,10 +79,10 @@ namespace string
     template<t_n_ N1>
     t_string(t_string<TAG, N1, t_overflow_grow>&&) noexcept; // XXX -impl
 
-    r_string operator=(P_cstr)   noexcept;
-    r_string operator=(R_block)  noexcept;
-    r_string operator=(R_crange) noexcept;
-    r_string operator=(R_string) noexcept;
+    r_string operator=(t_cstr_cptr) noexcept;
+    r_string operator=(R_block)     noexcept;
+    r_string operator=(R_crange)    noexcept;
+    r_string operator=(R_string)    noexcept;
 
     template<t_n_ N1>
     r_string operator=(const t_char (&)[N1])         noexcept;
@@ -96,13 +96,13 @@ namespace string
 
     template<class TAG1, t_n_ N1, typename O1>
     r_string assign(const t_string<TAG1, N1, O1>&) noexcept;
-    r_string assign(t_fmt, P_cstr_, ...)           noexcept
+    r_string assign(t_fmt, t_cstr_cptr_, ...)      noexcept
       __attribute__((format(printf, 3, 4)));
 
-    r_string append(P_cstr)              noexcept;
-    r_string append(R_block)             noexcept;
-    r_string append(R_crange)            noexcept;
-    r_string append(t_fmt, P_cstr_, ...) noexcept
+    r_string append(t_cstr_cptr)              noexcept;
+    r_string append(R_block)                  noexcept;
+    r_string append(R_crange)                 noexcept;
+    r_string append(t_fmt, t_cstr_cptr_, ...) noexcept
       __attribute__((format(printf, 3, 4)));
 
     template<t_n_ N1>
@@ -110,31 +110,33 @@ namespace string
     template<class TAG1, t_n_ N1, typename O1>
     r_string append(const t_string<TAG1, N1, O1>&) noexcept;
 
-    r_string va_assign(P_cstr_ fmt, va_list vars) noexcept;
-    r_string va_append(P_cstr_ fmt, va_list vars) noexcept;
+    r_string va_assign(t_cstr_cptr_ fmt, va_list) noexcept;
+    r_string va_append(t_cstr_cptr_ fmt, va_list) noexcept;
 
     t_void clear() noexcept;
 
-    t_void display           () const noexcept;
-    t_void display_then_clear()       noexcept;
+    t_void display           (R_crange prefix  = NO_RANGE,
+                              R_crange postfix = NO_RANGE) const noexcept;
+    t_void display_then_clear(R_crange prefix  = NO_RANGE,
+                              R_crange postfix = NO_RANGE)        noexcept;
 
-    t_void    scan(t_n, P_cstr_, ...) noexcept
+    t_void    scan(t_n, t_cstr_cptr_, ...) noexcept
       __attribute__((format(scanf, 3, 4)));
-    t_void va_scan(t_n, P_cstr_ fmt, va_list vars) noexcept;
+    t_void va_scan(t_n, t_cstr_cptr_ fmt, va_list) noexcept;
 
-    t_bool is_match(P_cstr pattern)                        const noexcept;
+    t_bool is_match(t_cstr_cptr pattern)                   const noexcept;
     template<t_n_ N1>
     t_bool is_match(const t_char (&pattern)[N1])           const noexcept;
     template<class TAG1, t_n_ N1, typename O1>
     t_bool is_match(const t_string<TAG1, N1, O1>& pattern) const noexcept;
 
-    t_n    get_capacity()       const noexcept;
-    t_n    get_count   (t_char) const noexcept;
-    P_cstr get_cstr    ()       const noexcept;
-    t_n    get_length  ()       const noexcept;
-    t_bool is_empty    ()       const noexcept;
-    t_char get_front   ()       const noexcept;
-    t_char get_back    ()       const noexcept;
+    t_n         get_capacity()       const noexcept;
+    t_n         get_count   (t_char) const noexcept;
+    t_cstr_cptr get_cstr    ()       const noexcept;
+    t_n         get_length  ()       const noexcept;
+    t_bool      is_empty    ()       const noexcept;
+    t_char      get_front   ()       const noexcept;
+    t_char      get_back    ()       const noexcept;
 
     t_crange mk_range()           const noexcept;
     t_crange mk_range(t_ix)       const noexcept;
@@ -190,7 +192,7 @@ namespace string
 
   template<class TAG>
   inline
-  t_string<TAG, 0, t_overflow_grow>::t_string(P_cstr str) noexcept
+  t_string<TAG, 0, t_overflow_grow>::t_string(t_cstr_cptr str) noexcept
     : blks_{0}, max_{calc_n_(length_(get(str)), blks_)}, store_{alloc_(max_)},
       impl_{store_.get(), max_, get(str)} {
   }
@@ -198,7 +200,7 @@ namespace string
   template<class TAG>
   inline
   t_string<TAG, 0, t_overflow_grow>::t_string(t_n max, t_n blks,
-                                              P_cstr str) noexcept
+                                              t_cstr_cptr str) noexcept
       : t_string{max, blks} { // XXX - improve
     operator=(str);
   }
@@ -222,7 +224,7 @@ namespace string
   inline
   t_string<TAG, 0, t_overflow_grow>::t_string(R_crange range) noexcept
     : blks_{0}, max_{calc_n_(get(range.n), blks_)}, store_{alloc_(max_)},
-      impl_{store_.get(), max_, begin(range), get(range.n)} {
+      impl_{store_.get(), max_, range} {
   }
 
   template<class TAG>
@@ -235,7 +237,7 @@ namespace string
 
   template<class TAG>
   inline
-  t_string<TAG, 0, t_overflow_grow>::t_string(t_fmt, P_cstr_ fmt,
+  t_string<TAG, 0, t_overflow_grow>::t_string(t_fmt, t_cstr_cptr_ fmt,
                                               ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
@@ -246,7 +248,7 @@ namespace string
   template<class TAG>
   inline
   t_string<TAG, 0, t_overflow_grow>::t_string(t_n max, t_n blks, t_fmt,
-                                              P_cstr_ fmt, ...) noexcept
+                                              t_cstr_cptr_ fmt, ...) noexcept
       : t_string{max, blks} {
     va_list vars;
     va_start(vars, fmt);
@@ -341,7 +343,7 @@ namespace string
   template<class TAG>
   inline
   typename t_string<TAG, 0, t_overflow_grow>::r_string
-      t_string<TAG, 0, t_overflow_grow>::operator=(P_cstr str) noexcept {
+      t_string<TAG, 0, t_overflow_grow>::operator=(t_cstr_cptr str) noexcept {
     assign_size_(length_(get(str)));
     impl_.assign(store_.get(), max_, get(str));
     return *this;
@@ -361,7 +363,7 @@ namespace string
   typename t_string<TAG, 0, t_overflow_grow>::r_string
       t_string<TAG, 0, t_overflow_grow>::operator=(R_crange range) noexcept {
     assign_size_(get(range.n));
-    impl_.assign(store_.get(), max_, begin(range), get(range.n));
+    impl_.assign(store_.get(), max_, range);
     return *this;
   }
 
@@ -414,7 +416,7 @@ namespace string
   inline
   typename t_string<TAG, 0, t_overflow_grow>::r_string
     t_string<TAG, 0, t_overflow_grow>
-      ::assign(t_fmt, P_cstr_ fmt, ...) noexcept {
+      ::assign(t_fmt, t_cstr_cptr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
     va_assign(fmt, vars);
@@ -436,7 +438,7 @@ namespace string
   template<class TAG>
   inline
   typename t_string<TAG, 0, t_overflow_grow>::r_string
-      t_string<TAG, 0, t_overflow_grow>::append(P_cstr str) noexcept {
+      t_string<TAG, 0, t_overflow_grow>::append(t_cstr_cptr str) noexcept {
     append_size_(length_(get(str)));
     impl_.append(store_.get(), max_, get(str));
     return *this;
@@ -456,7 +458,7 @@ namespace string
   typename t_string<TAG, 0, t_overflow_grow>::r_string
       t_string<TAG, 0, t_overflow_grow>::append(R_crange range) noexcept {
     append_size_(get(range.n));
-    impl_.append(store_.get(), max_, begin(range), get(range.n));
+    impl_.append(store_.get(), max_, range);
     return *this;
   }
 
@@ -464,7 +466,7 @@ namespace string
   inline
   typename t_string<TAG, 0, t_overflow_grow>::r_string
     t_string<TAG, 0, t_overflow_grow>
-      ::append(t_fmt, P_cstr_ fmt, ...) noexcept {
+      ::append(t_fmt, t_cstr_cptr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
     va_append(fmt, vars);
@@ -498,7 +500,7 @@ namespace string
   inline
   typename t_string<TAG, 0, t_overflow_grow>::r_string
     t_string<TAG, 0, t_overflow_grow>
-      ::va_assign(P_cstr_ fmt, va_list vars) noexcept {
+      ::va_assign(t_cstr_cptr_ fmt, va_list vars) noexcept {
     if (assign_size_(impl_.va_assign_try(store_.get(), max_, fmt, vars)))
       impl_.va_assign(store_.get(), max_, fmt, vars);
     return *this;
@@ -508,7 +510,7 @@ namespace string
   inline
   typename t_string<TAG, 0, t_overflow_grow>::r_string
     t_string<TAG, 0, t_overflow_grow>
-      ::va_append(P_cstr_ fmt, va_list vars) noexcept {
+      ::va_append(t_cstr_cptr_ fmt, va_list vars) noexcept {
     if (append_size_(impl_.va_append_try(store_.get(), max_, fmt, vars)))
       impl_.va_append(store_.get(), max_, fmt, vars);
     return *this;
@@ -516,20 +518,22 @@ namespace string
 
   template<class TAG>
   inline
-  t_void t_string<TAG, 0, t_overflow_grow>::display() const noexcept {
-    impl_.display(store_.get());
+  t_void t_string<TAG, 0, t_overflow_grow>
+      ::display(R_crange prefix, R_crange postfix) const noexcept {
+    impl_.display(store_.get(), prefix, postfix);
   }
 
   template<class TAG>
   inline
-  t_void t_string<TAG, 0, t_overflow_grow>::display_then_clear() noexcept {
-    impl_.display_then_clear(store_.get());
+  t_void t_string<TAG, 0, t_overflow_grow>
+      ::display_then_clear(R_crange prefix, R_crange postfix) noexcept {
+    impl_.display_then_clear(store_.get(), prefix, postfix);
   }
 
   template<class TAG>
   inline
   t_bool t_string<TAG, 0, t_overflow_grow>
-      ::is_match(P_cstr pattern) const noexcept {
+      ::is_match(t_cstr_cptr pattern) const noexcept {
     return impl_.is_match(store_.get(), get(pattern));
   }
 
@@ -557,8 +561,8 @@ namespace string
 
   template<class TAG>
   inline
-  P_cstr t_string<TAG, 0, t_overflow_grow>::get_cstr() const noexcept {
-    return P_cstr{impl_.get_cstr(store_.get())};
+  t_cstr_cptr t_string<TAG, 0, t_overflow_grow>::get_cstr() const noexcept {
+    return t_cstr_cptr{impl_.get_cstr(store_.get())};
   }
 
   template<class TAG>
@@ -655,7 +659,7 @@ namespace string
 
   template<class TAG>
   inline
-  t_void t_string<TAG, 0, t_overflow_grow>::scan(t_n n, P_cstr_ fmt,
+  t_void t_string<TAG, 0, t_overflow_grow>::scan(t_n n, t_cstr_cptr_ fmt,
                                                  ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
@@ -665,7 +669,7 @@ namespace string
 
   template<class TAG>
   inline
-  t_void t_string<TAG, 0, t_overflow_grow>::va_scan(t_n n, P_cstr_ fmt,
+  t_void t_string<TAG, 0, t_overflow_grow>::va_scan(t_n n, t_cstr_cptr_ fmt,
                                                     va_list vars) noexcept {
     impl_.va_scan(store_.get(), get(n), fmt, vars);
   }

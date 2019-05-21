@@ -28,6 +28,7 @@
 #include <cstring>
 #include <cstdlib>
 #include "dainty_named_assert.h"
+#include "dainty_named_terminal.h"
 #include "dainty_named_string_impl.h"
 
 namespace dainty
@@ -178,6 +179,11 @@ namespace string
       dst[cnt] = block.c;
     dst[min] = '\0';
     return min;
+  }
+
+  t_void display_(R_crange range, R_crange prefix, R_crange postfix) noexcept {
+    terminal::t_out out;
+    out << prefix << range << postfix;
   }
 
   t_void display_(P_cstr_ str, t_n_ len) noexcept {

@@ -69,15 +69,6 @@ namespace string
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_void display(t_fmt, P_cstr_, ...) noexcept
-      __attribute__((format(printf, 2, 3)));
-
-  inline t_void display(R_crange range) noexcept {
-    display_n_(range.ptr, get(range.n));
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
   template<t_n_ N>
   constexpr t_crange string_literal(const t_char (&value)[N]) noexcept {
     return mk_range(value);
@@ -85,6 +76,16 @@ namespace string
 
   constexpr t_crange operator""_SL (P_cstr_ cstr, t_n_ len) {
     return {cstr, t_n{len}};
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void display(t_fmt, t_cstr_cptr_, ...) noexcept
+      __attribute__((format(printf, 2, 3)));
+
+  inline t_void display(R_crange range, R_crange prefix   = NO_RANGE,
+                                        R_crange postfix = NO_RANGE) noexcept {
+    display_(range, prefix, postfix);
   }
 
 ////////////////////////////////////////////////////////////////////////////////

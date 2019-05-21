@@ -697,20 +697,22 @@ namespace named
 
   enum t_cstr_tag_ {};
   using p_cstr_     = t_prefix<char>::p_;
-  using t_cstr_ptr  = t_explicit<p_cstr_, t_cstr_tag_>;
+  using t_cstr_ptr_ = p_cstr_;
+  using t_cstr_ptr  = t_explicit<t_cstr_ptr_, t_cstr_tag_>;
   using T_cstr_ptr  = t_prefix<t_cstr_ptr>::T_;
   using r_cstr_ptr  = t_prefix<t_cstr_ptr>::r_;
   using R_cstr_ptr  = t_prefix<t_cstr_ptr>::R_;
   using p_cstr_ptr  = t_prefix<t_cstr_ptr>::p_;
   using P_cstr_ptr  = t_prefix<t_cstr_ptr>::P_;
 
-  using P_cstr_     = t_prefix<char>::P_;
-  using t_cstr_cptr = t_explicit<P_cstr_, t_cstr_tag_>;
-  using T_cstr_cptr = t_prefix<t_cstr_cptr>::T_;
-  using r_cstr_cptr = t_prefix<t_cstr_cptr>::r_;
-  using R_cstr_cptr = t_prefix<t_cstr_cptr>::R_;
-  using p_cstr_cptr = t_prefix<t_cstr_cptr>::p_;
-  using P_cstr_cptr = t_prefix<t_cstr_cptr>::P_;
+  using P_cstr_      = t_prefix<char>::P_;
+  using t_cstr_cptr_ = P_cstr_;
+  using t_cstr_cptr  = t_explicit<t_cstr_cptr_, t_cstr_tag_>;
+  using T_cstr_cptr  = t_prefix<t_cstr_cptr>::T_;
+  using r_cstr_cptr  = t_prefix<t_cstr_cptr>::r_;
+  using R_cstr_cptr  = t_prefix<t_cstr_cptr>::R_;
+  using p_cstr_cptr  = t_prefix<t_cstr_cptr>::p_;
+  using P_cstr_cptr  = t_prefix<t_cstr_cptr>::P_;
 
   enum  t_percentage_tag_ {};
   using t_percentage_ = t_uchar; // units of precentage - no decimals
@@ -755,8 +757,11 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_validity   VALID{true};
-  constexpr t_validity INVALID{false};
+  constexpr t_validity    VALID{true};
+  constexpr t_validity  INVALID{false};
+
+  constexpr t_cstr_ptr  NO_CSTR_PTR{nullptr};
+  constexpr t_cstr_cptr NO_CSTR_CPTR{nullptr};
 
   constexpr t_fd_      BAD_FD_ = -1;
   constexpr t_fd       BAD_FD {BAD_FD_};
