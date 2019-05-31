@@ -75,8 +75,8 @@ namespace string
 
     template<typename O1>
     t_string(t_string<TAG, 0, O1>&&) noexcept;
-    template<t_n_ N1>
-    t_string(t_string<TAG, N1, t_overflow_grow>&&) noexcept; // XXX -impl
+    //template<t_n_ N1>
+    //t_string(t_string<TAG, N1, t_overflow_grow>&&) noexcept; // XXX -impl
 
     r_string operator=(t_cstr_cptr) noexcept;
     r_string operator=(R_block)     noexcept;
@@ -90,8 +90,8 @@ namespace string
 
     template<typename O1>
     r_string operator=(t_string<TAG, 0, O1>&&)       noexcept;
-    template<t_n_ N1>
-    r_string operator=(t_string<TAG, N1, t_overflow_grow>&&) noexcept; // XXX
+    //template<t_n_ N1>
+    //r_string operator=(t_string<TAG, N1, t_overflow_grow>&&) noexcept; // XXX
 
     template<class TAG1, t_n_ N1, typename O1>
     r_string assign(const t_string<TAG1, N1, O1>&) noexcept;

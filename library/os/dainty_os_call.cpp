@@ -725,14 +725,14 @@ namespace os
 
   t_errn call_close(t_fd& fd) noexcept {
     if (fd != BAD_FD)
-      return t_errn{::close(get(named::reset(fd, BAD_FD)))};
+      return t_errn{::close(get(named::reset(fd)))};
     return BAD_ERRN;
   }
 
   t_void call_close(t_err err, t_fd& fd) noexcept {
     ERR_GUARD(err) {
       if (fd != BAD_FD)
-        ::close(get(named::reset(fd, BAD_FD)));
+        ::close(get(named::reset(fd)));
       else
         err = err::E_XXX;
     }

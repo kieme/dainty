@@ -296,8 +296,8 @@ namespace named
   constexpr t_cstr_ptr  NO_CSTR_PTR{nullptr};
   constexpr t_cstr_cptr NO_CSTR_CPTR{nullptr};
 
-  constexpr t_fd_      BAD_FD_ = -1;
-  constexpr t_fd       BAD_FD {BAD_FD_};
+  constexpr t_fd_       BAD_FD_ = -1;
+  constexpr t_fd        BAD_FD {BAD_FD_};
 
 ///////////////////////////////////////////////////////////////////////////////
 
