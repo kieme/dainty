@@ -72,7 +72,7 @@ namespace condvar_timed_event
                 cond_.wait_for(err, lock_, time);
               } while (!err && !cnt_);
             }
-            cnt = named::utility::reset(cnt_);
+            cnt = named::reset(cnt_);
           }
         %>
         if (!err)
@@ -90,11 +90,11 @@ namespace condvar_timed_event
         t_cnt_ cnt = 0;
         <% auto scope = lock_.make_locked_scope(err);
           if (!err) {
-            named::utility::reset(cnt_);
+            named::reset(cnt_);
             do {
               cond_.wait_for(err, lock_, time);
             } while (!err && !cnt_);
-            cnt = named::utility::reset(cnt_);
+            cnt = named::reset(cnt_);
           }
         %>
         if (!err)
@@ -156,7 +156,7 @@ namespace condvar_timed_event
 
   t_client::t_client(x_client client) noexcept
     : impl_{client.impl_.release()},
-      user_{named::utility::reset(client.user_)} {
+      user_{named::reset(client.user_)} {
   }
 
   t_client::operator t_validity() const noexcept {

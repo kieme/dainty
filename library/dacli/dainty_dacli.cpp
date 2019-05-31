@@ -78,6 +78,7 @@ namespace dacli
       template<typename P>
       P_cstr_ parse_args(t_err, P, t_char delimit, P_cstr_);
 
+      // >> skip_spaces()
       inline P_cstr_ strip_space(P_cstr_ p) {
         for (; *p == ' '; ++p);
         return p;
@@ -86,7 +87,7 @@ namespace dacli
       template<char C>
       inline P_cstr_ find(P_cstr_ p) {
         for (auto b = p; *p; ++p)
-          if (*p == C && (b == p || p[-1] != '/'))
+          if (*p == C && (b == p || p[-1] != '/')) // escape character
             break;
         return p;
       }

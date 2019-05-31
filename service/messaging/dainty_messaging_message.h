@@ -28,7 +28,6 @@
 #define _DAINTY_MESSAGING_MESSAGE_H_
 
 #include "dainty_named.h"
-#include "dainty_named_utility.h"
 #include "dainty_named_string.h"
 #include "dainty_container_bytebuf.h"
 
@@ -54,7 +53,6 @@ namespace message
   using named::t_explicit;
   using named::t_prefix;
   using named::string::t_string;
-  using named::utility::x_cast;
 
   using container::bytebuf::p_byte;
   using container::bytebuf::P_byte;
@@ -227,16 +225,16 @@ namespace message
     t_notify_message();
 
     inline
-    t_notify_message(x_message msg) : t_message(x_cast(msg)) {
+    t_notify_message(x_message msg) : t_message(named::x_cast(msg)) {
     }
 
     inline
-    t_notify_message(x_notify_message msg) : t_message(x_cast(msg)) {
+    t_notify_message(x_notify_message msg) : t_message(named::x_cast(msg)) {
     }
 
     inline
     r_notify_message operator=(x_notify_message msg) {
-      t_message::operator=(x_cast(msg));
+      t_message::operator=(named::x_cast(msg));
       return *this;
     }
 
@@ -258,16 +256,16 @@ namespace message
     t_timeout_message();
 
     inline
-    t_timeout_message(x_message msg) : t_message(x_cast(msg)) {
+    t_timeout_message(x_message msg) : t_message(named::x_cast(msg)) {
     }
 
     inline
-    t_timeout_message(x_timeout_message msg) : t_message(x_cast(msg)) {
+    t_timeout_message(x_timeout_message msg) : t_message(named::x_cast(msg)) {
     }
 
     inline
     r_timeout_message operator=(x_timeout_message msg) {
-      t_message::operator=(x_cast(msg));
+      t_message::operator=(named::x_cast(msg));
       return *this;
     }
 
@@ -296,16 +294,16 @@ namespace message
     }
 
     inline
-    t_fail_message(x_message msg) : t_message(x_cast(msg)) {
+    t_fail_message(x_message msg) : t_message(named::x_cast(msg)) {
     }
 
     inline
-    t_fail_message(x_fail_message msg) : t_message(x_cast(msg)) {
+    t_fail_message(x_fail_message msg) : t_message(named::x_cast(msg)) {
     }
 
     inline
     r_fail_message operator=(x_fail_message msg) {
-      t_message::operator=(x_cast(msg));
+      t_message::operator=(named::x_cast(msg));
       return *this;
     }
 
@@ -323,16 +321,16 @@ namespace message
     t_alive_message();
 
     inline
-    t_alive_message(x_message msg) : t_message(x_cast(msg)) {
+    t_alive_message(x_message msg) : t_message(named::x_cast(msg)) {
     }
 
     inline
-    t_alive_message(x_alive_message msg) : t_message(x_cast(msg)) {
+    t_alive_message(x_alive_message msg) : t_message(named::x_cast(msg)) {
     }
 
     inline
     r_alive_message operator=(x_alive_message msg) {
-      t_message::operator=(x_cast(msg));
+      t_message::operator=(named::x_cast(msg));
       return *this;
     }
 

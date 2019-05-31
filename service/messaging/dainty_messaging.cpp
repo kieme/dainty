@@ -26,7 +26,6 @@
 
 #include <map>
 #include "dainty_named_terminal.h"
-#include "dainty_named_utility.h"
 #include "dainty_container_maybe.h"
 #include "dainty_container_freelist.h"
 #include "dainty_os_threading.h"
@@ -43,7 +42,6 @@
 using namespace dainty;
 using namespace dainty::named;
 using namespace dainty::named::terminal;
-using namespace dainty::named::utility;
 using namespace dainty::container;
 using namespace dainty::mt;
 using namespace dainty::os;
@@ -1332,7 +1330,7 @@ namespace message
 
         auto m = monitored_.find(ctxt->info.name);
         if (m != monitored_.end()) {
-          named::utility::reset(m->second.key);
+          named::reset(m->second.key);
           m->second.state = message::STATE_UNAVAILABLE;
           update_msgs(msgs, m->first, m->second);
         }
@@ -1439,7 +1437,7 @@ namespace message
           if (is_valid(ctxt->key)) {
             if (password == ctxt->password) {
               update_msgs(msgs, message::STATE_UNAVAILABLE, ctxt);
-              named::utility::reset(ctxt->key);
+              named::reset(ctxt->key);
             } else
               err = err::E_XXX;
           } else
@@ -2452,7 +2450,7 @@ namespace messenger
 
   t_messenger::t_messenger(x_messenger messenger)
     : id_{messenger.id_}, processor_{x_cast(messenger.processor_)} {
-    named::utility::reset(messenger.id_);
+    named::reset(messenger.id_);
   }
 
   t_messenger::~t_messenger() {

@@ -28,7 +28,6 @@
 #define _DAINTY_CONTAINER_ANY_H_
 
 #include "dainty_named.h"
-#include "dainty_named_utility.h"
 #include "dainty_named_ptr.h"
 
 namespace dainty
@@ -43,10 +42,6 @@ namespace any
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
-
-  using named::utility::preserve;
-  using named::utility::reset;
-  using named::utility::x_cast;
 
   enum  t_user_tag_ { };
   using t_user = named::t_user<t_user_tag_>;
@@ -78,7 +73,7 @@ namespace any
     T value_;
 
     template<typename... Args> t_store_(Args&&... args)
-      : value_(preserve<Args>(args)...) {
+      : value_(named::preserve<Args>(args)...) {
     }
 
     t_store_(R_store_)           = delete;
@@ -158,7 +153,7 @@ namespace any
   inline
   t_any t_any::construct(t_user user, Args&&... args) {
     return {user,
-            static_cast<p_type_>(new t_store_<T>(preserve<Args>(args)...))};
+            static_cast<p_type_>(new t_store_<T>(named::preserve<Args>(args)...))};
   }
 
   inline
@@ -172,7 +167,7 @@ namespace any
   template<typename T>
   inline
   t_any::t_any(t_user user, T&& value)
-    : user_{user}, store_{new t_store_<T>(preserve<T>(value))} {
+    : user_{user}, store_{new t_store_<T>(named::preserve<T>(value))} {
   }
 
   inline
@@ -182,8 +177,8 @@ namespace any
   }
 
   inline
-  t_any::t_any(x_any any) : user_{any.user_}, store_{x_cast(any.store_)} {
-    reset(any.user_);
+  t_any::t_any(x_any any) : user_{any.user_}, store_{named::x_cast(any.store_)} {
+    named::reset(any.user_);
   }
 
   inline
@@ -200,7 +195,7 @@ namespace any
   inline
   T& t_any::emplace(t_user user, Args&&... args) {
     user_  = user;
-    store_ = new t_store_<T>(preserve<Args>(args)...);
+    store_ = new t_store_<T>(named::preserve<Args>(args)...);
     return ref<T>();
   }
 

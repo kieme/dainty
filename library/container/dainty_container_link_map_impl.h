@@ -28,7 +28,6 @@
 #define _DAINTY_CONTAINER_LINK_MAP_IMPL_H_
 
 #include <map>
-#include "dainty_named_utility.h"
 #include "dainty_container_err.h"
 
 namespace dainty
@@ -48,10 +47,6 @@ namespace link_map
   using named::INVALID;
   using named::t_prefix;
 
-  using named::utility::preserve;
-  using named::utility::reset;
-  using named::utility::x_cast;
-
   //////////////////////////////////////////////////////////////////////////
 
   template<typename K, typename T>
@@ -62,7 +57,7 @@ namespace link_map
 
     t_entry_() = default;
     template<typename T1>
-    t_entry_(T1&& value) : value_{preserve<T1>(value)} { }
+    t_entry_(T1&& value) : value_{named::preserve<T1>(value)} { }
 
     t_value  value_;
     P_key    key_  = nullptr;
@@ -208,7 +203,7 @@ namespace link_map
         else
           return nullptr;
       }
-      itr = lk_.insert(itr, t_lk_value_{preserve<K1>(key), t_entry_{}});
+      itr = lk_.insert(itr, t_lk_value_{named::preserve<K1>(key), t_entry_{}});
       if (itr != lk_.end()) {
         entry       = &itr->second;
         entry->key_ = &itr->first;
@@ -235,7 +230,7 @@ namespace link_map
     template<typename K1>
     t_itr insert(t_err err, K1&& key) {
       ERR_GUARD(err) {
-         auto itr = insert(preserve<K1>(key));
+         auto itr = insert(named::preserve<K1>(key));
          if (itr != VALID)
            err = err::E_NOT_UNIQUE;
          return itr;
@@ -253,8 +248,8 @@ namespace link_map
         else
           return nullptr;
       }
-      itr = lk_.insert(itr, t_lk_value_{preserve<K1>(key),
-                                        t_entry_{preserve<T1>(value)}});
+      itr = lk_.insert(itr, t_lk_value_{named::preserve<K1>(key),
+                                        t_entry_{named::preserve<T1>(value)}});
       if (itr != lk_.end()) {
         entry       = &itr->second;
         entry->key_ = &itr->first;
@@ -281,7 +276,7 @@ namespace link_map
     template<typename K1, typename T1>
     t_itr insert(t_err err, K1&& key, T1&& value) {
       ERR_GUARD(err) {
-         auto itr = insert(preserve<K1>(key), preserve<T1>(value));
+         auto itr = insert(named::preserve<K1>(key), named::preserve<T1>(value));
          if (itr != VALID)
            err = err::E_NOT_UNIQUE;
          return itr;

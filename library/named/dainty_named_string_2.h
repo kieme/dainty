@@ -309,7 +309,7 @@ namespace string
   inline
   t_string<TAG, N, t_overflow_grow>
       ::t_string(t_string<TAG, 0, O1>&& str) noexcept //XXX - incorrect
-    : max_{utility::reset(str.max_)}, store_{str.store_.release()},
+    : max_{named::reset(str.max_)}, store_{str.store_.release()},
       impl_{str.impl_.reset()} {
   }
 
@@ -412,7 +412,7 @@ namespace string
     if (store_ != sso_)
       dealloc_(store_);
     impl_.reset(str.impl_.reset());
-    max_   = utility::reset(str.max_);
+    max_   = named::reset(str.max_);
     store_ = str.store_.release();
     return *this;
   }

@@ -27,7 +27,6 @@
 #ifndef _DAINTY_CONTAINER_MAP_IMPL_H_
 #define _DAINTY_CONTAINER_MAP_IMPL_H_
 
-#include "dainty_named_utility.h"
 #include "dainty_container_err.h"
 #include "dainty_container_list.h"
 #include "dainty_container_freelist.h"
@@ -50,9 +49,6 @@ namespace map
 
   using freelist::t_id_;
   using freelist::t_id;
-
-  using preserve_ = named::utility::preserve;
-  using x_cast_   = named::utility::x_cast;
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -85,18 +81,18 @@ namespace map
 
     constexpr
     t_keyvalue(t_keyvalue&& keyvalue)
-      : key(x_cast_(keyvalue.key)), value(x_cast_(keyvalue.value)) {
+      : key(named::x_cast(keyvalue.key)), value(named::x_cast(keyvalue.value)) {
     }
 
     template<typename K1>
     constexpr
-    t_keyvalue(K1&& _key) : key(preserve_<K1>(_key)) {
+    t_keyvalue(K1&& _key) : key(named::preserve_<K1>(_key)) {
     }
 
     template<typename K1, typename V1>
     constexpr
     t_keyvalue(K1&& _key, V1&& _value)
-      : key(preserve_<K1>(_key)), value(preserve_<V1>(_value)) {
+      : key(named::preserve_<K1>(_key)), value(named::preserve_<V1>(_value)) {
     }
 
     t_keyvalue& operator=(const t_keyvalue&) = delete;
@@ -171,18 +167,18 @@ namespace map
     t_entry_(R_key _key, t_ix _ix) : keyvalue{_key}, ix{_ix} {
     }
 
-    t_entry_(x_key _key, t_ix _ix) : keyvalue{x_cast_(_key)}, ix{_ix} {
+    t_entry_(x_key _key, t_ix _ix) : keyvalue{named::x_cast(_key)}, ix{_ix} {
     }
 
     t_entry_(R_keyvalue _keyvalue, t_ix _ix) : keyvalue{_keyvalue}, ix{_ix} {
     }
 
     t_entry_(x_keyvalue _keyvalue, t_ix _ix)
-      : keyvalue{x_cast_(_keyvalue)}, ix{_ix} {
+      : keyvalue{named::x_cast(_keyvalue)}, ix{_ix} {
     }
 
     t_entry_(t_entry_&& entry)
-      : keyvalue{x_cast_(entry.keyvalue)}, ix{entry.ix} {
+      : keyvalue{named::x_cast(entry.keyvalue)}, ix{entry.ix} {
     }
 
     t_entry_(const t_entry_&) = delete;
@@ -291,7 +287,7 @@ namespace map
         if (named::get(ix) == n ||
             C::operator()(keyvalue.key,
                           store_.get(*ids_.get(ix))->keyvalue.key)) {
-          auto result = store_.insert(t_entry_{x_cast_(keyvalue), ix});
+          auto result = store_.insert(t_entry_{named::x_cast(keyvalue), ix});
           ids_.insert(ix, result.id);
           return t_result{result.id, ix, &result->keyvalue};
         }
@@ -308,7 +304,7 @@ namespace map
           if (named::get(ix) == n ||
               C::operator()(keyvalue.key,
                             store_.get(*ids_.get(ix))->keyvalue.key)) {
-            auto result = store_.insert(t_entry_{x_cast_(keyvalue), ix});
+            auto result = store_.insert(t_entry_{named::x_cast(keyvalue), ix});
             ids_.insert(ix, result.id);
             return t_result{result.id, ix, &result->keyvalue};
           }
@@ -562,7 +558,7 @@ namespace map
     template<typename F>
     inline
     t_void each(F f) {
-      store_.each([func = x_cast_(f)](auto id, auto& entry) {
+      store_.each([func = named::x_cast(f)](auto id, auto& entry) {
         func(id, entry.ix, entry.keyvalue); });
     }
 
@@ -570,7 +566,7 @@ namespace map
     inline
     t_void each(r_err err, F f) {
       ERR_GUARD(err) {
-        store_.each([func = x_cast_(f)](auto id, auto& entry) {
+        store_.each([func = named::x_cast(f)](auto id, auto& entry) {
           func(id, entry.ix, entry.keyvalue); });
       }
     }
@@ -578,7 +574,7 @@ namespace map
     template<typename F>
     inline
     t_void each(F f) const {
-      store_.each([func = x_cast_(f)](auto id, const auto& entry) {
+      store_.each([func = named::x_cast(f)](auto id, const auto& entry) {
         func(id, entry.ix, entry.keyvalue); });
     }
 
@@ -586,7 +582,7 @@ namespace map
     inline
     t_void each(r_err err, F f) const {
       ERR_GUARD(err) {
-        store_.each([func = x_cast_(f)](auto id, const auto& entry) {
+        store_.each([func = named::x_cast(f)](auto id, const auto& entry) {
           func(id, entry.ix, entry.keyvalue); });
       }
     }
@@ -594,7 +590,7 @@ namespace map
     template<typename F>
     inline
     t_void ordered_each(F f) {
-      ids_.each([this, func = x_cast_(f), ix = 0](auto id) mutable {
+      ids_.each([this, func = named::x_cast(f), ix = 0](auto id) mutable {
         func(id, t_ix{ix++}, *this->store_.get(id)); });
     }
 
@@ -602,7 +598,7 @@ namespace map
     inline
     t_void ordered_each(r_err err, F f) {
       ERR_GUARD(err) {
-        ids_.each([this, func = x_cast_(f), ix = 0](auto id) mutable {
+        ids_.each([this, func = named::x_cast(f), ix = 0](auto id) mutable {
           func(id, t_ix{ix++}, *this->store_.get(id)); });
       }
     }
@@ -610,7 +606,7 @@ namespace map
     template<typename F>
     inline
     t_void ordered_each(F f) const {
-      ids_.each([this, func = x_cast_(f), ix = 0](auto id) mutable {
+      ids_.each([this, func = named::x_cast(f), ix = 0](auto id) mutable {
         func(id, t_ix{ix++}, *this->store_.get(id)); });
     }
 
@@ -618,7 +614,7 @@ namespace map
     inline
     t_void ordered_each(r_err err, F f) const {
       ERR_GUARD(err) {
-        ids_.each([this, func = x_cast_(f), ix = 0](auto id) mutable {
+        ids_.each([this, func = named::x_cast(f), ix = 0](auto id) mutable {
           func(id, t_ix{ix++}, *this->store_.get(id)); });
       }
     }

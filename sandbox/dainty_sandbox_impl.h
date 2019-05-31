@@ -28,7 +28,6 @@ SOFTWARE.
 #define _DAINTY_SANDBOX_IMPL_H_
 
 #include "dainty_named.h"
-#include "dainty_named_utility.h"
 #include "dainty_os_clock.h"
 #include "dainty_mt_detached_thread.h"
 #include "dainty_mt_event_dispatcher.h"
@@ -43,7 +42,6 @@ namespace sandbox
 {
   using named::t_fd;
   using named::t_msec_;
-  using named::utility::x_cast;
   using container::list::t_list;
   using container::freelist::t_freelist;
   using mt::event_dispatcher::BAD_EVENT_ID;

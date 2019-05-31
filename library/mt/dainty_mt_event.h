@@ -27,7 +27,6 @@
 #ifndef _DAINTY_MT_EVENT_H_
 #define _DAINTY_MT_EVENT_H_
 
-#include "dainty_named_utility.h"
 #include "dainty_named_ptr.h"
 #include "dainty_mt_err.h"
 

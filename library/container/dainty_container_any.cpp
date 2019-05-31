@@ -38,8 +38,8 @@ namespace any
   }
 
   r_any t_any::operator=(R_any any) {
-    if (store_ == VALID && any.store_ == VALID && same_type_(*store_,
-                                                             *any.store_))
+    if (store_ == VALID && any.store_ == VALID &&
+        same_type_(*store_, *any.store_))
       store_->copy(*any.store_);
     else {
       if (any.store_ == VALID) {
@@ -51,8 +51,8 @@ namespace any
   }
 
   r_any t_any::operator=(x_any any) {
-    user_  = reset (any.user_);
-    store_ = x_cast(any.store_);
+    user_  = named::reset(any.user_);
+    store_ = named::x_cast(any.store_);
     return *this;
   }
 

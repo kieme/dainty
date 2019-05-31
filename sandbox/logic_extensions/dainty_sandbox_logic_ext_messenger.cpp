@@ -25,7 +25,6 @@ SOFTWARE.
 ******************************************************************************/
 
 #include "dainty_named_terminal.h"
-#include "dainty_named_utility.h"
 #include "dainty_messaging.h"
 #include "dainty_sandbox_logic_ext_messenger.h"
 
@@ -36,7 +35,6 @@ namespace sandbox
 namespace logic_messenger_ext
 {
   using namespace named::terminal;
-  using named::utility::x_cast;
   using named::string::string_literal;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -119,15 +117,15 @@ namespace logic_messenger_ext
         auto id = dainty::messaging::message::read_id(msg);
         if (id.domain == messaging::message::MESSAGING) {
                if (id.user == dainty::messaging::message::MESSAGING_NOTIFY)
-            handle_messaging_notify_(x_cast(msg));
+            handle_messaging_notify_(named::x_cast(msg));
           else if (id.user == dainty::messaging::message::MESSAGING_TIMEOUT)
-            handle_messaging_timeout_(x_cast(msg));
+            handle_messaging_timeout_(named::x_cast(msg));
           else if (id.user == dainty::messaging::message::MESSAGING_ALIVE)
-            handle_messaging_alive_(x_cast(msg));
+            handle_messaging_alive_(named::x_cast(msg));
           else if (id.user == dainty::messaging::message::MESSAGING_FAILED)
-            handle_messaging_failed_(x_cast(msg));
+            handle_messaging_failed_(named::x_cast(msg));
         } else
-          handle_user_msg_(id, x_cast(msg));
+          handle_user_msg_(id, named::x_cast(msg));
       });
     }
   }
@@ -143,15 +141,15 @@ namespace logic_messenger_ext
     if (entry) {
       entry->ids.each([this, &msg](auto& id) {
         auto entry = msg_notifiers_.get(id);
-        entry->notify_ptr->notify_messenger_msg(entry->id, x_cast(msg));
+        entry->notify_ptr->notify_messenger_msg(entry->id, named::x_cast(msg));
       });
     } else
-      ext_.notify_messenger_msg(BAD_MSG_NOTIFY_ID, x_cast(msg));
+      ext_.notify_messenger_msg(BAD_MSG_NOTIFY_ID, named::x_cast(msg));
   }
 
   t_void t_logic_messenger_ext::t_impl_
       ::handle_messaging_notify_(x_msg msg) noexcept {
-    messaging::message::t_notify_message  notify_msg{x_cast(msg)};
+    messaging::message::t_notify_message  notify_msg{named::x_cast(msg)};
     t_messenger_state state;
     t_messenger_name  name;
     t_messenger_user  user;
@@ -228,7 +226,7 @@ namespace logic_messenger_ext
                             x_messenger_msg msg) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
-        set(messenger_).post_message(err, key, x_cast(msg));
+        set(messenger_).post_message(err, key, named::x_cast(msg));
       else
         err = err::E_XXX;
     }
@@ -325,7 +323,7 @@ namespace logic_messenger_ext
             auto entry        = result.ptr;
             entry->id         = msg_id;
             entry->entry_id   = id;
-            entry->notify_ptr = x_cast(ptr);
+            entry->notify_ptr = named::x_cast(ptr);
             entry->params     = params;
             return msg_id;
           } else
@@ -346,7 +344,7 @@ namespace logic_messenger_ext
       auto entry = msg_notifiers_.get(id);
       if (entry) {
         if (entry->notify_ptr == VALID)
-          tmp = x_cast(entry->notify_ptr);
+          tmp = named::x_cast(entry->notify_ptr);
 
         auto notif_entry = msg_notifs_.get(entry->entry_id);
         if (notif_entry->ids.get_size() == t_n{1})
@@ -448,7 +446,7 @@ namespace logic_messenger_ext
             auto entry        = result.ptr;
             entry->id         = mon_id;
             entry->entry_id   = id;
-            entry->notify_ptr = x_cast(ptr);
+            entry->notify_ptr = named::x_cast(ptr);
             entry->params     = params;
             return mon_id;
           }
@@ -469,7 +467,7 @@ namespace logic_messenger_ext
       auto entry = monitors_.get(id);
       if (entry) {
         if (entry->notify_ptr == VALID)
-          tmp = x_cast(entry->notify_ptr);
+          tmp = named::x_cast(entry->notify_ptr);
 
         auto mon_entry = mons_.get(entry->entry_id);
         if (mon_entry->ids.get_size() == t_n{1}) {
@@ -667,7 +665,7 @@ namespace logic_messenger_ext
   t_void t_logic_messenger_ext
       ::post_messenger_msg(t_err err, t_messenger_key key,
                            x_messenger_msg msg) noexcept {
-    impl_.post_messenger_msg_(err, key, x_cast(msg));
+    impl_.post_messenger_msg_(err, key, named::x_cast(msg));
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -689,7 +687,7 @@ namespace logic_messenger_ext
       ::add_messenger_msg_notify(t_err err,
                                  R_messenger_msg_notify_params params,
                                  x_messenger_msg_notify_ptr ptr) noexcept {
-    return impl_.add_messenger_msg_notify_(err, params, x_cast(ptr));
+    return impl_.add_messenger_msg_notify_(err, params, named::x_cast(ptr));
   }
 
   t_messenger_msg_notify_ptr t_logic_messenger_ext
@@ -714,7 +712,7 @@ namespace logic_messenger_ext
       ::add_messenger_monitor(t_err err, R_messenger_name name,
                               R_messenger_monitor_params params,
                               x_messenger_monitor_notify_ptr ptr) noexcept {
-    return impl_.add_messenger_monitor_(err, name, params, x_cast(ptr));
+    return impl_.add_messenger_monitor_(err, name, params, named::x_cast(ptr));
   }
 
   t_messenger_monitor_notify_ptr t_logic_messenger_ext

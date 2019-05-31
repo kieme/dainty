@@ -28,7 +28,6 @@
 #define _DAINTY_CONTAINER_HOLDER_H_
 
 #include "dainty_named.h"
-#include "dainty_named_utility.h"
 #include "dainty_named_ptr.h"
 
 namespace dainty
@@ -40,9 +39,6 @@ namespace holder
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
-
-  using named::utility::x_cast;
-  using named::utility::preserve;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +58,7 @@ namespace holder
     T value_;
 
     template<class... Args> t_store_(Args&&... args)
-      : value_(preserve<Args>(args)...) {
+      : value_(named::preserve<Args>(args)...) {
     }
 
     t_store_()                   = delete;
@@ -114,7 +110,7 @@ namespace holder
   template<typename T, typename... Args>
   inline
   t_holder t_holder::construct(Args&&... args) {
-    return {static_cast<p_it>(new t_store_<T>(preserve<Args>(args)...))};
+    return {static_cast<p_it>(new t_store_<T>(named::preserve<Args>(args)...))};
   }
 
   inline
@@ -128,12 +124,12 @@ namespace holder
   template<typename T>
   inline
   t_holder::t_holder(T&& value)
-    : store_{new t_store_<T>(preserve<T>(value))} {
+    : store_{new t_store_<T>(named::preserve<T>(value))} {
   }
 
   inline
   r_holder t_holder::operator=(x_holder holder) {
-    store_ = x_cast(holder.store_);
+    store_ = named::x_cast(holder.store_);
     return *this;
   }
 
@@ -145,7 +141,7 @@ namespace holder
   template<typename T, typename... Args>
   inline
   T& t_holder::emplace(Args&&... args) {
-    store_ = new t_store_<T>(preserve<Args>(args)...);
+    store_ = new t_store_<T>(named::preserve<Args>(args)...);
     return ref<T>();
   }
 

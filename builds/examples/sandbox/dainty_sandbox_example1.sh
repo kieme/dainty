@@ -27,6 +27,7 @@ g++ -Wall -o dainty_sandbox_example1 \
   $DAINTY_ROOT/library/mt/dainty_mt_timers.cpp \
   $DAINTY_ROOT/library/mt/dainty_mt_event.cpp \
   $DAINTY_ROOT/library/mt/dainty_mt_net_tipc.cpp \
+  $DAINTY_ROOT/library/mt/dainty_mt_net_connect.cpp \
   $DAINTY_ROOT/library/mt/dainty_mt_condvar_chained_queue.cpp \
   $DAINTY_ROOT/library/mt/dainty_mt_condvar_timed_event.cpp \
   $DAINTY_ROOT/library/mt/dainty_mt_waitable_chained_queue.cpp \

@@ -27,7 +27,6 @@
 #ifndef _DAINTY_CONTAINER_TRANSFER_H_
 #define _DAINTY_CONTAINER_TRANSFER_H_
 
-#include "dainty_named_utility.h"
 #include "dainty_container_maybe.h"
 
 namespace dainty
@@ -44,8 +43,6 @@ namespace transfer
   using named::INVALID;
   using named::NO_ERRN;
   using named::BAD_ERRN;
-  using named::utility::x_cast;
-  using named::utility::preserve;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -144,19 +141,19 @@ namespace transfer
   template<typename... Args>
   inline
   t_transfer<T>::t_transfer(t_emplace_it, Args&&... args)
-    : maybe_{EMPLACE_IT, preserve<Args>(args)...} {
+    : maybe_{EMPLACE_IT, named::preserve<Args>(args)...} {
   }
 
   template<typename T>
   inline
   t_transfer<T>::t_transfer(x_value value)
-    : maybe_{x_cast(value)} {
+    : maybe_{named::x_cast(value)} {
   }
 
   template<typename T>
   inline
   t_transfer<T>::t_transfer(x_transfer transfer)
-    : maybe_{x_cast(transfer.maybe_)} {
+    : maybe_{named::x_cast(transfer.maybe_)} {
   }
 
   template<typename T>
@@ -171,7 +168,7 @@ namespace transfer
     //if (maybe_ == INVALID)
     // assert
 
-    T tmp(x_cast(set(maybe_)));
+    T tmp(named::x_cast(set(maybe_)));
     maybe_.release();
     return tmp;
   }
@@ -182,7 +179,7 @@ namespace transfer
   template<typename... Args>
   inline
   t_errn_transfer<T>::t_errn_transfer(t_emplace_it, Args&&... args)
-    : maybe_{EMPLACE_IT, preserve<Args>(args)...}, errn_{NO_ERRN} {
+    : maybe_{EMPLACE_IT, named::preserve<Args>(args)...}, errn_{NO_ERRN} {
   }
 
   template<typename T>
@@ -197,7 +194,7 @@ namespace transfer
   template<typename T>
   inline
   t_errn_transfer<T>::t_errn_transfer(x_value value)
-    : maybe_{x_cast(value)}, errn_{NO_ERRN} {
+    : maybe_{named::x_cast(value)}, errn_{NO_ERRN} {
   }
 
   template<typename T>
@@ -205,7 +202,7 @@ namespace transfer
   t_errn_transfer<T>::t_errn_transfer(x_errn_transfer transfer)
       : errn_{transfer} {
     if (errn_ == NO_ERRN) {
-      maybe_ = x_cast(transfer.maybe_);
+      maybe_ = named::x_cast(transfer.maybe_);
       transfer.release();
     }
   }
@@ -221,7 +218,7 @@ namespace transfer
     //if (errn_ != NO_ERRN)
     // assert
 
-    T tmp(x_cast(set(maybe_)));
+    T tmp(named::x_cast(set(maybe_)));
     errn_ = BAD_ERRN;
     maybe_.release();
     return tmp;

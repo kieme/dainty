@@ -39,8 +39,6 @@ namespace valuestore
   using named::t_void;
   using named::t_uchar;
   using named::t_n;
-  using named::utility::x_cast;
-  using named::utility::preserve;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -59,13 +57,13 @@ namespace valuestore
   template<typename T>
   inline
   T* move_construct_(T* ptr, T&& value) {
-    return new (ptr) T(x_cast(value));
+    return new (ptr) T(named::x_cast(value));
   }
 
   template<typename T, typename... Args>
   inline
   T* emplace_construct_(T* ptr, Args&&... args) {
-    return new (ptr) T(preserve<Args>(args)...);
+    return new (ptr) T(named::preserve<Args>(args)...);
   }
 
   template<typename T>
@@ -106,13 +104,13 @@ namespace valuestore
 
     inline
     p_value move_construct(x_value value) {
-      return move_construct_(ptr(), x_cast(value));
+      return move_construct_(ptr(), named::x_cast(value));
     }
 
     template<typename... Args>
     inline
     p_value emplace_construct(Args&&... args) {
-      return emplace_construct_(ptr(), preserve<Args>(args)...);
+      return emplace_construct_(ptr(), named::preserve<Args>(args)...);
     }
 
     inline

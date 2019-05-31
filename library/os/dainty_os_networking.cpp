@@ -24,7 +24,6 @@
 
 ******************************************************************************/
 
-#include "dainty_named_utility.h"
 #include "dainty_os_networking.h"
 
 namespace dainty
@@ -34,8 +33,6 @@ namespace os
 namespace networking
 {
   using named::EMPLACE_IT;
-  using named::utility::reset;
-  using named::utility::x_cast;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +40,7 @@ namespace networking
   }
 
   t_connect_socket::t_connect_socket(x_connect_socket socket) noexcept
-    : fd_{reset(socket.fd_)} {
+    : fd_{named::reset(socket.fd_)} {
   }
 
   t_connect_socket::~t_connect_socket() {
@@ -275,7 +272,7 @@ namespace networking
     : fd_{call_socket(err, domain, type, protocol)} {
   }
 
-  t_socket::t_socket(x_socket socket) noexcept : fd_{reset(socket.fd_)} {
+  t_socket::t_socket(x_socket socket) noexcept : fd_{named::reset(socket.fd_)} {
   }
 
   t_socket::~t_socket() {

@@ -1,5 +1,4 @@
 #include <utility>
-#include "dainty_named_utility.h"
 #include "dainty_named_terminal.h"
 
 using namespace dainty::named::terminal;

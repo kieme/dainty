@@ -27,7 +27,6 @@
 #ifndef _DAINTY_MT_NOTIFY_CHANGE_H_
 #define _DAINTY_MT_NOTIFY_CHANGE_H_
 
-#include "dainty_named_utility.h"
 #include "dainty_container_any.h"
 #include "dainty_mt_err.h"
 

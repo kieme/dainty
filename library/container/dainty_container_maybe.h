@@ -27,7 +27,6 @@
 #ifndef _DAINTY_CONTAINER_MAYBE_H_
 #define _DAINTY_CONTAINER_MAYBE_H_
 
-#include "dainty_named_utility.h"
 #include "dainty_container_valuestore.h"
 
 namespace dainty
@@ -42,9 +41,6 @@ namespace maybe
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
-
-  using named::utility::x_cast;
-  using named::utility::preserve;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -114,7 +110,7 @@ namespace maybe
   template<typename... Args>
   inline
   t_maybe<T>::t_maybe(t_emplace_it, Args&&... args) : valid_{VALID} {
-    store_.emplace_construct(preserve<Args>(args)...);
+    store_.emplace_construct(named::preserve<Args>(args)...);
   }
 
   template<typename T>
@@ -126,7 +122,7 @@ namespace maybe
   template<typename T>
   inline
   t_maybe<T>::t_maybe(x_value value) : valid_{VALID} {
-    store_.move_construct(x_cast(value));
+    store_.move_construct(named::x_cast(value));
   }
 
   template<typename T>
@@ -140,7 +136,7 @@ namespace maybe
   inline
   t_maybe<T>::t_maybe(x_maybe maybe) : valid_{maybe.valid_} {
     if (valid_ == VALID)
-      store_.move_construct(x_cast(maybe.store_.ref()));
+      store_.move_construct(named::x_cast(maybe.store_.ref()));
     maybe.release();
   }
 
@@ -166,9 +162,9 @@ namespace maybe
   inline
   typename t_maybe<T>::r_maybe t_maybe<T>::operator=(x_value value) {
     if (valid_ == VALID)
-      store_.ref() = x_cast(value);
+      store_.ref() = named::x_cast(value);
     else
-      store_.move_construct(x_cast(value));
+      store_.move_construct(named::x_cast(value));
     valid_ = VALID;
     return *this;
   }
@@ -192,9 +188,9 @@ namespace maybe
   typename t_maybe<T>::r_maybe t_maybe<T>::operator=(x_maybe maybe) {
     if (maybe == VALID) {
       if (valid_ == VALID)
-        store_.ref() = x_cast(maybe.store_.ref());
+        store_.ref() = named::x_cast(maybe.store_.ref());
       else
-        store_.move_construct(x_cast(maybe.store_.ref()));
+        store_.move_construct(named::x_cast(maybe.store_.ref()));
     } else if (valid_ == VALID)
       store_.destruct();
     valid_ = maybe.release() ? VALID : INVALID;
@@ -207,7 +203,7 @@ namespace maybe
   typename t_maybe<T>::r_maybe t_maybe<T>::emplace(Args&&... args) {
     if (valid_ == VALID)
       store_.destruct();
-    store_.emplace_construct(preserve<Args>(args)...);
+    store_.emplace_construct(named::preserve<Args>(args)...);
     valid_ = VALID;
     return *this;
   }

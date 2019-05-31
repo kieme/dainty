@@ -25,7 +25,6 @@
 ******************************************************************************/
 
 #include <errno.h>
-#include "dainty_named_utility.h"
 #include "dainty_os_call.h"
 
 namespace dainty
@@ -726,14 +725,14 @@ namespace os
 
   t_errn call_close(t_fd& fd) noexcept {
     if (fd != BAD_FD)
-      return t_errn{::close(get(named::utility::reset(fd, BAD_FD)))};
+      return t_errn{::close(get(named::reset(fd, BAD_FD)))};
     return BAD_ERRN;
   }
 
   t_void call_close(t_err err, t_fd& fd) noexcept {
     ERR_GUARD(err) {
       if (fd != BAD_FD)
-        ::close(get(named::utility::reset(fd, BAD_FD)));
+        ::close(get(named::reset(fd, BAD_FD)));
       else
         err = err::E_XXX;
     }

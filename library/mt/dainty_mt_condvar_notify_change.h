@@ -28,7 +28,6 @@
 #define _DAINTY_MT_CONDVAR_NOTIFY_CHANGE_H_
 
 #include "dainty_named_ptr.h"
-#include "dainty_named_utility.h"
 #include "dainty_container_any.h"
 #include "dainty_mt_err.h"
 

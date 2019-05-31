@@ -29,7 +29,6 @@
 #include <map>
 #include <algorithm>
 #include <limits>
-#include "dainty_named_utility.h"
 #include "dainty_named_terminal.h"
 #include "dainty_container_ptr.h"
 #include "dainty_mt_event_dispatcher.h"
@@ -42,7 +41,6 @@
 
 using namespace dainty::named;
 using namespace dainty::named::terminal;
-using namespace dainty::named::utility;
 using namespace dainty::container;
 using namespace dainty::mt;
 using namespace dainty::os;
@@ -672,7 +670,7 @@ namespace tracer
       if (entry.second) {
         entry.first->second.info.name   = name;
         entry.first->second.info.params = params; //XXX impl must be added
-        entry.first->second.impl        = x_cast(impl);
+        entry.first->second.impl        = named::x_cast(impl);
         return &entry.first->second;
       } else
         err = err::E_XXX;
@@ -686,7 +684,7 @@ namespace tracer
       if (entry != std::cend(observers_)) {
         entry->second.info.name   = name;
         entry->second.info.params = params;
-        entry->second.impl        = x_cast(impl);
+        entry->second.impl        = named::x_cast(impl);
         // bound to all - XXX-0
         return VALID;
       } else
@@ -709,7 +707,7 @@ namespace tracer
               tracers_.erase(tracer);
           }
         }
-        impl = x_cast(entry->second.impl);
+        impl = named::x_cast(entry->second.impl);
         observers_.erase(entry);
       } else
         err = err::E_XXX;
@@ -1071,7 +1069,7 @@ namespace tracer
           impl = t_output_impl_ptr_{&shm_, nullptr};
           break;
       }
-      data_.add_observer(err, cmd.name, cmd.params, x_cast(impl));
+      data_.add_observer(err, cmd.name, cmd.params, named::x_cast(impl));
     }
 
     t_void process(err::t_err err, r_destroy_observer_cmd_ cmd) noexcept {

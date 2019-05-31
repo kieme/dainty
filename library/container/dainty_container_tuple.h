@@ -27,7 +27,6 @@
 #ifndef _DAINTY_CONTAINER_TUPLE_H_
 #define _DAINTY_CONTAINER_TUPLE_H_
 
-#include "dainty_named_utility.h"
 #include "dainty_container_any.h"
 #include "dainty_container_list.h"
 
@@ -45,7 +44,6 @@ namespace tuple
   using named::t_validity;
   using named::VALID;
   using named::INVALID;
-  using named::utility::preserve;
   using any::t_any;
   using any::t_user;
 
@@ -65,8 +63,8 @@ namespace tuple
     }
     template<typename Arg, typename... Args>
     t_tuple_(r_store_ store, Arg&& arg, Args&&... args)
-      : tuple_ {store, preserve<Arg> (arg)},
-        tuples_{store, preserve<Args>(args)...} {
+      : tuple_ {store, named::preserve<Arg> (arg)},
+        tuples_{store, named::preserve<Args>(args)...} {
     }
   };
 
@@ -80,7 +78,7 @@ namespace tuple
     template<typename Arg>
     t_tuple_(r_store_ store, Arg&& arg) {
       (store.push_back())->template emplace<T>(t_user{0L},
-                                               preserve<Arg>(arg));
+                                               named::preserve<Arg>(arg));
     }
   };
 
@@ -92,7 +90,7 @@ namespace tuple
     }
 
     template<typename... Args>
-    t_tuple(Args&&... args) : tuple_{store_, preserve<Args>(args)...} {
+    t_tuple(Args&&... args) : tuple_{store_, named::preserve<Args>(args)...} {
     }
 
     inline

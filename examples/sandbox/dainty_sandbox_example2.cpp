@@ -31,7 +31,6 @@ SOFTWARE.
 #include "dainty_mt_timers.h"
 
 using namespace dainty::named;
-using namespace dainty::named::utility;
 using namespace dainty::sandbox;
 using namespace dainty::named::terminal;
 

@@ -28,7 +28,6 @@
 #define _DAINTY_CONTAINER_IX_MAP_IMPL_H_
 
 #include <map>
-#include "dainty_named_utility.h"
 #include "dainty_container_err.h"
 #include "dainty_container_freelist.h"
 
@@ -48,10 +47,6 @@ namespace ix_map
   using named::VALID;
   using named::INVALID;
   using named::t_prefix;
-
-  using named::utility::preserve;
-  using named::utility::reset;
-  using named::utility::x_cast;
 
   using freelist::t_id;
 
@@ -136,7 +131,7 @@ namespace ix_map
     t_result insert(K1&& key) {
       auto result = store_.insert();
       if (result) {
-        auto pair = lk_.insert(t_lk_value_{preserve<K1>(key), result.id});
+        auto pair = lk_.insert(t_lk_value_{named::preserve<K1>(key), result.id});
         if (pair.second) {
           result.ptr->key = &pair.first->first;
           return {result.id, result.ptr->key, &result.ptr->value};
@@ -152,7 +147,7 @@ namespace ix_map
       ERR_GUARD(err) {
         auto result = store_.insert(err);
         if (result) {
-          auto pair = lk_.insert(t_lk_value_{preserve<K1>(key), result.id});
+          auto pair = lk_.insert(t_lk_value_{named::preserve<K1>(key), result.id});
           if (pair.second) {
             result.ptr->key = &pair.first->first;
             return {result.id, result.ptr->key, &result.ptr->value};
@@ -166,9 +161,9 @@ namespace ix_map
     template<typename K1, typename T1>
     inline
     t_result insert(K1&& key, T1&& value) {
-      auto result = store_.insert(preserve<T1>(value));
+      auto result = store_.insert(named::preserve<T1>(value));
       if (result) {
-        auto pair = lk_.insert(t_lk_value_{preserve<K1>(key), result.id});
+        auto pair = lk_.insert(t_lk_value_{named::preserve<K1>(key), result.id});
         if (pair.second) {
           result.ptr->key = &pair.first->first;
           return {result.id, result.ptr->key, &result.ptr->value};
@@ -182,9 +177,9 @@ namespace ix_map
     inline
     t_result insert(r_err err, K1&& key, T1&& value) {
       ERR_GUARD(err) {
-        auto result = store_.insert(err, preserve<T1>(value));
+        auto result = store_.insert(err, named::preserve<T1>(value));
         if (result) {
-          auto pair = lk_.insert(t_lk_value_{preserve<K1>(key), result.id});
+          auto pair = lk_.insert(t_lk_value_{named::preserve<K1>(key), result.id});
           if (pair.second) {
             result.ptr->key = &pair.first->first;
             return {result.id, result.ptr->key, &result.ptr->value};
@@ -383,7 +378,7 @@ namespace ix_map
       P_key   key;
       t_value value;
       template<typename T1>
-      t_entry_(T1&& _value) : value{preserve<T1>(_value)} { }
+      t_entry_(T1&& _value) : value{named::preserve<T1>(_value)} { }
     };
     using t_store_    = freelist::t_freelist<t_entry_>;
     using t_lk_       = std::map<K, t_id, C>;

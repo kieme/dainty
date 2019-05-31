@@ -24,7 +24,6 @@
 
 ******************************************************************************/
 
-#include "dainty_named_utility.h"
 #include "dainty_container_freelist.h"
 #include "dainty_container_ptrlist.h"
 #include "dainty_os_clock.h"

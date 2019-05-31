@@ -27,7 +27,6 @@
 #ifndef _DAINTY_NAMED_STRING_4_H_
 #define _DAINTY_NAMED_STRING_4_H_
 
-#include "dainty_named_utility.h"
 #include "dainty_named_string_1.h"
 
 namespace dainty
@@ -311,8 +310,8 @@ namespace string
   inline
   t_string<TAG, 0, t_overflow_grow>
       ::t_string(t_string<TAG, 0, O1>&& str) noexcept
-    : blks_{str.blks_}, max_{utility::reset(str.max_)},
-      store_{utility::x_cast(str.store_)}, impl_{str.impl_.reset()} {
+    : blks_{str.blks_}, max_{named::reset(str.max_)},
+      store_{named::x_cast(str.store_)}, impl_{str.impl_.reset()} {
   }
 
   template<class TAG>
@@ -406,9 +405,9 @@ namespace string
       ::operator=(t_string<TAG, 0, O1>&& str) noexcept {
     dealloc_(store_.release());
     impl_.reset(str.impl_.reset());
-    max_   = utility::reset(str.max_);
+    max_   = named::reset(str.max_);
     blks_  = str.blks_;
-    store_ = utility::x_cast(str.store_);
+    store_ = named::x_cast(str.store_);
     return *this;
   }
 

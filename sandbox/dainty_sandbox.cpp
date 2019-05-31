@@ -25,7 +25,6 @@ SOFTWARE.
 ******************************************************************************/
 
 #include "dainty_named.h"
-#include "dainty_named_utility.h"
 #include "dainty_named_terminal.h"
 #include "dainty_sandbox_impl.h"
 
@@ -41,7 +40,6 @@ namespace sandbox
   using named::t_ix_;
 
   using named::terminal::t_out;
-  using named::utility::x_cast;
   using os::call_pthread_init;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,13 +48,13 @@ namespace sandbox
   }
 
   t_logic_ptrlist::t_logic_ptrlist(x_logic_ptrlist ptrlist)
-    : list_{x_cast(ptrlist.list_)} {
+    : list_{named::x_cast(ptrlist.list_)} {
   }
 
   t_void t_logic_ptrlist::push_back(t_err err, x_logic_ptr ptr) noexcept {
     ERR_GUARD(err) {
       // XXX check the names
-      list_.push_back(err, x_cast(ptr));
+      list_.push_back(err, named::x_cast(ptr));
     }
   }
 
@@ -119,7 +117,7 @@ namespace sandbox
                                       R_timer_params params,
                                       x_timer_notify_ptr notify_ptr) noexcept {
     ERR_GUARD(err) {
-      return logic_.start_timer(err, name, params, x_cast(notify_ptr));
+      return logic_.start_timer(err, name, params, named::x_cast(notify_ptr));
     }
     return BAD_TIMER_ID;
   }
@@ -162,7 +160,7 @@ namespace sandbox
                                R_fdevent_params params,
                                x_fdevent_notify_ptr notify_ptr) noexcept {
     ERR_GUARD(err) {
-      return logic_.add_fdevent(err, name, params, x_cast(notify_ptr));
+      return logic_.add_fdevent(err, name, params, named::x_cast(notify_ptr));
     }
     return BAD_FDEVENT_ID;
   }
@@ -232,7 +230,7 @@ namespace sandbox
                                   x_timer_notify_ptr ptr) noexcept {
     ERR_GUARD(err) {
       if (impl_)
-        return impl_->start_timer(err, ix_, name, params, x_cast(ptr));
+        return impl_->start_timer(err, ix_, name, params, named::x_cast(ptr));
       err = err::E_XXX;
     }
     return BAD_TIMER_ID;
@@ -288,7 +286,7 @@ namespace sandbox
                                     x_fdevent_notify_ptr ptr) noexcept {
     ERR_GUARD(err) {
       if (impl_)
-        return impl_->add_fdevent(err, ix_, name, params, x_cast(ptr));
+        return impl_->add_fdevent(err, ix_, name, params, named::x_cast(ptr));
       err = err::E_XXX;
     }
     return BAD_FDEVENT_ID;
@@ -319,9 +317,9 @@ namespace sandbox
   t_thread::t_thread(t_err err, R_name name, x_ptr logic_ptr,
                      R_params params) noexcept {
     ERR_GUARD(err) {
-      auto impl = new t_single_impl_{err, name, params, x_cast(logic_ptr)};
+      auto impl = new t_single_impl_{err, name, params, named::x_cast(logic_ptr)};
       t_id id{impl->get_close_fd()};
-      t_thread_ thread{err, name.get_cstr(), x_cast(impl)};
+      t_thread_ thread{err, name.get_cstr(), named::x_cast(impl)};
       if (!err)
         id_ = id;
     }
@@ -330,9 +328,9 @@ namespace sandbox
   t_thread::t_thread(t_err err, R_name name, x_ptrlist list,
                      R_params params) noexcept {
     ERR_GUARD(err) {
-      auto impl = new t_shared_impl_{err, name, params, x_cast(list)};
+      auto impl = new t_shared_impl_{err, name, params, named::x_cast(list)};
       t_id id{impl->get_close_fd()};
-      t_thread_ thread{err, name.get_cstr(), x_cast(impl)};
+      t_thread_ thread{err, name.get_cstr(), named::x_cast(impl)};
       if (!err)
         id_ = id;
     }
@@ -351,7 +349,7 @@ namespace sandbox
   t_main::t_main(t_err err, R_name name, x_ptr logic,
                  R_params params) noexcept {
     ERR_GUARD(err) {
-      t_single_impl_ impl{err, name, params, x_cast(logic)};
+      t_single_impl_ impl{err, name, params, named::x_cast(logic)};
       t_id id{impl.get_close_fd()};
       t_thread_attr_ attr;
       call_pthread_init(err, attr);
@@ -367,7 +365,7 @@ namespace sandbox
   t_main::t_main(t_err err, R_name name, x_ptrlist list,
                  R_params params) noexcept {
     ERR_GUARD(err) {
-      t_shared_impl_ impl{err, name, params, x_cast(list)};
+      t_shared_impl_ impl{err, name, params, named::x_cast(list)};
       t_id id{impl.get_close_fd()};
       t_thread_attr_ attr;
       call_pthread_init(err, attr);
@@ -406,11 +404,11 @@ namespace sandbox
 
     t_thread_control_(r_err err, R_name name, x_ptr ptr,
                       R_params params) noexcept
-      : thread_{err, name, x_cast(ptr), params} {
+      : thread_{err, name, named::x_cast(ptr), params} {
     }
     t_thread_control_(r_err err, R_name name, x_ptrlist ptrlist,
                       R_params params) noexcept
-      : thread_{err, name, x_cast(ptrlist), params} {
+      : thread_{err, name, named::x_cast(ptrlist), params} {
     }
     virtual t_id get_id() const noexcept override final {
       return thread_.get_id();
@@ -428,11 +426,11 @@ namespace sandbox
 
     t_main_control_(r_err err, R_name name, x_ptr ptr,
                     R_params params) noexcept
-      : main_{err, name, x_cast(ptr), params} {
+      : main_{err, name, named::x_cast(ptr), params} {
     }
     t_main_control_(r_err err, R_name name, x_ptrlist ptrlist,
                     R_params params) noexcept
-      : main_{err, name, x_cast(ptrlist), params} {
+      : main_{err, name, named::x_cast(ptrlist), params} {
     }
     virtual t_id get_id() const noexcept override final {
       return main_.get_id();
@@ -449,10 +447,10 @@ namespace sandbox
       p_thread_of_control_ p = nullptr;
       switch (control) {
         case IN_CURRENT_THREAD:
-          p = new t_main_control_  {err, name, x_cast(ptr), params};
+          p = new t_main_control_  {err, name, named::x_cast(ptr), params};
           break;
         case IN_NEW_THREAD:
-          p = new t_thread_control_{err, name, x_cast(ptr), params};
+          p = new t_thread_control_{err, name, named::x_cast(ptr), params};
           break;
       }
       thread_of_control_ = p;
@@ -465,10 +463,10 @@ namespace sandbox
       p_thread_of_control_ p = nullptr;
       switch (control) {
         case IN_CURRENT_THREAD:
-          p = new t_main_control_  {err, name, x_cast(ptrlist), params};
+          p = new t_main_control_  {err, name, named::x_cast(ptrlist), params};
           break;
         case IN_NEW_THREAD:
-          p = new t_thread_control_{err, name, x_cast(ptrlist), params};
+          p = new t_thread_control_{err, name, named::x_cast(ptrlist), params};
           break;
       }
       thread_of_control_ = p;

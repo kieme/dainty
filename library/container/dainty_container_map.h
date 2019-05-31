@@ -27,7 +27,6 @@
 #ifndef _DAINTY_CONTAINER_MAP_H_
 #define _DAINTY_CONTAINER_MAP_H_
 
-#include "dainty_named_utility.h"
 #include "dainty_container_map_impl.h"
 
 namespace dainty
@@ -36,8 +35,6 @@ namespace container
 {
 namespace map
 {
-  using named::utility::x_cast;
-
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename K>
@@ -156,14 +153,14 @@ namespace map
   inline
   typename t_map<N, K, T, C>::t_result
     t_map<N, K, T, C>::insert(x_keyvalue keyvalue) {
-    return impl_.insert(x_cast(keyvalue));
+    return impl_.insert(named::x_cast(keyvalue));
   }
 
   template<t_n_ N, typename K, typename T, typename C>
   inline
   typename t_map<N, K, T, C>::t_result
     t_map<N, K, T, C>::insert(t_err err, x_keyvalue keyvalue) {
-    return impl_.insert(err, x_cast(keyvalue));
+    return impl_.insert(err, named::x_cast(keyvalue));
   }
 
   template<t_n_ N, typename K, typename T, typename C>

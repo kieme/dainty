@@ -28,7 +28,6 @@
 #define _DAINTY_CONTAINTER_FREELIST_IMPL_H_
 
 #include <memory>
-#include "dainty_named_utility.h"
 #include "dainty_container_err.h"
 #include "dainty_container_valuestore.h"
 
@@ -46,7 +45,6 @@ namespace freelist
   using named::t_void;
   using named::t_bool;
   using named::t_n_;
-  using named::utility::x_cast;
 
   enum  t_id_tag_ {};
   using t_id_ = named::t_n_;
@@ -195,7 +193,8 @@ namespace freelist
     t_result insert(p_entry _entry, t_n_ max, x_value value) {
       if (free_ < max) {
         r_entry entry = _entry[free_];
-        t_result tmp(free_ + 1, entry.store_.move_construct(x_cast(value)));
+        t_result tmp(free_ + 1,
+                     entry.store_.move_construct(named::x_cast(value)));
         free_ = entry.free_;
         entry.free_ = max + 1;
         ++size_;
@@ -211,7 +210,7 @@ namespace freelist
           if (free_ < max) {
             r_entry entry = _entry[free_];
             t_result tmp(free_ + 1,
-                         entry.store_.move_construct(x_cast(value)));
+                         entry.store_.move_construct(named::x_cast(value)));
             free_ = entry.free_;
             entry.free_ = max + 1;
             ++size_;

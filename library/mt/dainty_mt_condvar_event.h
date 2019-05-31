@@ -28,7 +28,6 @@
 #define _DAINTY_MT_CONDVAR_EVENT_H_
 
 #include "dainty_named_ptr.h"
-#include "dainty_named_utility.h"
 #include "dainty_mt_err.h"
 
 namespace dainty

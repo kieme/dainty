@@ -264,7 +264,7 @@ namespace waitable_chained_queue
 
   t_client::t_client(x_client client) noexcept
     : impl_{client.impl_.release()},
-      user_{named::utility::reset(client.user_)} {
+      user_{named::reset(client.user_)} {
   }
 
   t_client::operator t_validity() const noexcept {
