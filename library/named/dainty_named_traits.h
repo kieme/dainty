@@ -36,17 +36,16 @@ namespace named
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T> struct t_me        { using t_identity = T; }; // identity_type
-  template<typename T> struct t_result_is { using t_result = T; };
+  template<typename T> struct t_result_is { using t_result   = T; };
 
 ///////////////////////////////////////////////////////////////////////////////
 
   struct t_true  : t_me<t_true>  { constexpr static t_bool VALUE = true;  };
   struct t_false : t_me<t_false> { constexpr static t_bool VALUE = false; };
 
-  constexpr t_bool get(t_false) { return false; }
-  constexpr t_bool get(t_true)  { return true;  }
-
 ///////////////////////////////////////////////////////////////////////////////
+
+  template<typename> struct t_test;
 
   struct t_ok { };
   template<typename...> using t_test_well_formed = t_ok; // void_t
@@ -67,6 +66,8 @@ namespace named
   struct t_if_then : t_if_then<typename I::t_result, T> { };
 
   template<typename T> struct t_if_then<t_true, T> { using t_result = T; };
+
+///////////////////////////////////////////////////////////////////////////////
 
   template<typename I> using t_if = t_if_then<I, void>; // enable_if
 
@@ -177,8 +178,9 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename, typename> struct t_is_same       : t_FALSE_ { };
-  template<typename T>         struct t_is_same<T, T> : t_TRUE_  { };
+  template<typename T, typename U> struct t_is_same : t_FALSE_ { t_test<T> a;
+t_test<U> b; };
+  template<typename T>         struct t_is_same<T, T> : t_TRUE_  { t_test<T> a; };
 
   template<typename T, typename T1>
   using t_is_not_same = t_not<t_is_same<T, T1>>;
@@ -191,7 +193,7 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  namespace help_ {
+  namespace impl_ {
     template<typename T, typename>
     struct t_is_true_  : t_FALSE_ { };
 
@@ -207,8 +209,8 @@ namespace named
       : t_is_same<typename T::t_result, t_false> { };
   }
 
-  template<typename T> struct t_is_true  : help_::t_is_true_ <T, t_ok> { };
-  template<typename T> struct t_is_false : help_::t_is_false_<T, t_ok> { };
+  template<typename T> struct t_is_true  : impl_::t_is_true_ <T, t_ok> { };
+  template<typename T> struct t_is_false : impl_::t_is_false_<T, t_ok> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -348,19 +350,188 @@ namespace named
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  struct t_is_free_function : t_FALSE_ { };
+  struct t_is_free_func : t_FALSE_ { };
 
   template<typename R, typename... As>
-  struct t_is_free_function<R(As...)>          : t_TRUE_ { };
+  struct t_is_free_func<R(As...)>      : t_TRUE_ { };
+
+  template<typename R, typename... As>
+  struct t_is_free_func<R(As..., ...)> : t_TRUE_ { };
 
   #if __cplusplus >= 201703L
   template<typename R, typename... As>
-  struct t_is_free_function<R(As...) noexcept> : t_TRUE_ { };
+  struct t_is_free_func<R(As...)      noexcept> : t_TRUE_ { };
+
+  template<typename R, typename... As>
+  struct t_is_free_func<R(As..., ...) noexcept> : t_TRUE_ { };
   #endif
 
-  template<typename T> using t_is_not_free_function = t_not<t_is_free_function<T>>;
-  template<typename T> using t_if_free_function     = t_if<t_is_free_function<T>>;
-  template<typename T> using t_if_not_free_function = t_if<t_is_not_free_function<T>>;
+  template<typename T> using t_is_not_free_func = t_not<t_is_free_func<T>>;
+  template<typename T> using t_if_free_func     = t_if<t_is_free_func<T>>;
+  template<typename T> using t_if_not_free_func = t_if<t_is_not_free_func<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+namespace impl_ {
+
+  template<typename, typename>
+   struct t_is_func_ : t_FALSE_ { };
+
+  template<typename T, typename R, typename... As>
+  struct t_is_func_<T, t_test_well_formed<t_if_same<T, R(As...)>>> : t_TRUE_ { };
+
+  /*
+  struct t_is_func_<T, t_if_one_of<T,
+                                   R(As...),
+                                   R(As...) &,
+                                   R(As...) &&,
+                                   R(As...)    noexcept,
+                                   R(As...) &  noexcept,
+                                   R(As...) && noexcept,
+                                   R(As...) const,
+                                   R(As...) const &,
+                                   R(As...) const &&,
+                                   R(As...) const    noexcept,
+                                   R(As...) const &  noexcept,
+                                   R(As...) const && noexcept,
+                                   R(As...) volatile,
+                                   R(As...) volatile &,
+                                   R(As...) volatile &&,
+                                   R(As...) volatile    noexcept,
+                                   R(As...) volatile &  noexcept,
+                                   R(As...) volatile && noexcept,
+                                   R(As...) const volatile,
+                                   R(As...) const volatile &,
+                                   R(As...) const volatile &&,
+                                   R(As...) const volatile    noexcept,
+                                   R(As...) const volatile &  noexcept,
+                                   R(As...) const volatile && noexcept,
+                                   R(As......),
+                                   R(As......) &,
+                                   R(As......) &&,
+                                   R(As......)    noexcept,
+                                   R(As......) &  noexcept,
+                                   R(As......) && noexcept,
+                                   R(As......) const,
+                                   R(As......) const &,
+                                   R(As......) const &&,
+                                   R(As......) const    noexcept,
+                                   R(As......) const &  noexcept,
+                                   R(As......) const && noexcept,
+                                   R(As......) volatile,
+                                   R(As......) volatile &,
+                                   R(As......) volatile &&,
+                                   R(As......) volatile    noexcept,
+                                   R(As......) volatile &  noexcept,
+                                   R(As......) volatile && noexcept,
+                                   R(As......) const volatile,
+                                   R(As......) const volatile &,
+                                   R(As......) const volatile &&,
+                                   R(As......) const volatile    noexcept,
+                                   R(As......) const volatile &  noexcept,
+                                   R(As......) const volatile && noexcept>
+                   > : t_TRUE_ { };
+  */
+}
+
+template<typename T> struct t_is_func : impl_::t_is_func_<T, T> { };
+
+///////////////////////////////////////////////////////////////////////////////
+
+template<typename T>
+struct t_is_object : t_none_is_true<T, t_is_func, t_is_ref, t_is_void> { };
+
+template<typename T> using t_is_not_object = t_not<t_is_object<T>>;
+template<typename T> using t_if_object     = t_if<t_is_object<T>>;
+template<typename T> using t_if_not_object = t_if<t_is_not_object<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+template<typename T>
+struct t_is_ref_able : t_least_one_is_true<T, t_is_object, t_is_ref> { };
+
+template<typename R, typename... As>
+struct t_is_ref_able<R(As...)>      : t_TRUE_ { };
+
+template<typename R, typename... As>
+struct t_is_ref_able<R(As..., ...)> : t_TRUE_ { };
+
+#if __cplusplus >= 201703L
+template<typename R, typename... As>
+struct t_is_ref_able<R(As...)      noexcept> : t_TRUE_ { };
+
+template<typename R, typename... As>
+struct t_is_ref_able<R(As..., ...) noexcept> : t_TRUE_ { };
+#endif
+
+template<typename T> using t_is_not_ref_able = t_not<t_is_ref_able<T>>;
+template<typename T> using t_if_ref_able     = t_if<t_is_ref_able<T>>;
+template<typename T> using t_if_not_ref_able = t_if<t_is_not_ref_able<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  namespace impl_ {
+    template<typename T, typename = typename t_is_ref_able<T>::t_result>
+    struct t_add_lvalue_ref_            { using t_result = T; };
+
+    template<typename T>
+    struct t_add_lvalue_ref_<T, t_true> { using t_result = T&; };
+
+    template<typename T, typename = typename t_is_ref_able<T>::t_result>
+    struct t_add_rvalue_ref_            { using t_result = T; };
+
+    template<typename T>
+    struct t_add_rvalue_ref_<T, t_true> { using t_result = T&&; };
+  }
+
+  template<typename T>
+  using t_add_lvalue_ref = impl_::t_add_lvalue_ref_<T>;
+
+  template<typename T>
+  using t_add_rvalue_ref = impl_::t_add_rvalue_ref_<T>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  typename t_add_rvalue_ref<T>::t_result declval() noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> struct t_remove_ref      : t_result_is<T> { };
+  template<typename T> struct t_remove_ref<T&>  : t_result_is<T> { };
+  template<typename T> struct t_remove_ref<T&&> : t_result_is<T> { };
+
+  template<typename T> struct t_remove_const          : t_result_is<T> { };
+  template<typename T> struct t_remove_const<const T> : t_result_is<T> { };
+
+  template<typename T> struct t_remove_volatile             : t_result_is<T> { };
+  template<typename T> struct t_remove_volatile<volatile T> : t_result_is<T> { };
+
+  template<typename T> struct t_remove_cv
+    : t_remove_const<typename t_remove_volatile<T>::t_result> { };
+
+  template<typename T> struct t_add_const    : t_result_is<const T>    { };
+  template<typename T> struct t_add_volatile : t_result_is<volatile T> { };
+  template<typename T> struct t_add_cv :
+    t_add_const<typename t_add_volatile<T>::t_result> { };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  namespace impl_ {
+    template<typename T>
+    struct t_is_member_ptr_         : t_FALSE_ { };
+
+    template<typename T, typename U>
+    struct t_is_member_ptr_<T U::*> : t_TRUE_  { };
+  }
+
+  template<typename T>
+  struct t_is_member_ptr
+    : impl_::t_is_member_ptr_<typename t_remove_cv<T>::t_result> { };
+
+  template<typename T> using t_is_not_member_ptr = t_not<t_is_member_ptr<T>>;
+  template<typename T> using t_if_member_ptr     = t_if<t_is_member_ptr<T>>;
+  template<typename T> using t_if_not_member_ptr = t_if<t_is_not_member_ptr<T>>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -391,21 +562,8 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  // XXX
-  template<typename T> struct t_is_member_ptr : t_FALSE_ { };
-
-  template<typename T, typename U>
-  struct t_is_member_ptr<T U::*> : t_TRUE_ { };
-  // XXX
-
-  template<typename T> using t_is_not_member_ptr = t_not<t_is_member_ptr<T>>;
-  template<typename T> using t_if_member_ptr     = t_if<t_is_member_ptr<T>>;
-  template<typename T> using t_if_not_member_ptr = t_if<t_is_not_member_ptr<T>>;
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename T>
-  struct t_is_precision : t_is_one_of<T, double, float, long double> { };
+template<typename T>
+struct t_is_precision : t_is_one_of<T, double, float, long double> { };
 
   template<typename T> using t_is_not_precision = t_not<t_is_precision<T>>;
   template<typename T> using t_if_precision     = t_if<t_is_precision<T>>;
@@ -485,49 +643,19 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> struct t_remove_ref      : t_result_is<T> { };
-  template<typename T> struct t_remove_ref<T&>  : t_result_is<T> { };
-  template<typename T> struct t_remove_ref<T&&> : t_result_is<T> { };
-
-  template<typename T> struct t_remove_const          : t_result_is<T> { };
-  template<typename T> struct t_remove_const<const T> : t_result_is<T> { };
-
-  template<typename T> struct t_remove_volatile             : t_result_is<T> { };
-  template<typename T> struct t_remove_volatile<volatile T> : t_result_is<T> { };
-
-  template<typename T> struct t_remove_cv
-    : t_remove_const<typename t_remove_volatile<T>::t_result> { };
-
-  template<typename T> struct t_add_const    : t_result_is<const T>    { };
-  template<typename T> struct t_add_volatile : t_result_is<volatile T> { };
-  template<typename T> struct t_add_cv :
-    t_add_const<typename t_add_volatile<T>::t_result> { };
-
-///////////////////////////////////////////////////////////////////////////////
-
-  /*
-  template<typename T, typename = t_if_all_true<T, t_is_integral,
-                                                   t_
-                                                   t_is_not_bool>>
-  struct t_mk_signed
-  */
-
-///////////////////////////////////////////////////////////////////////////////
-
   template<typename T, typename... Ts>
   struct t_is_unique : t_if_then_else<t_is_one_of<T, Ts...>, t_FALSE_,
                                       t_is_unique<Ts...>> { };
 
-  template<typename T>
-  struct t_is_unique<T> : t_TRUE_ { };
+  template<typename T>    struct t_is_unique<T> : t_TRUE_ { };
+  template<typename... Ts> using t_if_unique = t_if<t_is_unique<Ts...>>;
 
   template<typename... Ts> using t_is_not_unique = t_not<t_is_unique<Ts...>>;
-  template<typename... Ts> using t_if_unique     = t_if<t_is_unique<Ts...>>;
   template<typename... Ts> using t_if_not_unique = t_if<t_is_not_unique<Ts...>>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  namespace help_ {
+  namespace impl_ {
     template<typename...> struct t_mk_unique_;
 
     template<typename... Ts, typename U, typename... Us>
@@ -543,11 +671,11 @@ namespace named
   }
 
   template<typename T, typename... Ts>
-  struct t_mk_unique : help_::t_mk_unique_<t_pack<>, t_pack<T, Ts...>> { };
+  struct t_mk_unique : impl_::t_mk_unique_<t_pack<>, t_pack<T, Ts...>> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  namespace help_ {
+  namespace impl_ {
     template<typename... Ts> struct t_flatten_tree_;
 
     template<typename... Ts, typename... Hs, typename... Us>
@@ -568,11 +696,11 @@ namespace named
   }
 
   template<typename... Ts>
-  struct t_flatten_tree : help_::t_flatten_tree_<t_pack<>, t_pack<Ts...>> { };
+  struct t_flatten_tree : impl_::t_flatten_tree_<t_pack<>, t_pack<Ts...>> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  namespace help_ {
+  namespace impl_ {
     template<t_size, typename...> struct t_is_subset_of_;
 
     template<t_size N, typename T, typename... Ts, typename... Us>
@@ -595,7 +723,7 @@ namespace named
 
   template<typename... Ts, typename... Us>
   struct t_is_subset_of<t_pack<Ts...>, t_pack<Us...>> :
-    help_::t_is_subset_of_<sizeof...(Ts), t_pack<Ts...>, t_pack<Us...>> { };
+    impl_::t_is_subset_of_<sizeof...(Ts), t_pack<Ts...>, t_pack<Us...>> { };
 
   template<typename... Ts> using t_is_not_subset_of = t_not<t_is_subset_of<Ts...>>;
   template<typename... Ts> using t_if_subset_of     = t_if<t_is_subset_of<Ts...>>;

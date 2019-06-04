@@ -36,7 +36,8 @@ namespace named
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> struct t_explicit_value;
+  template<typename T>
+  struct t_explicit_value;
 
   template<> struct t_explicit_value<t_bool>   { using t_value = t_bool;   };
   template<> struct t_explicit_value<t_char>   { using t_value = t_char;   };
@@ -78,11 +79,18 @@ namespace named
     constexpr static t_value test(t_value value) { return value; }
   };
 
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename... Ts>
+  using t_tags = t_pack<Ts...>;
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<class T, class TAG, class CHECK = void>
   class t_explicit {
   public:
     using t_value = typename t_explicit_value<T>::t_value;
-    using t_tag   = TAG;
+    using t_tag   = t_tags<TAG>;
     using t_check = CHECK;
 
     constexpr
@@ -131,7 +139,7 @@ namespace named
   class t_explicit<T, TAG, void> {
   public:
     using t_value = typename t_explicit_value<T>::t_value;
-    using t_tag   = TAG;
+    using t_tag   = t_tags<TAG>;
     using t_check = void;
 
     constexpr
