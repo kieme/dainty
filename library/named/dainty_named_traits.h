@@ -35,19 +35,19 @@ namespace named
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> struct t_me        { using t_identity = T; }; // identity_type
+  template<typename T> struct t_ident     { using t_identity = T; }; // identity_type
   template<typename T> struct t_result_is { using t_result   = T; };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  struct t_true  : t_me<t_true>  { constexpr static t_bool VALUE = true;  };
-  struct t_false : t_me<t_false> { constexpr static t_bool VALUE = false; };
+  struct t_true  : t_ident<t_true>  { constexpr static t_bool VALUE = true;  };
+  struct t_false : t_ident<t_false> { constexpr static t_bool VALUE = false; };
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename> struct t_test;
 
-  struct t_ok { };
+  enum t_ok { };
   template<typename...> using t_test_well_formed = t_ok; // void_t
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,6 +62,17 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template<typename I, typename T, typename U>
+  struct t_if_then_else : t_if_then_else<typename I::t_result, T, U> { };
+
+  template<typename T, typename U>
+  struct t_if_then_else<t_true,  T, U> : t_result_is<T> { };
+
+  template<typename T, typename U>
+  struct t_if_then_else<t_false, T, U> : t_result_is<U> { };
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<typename I, typename T>
   struct t_if_then : t_if_then<typename I::t_result, T> { };
 
@@ -69,7 +80,7 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename I> using t_if = t_if_then<I, void>; // enable_if
+  template<typename I> using t_if = t_if_then<I, t_ok>; // enable_if
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -84,6 +95,29 @@ namespace named
   template<typename T> struct t_not          : t_not<typename T::t_result> { };
   template<>           struct t_not<t_true>  : t_FALSE_ { };
   template<>           struct t_not<t_false> : t_TRUE_  { };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  namespace impl_ {
+    template<template<typename> class Op, typename T, typename U, typename E>
+    struct t_is_there_ : t_ident<U>, t_FALSE_ { };
+
+    template<template<typename> class Op, typename T, typename U>
+    struct t_is_there_<Op, T, U, t_test_well_formed<Op<T>>>
+      : t_ident<Op<T>>, t_TRUE_ { };
+  }
+
+  template<template<typename> class Op, typename T>
+  using t_is_there = impl_::t_is_there_<Op, T, t_ok, t_ok>;
+
+  template<template<typename> class Op, typename T, typename U>
+  using t_there_or = typename impl_::t_is_there_<Op, T, U, t_ok>::t_identity;
+
+  template<typename T> using t_result     = decltype(T::t_result);
+  template<typename T> using t_has_result = t_is_there<t_result, T>;
+
+  template<typename T> using t_identity     = decltype(T::t_identity);
+  template<typename T> using t_has_identity = t_is_there<t_identity, T>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -167,20 +201,8 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename I, typename T, typename U>
-  struct t_if_then_else : t_if_then_else<typename I::t_result, T, U> { };
-
-  template<typename T, typename U>
-  struct t_if_then_else<t_true,  T, U> : t_result_is<T> { };
-
-  template<typename T, typename U>
-  struct t_if_then_else<t_false, T, U> : t_result_is<U> { };
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename T, typename U> struct t_is_same : t_FALSE_ { t_test<T> a;
-t_test<U> b; };
-  template<typename T>         struct t_is_same<T, T> : t_TRUE_  { t_test<T> a; };
+  template<typename T, typename U> struct t_is_same       : t_FALSE_  {  };
+  template<typename T>             struct t_is_same<T, T> : t_TRUE_   { };
 
   template<typename T, typename T1>
   using t_is_not_same = t_not<t_is_same<T, T1>>;
