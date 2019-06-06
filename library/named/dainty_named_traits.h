@@ -35,13 +35,15 @@ namespace named
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> struct t_ident     { using t_identity = T; }; // identity_type
-  template<typename T> struct t_result_is { using t_result   = T; };
+  template<typename T>      struct t_add_identity { using t_identity = T; };
+  template<typename T>      struct t_add_result   { using t_result   = T; };
+  template<typename T>      struct t_add_value    { using t_value    = T; };
+  template<typename T, T V> struct t_add_VALUE { constexpr static T VALUE = V; };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  struct t_true  : t_ident<t_true>  { constexpr static t_bool VALUE = true;  };
-  struct t_false : t_ident<t_false> { constexpr static t_bool VALUE = false; };
+  struct t_true  : t_add_result<t_true>,  t_add_VALUE<t_bool, true>  { };
+  struct t_false : t_add_result<t_false>, t_add_VALUE<t_bool, false> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -66,17 +68,18 @@ namespace named
   struct t_if_then_else : t_if_then_else<typename I::t_result, T, U> { };
 
   template<typename T, typename U>
-  struct t_if_then_else<t_true,  T, U> : t_result_is<T> { };
+  struct t_if_then_else<t_true,  T, U> : t_add_value<T> { };
 
   template<typename T, typename U>
-  struct t_if_then_else<t_false, T, U> : t_result_is<U> { };
+  struct t_if_then_else<t_false, T, U> : t_add_value<U> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename I, typename T>
   struct t_if_then : t_if_then<typename I::t_result, T> { };
 
-  template<typename T> struct t_if_then<t_true, T> { using t_result = T; };
+  template<typename T>
+   struct t_if_then<t_true, T> : t_add_value<T> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -84,40 +87,46 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<t_bool> struct t_bool_result       : t_result_is<t_false> { };
-  template<>       struct t_bool_result<true> : t_result_is<t_true>  { };
+  template<t_bool> struct t_bool_result       : t_false { };
+  template<>       struct t_bool_result<true> : t_true  { };
 
   using t_TRUE_  = t_bool_result<true>;  // shorthand
   using t_FALSE_ = t_bool_result<false>; // shorthand
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> struct t_not          : t_not<typename T::t_result> { };
-  template<>           struct t_not<t_true>  : t_FALSE_ { };
-  template<>           struct t_not<t_false> : t_TRUE_  { };
-
-///////////////////////////////////////////////////////////////////////////////
-
   namespace impl_ {
     template<template<typename> class Op, typename T, typename U, typename E>
-    struct t_is_there_ : t_ident<U>, t_FALSE_ { };
+    struct t_is_there_ : t_add_value<U>, t_FALSE_ { };
 
     template<template<typename> class Op, typename T, typename U>
     struct t_is_there_<Op, T, U, t_test_well_formed<Op<T>>>
-      : t_ident<Op<T>>, t_TRUE_ { };
+      : t_add_value<Op<T>>, t_TRUE_ { };
   }
 
   template<template<typename> class Op, typename T>
-  using t_is_there = impl_::t_is_there_<Op, T, t_ok, t_ok>;
+  using t_is_there = typename impl_::t_is_there_<Op, T, t_ok, t_ok>::t_result;
+
+  template<template<typename> class Op, typename T>
+  using t_expr_of = typename impl_::t_is_there_<Op, T, t_ok, t_ok>::t_value;
 
   template<template<typename> class Op, typename T, typename U>
-  using t_there_or = typename impl_::t_is_there_<Op, T, U, t_ok>::t_identity;
+  using t_expr_of_or = typename impl_::t_is_there_<Op, T, U, t_ok>::t_value;
 
-  template<typename T> using t_result     = decltype(T::t_result);
-  template<typename T> using t_has_result = t_is_there<t_result, T>;
+  template<typename T> using t_result       = typename T::t_result;
+  template<typename T> using t_has_result   = t_is_there<t_result, T>;
 
-  template<typename T> using t_identity     = decltype(T::t_identity);
+  template<typename T> using t_value        = typename T::t_t_value;
+  template<typename T> using t_has_value    = t_is_there<t_value, T>;
+
+  template<typename T> using t_identity     = typename T::t_identity;
   template<typename T> using t_has_identity = t_is_there<t_identity, T>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> struct t_not          : t_not<typename T::t_result> { };
+  template<>           struct t_not<t_true>  : t_FALSE_ { };
+  template<>           struct t_not<t_false> : t_TRUE_  { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -201,7 +210,7 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, typename U> struct t_is_same       : t_FALSE_  {  };
+  template<typename T, typename U> struct t_is_same       : t_FALSE_  { };
   template<typename T>             struct t_is_same<T, T> : t_TRUE_   { };
 
   template<typename T, typename T1>
@@ -216,22 +225,33 @@ namespace named
 ///////////////////////////////////////////////////////////////////////////////
 
   namespace impl_ {
-    template<typename T, typename>
+    template<typename, typename>
     struct t_is_true_  : t_FALSE_ { };
 
     template<typename T>
     struct t_is_true_<T, t_test_well_formed<typename T::t_result>>
       : t_is_same<typename T::t_result, t_true> { };
 
-    template<typename T, typename>
+    template<>
+    struct t_is_true_<t_true, t_ok> : t_TRUE_ { };
+  }
+
+  template<typename T> struct t_is_true  : impl_::t_is_true_ <T, t_ok> { };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  namespace impl_ {
+    template<typename, typename>
     struct t_is_false_  : t_FALSE_ { };
 
     template<typename T>
     struct t_is_false_<T, t_test_well_formed<typename T::t_result>>
       : t_is_same<typename T::t_result, t_false> { };
+
+    template<>
+    struct t_is_false_<t_false, t_ok> : t_TRUE_ { };
   }
 
-  template<typename T> struct t_is_true  : impl_::t_is_true_ <T, t_ok> { };
   template<typename T> struct t_is_false : impl_::t_is_false_<T, t_ok> { };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -250,7 +270,7 @@ namespace named
   template<typename T, typename T1, typename... Ts>
   struct t_is_one_of<T, T1, Ts...>
     : t_if_then_else<t_is_one_of<T, T1>, t_TRUE_,
-                     t_is_one_of<T, Ts...>>::t_result { };
+                     t_is_one_of<T, Ts...>>::t_value { };
 
   template<typename T, typename T1>
   struct t_is_one_of<T, T1> : t_is_same<T, T1> { };
@@ -394,22 +414,196 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace impl_ {
+  template<t_bool N  = false,
+           t_bool M  = false,
+           t_bool C  = false,
+           t_bool V  = false,
+           t_bool A  = false,
+           t_bool L  = false,
+           t_bool R  = false>
+  struct t_add_func_traits {
+    using t_is_noexcept   = t_bool_result<N>;
+    using t_is_member     = t_bool_result<M>;
+    using t_is_const      = t_bool_result<C>;
+    using t_is_volatile   = t_bool_result<V>;
+    using t_is_va_args    = t_bool_result<A>;
+    using t_is_lvalue_ref = t_bool_result<L>;
+    using t_is_rvalue_ref = t_bool_result<R>;
+  };
 
+///////////////////////////////////////////////////////////////////////////////
+
+namespace impl_ {
+  template<typename T>
+  struct t_member_func_;
+
+  template<typename T, typename U>
+  struct t_member_func_<T U::*> : t_add_value<T> { };
+}
+
+template<typename T>
+using t_member_func = typename impl_::t_member_func_<T>::t_value;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> struct t_func;
+
+  template<typename R, typename... As>
+  struct t_func<R(As...)>
+    : t_add_value<R(As...)>,
+      t_add_func_traits<false, // IS_NOEXCEPT
+                        false, // IS_MEMBER
+                        false, // IS_CONST
+                        false, // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false  // IS_RVALUE_REF
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...)>
+    : t_add_value<R(As..., ...)>,
+      t_add_func_traits<false, // IS_NOEXCEPT
+                        false, // IS_MEMBER
+                        false, // IS_CONST
+                        false, // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false  // IS_RVALUE_REF
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) noexcept>
+    : t_add_value<R(As...) noexcept>,
+      t_add_func_traits<true,  // IS_NOEXCEPT
+                        false, // IS_MEMBER
+                        false, // IS_CONST
+                        false, // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false  // IS_RVALUE_REF
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) noexcept>
+    : t_add_value<R(As..., ...) noexcept>,
+      t_add_func_traits<true,  // IS_NOEXCEPT
+                        false, // IS_MEMBER
+                        false, // IS_CONST
+                        false, // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false  // IS_RVALUE_REF
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) &>
+    : t_add_value<R(As...) &>,
+      t_add_func_traits<false, // IS_NOEXCEPT
+                        true,  // IS_MEMBER
+                        false, // IS_CONST
+                        false, // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false  // IS_RVALUE_REF
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) &>
+    : t_add_value<R(As..., ...) &>,
+      t_add_func_traits<false, // IS_NOEXCEPT
+                        true,  // IS_MEMBER
+                        false, // IS_CONST
+                        false, // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false  // IS_RVALUE_REF
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) & noexcept>
+    : t_add_value<R(As...) & noexcept>,
+      t_add_func_traits<true,  // IS_NOEXCEPT
+                        true,  // IS_MEMBER
+                        false, // IS_CONST
+                        false, // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false  // IS_RVALUE_REF
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) & noexcept>
+    : t_add_value<R(As..., ...) & noexcept>,
+      t_add_func_traits<true,  // IS_NOEXCEPT
+                        true,  // IS_MEMBER
+                        false, // IS_CONST
+                        false, // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false  // IS_RVALUE_REF
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) &&>
+    : t_add_value<R(As...) &&>,
+      t_add_func_traits<false, // IS_NOEXCEPT
+                        true,  // IS_MEMBER
+                        false, // IS_CONST
+                        false, // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true   // IS_RVALUE_REF
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) &&>
+    : t_add_value<R(As..., ...) &&>,
+      t_add_func_traits<false, // IS_NOEXCEPT
+                        true,  // IS_MEMBER
+                        false, // IS_CONST
+                        false, // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true   // IS_RVALUE_REF
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) && noexcept>
+    : t_add_value<R(As...) && noexcept>,
+      t_add_func_traits<true,  // IS_NOEXCEPT
+                        true,  // IS_MEMBER
+                        false, // IS_CONST
+                        false, // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true   // IS_RVALUE_REF
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) && noexcept>
+    : t_add_value<R(As..., ...) && noexcept>,
+      t_add_func_traits<true,  // IS_NOEXCEPT
+                        true,  // IS_MEMBER
+                        false, // IS_CONST
+                        false, // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true   // IS_RVALUE_REF
+                       > { };
+
+///////////////////////////////////////////////////////////////////////////////
+
+namespace impl_ {
   template<typename, typename>
    struct t_is_func_ : t_FALSE_ { };
 
-  template<typename T, typename R, typename... As>
-  struct t_is_func_<T, t_test_well_formed<t_if_same<T, R(As...)>>> : t_TRUE_ { };
+  template<typename T>
+  struct t_is_func_<T, t_test_well_formed<typename t_func<T>::t_value>>
+    : t_TRUE_ { };
 
   /*
   struct t_is_func_<T, t_if_one_of<T,
-                                   R(As...),
-                                   R(As...) &,
-                                   R(As...) &&,
-                                   R(As...)    noexcept,
-                                   R(As...) &  noexcept,
-                                   R(As...) && noexcept,
                                    R(As...) const,
                                    R(As...) const &,
                                    R(As...) const &&,
@@ -428,12 +622,6 @@ namespace impl_ {
                                    R(As...) const volatile    noexcept,
                                    R(As...) const volatile &  noexcept,
                                    R(As...) const volatile && noexcept,
-                                   R(As......),
-                                   R(As......) &,
-                                   R(As......) &&,
-                                   R(As......)    noexcept,
-                                   R(As......) &  noexcept,
-                                   R(As......) && noexcept,
                                    R(As......) const,
                                    R(As......) const &,
                                    R(As......) const &&,
@@ -456,7 +644,7 @@ namespace impl_ {
   */
 }
 
-template<typename T> struct t_is_func : impl_::t_is_func_<T, T> { };
+template<typename T> struct t_is_func : impl_::t_is_func_<T, t_ok> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -519,21 +707,21 @@ template<typename T> using t_if_not_ref_able = t_if<t_is_not_ref_able<T>>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> struct t_remove_ref      : t_result_is<T> { };
-  template<typename T> struct t_remove_ref<T&>  : t_result_is<T> { };
-  template<typename T> struct t_remove_ref<T&&> : t_result_is<T> { };
+  template<typename T> struct t_remove_ref      : t_add_result<T> { };
+  template<typename T> struct t_remove_ref<T&>  : t_add_result<T> { };
+  template<typename T> struct t_remove_ref<T&&> : t_add_result<T> { };
 
-  template<typename T> struct t_remove_const          : t_result_is<T> { };
-  template<typename T> struct t_remove_const<const T> : t_result_is<T> { };
+  template<typename T> struct t_remove_const          : t_add_result<T> { };
+  template<typename T> struct t_remove_const<const T> : t_add_result<T> { };
 
-  template<typename T> struct t_remove_volatile             : t_result_is<T> { };
-  template<typename T> struct t_remove_volatile<volatile T> : t_result_is<T> { };
+  template<typename T> struct t_remove_volatile             : t_add_result<T> { };
+  template<typename T> struct t_remove_volatile<volatile T> : t_add_result<T> { };
 
   template<typename T> struct t_remove_cv
     : t_remove_const<typename t_remove_volatile<T>::t_result> { };
 
-  template<typename T> struct t_add_const    : t_result_is<const T>    { };
-  template<typename T> struct t_add_volatile : t_result_is<volatile T> { };
+  template<typename T> struct t_add_const    : t_add_result<const T>    { };
+  template<typename T> struct t_add_volatile : t_add_result<volatile T> { };
   template<typename T> struct t_add_cv :
     t_add_const<typename t_add_volatile<T>::t_result> { };
 
@@ -666,8 +854,9 @@ struct t_is_precision : t_is_one_of<T, double, float, long double> { };
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T, typename... Ts>
-  struct t_is_unique : t_if_then_else<t_is_one_of<T, Ts...>, t_FALSE_,
-                                      t_is_unique<Ts...>> { };
+  struct t_is_unique
+    : t_if_then_else<t_is_one_of<T, Ts...>, t_FALSE_,
+                     t_is_unique<Ts...>>::t_value { };
 
   template<typename T>    struct t_is_unique<T> : t_TRUE_ { };
   template<typename... Ts> using t_if_unique = t_if<t_is_unique<Ts...>>;
@@ -684,12 +873,12 @@ struct t_is_precision : t_is_one_of<T, double, float, long double> { };
     struct t_mk_unique_<t_pack<Ts...>, t_pack<U, Us...>>
       : t_if_then_else<
           t_is_not_one_of<U, Ts...>,
-          typename t_mk_unique_<t_pack<Ts..., U>, t_pack<Us...>>::t_result,
-          typename t_mk_unique_<t_pack<Ts...>, t_pack<Us...>>::t_result> { };
+          typename t_mk_unique_<t_pack<Ts..., U>, t_pack<Us...>>::t_value,
+          typename t_mk_unique_<t_pack<Ts...>, t_pack<Us...>>::t_value> { };
 
     template<typename... Ts>
     struct t_mk_unique_<t_pack<Ts...>, t_pack<>>
-      : t_result_is<t_pack<Ts...>> { };
+      : t_add_value<t_pack<Ts...>> { };
   }
 
   template<typename T, typename... Ts>
@@ -709,12 +898,12 @@ struct t_is_precision : t_is_one_of<T, double, float, long double> { };
     struct t_flatten_tree_<t_pack<Ts...>, t_pack<U, Us...>>
       : t_if_then_else<
           t_is_one_of<U, Ts...>,
-          typename t_flatten_tree_<t_pack<Ts...>,    t_pack<Us...>>::t_result,
-          typename t_flatten_tree_<t_pack<Ts..., U>, t_pack<Us...>>::t_result> { };
+          typename t_flatten_tree_<t_pack<Ts...>,    t_pack<Us...>>::t_value,
+          typename t_flatten_tree_<t_pack<Ts..., U>, t_pack<Us...>>::t_value> { };
 
     template<typename... Ts>
     struct t_flatten_tree_<t_pack<Ts...>, t_pack<>>
-      : t_result_is<t_pack<Ts...>> { };
+      : t_add_value<t_pack<Ts...>> { };
   }
 
   template<typename... Ts>
@@ -729,7 +918,7 @@ struct t_is_precision : t_is_one_of<T, double, float, long double> { };
     struct t_is_subset_of_<N, t_pack<T, Ts...>, t_pack<Us...>>
       : t_if_then_else<t_is_one_of<T, Us...>,
                        t_is_subset_of_<N, t_pack<Ts...>, t_pack<Us...>>,
-                       t_FALSE_>::t_result { };
+                       t_FALSE_>::t_value { };
 
     template<t_size N, typename... Us>
     struct t_is_subset_of_<N, t_pack<>, t_pack<Us...>> : t_TRUE_  { };
