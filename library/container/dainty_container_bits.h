@@ -37,13 +37,10 @@ namespace container
 namespace bits
 {
   using named::t_n;
-  using named::t_ix;
   using named::t_validity;
   using named::t_bool;
   using named::VALID;
   using named::INVALID;
-
-  enum t_state { BIT_OFF, BIT_ON };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -51,29 +48,29 @@ namespace bits
   class t_bits {
     using t_impl_ = t_bits_impl_;
   public:
-    t_bits(t_state = BIT_OFF);
-    t_bits(const t_bits&)            = default;
-    t_bits& operator=(const t_bits&) = default;
+    t_bits(t_bit_state = BIT_OFF)    noexcept;
+    t_bits(const t_bits&)            noexcept = default;
+    t_bits& operator=(const t_bits&) noexcept = default;
 
-    operator t_validity() const;
-    operator t_bool    () const;
+    operator t_validity() const noexcept;
+    operator t_bool    () const noexcept;
 
-    t_bool set(       t_ix, t_state);
-    t_void set(t_err, t_ix, t_state);
+    t_bool set(       t_bit, t_bit_state) noexcept;
+    t_void set(t_err, t_bit, t_bit_state) noexcept;
 
-    t_void clear(       t_state = BIT_OFF);
-    t_void clear(t_err, t_state = BIT_OFF);
+    t_void clear(       t_bit_state = BIT_OFF) noexcept;
+    t_void clear(t_err, t_bit_state = BIT_OFF) noexcept;
 
-    t_bool operator[t_ix] const;
-    t_bool is_full ()     const;
-    t_bool is_empty()     const;
-    t_n    get_size()     const;
-    t_n    get_capacity() const;
+    t_bool operator[t_bit] const noexcept;
+    t_bool is_full ()      const noexcept;
+    t_bool is_empty()      const noexcept;
+    t_n    get_size()      const noexcept;
+    t_n    get_capacity()  const noexcept;
 
-    template<typename F> t_void  each(       F) const;
-    template<typename F> t_void  each(t_err, F) const;
-    template<typename F> t_void ceach(       F) const;
-    template<typename F> t_void ceach(t_err, F) const;
+    template<typename F> t_void  each(       F) const noexcept;
+    template<typename F> t_void  each(t_err, F) const noexcept;
+    template<typename F> t_void ceach(       F) const noexcept;
+    template<typename F> t_void ceach(t_err, F) const noexcept;
 
   private:
     typename t_impl_::t_value store_[calc_bytes_(N)];
@@ -87,33 +84,33 @@ namespace bits
     using t_impl_ = t_bits_impl_;
   public:
   public:
-    t_bits(       t_n max, t_state = BIT_OFF);
-    t_bits(t_err, t_n max, t_state = BIT_OFF);
-    t_bits(t_bits&&);
+    t_bits(       t_n max, t_bit_state = BIT_OFF) noexcept;
+    t_bits(t_err, t_n max, t_bit_state = BIT_OFF) noexcept;
+    t_bits(t_bits&&) noexcept;
 
     t_bits(const t_bits&)            = delete;
     t_bits& operator=(const t_bits&) = delete;
     t_bits& operator=(t_bits&&)      = delete;
 
-    operator t_validity() const;
-    operator t_bool    () const;
+    operator t_validity() const noexcept;
+    operator t_bool    () const noexcept;
 
-    t_bool set(       t_ix, t_state);
-    t_void set(t_err, t_ix, t_state);
+    t_bool set(       t_bit, t_bit_state) noexcept;
+    t_void set(t_err, t_bit, t_bit_state) noexcept;
 
-    t_void clear(       t_state = BIT_OFF);
-    t_void clear(t_err, t_state = BIT_OFF);
+    t_void clear(       t_bit_state = BIT_OFF) noexcept;
+    t_void clear(t_err, t_bit_state = BIT_OFF) noexcept;
 
-    t_bool operator[t_ix] const;
-    t_bool is_full ()     const;
-    t_bool is_empty()     const;
-    t_n    get_size()     const;
-    t_n    get_capacity() const;
+    t_bit_result operator[t_bit] const noexcept;
+    t_bool       is_full ()      const noexcept;
+    t_bool       is_empty()      const noexcept;
+    t_n          get_size()      const noexcept;
+    t_n          get_capacity()  const noexcept;
 
-    template<typename F> t_void  each(       F) const;
-    template<typename F> t_void  each(t_err, F) const;
-    template<typename F> t_void ceach(       F) const;
-    template<typename F> t_void ceach(t_err, F) const;
+    template<typename F> t_void  each(       F) const noexcept;
+    template<typename F> t_void  each(t_err, F) const noexcept;
+    template<typename F> t_void ceach(       F) const noexcept;
+    template<typename F> t_void ceach(t_err, F) const noexcept;
 
   private:
     t_n_                      max_;
@@ -133,100 +130,100 @@ namespace bits
 
   template<t_n_ N>
   inline
-  t_bits<N>::t_bits(t_state state) : impl_{N, store_, state} {
+  t_bits<N>::t_bits(t_bit_state state) : impl_{N, store_, state} noexcept {
   }
 
   template<t_n_ N>
   inline
-  t_bits<N>::operator t_validity() const {
+  t_bits<N>::operator t_validity() const noexcept {
     return VALID;
   }
 
   template<t_n_ N>
   inline
-  t_bits<N>::operator t_bool() const {
+  t_bits<N>::operator t_bool() const noexcept {
     return impl_;
   }
 
   template<t_n_ N>
   inline
-  t_bool t_bits<N>::set(t_ix ix, t_state state) {
-    return impl_.set(N, store_, ix, state);
+  t_bool t_bits<N>::set(t_bit bit, t_bit_state state) noexcept {
+    return impl_.set(N, store_, bit, state);
   }
 
   template<t_n_ N>
   inline
-  t_void t_bits<N>::set(t_err err, t_ix ix, t_state state) {
-    return impl_.set(err, N, store_, ix, state);
+  t_void t_bits<N>::set(t_err err, t_bit bit, t_bit_state state) noexcept {
+    return impl_.set(err, N, store_, bit, state);
   }
 
   template<t_n_ N>
   inline
-  t_void t_bits<N>::clear(t_state state) {
+  t_void t_bits<N>::clear(t_bit_state state) noexcept {
     return impl_.clear(N, store_, state);
   }
 
   template<t_n_ N>
   inline
-  t_void t_bits<N>::clear(t_err err, t_state state) {
+  t_void t_bits<N>::clear(t_err err, t_bit_state state) noexcept {
     return impl_.clear(err, N, store_, state);
   }
 
   template<t_n_ N>
   inline
-  t_bool t_bits<N>::operator[t_ix ix] const {
-    return impl_.get(N, store_, ix);
+  t_bit_result t_bits<N>::operator[t_bit bit] const noexcept {
+    return impl_.get(N, store_, bit);
   }
 
   template<t_n_ N>
   inline
-  t_bool t_bits<N>::is_full() const {
+  t_bool t_bits<N>::is_full() const noexcept {
     return impl_.is_full(N);
   }
 
   template<t_n_ N>
   inline
-  t_bool t_bits<N>::is_empty() const {
+  t_bool t_bits<N>::is_empty() const noexcept {
     return impl_.is_empty();
   }
 
   template<t_n_ N>
   inline
-  t_n t_bits<N>::get_size() const {
+  t_n t_bits<N>::get_size() const noexcept {
     return t_n{impl_.get_size()};
   }
 
   template<t_n_ N>
   inline
-  t_n t_bits<N>::get_capacity() const {
+  t_n t_bits<N>::get_capacity() const noexcept {
     return t_n{N};
   }
 
   template<t_n_ N>
   template<typename F>
   inline
-  t_void t_bits<N>::each(F f) const {
+  t_void t_bits<N>::each(F f) const noexcept {
     ceach(N, store_, f);
   }
 
   template<t_n_ N>
   template<typename F>
   inline
-  t_void t_bits<N>::each(t_err err, F f) const {
+  t_void t_bits<N>::each(t_err err, F f) const noexcept {
     ceach(err, N, store_, f);
   }
 
   template<t_n_ N>
   template<typename F>
   inline
-  t_void t_bits<N>::ceach(F f) const {
+  t_void t_bits<N>::ceach(F f) const noexcept {
     impl_.ceach(N, store_, f);
   }
 
   template<t_n_ N>
   template<typename F>
   inline
-  t_void t_bits<N>::ceach(t_err err, F f) const {
+  t_void t_bits<N>::ceach(t_err err, F f) const noexcept {
     impl_.ceach(err, N, store_, f);
   }
 
