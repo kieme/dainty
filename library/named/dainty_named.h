@@ -30,6 +30,7 @@
 #include "dainty_named_types.h"
 #include "dainty_named_traits.h"
 #include "dainty_named_explicit.h"
+#include "dainty_named_logical.h"
 
 // named: 'give a name to'
 //

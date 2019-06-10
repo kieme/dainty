@@ -314,11 +314,101 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> struct t_is_enum : t_bool_result<__is_enum(T)> { };
-
+  template<typename T> using t_is_enum     = t_bool_result<__is_enum(T)>;
   template<typename T> using t_is_not_enum = t_not<t_is_enum<T>>;
   template<typename T> using t_if_enum     = t_if<t_is_enum<T>>;
   template<typename T> using t_if_not_enum = t_if<t_is_not_enum<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> using t_is_union     = t_bool_result<__is_union(T)>;
+  template<typename T> using t_is_not_union = t_not<t_is_union<T>>;
+  template<typename T> using t_if_union     = t_if<t_is_union<T>>;
+  template<typename T> using t_if_not_union = t_if<t_is_not_union<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> using t_is_class     = t_bool_result<__is_class(T)>;
+  template<typename T> using t_is_not_class = t_not<t_is_class<T>>;
+  template<typename T> using t_if_class     = t_if<t_is_class<T>>;
+  template<typename T> using t_if_not_class = t_if<t_is_not_class<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> using t_is_trivial     = t_bool_result<__is_trivial(T)>;
+  template<typename T> using t_is_not_trivial = t_not<t_is_trivial<T>>;
+  template<typename T> using t_if_trivial     = t_if<t_is_trivial<T>>;
+  template<typename T> using t_if_not_trivial = t_if<t_is_not_trivial<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> using t_is_pod     = t_bool_result<__is_pod(T)>;
+  template<typename T> using t_is_not_pod = t_not<t_is_pod<T>>;
+  template<typename T> using t_if_pod     = t_if<t_is_pod<T>>;
+  template<typename T> using t_if_not_pod = t_if<t_is_not_pod<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> using t_is_literal     = t_bool_result<__is_literal_type(T)>;
+  template<typename T> using t_is_not_literal = t_not<t_is_literal<T>>;
+  template<typename T> using t_if_literal     = t_if<t_is_literal<T>>;
+  template<typename T> using t_if_not_literal = t_if<t_is_not_literal<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> using t_is_empty     = t_bool_result<__is_empty(T)>;
+  template<typename T> using t_is_not_empty = t_not<t_is_empty<T>>;
+  template<typename T> using t_if_empty     = t_if<t_is_empty<T>>;
+  template<typename T> using t_if_not_empty = t_if<t_is_not_empty<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> using t_is_polymorphic     = t_bool_result<__is_polymorphic(T)>;
+  template<typename T> using t_is_not_polymorphic = t_not<t_is_polymorphic<T>>;
+  template<typename T> using t_if_polymorphic     = t_if<t_is_polymorphic<T>>;
+  template<typename T> using t_if_not_polymorphic = t_if<t_is_not_polymorphic<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> using t_is_final     = t_bool_result<__is_final(T)>;
+  template<typename T> using t_is_not_final = t_not<t_is_final<T>>;
+  template<typename T> using t_if_final     = t_if<t_is_final<T>>;
+  template<typename T> using t_if_not_final = t_if<t_is_not_final<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> using t_is_abstract     = t_bool_result<__is_abstract(T)>;
+  template<typename T> using t_is_not_abstract = t_not<t_is_abstract<T>>;
+  template<typename T> using t_if_abstract     = t_if<t_is_abstract<T>>;
+  template<typename T> using t_if_not_abstract = t_if<t_is_not_abstract<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> using t_is_trivially_copyable
+    = t_bool_result<__is_trivially_copyable(T)>;
+
+  template<typename T> using t_is_not_trivially_copyable
+    = t_not<t_is_trivially_copyable<T>>;
+
+  template<typename T> using t_if_trivially_copyable
+    = t_if<t_is_trivially_copyable<T>>;
+
+  template<typename T> using t_if_not_trivially_copyable
+    = t_if<t_is_not_trivially_copyable<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> using t_is_standard_layout
+    = t_bool_result<__is_standard_layout(T)>;
+
+  template<typename T> using t_is_not_standard_layout
+    = t_not<t_is_standard_layout<T>>;
+
+  template<typename T> using t_if_standard_layout
+    = t_if<t_is_standard_layout<T>>;
+
+  template<typename T> using t_if_not_standard_layout
+    = t_if<t_is_not_standard_layout<T>>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
