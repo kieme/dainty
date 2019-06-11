@@ -28,6 +28,9 @@
 #define _DAINTY_CONTAINER_BITS_IMPL_H_
 
 #include "dainty_named.h"
+#include "dainty_named_ptr.h"
+#include "dainty_container_err.h"
+#include <stdlib.h>
 
 namespace dainty
 {
@@ -35,17 +38,43 @@ namespace container
 {
 namespace bits
 {
-  using named::t_n;
+  using named::t_n_;
+  using named::t_uint;
   using named::t_validity;
   using named::t_bool;
+  using named::t_void;
+  using named::t_logical;
+  using named::t_prefix;
+  using named::t_byte_;
+  using named::ptr::t_ptr;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  using r_byte_ = t_prefix<t_byte_>::r_;
+  using p_byte_ = t_prefix<t_byte_>::p_;
+  using P_byte_ = t_prefix<t_byte_>::P_;
+  using r_err_  = container::err::r_err;
+
+  struct t_free_del_ {
+    t_void operator()(p_byte_ ptr) noexcept {
+      ::free (ptr);
+    }
+  };
+  enum t_store_ptr_tag_ {};
+  using t_store_ptr_ = t_ptr<t_byte_[], t_store_ptr_tag_, t_free_del_>;
+
+  enum  t_bit_tag_ { };
+  using t_bit_ = t_uint;
+  using t_bit  = t_logical<t_bit_, t_bit_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   enum t_bit_state  : t_bool { BIT_OFF  = 0, BIT_ON  = 1 };
-  enum t_bit_result : t_int  { BIT_OFF_ = 0, BIT_ON_ = 1, BIT_UNDEF = 2};
+  enum t_bit_result : t_uint { BIT_OFF_ = BIT_OFF, BIT_ON_ = BIT_ON,
+                               BIT_BAD = 2 };
 
   constexpr t_bool operator==(t_bit_result result, t_bit_state state) noexcept {
-    return result != t_bit_result::BIT_UNDEF && result == state;
+    return result != BIT_BAD && result == state;
   }
 
   constexpr t_bool operator!=(t_bit_result result, t_bit_state state) noexcept {
@@ -69,16 +98,14 @@ namespace bits
     return bits/8;
   }
 
-  enum  t_bit_tag_ { };
-  using t_bit_ = t_uint;
-  using t_bit  = t_logical<t_bit_, t_bit_tag_>;
-
 ///////////////////////////////////////////////////////////////////////////////
 
-  inline
-  t_void fill_(t_n_ max, p_char p, t_char value) noexcept { // range
-    // memset
-    for (p_char end = p + max; p < end; ++p)
+  t_store_ptr_ alloc_(t_n_ bits) noexcept {
+    return {(p_byte_)::malloc(calc_bytes_(bits))}; // not in a header
+  }
+
+  constexpr t_void fill_(t_n_ max, p_byte_ p, t_byte_ value) noexcept { // range
+    for (p_byte_ end = p + max; p < end; ++p)
       *p = value;
   }
 
@@ -86,72 +113,106 @@ namespace bits
 
   class t_bits_impl_ {
   public:
-    using t_value = t_byte;
-    using p_store = t_prefix<t_value>::p_;
+    using t_value = t_byte_;
+    using p_store = p_byte_;
+    using P_store = P_byte_;
 
-    constexpr t_bits_impl_(t_n_ max, p_store store,
-                           t_bit_state state) noexcept {
-      fill_(max, store, state == BIT_OFF ? 0 : 0xFF);
+    inline t_bits_impl_(t_n_ max, p_store store,
+                        t_bit_state state) noexcept : size_{0} {
+      clear(max, store, state);
     }
 
-    constexpr operator t_bool() const {
+    inline t_bits_impl_(r_err_ err, t_n_ max, p_store store,
+                        t_bit_state state) noexcept : size_{0} {
+      ERR_GUARD(err) {
+        clear(max, store, state);
+      }
+    }
+
+    inline t_bits_impl_(t_n_ size) : size_{size} {
+    }
+
+    inline operator t_bool() const {
       return size_;
     }
 
-    constexpr t_bool set(t_n_ max, p_store store, t_bit, t_bit_state) noexcept {
+    inline t_bool set(t_n_ max, p_store store, t_bit_ bit,
+                      t_bit_state state) noexcept {
+      if (bit < max) {
+        r_byte_ byte = store[bit/8];
+        if (state == BIT_ON)
+          byte |= (1 << bit%8);
+        else
+          byte &= ~(1 << bit%8);
+        return true;
+      }
+      return false;
     }
 
-    constexpr t_void set(t_err, t_n_ max, p_store store, t_bit bit,
-                         t_bit_state) noexcept {
+    inline t_void set(r_err_ err, t_n_ max, p_store store, t_bit_ bit,
+                      t_bit_state state) noexcept {
       ERR_GUARD(err) {
+        if (!set(max, store, bit, state))
+          err = err::E_XXX;
       }
     }
 
-    constexpr t_void clear(t_n_ max, p_store store,
+    inline t_void clear(t_n_ max, p_store store,
                            t_bit_state state) noexcept {
-      fill_(max, store, state == BIT_OFF ? 0 : 0xFF);
-    }
-
-    constexpr t_void clear(r_err err, t_n_ max, p_store store,
-                           t_bit_state state) noexcept {
-      ERR_GUARD(err) {
-        fill_(max, store, state == BIT_OFF ? 0 : 0xFF);
+      if (state == BIT_OFF) {
+        fill_(max, store, 0);
+        size_ = 0;
+      } else {
+        fill_(max, store, 0xFF);
+        size_ = max;
       }
     }
 
-    constexpr t_bool get[t_n_ max, p_store store, t_bit_ bit] const noexcept {
+    inline t_void clear(r_err_ err, t_n_ max, p_store store,
+                        t_bit_state state) noexcept {
+      ERR_GUARD(err) {
+        clear(max, store, state);
+      }
     }
 
-    constexpr t_bool is_full(t_n_ max) const noexcept {
+    inline t_bit_result get(t_n_ max, P_store store, t_bit_ bit) const noexcept {
+      if (bit < max) {
+        t_byte_ value = store[bit/8];
+        return value & (1 << bit%8) ? BIT_ON_ : BIT_OFF_;
+      }
+      return BIT_BAD;
+    }
+
+    inline t_bool is_full(t_n_ max) const noexcept {
       return size_ == max;
     }
 
-    constexpr t_bool is_empty() const noexcept {
+    inline t_bool is_empty() const noexcept {
       return !size_;
     }
 
-    constexpr t_n_ get_size() const noexcept {
+    inline t_n_ get_size() const noexcept {
       return size_;
     }
 
     template<typename F>
-    constexpr t_void ceach(t_n_ max, p_store store, F f) const noexcept {
-      for (t_n_ byte_n = 0; byte_n < max; ++byte_n)
-        for (t_n_ bit_n = 0; bit_n < 8; ++bit_n)
-          f(t_bit{byte_n*8 + n}, (*store & (1 << n)) ? BIT_ON : BIT_OFF);
+    inline t_void ceach(t_n_ max, P_store store, F f) const noexcept {
+      t_n_ byte_max = max/8;
+      for (t_n_ byte_n = 0; byte_n < byte_max; ++byte_n)
+        for (t_n_ bit_n = 0; bit_n < 8; ++bit_n) // XXX check how many bits
+          f(t_bit(byte_n*8 + bit_n), (*store & (1 << bit_n)) ? BIT_ON : BIT_OFF);
     }
 
     template<typename F>
-    constexpr t_void ceach(r_err err, t_n_ max, p_store store,
-                           F f) const noexcept {
+    inline t_void ceach(r_err_ err, t_n_ max, P_store store, F f) const noexcept {
       ERR_GUARD(err) {
-        for (t_n_ byte_n = 0; byte_n < max; ++byte_n)
-          for (t_n_ bit_n = 0; bit_n < 8; ++bit_n)
-            f(t_bit{byte_n*8 + n}, (*store & (1 << n)) ? BIT_ON : BIT_OFF);
+        t_n_ byte_max = max/8;
+        for (t_n_ byte_n = 0; byte_n < byte_max; ++byte_n)
+          for (t_n_ bit_n = 0; bit_n < 8; ++bit_n) // check how many bits
+            f(t_bit(byte_n*8 + bit_n), (*store & (1 << bit_n)) ? BIT_ON : BIT_OFF);
       }
     }
 
-  private:
     t_n_ size_;
   };
 

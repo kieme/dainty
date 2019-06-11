@@ -46,7 +46,8 @@ namespace err
       {IGNORE,        P_cstr("unused id"),    E_INVALID_INST},
       {IGNORE,        P_cstr("invalid inst"), E_NOT_UNIQUE},
       {IGNORE,        P_cstr("not unique"),   E_NO_ERASE},
-      {IGNORE,        P_cstr("no erase"),     0}
+      {IGNORE,        P_cstr("no erase"),     E_XXX},
+      {IGNORE,        P_cstr("undef err"),    0}
     };
   }
 

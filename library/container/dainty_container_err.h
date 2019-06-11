@@ -43,7 +43,8 @@ namespace err
     E_UNUSED_ID    = 5,
     E_INVALID_INST = 6,
     E_NOT_UNIQUE   = 7,
-    E_NO_ERASE     = 8
+    E_NO_ERASE     = 8,
+    E_XXX          = 9
   };
 
   oops::t_def err_what(oops::t_id);
