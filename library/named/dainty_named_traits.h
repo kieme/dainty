@@ -210,6 +210,41 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template<t_bool L,
+           t_bool X,
+           t_bool PR>
+  struct t_add_value_category_traits {
+    using t_is_lvalue  = t_bool_result<L>;
+    using t_is_xvalue  = t_bool_result<X>;
+    using t_is_prvalue = t_bool_result<PR>;
+  };
+
+  template<typename T>
+  struct t_value_category : t_add_value_category_traits<false,
+                                                        false,
+                                                        true> { };
+
+  template<typename T>
+  struct t_value_category<T&> : t_add_value_category_traits<true,
+                                                            false,
+                                                            false> { };
+
+  template<typename T>
+  struct t_value_category<T&&> : t_add_value_category_traits<false,
+                                                             true,
+                                                             false> { };
+
+ template<typename T>
+ using t_if_lvalue = t_if<typename t_value_category<T>::t_is_lvalue>;
+
+ template<typename T>
+ using t_if_xvalue = t_if<typename t_value_category<T>::t_is_xvalue>;
+
+ template<typename T>
+ using t_if_prvalue = t_if<typename t_value_category<T>::t_is_prvalue>;
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<typename T, typename U> struct t_is_same       : t_FALSE_  { };
   template<typename T>             struct t_is_same<T, T> : t_TRUE_   { };
 
@@ -504,24 +539,6 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<t_bool N  = false,
-           t_bool M  = false,
-           t_bool C  = false,
-           t_bool V  = false,
-           t_bool A  = false,
-           t_bool L  = false,
-           t_bool R  = false>
-  struct t_add_func_traits {
-    using t_is_noexcept   = t_bool_result<N>;
-    using t_is_member     = t_bool_result<M>;
-    using t_is_const      = t_bool_result<C>;
-    using t_is_volatile   = t_bool_result<V>;
-    using t_is_va_args    = t_bool_result<A>;
-    using t_is_lvalue_ref = t_bool_result<L>;
-    using t_is_rvalue_ref = t_bool_result<R>;
-  };
-
-///////////////////////////////////////////////////////////////////////////////
 
 namespace impl_ {
   template<typename T>
@@ -536,151 +553,721 @@ using t_member_func = typename impl_::t_member_func_<T>::t_value;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template<t_bool M,
+           t_bool N,
+           t_bool C,
+           t_bool V,
+           t_bool A,
+           t_bool L,
+           t_bool R,
+           typename    Ret,
+           typename... Args>
+  struct t_add_func_traits {
+    using t_return        = Ret;
+    using t_args          = t_pack<Args...>;
+    using t_is_member     = t_bool_result<M>;
+    using t_is_noexcept   = t_bool_result<N>;
+    using t_is_const      = t_bool_result<C>;
+    using t_is_volatile   = t_bool_result<V>;
+    using t_is_va_args    = t_bool_result<A>;
+    using t_is_lvalue_ref = t_bool_result<L>;
+    using t_is_rvalue_ref = t_bool_result<R>;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<typename T> struct t_func;
+
+  template<typename T, typename U>
+  struct t_func<T U::*> : t_add_value<T> {
+    using t_return        = typename t_func<T>::t_return;
+    using t_args          = typename t_func<T>::t_args;
+    using t_is_member     = t_bool_result<true>;
+    using t_is_noexcept   = typename t_func<T>::t_is_noexcept;
+    using t_is_const      = typename t_func<T>::t_is_const;
+    using t_is_volatile   = typename t_func<T>::t_is_volatile;
+    using t_is_va_args    = typename t_func<T>::t_is_va_args;
+    using t_is_lvalue_ref = typename t_func<T>::t_is_lvalue_ref;
+    using t_is_rvalue_ref = typename t_func<T>::t_is_rvalue_ref;
+  };
 
   template<typename R, typename... As>
   struct t_func<R(As...)>
     : t_add_value<R(As...)>,
-      t_add_func_traits<false, // IS_NOEXCEPT
-                        false, // IS_MEMBER
+      t_add_func_traits<false, // IS_MEMBER,
+                        false, // IS_NOEXCEPT
                         false, // IS_CONST
                         false, // IS_VOLATILE
                         false, // IS_VA_ARGS
                         false, // IS_LVALUE_REF
-                        false  // IS_RVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
                        > { };
 
   template<typename R, typename... As>
   struct t_func<R(As..., ...)>
     : t_add_value<R(As..., ...)>,
-      t_add_func_traits<false, // IS_NOEXCEPT
-                        false, // IS_MEMBER
+      t_add_func_traits<false, // IS_MEMBER,
+                        false, // IS_NOEXCEPT
                         false, // IS_CONST
                         false, // IS_VOLATILE
                         true,  // IS_VA_ARGS
                         false, // IS_LVALUE_REF
-                        false  // IS_RVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
                        > { };
+
+#if __cplusplus >= 201703L
 
   template<typename R, typename... As>
   struct t_func<R(As...) noexcept>
     : t_add_value<R(As...) noexcept>,
-      t_add_func_traits<true,  // IS_NOEXCEPT
-                        false, // IS_MEMBER
+      t_add_func_traits<false, // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
                         false, // IS_CONST
                         false, // IS_VOLATILE
                         false, // IS_VA_ARGS
                         false, // IS_LVALUE_REF
-                        false  // IS_RVALUE_REF
+                        false, // IS_RVALUE_REF
+                         R, As...
                        > { };
 
   template<typename R, typename... As>
   struct t_func<R(As..., ...) noexcept>
     : t_add_value<R(As..., ...) noexcept>,
-      t_add_func_traits<true,  // IS_NOEXCEPT
-                        false, // IS_MEMBER
+      t_add_func_traits<false, // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
                         false, // IS_CONST
                         false, // IS_VOLATILE
                         true,  // IS_VA_ARGS
                         false, // IS_LVALUE_REF
-                        false  // IS_RVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
                        > { };
+
+#endif
 
   template<typename R, typename... As>
   struct t_func<R(As...) &>
     : t_add_value<R(As...) &>,
-      t_add_func_traits<false, // IS_NOEXCEPT
-                        true,  // IS_MEMBER
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
                         false, // IS_CONST
                         false, // IS_VOLATILE
                         false, // IS_VA_ARGS
                         true,  // IS_LVALUE_REF
-                        false  // IS_RVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
                        > { };
 
   template<typename R, typename... As>
   struct t_func<R(As..., ...) &>
     : t_add_value<R(As..., ...) &>,
-      t_add_func_traits<false, // IS_NOEXCEPT
-                        true,  // IS_MEMBER
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
                         false, // IS_CONST
                         false, // IS_VOLATILE
                         true,  // IS_VA_ARGS
                         true,  // IS_LVALUE_REF
-                        false  // IS_RVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
                        > { };
+
+#if __cplusplus >= 201703L
 
   template<typename R, typename... As>
   struct t_func<R(As...) & noexcept>
     : t_add_value<R(As...) & noexcept>,
-      t_add_func_traits<true,  // IS_NOEXCEPT
-                        true,  // IS_MEMBER
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
                         false, // IS_CONST
                         false, // IS_VOLATILE
                         false, // IS_VA_ARGS
                         true,  // IS_LVALUE_REF
-                        false  // IS_RVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
                        > { };
 
   template<typename R, typename... As>
   struct t_func<R(As..., ...) & noexcept>
     : t_add_value<R(As..., ...) & noexcept>,
-      t_add_func_traits<true,  // IS_NOEXCEPT
-                        true,  // IS_MEMBER
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
                         false, // IS_CONST
                         false, // IS_VOLATILE
                         true,  // IS_VA_ARGS
                         true,  // IS_LVALUE_REF
-                        false  // IS_RVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
                        > { };
+
+#endif
 
   template<typename R, typename... As>
   struct t_func<R(As...) &&>
     : t_add_value<R(As...) &&>,
-      t_add_func_traits<false, // IS_NOEXCEPT
-                        true,  // IS_MEMBER
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
                         false, // IS_CONST
                         false, // IS_VOLATILE
                         false, // IS_VA_ARGS
                         false, // IS_LVALUE_REF
-                        true   // IS_RVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
                        > { };
 
   template<typename R, typename... As>
   struct t_func<R(As..., ...) &&>
     : t_add_value<R(As..., ...) &&>,
-      t_add_func_traits<false, // IS_NOEXCEPT
-                        true,  // IS_MEMBER
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
                         false, // IS_CONST
                         false, // IS_VOLATILE
                         true,  // IS_VA_ARGS
                         false, // IS_LVALUE_REF
-                        true   // IS_RVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
                        > { };
+
+#if __cplusplus >= 201703L
 
   template<typename R, typename... As>
   struct t_func<R(As...) && noexcept>
     : t_add_value<R(As...) && noexcept>,
-      t_add_func_traits<true,  // IS_NOEXCEPT
-                        true,  // IS_MEMBER
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
                         false, // IS_CONST
                         false, // IS_VOLATILE
                         false, // IS_VA_ARGS
                         false, // IS_LVALUE_REF
-                        true   // IS_RVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
                        > { };
 
   template<typename R, typename... As>
   struct t_func<R(As..., ...) && noexcept>
     : t_add_value<R(As..., ...) && noexcept>,
-      t_add_func_traits<true,  // IS_NOEXCEPT
-                        true,  // IS_MEMBER
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
                         false, // IS_CONST
                         false, // IS_VOLATILE
                         true,  // IS_VA_ARGS
                         false, // IS_LVALUE_REF
-                        true   // IS_RVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
                        > { };
+
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) const>
+    : t_add_value<R(As...) const>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        false, // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) const>
+    : t_add_value<R(As..., ...) const>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        false, // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#if __cplusplus >= 201703L
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) const noexcept>
+    : t_add_value<R(As...) const noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        false, // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                         R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) const noexcept>
+    : t_add_value<R(As..., ...) const noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        false, // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#endif
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) const &>
+    : t_add_value<R(As...) const &>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        false, // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) const &>
+    : t_add_value<R(As..., ...) const &>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        false, // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#if __cplusplus >= 201703L
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) const & noexcept>
+    : t_add_value<R(As...) const & noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        false, // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) const & noexcept>
+    : t_add_value<R(As..., ...) const & noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        false, // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#endif
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) const &&>
+    : t_add_value<R(As...) const &&>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        false, // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) const &&>
+    : t_add_value<R(As..., ...) const &&>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        false, // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#if __cplusplus >= 201703L
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) const && noexcept>
+    : t_add_value<R(As...) const && noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        false, // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) const && noexcept>
+    : t_add_value<R(As..., ...) const && noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        false, // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) volatile>
+    : t_add_value<R(As...) volatile>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        false, // IS_CONST
+                        true,  // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) volatile>
+    : t_add_value<R(As..., ...) volatile>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        false, // IS_CONST
+                        true,  // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#if __cplusplus >= 201703L
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) volatile noexcept>
+    : t_add_value<R(As...) volatile noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        false, // IS_CONST
+                        true,  // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                         R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) volatile noexcept>
+    : t_add_value<R(As..., ...) volatile noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        false, // IS_CONST
+                        true,  // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#endif
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) volatile &>
+    : t_add_value<R(As...) volatile &>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        false, // IS_CONST
+                        true,  // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) volatile &>
+    : t_add_value<R(As..., ...) volatile &>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        false, // IS_CONST
+                        true,  // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#if __cplusplus >= 201703L
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) volatile & noexcept>
+    : t_add_value<R(As...) volatile & noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        false, // IS_CONST
+                        true,  // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) volatile & noexcept>
+    : t_add_value<R(As..., ...) volatile & noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        false, // IS_CONST
+                        true,  // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#endif
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) volatile &&>
+    : t_add_value<R(As...) volatile &&>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        false, // IS_CONST
+                        true,  // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) volatile &&>
+    : t_add_value<R(As..., ...) volatile &&>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        false, // IS_CONST
+                        true,  // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#if __cplusplus >= 201703L
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) volatile && noexcept>
+    : t_add_value<R(As...) volatile && noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        false, // IS_CONST
+                        true,  // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) volatile && noexcept>
+    : t_add_value<R(As..., ...) volatile && noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        false, // IS_CONST
+                        true,  // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) const volatile>
+    : t_add_value<R(As...) const volatile>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        true,  // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) const volatile>
+    : t_add_value<R(As..., ...) const volatile>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        true,  // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#if __cplusplus >= 201703L
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) const volatile noexcept>
+    : t_add_value<R(As...) const volatile noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        true,  // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                         R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) const volatile noexcept>
+    : t_add_value<R(As..., ...) const volatile noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        true,  // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#endif
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) const volatile &>
+    : t_add_value<R(As...) const volatile &>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        true,  // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) const volatile &>
+    : t_add_value<R(As..., ...) const volatile &>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        true,  // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#if __cplusplus >= 201703L
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) const volatile & noexcept>
+    : t_add_value<R(As...) const volatile & noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        true,  // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) const volatile & noexcept>
+    : t_add_value<R(As..., ...) const volatile & noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        true,  // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        true,  // IS_LVALUE_REF
+                        false, // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#endif
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) const volatile &&>
+    : t_add_value<R(As...) const volatile &&>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        true,  // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) const volatile &&>
+    : t_add_value<R(As..., ...) const volatile &&>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        false, // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        true,  // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#if __cplusplus >= 201703L
+
+  template<typename R, typename... As>
+  struct t_func<R(As...) const volatile && noexcept>
+    : t_add_value<R(As...) const volatile && noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        true,  // IS_VOLATILE
+                        false, // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+  template<typename R, typename... As>
+  struct t_func<R(As..., ...) const volatile && noexcept>
+    : t_add_value<R(As..., ...) const volatile && noexcept>,
+      t_add_func_traits<true,  // IS_MEMBER,
+                        true,  // IS_NOEXCEPT
+                        true,  // IS_CONST
+                        true,  // IS_VOLATILE
+                        true,  // IS_VA_ARGS
+                        false, // IS_LVALUE_REF
+                        true,  // IS_RVALUE_REF
+                        R, As...
+                       > { };
+
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -691,50 +1278,12 @@ namespace impl_ {
   template<typename T>
   struct t_is_func_<T, t_test_well_formed<typename t_func<T>::t_value>>
     : t_TRUE_ { };
-
-  /*
-  struct t_is_func_<T, t_if_one_of<T,
-                                   R(As...) const,
-                                   R(As...) const &,
-                                   R(As...) const &&,
-                                   R(As...) const    noexcept,
-                                   R(As...) const &  noexcept,
-                                   R(As...) const && noexcept,
-                                   R(As...) volatile,
-                                   R(As...) volatile &,
-                                   R(As...) volatile &&,
-                                   R(As...) volatile    noexcept,
-                                   R(As...) volatile &  noexcept,
-                                   R(As...) volatile && noexcept,
-                                   R(As...) const volatile,
-                                   R(As...) const volatile &,
-                                   R(As...) const volatile &&,
-                                   R(As...) const volatile    noexcept,
-                                   R(As...) const volatile &  noexcept,
-                                   R(As...) const volatile && noexcept,
-                                   R(As......) const,
-                                   R(As......) const &,
-                                   R(As......) const &&,
-                                   R(As......) const    noexcept,
-                                   R(As......) const &  noexcept,
-                                   R(As......) const && noexcept,
-                                   R(As......) volatile,
-                                   R(As......) volatile &,
-                                   R(As......) volatile &&,
-                                   R(As......) volatile    noexcept,
-                                   R(As......) volatile &  noexcept,
-                                   R(As......) volatile && noexcept,
-                                   R(As......) const volatile,
-                                   R(As......) const volatile &,
-                                   R(As......) const volatile &&,
-                                   R(As......) const volatile    noexcept,
-                                   R(As......) const volatile &  noexcept,
-                                   R(As......) const volatile && noexcept>
-                   > : t_TRUE_ { };
-  */
 }
 
 template<typename T> struct t_is_func : impl_::t_is_func_<T, t_ok> { };
+template<typename T> using  t_is_not_func = t_not<t_is_func<T>>;
+template<typename T> using  t_if_func     = t_if<t_is_func<T>>;
+template<typename T> using  t_if_not_func = t_if<t_is_not_func<T>>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
