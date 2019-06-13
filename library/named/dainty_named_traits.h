@@ -79,7 +79,10 @@ namespace named
   struct t_if_then : t_if_then<typename I::t_result, T> { };
 
   template<typename T>
-   struct t_if_then<t_true, T> : t_add_value<T> { };
+  struct t_if_then<t_false, T> { };
+
+  template<typename T>
+  struct t_if_then<t_true, T> : t_add_value<T> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -210,38 +213,59 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<t_bool L,
-           t_bool X,
-           t_bool PR>
-  struct t_add_value_category_traits {
-    using t_is_lvalue  = t_bool_result<L>;
-    using t_is_xvalue  = t_bool_result<X>;
-    using t_is_prvalue = t_bool_result<PR>;
+  enum t_lvalue_tag  { LVALUE_TAG  };
+  enum t_xvalue_tag  { XVALUE_TAG  };
+  enum t_prvalue_tag { PRVALUE_TAG };
+
+  template<typename> struct t_add_value_category_tag;
+
+  template<>
+  struct t_add_value_category_tag<t_lvalue_tag> {
+    using t_tag        = t_lvalue_tag;
+    using t_is_lvalue  = t_bool_result<true>;
+    using t_is_xvalue  = t_bool_result<false>;
+    using t_is_prvalue = t_bool_result<false>;
+  };
+
+  template<>
+  struct t_add_value_category_tag<t_xvalue_tag> {
+    using t_tag        = t_xvalue_tag;
+    using t_is_lvalue  = t_bool_result<false>;
+    using t_is_xvalue  = t_bool_result<true>;
+    using t_is_prvalue = t_bool_result<false>;
+  };
+
+  template<>
+  struct t_add_value_category_tag<t_prvalue_tag> {
+    using t_tag        = t_prvalue_tag;
+    using t_is_lvalue  = t_bool_result<false>;
+    using t_is_xvalue  = t_bool_result<false>;
+    using t_is_prvalue = t_bool_result<true>;
   };
 
   template<typename T>
-  struct t_value_category : t_add_value_category_traits<false,
-                                                        false,
-                                                        true> { };
+  struct t_value_category      : t_add_value_category_tag<t_prvalue_tag> { };
 
   template<typename T>
-  struct t_value_category<T&> : t_add_value_category_traits<true,
-                                                            false,
-                                                            false> { };
+  struct t_value_category<T&>  : t_add_value_category_tag<t_lvalue_tag>  { };
 
   template<typename T>
-  struct t_value_category<T&&> : t_add_value_category_traits<false,
-                                                             true,
-                                                             false> { };
+  struct t_value_category<T&&> : t_add_value_category_tag<t_xvalue_tag>  { };
 
  template<typename T>
- using t_if_lvalue = t_if<typename t_value_category<T>::t_is_lvalue>;
+ using t_if_lvalue
+   = typename t_if_then<typename t_value_category<T>::t_is_lvalue,
+                        t_lvalue_tag>::t_value;
 
  template<typename T>
- using t_if_xvalue = t_if<typename t_value_category<T>::t_is_xvalue>;
+ using t_if_xvalue
+   = typename t_if_then<typename t_value_category<T>::t_is_xvalue,
+                        t_xvalue_tag>::t_value;
 
  template<typename T>
- using t_if_prvalue = t_if<typename t_value_category<T>::t_is_prvalue>;
+ using t_if_prvalue
+   = typename t_if_then<typename t_value_category<T>::t_is_prvalue,
+                        t_prvalue_tag>::t_value;
 
 ///////////////////////////////////////////////////////////////////////////////
 
