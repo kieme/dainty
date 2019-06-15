@@ -67,6 +67,10 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
+    t_void quit() noexcept override;
+
+///////////////////////////////////////////////////////////////////////////////
+
     R_logic_stats get_logic_stats() const noexcept override final;
     R_logic_name  get_logic_name () const noexcept override final;
 
@@ -107,6 +111,8 @@ namespace sandbox
     t_void notify_complete()       noexcept override;
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  private:
     friend t_void register_(t_err, r_logic, p_logic_ext);
     friend class t_thread;
     friend class t_main;

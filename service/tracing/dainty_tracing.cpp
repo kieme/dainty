@@ -31,13 +31,14 @@
 #include <limits>
 #include "dainty_named_terminal.h"
 #include "dainty_container_ptr.h"
-#include "dainty_mt_event_dispatcher.h"
 #include "dainty_mt_waitable_chained_queue.h"
 #include "dainty_mt_command.h"
-#include "dainty_mt_thread.h"
 #include "dainty_os_threading.h"
+#include "dainty_sandbox.h"
 #include "dainty_os_clock.h"
 #include "dainty_tracing.h"
+
+///////////////////////////////////////////////////////////////////////////////
 
 using namespace dainty::named;
 using namespace dainty::named::terminal;
@@ -46,6 +47,12 @@ using namespace dainty::mt;
 using namespace dainty::os;
 using namespace dainty::tracing::tracer;
 
+using dainty::sandbox::t_fdevent_id;
+using dainty::sandbox::R_fdevent_params;
+using dainty::sandbox::t_timer_id;
+using dainty::sandbox::R_timer_params;
+using dainty::sandbox::BAD_FDEVENT_ID;
+
 using string::FMT;
 using string::SP;
 using string::operator""_SL;
@@ -53,17 +60,7 @@ using string::integer;
 using dainty::container::any::t_any;
 using dainty::os::threading::t_mutex_lock;
 using dainty::os::clock::t_time;
-using dainty::mt::thread::t_thread;
-using dainty::mt::event_dispatcher::t_dispatcher;
-using dainty::mt::event_dispatcher::t_event_logic;
-using dainty::mt::event_dispatcher::t_action;
-using dainty::mt::event_dispatcher::CONTINUE;
-using dainty::mt::event_dispatcher::QUIT_EVENT_LOOP;
-using dainty::mt::event_dispatcher::RD_EVENT;
-using dainty::mt::event_dispatcher::QUIT;
-using dainty::mt::event_dispatcher::DONT_QUIT;
 
-using t_thd_err       = t_thread::t_logic::t_err;
 using t_cmd_err       = command::t_processor::t_logic::t_err;
 using t_cmd_client    = command::t_client;
 using t_cmd_processor = command::t_processor;
@@ -72,6 +69,8 @@ using t_any_user      = any::t_user;
 using t_que_chain     = waitable_chained_queue::t_chain;
 using t_que_client    = waitable_chained_queue::t_client;
 using t_que_processor = waitable_chained_queue::t_processor;
+
+///////////////////////////////////////////////////////////////////////////////
 
 namespace dainty
 {
@@ -119,7 +118,8 @@ namespace tracer
   using t_date = string::t_string<t_date_tag_, 24>;
   using R_date = t_prefix<t_date>::R_;
 
-  inline t_date make_date(t_time_mode time_mode, const t_time& time) {
+  inline
+  t_date make_date(t_time_mode time_mode, const t_time& time) { // XXX
     static t_time prev;
     t_date date;
     switch (time_mode) { // XXX use stream interface
@@ -823,18 +823,19 @@ namespace tracer
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_ : public t_thread::t_logic,
+  class t_logic_ : public sandbox::t_logic,
                    public t_cmd_processor::t_logic,
-                   public t_que_processor::t_logic,
-                   public t_dispatcher::t_logic {
+                   public t_que_processor::t_logic {
   public:
     t_logic_(err::t_err& err, R_params params)
-      : data_         {params},
-        ftrace_       {err},
-        shm_          {err},
-        cmd_processor_{err},
-        que_processor_{err, data_.params.queuesize},
-        dispatcher_   {err, {t_n{2}, "epoll_service"}} {
+      : sandbox::t_logic{err, "name"},
+         data_          {params},
+        ftrace_         {err},
+        shm_            {err},
+        cmd_id_         {BAD_FDEVENT_ID},
+        queue_id_       {BAD_FDEVENT_ID},
+        cmd_processor_  {err},
+        que_processor_  {err, data_.params.queuesize} {
     }
 
     t_cmd_client make_cmd_client() {
@@ -847,67 +848,34 @@ namespace tracer
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_void update(t_thd_err, r_pthread_attr) noexcept override {
-      t_out{"tracing: update"};
-    }
-
-    virtual t_void prepare(t_thd_err) noexcept override {
-      t_out{"tracing: prepare"};
-    }
-
-    virtual p_void run() noexcept override {
-      t_out{"tracing: run"};
-
-      err::t_err err;
-      {
-        t_cmd_proxy_ cmd_proxy{err, action_, cmd_processor_, *this};
-        dispatcher_.add_event (err, {cmd_processor_.get_fd(), RD_EVENT},
-                               &cmd_proxy);
-
-        t_que_proxy_ que_proxy{err, action_, que_processor_, *this};
-        dispatcher_.add_event (err, {que_processor_.get_fd(), RD_EVENT},
-                               &que_proxy);
-
-        dispatcher_.event_loop(err, *this);
+    t_void notify_start(sandbox::t_err err) noexcept override {
+      ERR_GUARD(err) {
+        t_out{"tracing: notify_start"};
+        cmd_id_   = add_fdevent(err, "command", {cmd_processor_.get_fd(), sandbox::FDEVENT_READ});
+        queue_id_ = add_fdevent(err, "queue",   {que_processor_.get_fd(), sandbox::FDEVENT_READ});
       }
-
-      if (err) {
-        err.print();
-        err.clear();
-      }
-
-      return nullptr;
     }
 
-///////////////////////////////////////////////////////////////////////////////
-
-    t_void notify_dispatcher_reorder(r_event_infos) noexcept override final {
-      t_out{"tracing: notify_dispatcher_reorder"};
+    t_void notify_cleanup() noexcept override {
+      t_out{"tracing: notify_cleanup"};
     }
 
-    t_void notify_dispatcher_removed(r_event_info) noexcept override final {
-      t_out{"tracing: notify_dispatcher_removed"};
+    t_void notify_wakeup(t_msec) noexcept override {
+      t_out{"tracing: notify_wakeup"};
     }
 
-    t_quit notify_dispatcher_timeout(t_msec) noexcept override final {
-      t_out{"tracing: notify_dispatcher_timeout"};
-      return QUIT;
+    t_void notify_complete() noexcept override {
+      t_out{"tracing: notify_complete"};
     }
 
-    t_quit notify_dispatcher_error(t_errn) noexcept override final {
-      t_out{"tracing: notify_dispatcher_error"};
-      return QUIT;
+    t_void notify_fdevent(t_fdevent_id id,
+                          R_fdevent_params params) noexcept override {
+      t_err err;
+           if (id == cmd_id_)   cmd_processor_.process(err, *this);
+      else if (id == queue_id_) que_processor_.process_available(err, *this);
     }
 
-    t_quit notify_dispatcher_processed(r_msec) noexcept override final {
-      t_out{"tracing: notify_dispatcher_processed"};
-      return DONT_QUIT;
-    }
-
-    t_action notify_dispatcher_event(t_event_id,
-                                     r_event_params) noexcept override final {
-      t_out{"tracing: notify_dispatcher_event"};
-      return t_action{};
+    t_void notify_timeout(t_timer_id, R_timer_params) noexcept override {
     }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1144,7 +1112,7 @@ namespace tracer
 
     t_void process(err::t_err, r_clean_death_cmd_) noexcept {
       t_out{"tracing: r_clean_death_cmd_"}; // XXX - err not needed?
-      action_.cmd = QUIT_EVENT_LOOP;
+      // XXX must request death
     }
 
     virtual t_void process(t_cmd_err err, t_user,
@@ -1237,56 +1205,14 @@ namespace tracer
 ///////////////////////////////////////////////////////////////////////////////
 
   private:
-    class t_cmd_proxy_ : public t_event_logic {
-    public:
-      t_cmd_proxy_(err::t_err& err, t_action& action,
-                   t_cmd_processor& processor, t_cmd_processor::t_logic& logic)
-        : err_(err), action_(action), processor_(processor), logic_{logic} {
-      }
-
-      t_action notify_dispatcher_event(t_event_id,
-                                       r_event_params) noexcept override final {
-        action_.cmd = CONTINUE;
-        processor_.process(err_, logic_);
-        return action_;
-      }
-
-    private:
-      err::t_err&               err_;
-      t_action&                 action_;
-      t_cmd_processor&          processor_;
-      t_cmd_processor::t_logic& logic_;
-    };
-
-    class t_que_proxy_ : public t_event_logic {
-    public:
-      t_que_proxy_(err::t_err& err, t_action& action,
-                   t_que_processor& processor, t_que_processor::t_logic& logic)
-        : err_(err), action_(action), processor_(processor), logic_{logic} {
-      }
-
-      t_action notify_dispatcher_event(t_event_id,
-                                       r_event_params) noexcept override final {
-        action_.cmd = CONTINUE;
-        processor_.process_available(err_, logic_);
-        return action_;
-      }
-
-    private:
-      err::t_err&               err_;
-      t_action&                 action_;
-      t_que_processor&          processor_;
-      t_que_processor::t_logic& logic_;
-    };
-
-    t_action         action_;
     t_data_          data_;
     t_logger_output_ logger_;
     t_ftrace_output_ ftrace_;
     t_shm_output_    shm_;
+    t_fdevent_id     cmd_id_;
+    t_fdevent_id     queue_id_;
     t_cmd_processor  cmd_processor_;
     t_que_processor  que_processor_;
-    t_dispatcher     dispatcher_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1299,7 +1225,7 @@ namespace tracer
       : logic_     {err, params},
         cmd_client_{logic_.make_cmd_client()},
         que_client_{logic_.make_que_client()},
-        thread_    {err, P_cstr{"tracing"}, {&logic_, nullptr}},
+        sandbox_   {err, "tracing", sandbox::t_logic_ptr{&logic_, nullptr}},
         shared_tr_ {make_tracer(err, P_cstr{"shared"}, t_tracer_params())} {
     }
 
@@ -1538,11 +1464,11 @@ namespace tracer
 ///////////////////////////////////////////////////////////////////////////////
 
   private:
-    t_logic_     logic_;
-    t_cmd_client cmd_client_;
-    t_que_client que_client_;
-    t_thread     thread_;
-    t_tracer     shared_tr_;
+    t_logic_           logic_;
+    t_cmd_client       cmd_client_;
+    t_que_client       que_client_;
+    sandbox::t_sandbox sandbox_;
+    t_tracer           shared_tr_;
   };
   using p_tracing_ = t_prefix<t_tracing_>::p_;
 

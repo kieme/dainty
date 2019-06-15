@@ -182,6 +182,10 @@ namespace sandbox
     return impl_ ? VALID : INVALID;
   }
 
+  t_void t_logic::quit() noexcept {
+    // XXX - not sure
+  }
+
   R_logic_name t_logic::get_logic_name() const noexcept {
     return name_;
   }

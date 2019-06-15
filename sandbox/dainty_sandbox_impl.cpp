@@ -521,6 +521,7 @@ namespace sandbox
   t_void t_impl_::notify_dispatcher_removed(r_event_info info) noexcept {
     t_out{"t_impl_::notify_removed"};
     // if a fd close it will be removed
+    // should we have a notify?
     //XXX
   }
 
