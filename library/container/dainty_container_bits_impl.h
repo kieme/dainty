@@ -139,11 +139,18 @@ namespace bits
     inline t_bool set(t_n_ max, p_store store, t_bit_ bit,
                       t_bit_state state) noexcept {
       if (bit < max) {
-        r_byte_ byte = store[bit/8];
-        if (state == BIT_ON)
-          byte |= (1 << bit%8);
-        else
-          byte &= ~(1 << bit%8);
+        r_byte_ byte  = store[bit/8];
+        t_bit_  bit_n = 1 << bit%8;
+        t_bit_state bit_state = byte & bit_n ? BIT_ON : BIT_OFF;
+        if (state != bit_state) {
+          if (state == BIT_ON) {
+            byte |= (1 << bit%8);
+            ++size_;
+          } else {
+            byte &= ~(1 << bit%8);
+            --size_;
+          }
+        }
         return true;
       }
       return false;
@@ -160,10 +167,10 @@ namespace bits
     inline t_void clear(t_n_ max, p_store store,
                            t_bit_state state) noexcept {
       if (state == BIT_OFF) {
-        fill_(max, store, 0);
+        fill_(max/8, store, 0); // XXX
         size_ = 0;
       } else {
-        fill_(max, store, 0xFF);
+        fill_(max/8, store, 0xFF); // XXX
         size_ = max;
       }
     }
@@ -178,7 +185,7 @@ namespace bits
     inline t_bit_result get(t_n_ max, P_store store, t_bit_ bit) const noexcept {
       if (bit < max) {
         t_byte_ value = store[bit/8];
-        return value & (1 << bit%8) ? BIT_ON_ : BIT_OFF_;
+        return (value & (1 << bit%8)) ? BIT_ON_ : BIT_OFF_;
       }
       return BIT_BAD;
     }
@@ -191,25 +198,67 @@ namespace bits
       return !size_;
     }
 
-    inline t_n_ get_size() const noexcept {
+    inline t_n_ get_on_bits() const noexcept {
       return size_;
     }
 
     template<typename F>
-    inline t_void ceach(t_n_ max, P_store store, F f) const noexcept {
-      t_n_ byte_max = max/8;
-      for (t_n_ byte_n = 0; byte_n < byte_max; ++byte_n)
+    inline t_void each(t_n_ max, P_store store, F f) const noexcept {
+      t_n_ byte_max = max/8, bit_max = max%8, byte_n = 0;
+      for (; byte_n < byte_max; ++byte_n) {
+        t_bit_ byte_bits = byte_n*8;
         for (t_n_ bit_n = 0; bit_n < 8; ++bit_n) // XXX check how many bits
-          f(t_bit(byte_n*8 + bit_n), (*store & (1 << bit_n)) ? BIT_ON : BIT_OFF);
+          f(t_bit(byte_bits + bit_n),
+            (store[byte_n] & (1 << bit_n)) ? BIT_ON : BIT_OFF);
+      }
+
+      if (bit_max) {
+        t_bit_ byte_bits = byte_n*8;
+        for (t_n_ bit_n = 0; bit_n < bit_max; ++bit_n)
+          f(t_bit(byte_bits + bit_n),
+            (store[byte_n] & (1 << bit_n)) ? BIT_ON : BIT_OFF);
+      }
     }
 
     template<typename F>
-    inline t_void ceach(r_err_ err, t_n_ max, P_store store, F f) const noexcept {
+    inline t_void each(r_err_ err, t_n_ max, P_store store, F f) const noexcept {
       ERR_GUARD(err) {
-        t_n_ byte_max = max/8;
-        for (t_n_ byte_n = 0; byte_n < byte_max; ++byte_n)
-          for (t_n_ bit_n = 0; bit_n < 8; ++bit_n) // check how many bits
-            f(t_bit(byte_n*8 + bit_n), (*store & (1 << bit_n)) ? BIT_ON : BIT_OFF);
+        each(max, store, f);
+      }
+    }
+
+    template<typename F>
+    inline t_void each_of(t_n_ max, P_store store,
+                          t_bit_state state, F f) const noexcept {
+      if (state == BIT_OFF || size_) {
+        t_n_ byte_max = max/8, bit_max = max%8, byte_n = 0;
+        for (; byte_n < byte_max; ++byte_n) {
+          t_bit_ byte_bits = byte_n*8;
+          for (t_n_ bit_n = 0; bit_n < 8; ++bit_n) { // XXX check how many bits
+            t_bit_state bit_state = (store[byte_n] & (1 << bit_n)) ? BIT_ON :
+                                                                     BIT_OFF;
+            if (bit_state == state)
+              f(t_bit(byte_bits + bit_n), bit_state);
+          }
+        }
+
+        if (bit_max) {
+          t_bit_ byte_bits = byte_n*8;
+          for (t_n_ bit_n = 0; bit_n < bit_max; ++bit_n) {
+            t_bit_state bit_state = (store[byte_n] & (1 << bit_n)) ? BIT_ON :
+                                                                     BIT_OFF;
+            if (bit_state == state)
+              f(t_bit(byte_bits + bit_n), bit_state);
+          }
+        }
+      }
+    }
+
+    template<typename F>
+    inline t_void each_of(r_err_ err, t_n_ max, P_store store,
+                          t_bit_state state, F f) const noexcept {
+      ERR_GUARD(err) {
+        each_of(max, store, f, state);
       }
     }
 
