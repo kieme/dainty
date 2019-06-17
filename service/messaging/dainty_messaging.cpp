@@ -37,6 +37,7 @@
 #include "dainty_messaging_message.h"
 #include "dainty_messaging_messenger.h"
 #include "dainty_tracing.h"
+#include "dainty_sandbox.h"
 #include "dainty_messaging.h"
 
 using namespace dainty;
@@ -47,6 +48,12 @@ using namespace dainty::mt;
 using namespace dainty::os;
 using namespace dainty::tracing;
 using namespace dainty::messaging;
+
+using dainty::sandbox::t_fdevent_id;
+using dainty::sandbox::R_fdevent_params;
+using dainty::sandbox::t_timer_id;
+using dainty::sandbox::R_timer_params;
+using dainty::sandbox::BAD_FDEVENT_ID;
 
 using string::FMT;
 using any::t_any;
@@ -72,7 +79,6 @@ using message::t_messenger_prio;
 using messaging::err::r_err;
 
 using t_ctxt_id                   = freelist::t_id;
-using t_thd_err                   = t_thread::t_logic::t_err;
 using t_cmd_err                   = command::t_processor::t_logic::t_err;
 using t_cmd_client                = command::t_client;
 using t_cmd_processor             = command::t_processor;
@@ -1747,16 +1753,17 @@ namespace message
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_logic_ : public t_thread::t_logic,
+  class t_logic_ : public sandbox::t_logic,
                    public t_cmd_processor::t_logic,
-                   public t_que_processor::t_logic,
-                   public t_dispatcher::t_logic {
+                   public t_que_processor::t_logic {
   public:
     t_logic_(r_err err, R_name name, R_params params)
-      : data_         {name, params},
-        cmd_processor_{err},
-        que_processor_{err, data_.params.queuesize},
-        dispatcher_   {err, {t_n{2}, "epoll_service"}} {
+      : sandbox::t_logic{err, "messaging"},
+        data_           {name, params},
+        cmd_id_         {BAD_FDEVENT_ID},
+        queue_id_       {BAD_FDEVENT_ID},
+        cmd_processor_  {err},
+        que_processor_  {err, data_.params.queuesize} {
     }
 
     t_cmd_client make_cmd_client() {
@@ -1767,70 +1774,43 @@ namespace message
       return que_processor_.make_client(waitable_chained_queue::t_user{0L});
     }
 
-    virtual t_void update(t_thd_err, r_pthread_attr) noexcept override {
-      t_out{"messaging: update"};
-    }
+///////////////////////////////////////////////////////////////////////////////
 
-    virtual t_void prepare(t_thd_err) noexcept override {
-      t_out{"messaging: prepare"};
-    }
-
-    virtual p_void run() noexcept override {
-      t_out{"messaging: run"};
-
-      err::t_err err;
-      {
-        t_cmd_proxy_ cmd_proxy{err, ev_cmd_, cmd_processor_, *this};
-        dispatcher_.add_event (err, {cmd_processor_.get_fd(), RD_EVENT},
-                               &cmd_proxy);
-
-        t_que_proxy_ que_proxy{err, ev_cmd_, que_processor_, *this};
-        dispatcher_.add_event (err, {que_processor_.get_fd(), RD_EVENT},
-                               &que_proxy);
-
-        // timed messages
-        // fdtimer
-        // tipc topology service
-        dispatcher_.event_loop(err, *this);
+    t_void notify_start(sandbox::t_err err) noexcept override {
+      ERR_GUARD(err) {
+        t_out{"messaging: notify_start"};
+        cmd_id_   = add_fdevent(err, "command",
+                      {cmd_processor_.get_fd(), sandbox::FDEVENT_READ});
+        queue_id_ = add_fdevent(err, "queue",
+                      {que_processor_.get_fd(), sandbox::FDEVENT_READ});
       }
-
-      if (err) {
-        err.print();
-        err.clear();
-      }
-
-      return nullptr;
     }
 
-    t_void notify_dispatcher_reorder(r_event_infos) noexcept override final {
-      t_out{"messaging: notify_dispatcher_reorder"};
+    t_void notify_cleanup() noexcept override {
+      t_out{"messaging: notify_cleanup"};
     }
 
-    t_void notify_dispatcher_removed(r_event_info) noexcept override final {
-      t_out{"messaging: notify_dispatcher_removed"};
+    t_void notify_wakeup(t_msec) noexcept override {
+      t_out{"messaging: notify_wakeup"};
     }
 
-    t_quit notify_dispatcher_timeout(t_msec) noexcept override final {
-      t_out{"messaging: notify_dispatcher_timeout"};
-      return QUIT;
+    t_void notify_complete() noexcept override {
+      t_out{"messaging: notify_complete"};
     }
 
-    t_quit notify_dispatcher_error(t_errn)  noexcept override final {
-      t_out{"messaging: notify_dispatcher_error"};
-      return QUIT;
+    t_void notify_fdevent(t_fdevent_id id,
+                          R_fdevent_params params) noexcept override {
+      t_out{"messaging: notify_fdevent"};
+      t_err err;
+           if (id == cmd_id_)   cmd_processor_.process(err, *this);
+      else if (id == queue_id_) que_processor_.process_available(err, *this);
     }
 
-    t_quit notify_dispatcher_processed(r_msec) noexcept override final {
-      t_out{"messaging: notify_dispatcher_processed"};
-      data_.forward_msgs(msgs_);
-      return DONT_QUIT;
+    t_void notify_timeout(t_timer_id, R_timer_params) noexcept override {
+      t_out{"messaging: notify_timeout"};
     }
 
-    t_action notify_dispatcher_event(t_event_id,
-                                     r_event_params params) noexcept override final {
-      t_out{"messaging: notify_dispatcher_event"};
-      return t_action{};
-    }
+///////////////////////////////////////////////////////////////////////////////
 
     t_void process_chain(t_chain& chain) {
       for (auto item = chain.head; item; item = item->next())
@@ -2010,7 +1990,6 @@ namespace message
 
     t_void process(err::t_err, r_clean_death_cmd_) noexcept {
       t_out{"messaging: r_clean_death_cmd_"};
-      ev_cmd_ = QUIT_EVENT_LOOP;
     }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2122,54 +2101,12 @@ namespace message
 ///////////////////////////////////////////////////////////////////////////////
 
   private:
-    class t_cmd_proxy_ : public t_event_logic {
-    public:
-      t_cmd_proxy_(r_err err, r_event_cmd ev_cmd, r_cmd_processor processor,
-                   r_cmd_processor_logic logic)
-        : err_(err), ev_cmd_(ev_cmd), processor_(processor), logic_{logic} {
-      }
-
-      t_action notify_dispatcher_event(t_event_id,
-                                       r_event_params) noexcept override {
-        ev_cmd_ = CONTINUE;
-        processor_.process(err_, logic_);
-        return ev_cmd_;
-      }
-
-    private:
-      r_err                 err_;
-      r_event_cmd           ev_cmd_;
-      r_cmd_processor       processor_;
-      r_cmd_processor_logic logic_;
-    };
-
-    class t_que_proxy_ : public t_event_logic {
-    public:
-      t_que_proxy_(r_err err, r_event_cmd ev_cmd, r_que_processor processor,
-                   r_que_processor_logic logic)
-        : err_(err), ev_cmd_(ev_cmd), processor_(processor), logic_{logic} {
-      }
-
-      t_action notify_dispatcher_event(t_event_id,
-                                       r_event_params) noexcept override {
-        ev_cmd_ = CONTINUE;
-        processor_.process_available(err_, logic_);
-        return ev_cmd_;
-      }
-
-    private:
-      r_err                 err_;
-      r_event_cmd           ev_cmd_;
-      r_que_processor       processor_;
-      r_que_processor_logic logic_;
-    };
-
-    t_event_cmd     ev_cmd_;
     t_data_         data_;
     t_msgs_         msgs_;
+    t_fdevent_id    cmd_id_;
+    t_fdevent_id    queue_id_;
     t_cmd_processor cmd_processor_;
     t_que_processor que_processor_;
-    t_dispatcher    dispatcher_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2193,7 +2130,7 @@ namespace messenger
       : logic_     {err, name, params},
         cmd_client_{logic_.make_cmd_client()},
         que_client_{logic_.make_que_client()},
-        thread_    {err, P_cstr{"messaging"}, {&logic_, nullptr}} {
+        sandbox_   {err, "messaging", sandbox::t_logic_ptr{&logic_, nullptr}} {
     }
 
     t_void update(r_err err, R_params params) {
@@ -2421,15 +2358,16 @@ namespace messenger
     }
 
   private:
-    t_logic_     logic_;
-    t_cmd_client cmd_client_;
-    t_que_client que_client_;
-    t_thread     thread_;
+    t_logic_           logic_;
+    t_cmd_client       cmd_client_;
+    t_que_client       que_client_;
+    sandbox::t_sandbox sandbox_;
   };
   using p_messaging_ = t_prefix<t_messaging_>::p_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  //t_ptr<t_messaging, t_messaging, named::ptr::t_deleter>
   p_messaging_ mr_ = nullptr; // atomic or shared_ptr
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -829,8 +829,8 @@ namespace tracer
                    public t_que_processor::t_logic {
   public:
     t_logic_(err::t_err& err, R_params params)
-      : sandbox::t_logic{err, "name"},
-         data_          {params},
+      : sandbox::t_logic{err, "tracing"},
+        data_           {params},
         ftrace_         {err},
         shm_            {err},
         cmd_id_         {BAD_FDEVENT_ID},
@@ -852,8 +852,10 @@ namespace tracer
     t_void notify_start(sandbox::t_err err) noexcept override {
       ERR_GUARD(err) {
         t_out{"tracing: notify_start"};
-        cmd_id_   = add_fdevent(err, "command", {cmd_processor_.get_fd(), sandbox::FDEVENT_READ});
-        queue_id_ = add_fdevent(err, "queue",   {que_processor_.get_fd(), sandbox::FDEVENT_READ});
+        cmd_id_   = add_fdevent(err, "command",
+                      {cmd_processor_.get_fd(), sandbox::FDEVENT_READ});
+        queue_id_ = add_fdevent(err, "queue",
+                      {que_processor_.get_fd(), sandbox::FDEVENT_READ});
       }
     }
 
@@ -871,12 +873,14 @@ namespace tracer
 
     t_void notify_fdevent(t_fdevent_id id,
                           R_fdevent_params params) noexcept override {
+      t_out{"tracing: notify_fdevent"};
       t_err err;
            if (id == cmd_id_)   cmd_processor_.process(err, *this);
       else if (id == queue_id_) que_processor_.process_available(err, *this);
     }
 
     t_void notify_timeout(t_timer_id, R_timer_params) noexcept override {
+      t_out{"tracing: notify_timeout"};
     }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1500,8 +1504,8 @@ namespace tracer
 
   t_errn t_point::post(t_level level, R_text text) const {
     if (tr_)
-      return level < NOTICE ?  tr_->waitable_post(id_, level, name_, text) :
-                               tr_->post         (id_, level, name_, text);
+      return level < NOTICE ? tr_->waitable_post(id_, level, name_, text) :
+                              tr_->post         (id_, level, name_, text);
     return t_errn{-1};
   }
 

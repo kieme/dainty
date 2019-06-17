@@ -42,7 +42,6 @@ namespace tracing
   using tracer::t_validity;
   using tracer::t_level;
   using tracer::t_credit;
-  using tracer::t_impl_id_;
   using tracer::VALID;
   using tracer::INVALID;
   using tracer::FMT;
