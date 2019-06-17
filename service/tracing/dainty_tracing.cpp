@@ -61,6 +61,7 @@ using dainty::container::any::t_any;
 using dainty::os::threading::t_mutex_lock;
 using dainty::os::clock::t_time;
 
+using t_impl_id_      = freelist::t_id;
 using t_cmd_err       = command::t_processor::t_logic::t_err;
 using t_cmd_client    = command::t_client;
 using t_cmd_processor = command::t_processor;
@@ -85,13 +86,13 @@ namespace tracer
 
   inline
   t_impl_id_ get_(R_id id) {
-    return id.id_;
+    return t_impl_id_{get(id.value)};
   }
 
   inline
-  t_void set_(t_id& id, t_id::t_seq seq, t_impl_id_ impl_id) {
-    id.seq_ = seq;
-    id.id_  = impl_id;
+  t_void set_(r_id id, t_id::t_user_no seq, t_impl_id_ impl_id) {
+    id.user_no = t_id::t_user_no{seq};
+    id.value   = t_id::t_value  {get(impl_id)};
   }
 }
 
@@ -578,12 +579,12 @@ namespace tracer
                            R_tracer_params params) {
       t_tracer_id id;
       if (!freelist_.is_full()) {
-        static t_tracer_id::t_seq seq = 0;
+        static t_tracer_id::t_user_no::t_value seq = 0;
         auto tracer = tracers_.insert(t_tracers_value_(name,
                                                        t_tracer_lk_data_()));
         if (tracer.second) {
           auto result = freelist_.insert();
-          set_(result.ptr->id, ++seq, result.id);
+          set_(result.ptr->id, t_tracer_id::t_user_no{++seq}, result.id);
           result.ptr->info.name   = name;
           result.ptr->info.params = params;
           result.ptr->observers   = &tracer.first->second.observers;
@@ -593,7 +594,7 @@ namespace tracer
         } else if (tracer.first != tracers_.end()) {
           if (!tracer.first->second.data) {
             auto result = freelist_.insert();
-            set_(result.ptr->id, ++seq, result.id);
+            set_(result.ptr->id, t_tracer_id::t_user_no{++seq}, result.id);
             result.ptr->info.name   = name;
             result.ptr->info.params = params;
             result.ptr->observers   = &tracer.first->second.observers;
@@ -604,7 +605,7 @@ namespace tracer
             err = err::E_XXX;
         } else
           err = err::E_XXX;
-        if (seq == std::numeric_limits<t_tracer_id::t_seq>::max())
+        if (seq == std::numeric_limits<t_tracer_id::t_user_no::t_value>::max())
           seq = 0;
       } else
         err = err::E_XXX;
@@ -1493,14 +1494,6 @@ namespace tracer
 
   inline t_credit default_credit() {
     return 50;
-  }
-
-  inline t_bool operator==(R_id lh, R_id rh) {
-    return lh.seq_ == rh.seq_ && get(lh.id_)  == get(rh.id_);
-  }
-
-  inline t_bool operator!=(R_id lh, R_id rh) {
-    return !(lh == rh);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -159,68 +159,68 @@ namespace named
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum t_byte_tag_ { };
-  using t_byte_       = t_uchar;
-  using t_byte        = t_explicit<t_byte_, t_byte_tag_>;
-  using T_byte        = t_prefix<t_byte>::T_;
-  using r_byte        = t_prefix<t_byte>::r_;
-  using R_byte        = t_prefix<t_byte>::R_;
-  using p_byte        = t_prefix<t_byte>::p_;
-  using P_byte        = t_prefix<t_byte>::P_;
+  enum  t_byte_tag_ { };
+  using t_byte_ = t_uchar;
+  using t_byte  = t_explicit<t_byte_, t_byte_tag_>;
+  using T_byte  = t_prefix<t_byte>::T_;
+  using r_byte  = t_prefix<t_byte>::r_;
+  using R_byte  = t_prefix<t_byte>::R_;
+  using p_byte  = t_prefix<t_byte>::p_;
+  using P_byte  = t_prefix<t_byte>::P_;
 
-  enum t_fd_tag_ {};
-  using t_fd_       = t_int32;
-  using t_fd        = t_explicit<t_fd_, t_fd_tag_>;
-  using T_fd        = t_prefix<t_fd>::T_;
-  using r_fd        = t_prefix<t_fd>::r_;
-  using R_fd        = t_prefix<t_fd>::R_;
-  using p_fd        = t_prefix<t_fd>::p_;
-  using P_fd        = t_prefix<t_fd>::P_;
+  enum  t_fd_tag_ {};
+  using t_fd_ = t_int32;
+  using t_fd  = t_explicit<t_fd_, t_fd_tag_>;
+  using T_fd  = t_prefix<t_fd>::T_;
+  using r_fd  = t_prefix<t_fd>::r_;
+  using R_fd  = t_prefix<t_fd>::R_;
+  using p_fd  = t_prefix<t_fd>::p_;
+  using P_fd  = t_prefix<t_fd>::P_;
 
-  enum t_cnt_tag_ {};
-  using t_cnt_      = t_ulong;
-  using t_cnt       = t_explicit<t_cnt_, t_cnt_tag_>;
-  using T_cnt       = t_prefix<t_cnt>::T_;
-  using r_cnt       = t_prefix<t_cnt>::r_;
-  using R_cnt       = t_prefix<t_cnt>::R_;
-  using p_cnt       = t_prefix<t_cnt>::p_;
-  using P_cnt       = t_prefix<t_cnt>::P_;
+  enum  t_cnt_tag_ {};
+  using t_cnt_ = t_ulong;
+  using t_cnt  = t_explicit<t_cnt_, t_cnt_tag_>;
+  using T_cnt  = t_prefix<t_cnt>::T_;
+  using r_cnt  = t_prefix<t_cnt>::r_;
+  using R_cnt  = t_prefix<t_cnt>::R_;
+  using p_cnt  = t_prefix<t_cnt>::p_;
+  using P_cnt  = t_prefix<t_cnt>::P_;
 
-  enum t_n_tag_ {};
-  using t_n_        = t_ulong;
-  using t_n         = t_explicit<t_n_, t_n_tag_>;
-  using T_n         = t_prefix<t_n>::T_;
-  using r_n         = t_prefix<t_n>::r_;
-  using R_n         = t_prefix<t_n>::R_;
-  using p_n         = t_prefix<t_n>::p_;
-  using P_n         = t_prefix<t_n>::P_;
+  enum  t_n_tag_ {};
+  using t_n_ = t_ulong;
+  using t_n  = t_explicit<t_n_, t_n_tag_>;
+  using T_n  = t_prefix<t_n>::T_;
+  using r_n  = t_prefix<t_n>::r_;
+  using R_n  = t_prefix<t_n>::R_;
+  using p_n  = t_prefix<t_n>::p_;
+  using P_n  = t_prefix<t_n>::P_;
 
-  enum t_ix_tag_ {};
-  using t_ix_       = t_n_;
-  using t_ix        = t_explicit<t_ix_, t_ix_tag_>;
-  using T_ix        = t_prefix<t_ix>::T_;
-  using r_ix        = t_prefix<t_ix>::r_;
-  using R_ix        = t_prefix<t_ix>::R_;
-  using p_ix        = t_prefix<t_ix>::p_;
-  using P_ix        = t_prefix<t_ix>::P_;
+  enum  t_ix_tag_ {};
+  using t_ix_ = t_n_;
+  using t_ix  = t_explicit<t_ix_, t_ix_tag_>;
+  using T_ix  = t_prefix<t_ix>::T_;
+  using r_ix  = t_prefix<t_ix>::r_;
+  using R_ix  = t_prefix<t_ix>::R_;
+  using p_ix  = t_prefix<t_ix>::p_;
+  using P_ix  = t_prefix<t_ix>::P_;
 
-  enum t_bix_tag_ {};
-  using t_bix       = t_explicit<t_ix_, t_bix_tag_>;
-  using T_bix       = t_prefix<t_bix>::T_;
-  using r_bix       = t_prefix<t_bix>::r_;
-  using R_bix       = t_prefix<t_bix>::R_;
-  using p_bix       = t_prefix<t_bix>::p_;
-  using P_bix       = t_prefix<t_bix>::P_;
+  enum  t_bix_tag_ {};
+  using t_bix = t_explicit<t_ix_, t_bix_tag_>;
+  using T_bix = t_prefix<t_bix>::T_;
+  using r_bix = t_prefix<t_bix>::r_;
+  using R_bix = t_prefix<t_bix>::R_;
+  using p_bix = t_prefix<t_bix>::p_;
+  using P_bix = t_prefix<t_bix>::P_;
 
-  enum t_eix_tag_ {};
-  using t_eix       = t_explicit<t_ix_, t_eix_tag_>;
-  using T_eix       = t_prefix<t_eix>::T_;
-  using r_eix       = t_prefix<t_eix>::r_;
-  using R_eix       = t_prefix<t_eix>::R_;
-  using p_eix       = t_prefix<t_eix>::p_;
-  using P_eix       = t_prefix<t_eix>::P_;
+  enum  t_eix_tag_ {};
+  using t_eix = t_explicit<t_ix_, t_eix_tag_>;
+  using T_eix = t_prefix<t_eix>::T_;
+  using r_eix = t_prefix<t_eix>::r_;
+  using R_eix = t_prefix<t_eix>::R_;
+  using p_eix = t_prefix<t_eix>::p_;
+  using P_eix = t_prefix<t_eix>::P_;
 
-  enum t_validity_tag_ {};
+  enum  t_validity_tag_ {};
   using t_validity_ = t_bool;
   using t_validity  = t_explicit<t_validity_, t_validity_tag_>;
   using T_validity  = t_prefix<t_validity>::T_;
@@ -229,7 +229,7 @@ namespace named
   using p_validity  = t_prefix<t_validity>::p_;
   using P_validity  = t_prefix<t_validity>::P_;
 
-  enum t_cstr_tag_ {};
+  enum  t_cstr_tag_ {};
   using p_cstr_     = t_prefix<char>::p_;
   using t_cstr_ptr_ = p_cstr_;
   using t_cstr_ptr  = t_explicit<t_cstr_ptr_, t_cstr_tag_>;
@@ -256,6 +256,15 @@ namespace named
   using R_percentage  = t_prefix<t_percentage>::R_;
   using p_percentage  = t_prefix<t_percentage>::p_;
   using P_percentage  = t_prefix<t_percentage>::P_;
+
+  enum  t_seq_no_tag_ {};
+  using t_seq_no_ = t_uint;
+  using t_seq_no  = t_explicit<t_seq_no_, t_seq_no_tag_>;
+  using T_seq_no  = t_prefix<t_seq_no>::T_;
+  using r_seq_no  = t_prefix<t_seq_no>::r_;
+  using R_seq_no  = t_prefix<t_seq_no>::R_;
+  using p_seq_no  = t_prefix<t_seq_no>::p_;
+  using P_seq_no  = t_prefix<t_seq_no>::P_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -343,6 +352,34 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template<typename TAG>
+  struct t_user {
+    union {
+      t_int64 id;
+      p_void  ptr;
+      P_void  cptr;
+      t_char  buf[sizeof(t_int64)]; // 8 bytes
+    };
+    constexpr t_user()             noexcept : id  {0L}    { }
+    constexpr t_user(t_int64  _id) noexcept : id  {_id}   { }
+    constexpr t_user(p_void  _ptr) noexcept : ptr {_ptr}  { }
+    constexpr t_user(P_void _cptr) noexcept : cptr{_cptr} { }
+  };
+
+  template<typename TAG>
+  constexpr
+  t_bool operator==(const t_user<TAG>& lh, const t_user<TAG>& rh) noexcept {
+    return lh.id == rh.id;
+  }
+
+  template<typename TAG>
+  constexpr
+  t_bool operator!=(const t_user<TAG>& lh, const t_user<TAG>& rh) noexcept {
+    return lh.id != rh.id;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
   enum  t_errn_tag_ {};
   using t_errn_ = named::t_int;
   using t_errn  = named::t_explicit<t_errn_, t_errn_tag_>;
@@ -355,6 +392,51 @@ namespace named
 
   constexpr t_bool operator==(t_errn errn, t_validity validity) noexcept {
     return errn == NO_ERRN && validity == VALID;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename TAG, T INIT_VALUE,
+                       typename U = named::t_uint>
+  struct t_id_pair {
+    using t_value   = t_explicit<T, TAG>;
+    using t_user_no = t_explicit<U, TAG>;
+
+    constexpr static t_user_no BAD_USER_NO{0};
+
+    constexpr t_id_pair() noexcept : value{INIT_VALUE}, user_no{BAD_USER_NO} {
+    }
+
+    constexpr explicit t_id_pair(t_value _value, t_user_no _user_no) noexcept
+      : value{_value}, user_no{_user_no} {
+    }
+
+    constexpr operator t_validity() const noexcept {
+      return user_no != BAD_USER_NO ? VALID : INVALID;
+    }
+
+    constexpr t_id_pair release() {
+      t_id_pair tmp = *this;
+      value    = t_value {INIT_VALUE};
+      user_no  = BAD_USER_NO;
+      return tmp;
+    }
+
+    t_value   value;
+    t_user_no user_no;
+  };
+
+  template<typename T, typename TAG, T BAD_VALUE>
+  constexpr t_bool operator==(const t_id_pair<T, TAG, BAD_VALUE> lh,
+                              const t_id_pair<T, TAG, BAD_VALUE> rh) {
+    return get(lh.user_no) == get(rh.user_no) &&
+           get(lh.value)   == get(rh.value);
+  }
+
+  template<typename T, typename TAG, T BAD_VALUE>
+  constexpr t_bool operator!=(const t_id_pair<T, TAG, BAD_VALUE> lh,
+                              const t_id_pair<T, TAG, BAD_VALUE> rh) {
+    return !(lh == rh);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -393,34 +475,6 @@ namespace named
   constexpr
   T get(const t_verifiable<t_explicit<T, TAG, CHECK>>& verifiable) noexcept {
     return get(verifiable.value);
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename TAG>
-  struct t_user {
-    union {
-      t_int64 id;
-      p_void  ptr;
-      P_void  cptr;
-      t_char  buf[sizeof(t_int64)]; // 8 bytes
-    };
-    t_user()             noexcept : id  {0L}    { }
-    t_user(t_int64  _id) noexcept : id  {_id}   { }
-    t_user(p_void  _ptr) noexcept : ptr {_ptr}  { }
-    t_user(P_void _cptr) noexcept : cptr{_cptr} { }
-  };
-
-  template<typename TAG>
-  constexpr
-  t_bool operator==(const t_user<TAG>& lh, const t_user<TAG>& rh) noexcept {
-    return lh.id == rh.id;
-  }
-
-  template<typename TAG>
-  constexpr
-  t_bool operator!=(const t_user<TAG>& lh, const t_user<TAG>& rh) noexcept {
-    return lh.id != rh.id;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -475,7 +529,7 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum t_emplace_it { EMPLACE_IT };
+  enum t_emplace_it { EMPLACE_IT }; // XXX TRY_EMPLACE ?
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -499,22 +553,22 @@ namespace named
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename TAG>
-  class t_unknown_sized_ptr {
+  class t_void_size_ptr {
   public:
-    using r_unknown_sized_ptr = typename t_prefix<t_unknown_sized_ptr<TAG>>::r_;
+    using r_void_size_ptr = typename t_prefix<t_void_size_ptr<TAG>>::r_;
 
-    constexpr t_unknown_sized_ptr() noexcept = default;
+    constexpr t_void_size_ptr() noexcept = default;
 
     constexpr
-    t_unknown_sized_ptr(p_void _ptr, t_n _n) noexcept : ptr{_ptr}, n{_n} {
+    t_void_size_ptr(p_void _ptr, t_n _n) noexcept : ptr{_ptr}, n{_n} {
     }
 
     template<typename T>
-    constexpr t_unknown_sized_ptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
+    constexpr t_void_size_ptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
     }
 
     template<typename T>
-    constexpr r_unknown_sized_ptr operator=(T* _ptr) noexcept {
+    constexpr r_void_size_ptr operator=(T* _ptr) noexcept {
       ptr = _ptr;
       n   = t_n{sizeof(T)};
       return *this;
@@ -529,35 +583,35 @@ namespace named
   };
 
   template<typename TAG>
-  class t_unknown_sized_cptr {
+  class t_void_size_cptr { // t_void_sized_ptr ?
   public:
-    using r_unknown_sized_cptr = typename t_prefix<t_unknown_sized_cptr<TAG>>::r_;
-    using R_unknown_sized_ptr  = typename t_prefix<t_unknown_sized_ptr<TAG>>::R_;
+    using r_void_size_cptr = typename t_prefix<t_void_size_cptr<TAG>>::r_;
+    using R_void_size_ptr  = typename t_prefix<t_void_size_ptr<TAG>>::R_;
 
-    constexpr t_unknown_sized_cptr() noexcept = default;
+    constexpr t_void_size_cptr() noexcept = default;
 
     constexpr
-    t_unknown_sized_cptr(P_void _ptr, t_n _n) noexcept : ptr{_ptr}, n{_n} {
+    t_void_size_cptr(P_void _ptr, t_n _n) noexcept : ptr{_ptr}, n{_n} {
     }
 
     template<typename T>
     constexpr
-    t_unknown_sized_cptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
+    t_void_size_cptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
     }
 
-    constexpr t_unknown_sized_cptr(R_unknown_sized_ptr _ptr) noexcept
+    constexpr t_void_size_cptr(R_void_size_ptr _ptr) noexcept
       : ptr{_ptr.ptr}, n{_ptr.n} {
     }
 
     constexpr
-    r_unknown_sized_cptr operator=(R_unknown_sized_ptr _ptr) noexcept {
+    r_void_size_cptr operator=(R_void_size_ptr _ptr) noexcept {
       ptr = _ptr.ptr;
       n   = _ptr.n;
       return *this;
     }
 
     template<typename T>
-    constexpr r_unknown_sized_cptr operator=(T* _ptr) noexcept {
+    constexpr r_void_size_cptr operator=(T* _ptr) noexcept {
       ptr = _ptr;
       n   = t_n{sizeof(T)};
       return *this;

@@ -72,7 +72,6 @@ namespace tracer
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_impl_id_ = container::freelist::t_id;
   using t_credit   = named::t_uint32;
 
   enum  t_name_tag_ {};
@@ -123,27 +122,12 @@ namespace tracer
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_id {
-  public:
-    using t_seq = named::t_int32;
-
-    t_id();
-    t_id(const t_id&);
-
-    operator t_validity() const;
-
-    t_id release();
-
-  private:
-    friend t_void set_(t_id&, t_seq, t_impl_id_);
-    friend t_impl_id_ get_(const t_id&);
-    friend t_bool operator==(const t_id&, const t_id&);
-    friend class t_point;
-    t_id(t_seq, t_impl_id_);
-
-    t_seq      seq_;
-    t_impl_id_ id_;
-  };
+  enum  t_id_tag_ { };
+  using t_id = named::t_id_pair<named::t_n_,
+                                t_id_tag_,
+                                container::freelist::BAD_ID_,
+                                named::t_seq_no_>;
+  using r_id = t_prefix<t_id>::r_;
   using R_id = t_prefix<t_id>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -230,32 +214,6 @@ namespace tracer
 
   inline r_point ref(r_tracer tracer) { return *tracer;}
   inline R_point ref(R_tracer tracer) { return *tracer;}
-
-////////////////////////////////////////////////////////////////////////////////
-
-  inline
-  t_id::t_id() : seq_(-1), id_(0) {
-  }
-
-  inline
-  t_id::t_id(R_id id) : seq_(id.seq_), id_(id.id_){
-  }
-
-  inline
-  t_id::operator t_validity() const {
-    return seq_ != -1 ? VALID : INVALID;
-  }
-
-  inline
-  t_id t_id::release() {
-    t_id tmp(*this);
-    seq_ = -1;
-    return tmp;
-  }
-
-  inline
-  t_id::t_id(t_seq seq, t_impl_id_ id) : seq_(seq), id_(id) {
-  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
