@@ -62,18 +62,6 @@ namespace bits
     t_void clear(       t_bit_state = BIT_OFF) noexcept;
     t_void clear(t_err, t_bit_state = BIT_OFF) noexcept;
 
-    //template<typename N1>
-    //t_bits<N1> mk_bits(t_begin_bit, t_end_bit) const noexcept;
-
-    // |=
-    // |
-    // ~=
-    // ~
-    // &=
-    // &
-    // xor
-    // mask
-
     t_bit_result operator[](t_bit) const noexcept;
     t_bool       is_full ()        const noexcept;
     t_bool       is_empty()        const noexcept;
@@ -135,14 +123,6 @@ namespace bits
     t_store_ptr_ store_;
     t_impl_      impl_;
   };
-
-///////////////////////////////////////////////////////////////////////////////
-
-  // ==
-  // !=
-  // &
-  // |
-  // ^
 
 ///////////////////////////////////////////////////////////////////////////////
 
