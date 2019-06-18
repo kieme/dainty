@@ -322,10 +322,7 @@ namespace sandbox
                      R_params params) noexcept {
     ERR_GUARD(err) {
       auto impl = new t_single_impl_{err, name, params, named::x_cast(logic_ptr)};
-      t_id id{impl->get_close_fd()};
       t_thread_ thread{err, name.get_cstr(), named::x_cast(impl)};
-      if (!err)
-        id_ = id;
     }
   }
 
@@ -333,19 +330,8 @@ namespace sandbox
                      R_params params) noexcept {
     ERR_GUARD(err) {
       auto impl = new t_shared_impl_{err, name, params, named::x_cast(list)};
-      t_id id{impl->get_close_fd()};
       t_thread_ thread{err, name.get_cstr(), named::x_cast(impl)};
-      if (!err)
-        id_ = id;
     }
-  }
-
-  t_id t_thread::get_id() const noexcept {
-    return id_;
-  }
-
-  t_thread::operator t_validity() const noexcept {
-    return id_ != BAD_ID ? VALID : INVALID;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -354,15 +340,12 @@ namespace sandbox
                  R_params params) noexcept {
     ERR_GUARD(err) {
       t_single_impl_ impl{err, name, params, named::x_cast(logic)};
-      t_id id{impl.get_close_fd()};
       t_thread_attr_ attr;
       call_pthread_init(err, attr);
       impl.update(err, attr);
       impl.prepare(err);
-      if (!err) {
-        id_ = id;
+      if (!err)
         impl.run();
-      }
     }
   }
 
@@ -370,34 +353,20 @@ namespace sandbox
                  R_params params) noexcept {
     ERR_GUARD(err) {
       t_shared_impl_ impl{err, name, params, named::x_cast(list)};
-      t_id id{impl.get_close_fd()};
       t_thread_attr_ attr;
       call_pthread_init(err, attr);
       impl.update(err, attr);
       impl.prepare(err);
-      if (!err) {
-        id_ = id;
+      if (!err)
         impl.run();
-      }
     }
-  }
-
-  t_id t_main::get_id() const noexcept {
-    return id_;
-  }
-
-  t_main::operator t_validity() const noexcept {
-    return id_ != BAD_ID ? VALID : INVALID;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  class t_thread_of_control_ {
-  public:
-    virtual ~t_thread_of_control_() { };
-    virtual t_id get_id() const noexcept = 0;
+  struct t_thread_of_control_ {
+    virtual ~t_thread_of_control_() { }
   };
-  using p_thread_of_control_ = t_prefix<t_thread_of_control_>::p_;
 
   class t_thread_control_ final : public t_thread_of_control_ {
   public:
@@ -413,9 +382,6 @@ namespace sandbox
     t_thread_control_(r_err err, R_name name, x_ptrlist ptrlist,
                       R_params params) noexcept
       : thread_{err, name, named::x_cast(ptrlist), params} {
-    }
-    virtual t_id get_id() const noexcept override final {
-      return thread_.get_id();
     }
   private:
     t_thread thread_;
@@ -436,9 +402,6 @@ namespace sandbox
                     R_params params) noexcept
       : main_{err, name, named::x_cast(ptrlist), params} {
     }
-    virtual t_id get_id() const noexcept override final {
-      return main_.get_id();
-    }
   private:
     t_main main_;
   };
@@ -448,63 +411,36 @@ namespace sandbox
   t_sandbox::t_sandbox(t_err err, R_name name, x_ptr ptr, t_control control,
                        R_params params) noexcept {
     ERR_GUARD(err) {
-      p_thread_of_control_ p = nullptr;
       switch (control) {
         case IN_CURRENT_THREAD:
-          p = new t_main_control_  {err, name, named::x_cast(ptr), params};
+          thread_of_control_ =
+            new t_main_control_  {err, name, named::x_cast(ptr), params};
           break;
         case IN_NEW_THREAD:
-          p = new t_thread_control_{err, name, named::x_cast(ptr), params};
+          thread_of_control_ =
+            new t_thread_control_{err, name, named::x_cast(ptr), params};
           break;
       }
-      thread_of_control_ = p;
     }
   }
 
   t_sandbox::t_sandbox(t_err err, R_name name, x_ptrlist ptrlist,
                        t_control control, R_params params) noexcept {
     ERR_GUARD(err) {
-      p_thread_of_control_ p = nullptr;
       switch (control) {
         case IN_CURRENT_THREAD:
-          p = new t_main_control_  {err, name, named::x_cast(ptrlist), params};
+          thread_of_control_ =
+            new t_main_control_  {err, name, named::x_cast(ptrlist), params};
           break;
         case IN_NEW_THREAD:
-          p = new t_thread_control_{err, name, named::x_cast(ptrlist), params};
+          thread_of_control_ =
+            new t_thread_control_{err, name, named::x_cast(ptrlist), params};
           break;
       }
-      thread_of_control_ = p;
     }
   }
 
   t_sandbox::~t_sandbox() {
-    if (thread_of_control_)
-      delete thread_of_control_;
-  }
-
-  t_id t_sandbox::get_id() const noexcept {
-    return thread_of_control_ ? thread_of_control_->get_id() : BAD_ID;
-  }
-
-  t_sandbox::operator t_validity() const noexcept {
-    return get_id() != BAD_ID ? VALID : INVALID; // might need to test key
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
-  t_void wait_services() noexcept {
-    // make sure messaging and tracing is up and running
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
-  t_void request_death(t_id id) noexcept {
-    if (id != BAD_ID)
-      os::call_close(id); // not safe. best is to use key.
-                          // so t_id will become key.
-    else {
-      t_out{"request death of a sandbox has failed"};
-    }
   }
 
 ///////////////////////////////////////////////////////////////////////////////

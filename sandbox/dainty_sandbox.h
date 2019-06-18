@@ -27,6 +27,8 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_H_
 #define _DAINTY_SANDBOX_H_
 
+
+#include "dainty_named_ptr.h"
 #include "dainty_container_ptr.h"
 #include "dainty_container_list.h"
 #include "dainty_sandbox_logic.h"
@@ -51,11 +53,7 @@ namespace sandbox
 
   enum t_thread_control { IN_CURRENT_THREAD, IN_NEW_THREAD };
 
-  using t_id = named::t_fd;
-  constexpr t_id BAD_ID = named::BAD_FD;
-
-  class t_thread_params {
-  };
+  class t_thread_params { }; // XXX
   using R_thread_params = t_prefix<t_thread_params>::R_;
   using T_thread_params = t_prefix<t_thread_params>::T_;
 
@@ -118,12 +116,6 @@ namespace sandbox
 
     r_thread operator=(R_thread) = delete;
     r_thread operator=(x_thread) = delete;
-
-    t_id     get_id    () const noexcept;
-    operator t_validity() const noexcept;
-
-  private:
-    t_id id_ = BAD_ID;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -152,12 +144,6 @@ namespace sandbox
 
     r_main operator=(R_main) = delete;
     r_main operator=(x_main) = delete;
-
-    t_id     get_id    () const noexcept;
-    operator t_validity() const noexcept;
-
-  private:
-    t_id id_ = BAD_ID;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -196,20 +182,12 @@ namespace sandbox
     r_sandbox operator=(R_sandbox) = delete;
     r_sandbox operator=(x_sandbox) = delete;
 
-    t_id     get_id    () const noexcept;
-    operator t_validity() const noexcept;
-
   private:
-    p_thread_of_control_ thread_of_control_ = nullptr;
+    enum t_thread_of_control_tag_ { };
+    named::ptr::t_ptr<t_thread_of_control_,
+                      t_thread_of_control_tag_,
+                      named::ptr::t_deleter> thread_of_control_;
   };
-
-///////////////////////////////////////////////////////////////////////////////
-
-  t_void wait_services() noexcept;
-
-///////////////////////////////////////////////////////////////////////////////
-
-  t_void request_death(t_id) noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 }

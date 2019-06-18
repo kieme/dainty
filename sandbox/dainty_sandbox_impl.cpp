@@ -49,7 +49,6 @@ namespace sandbox
                    t_n max_logics) noexcept
       : name_      {name},
         params_    {params},
-        closefd_   {os::call_eventfd(err, t_n{0})},
         tmrs_      {err, {t_n{100}, t_percentage{20}, "timerfd_service"}},
         dispatcher_{err, {t_n{100}, "epoll_service"}},
         logics_    {err, max_logics}  {
@@ -58,12 +57,7 @@ namespace sandbox
   }
 
   t_impl_::~t_impl_() {
-    os::call_close(closefd_); // replace later
     t_out{"t_impl_ dies graciously"};
-  }
-
-  t_fd t_impl_::get_close_fd() const noexcept {
-    return closefd_;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -486,13 +480,12 @@ namespace sandbox
   t_void t_impl_::update(base1_::t_err err,
                          base1_::r_pthread_attr attr) noexcept {
     ERR_GUARD(err) {
-      // XXX - can use params_ to set attr
+      // XXX - can use params_ to set attr - maybe part of Params
     }
   }
 
   t_void t_impl_::prepare(base1_::t_err err) noexcept {
     ERR_GUARD(err) {
-      close_ev_id_ = dispatcher_.add_event(err, {closefd_,       RD_EVENT});
       tmrs_ev_id_  = dispatcher_.add_event(err, {tmrs_.get_fd(), RD_EVENT});
 
       // XXX - can use params_ for further preparation
@@ -556,7 +549,7 @@ namespace sandbox
       entry.logic->exts_.each([](auto entry) {
           entry->notify_complete();
         });
-      entry.logic->notify_complete();
+      entry.logic->notify_complete(); // XXX QUIT here if I want
     });
     msec = t_msec{spin_cnt_ * spin_period_};
     return DONT_QUIT;
@@ -565,10 +558,7 @@ namespace sandbox
   t_impl_::t_action
       t_impl_::notify_dispatcher_event(t_event_id ev_id,
                                        r_event_params params) noexcept {
-    if (ev_id == close_ev_id_) {
-      t_out{"quiting the event loop"};
-      return t_action{QUIT_EVENT_LOOP};
-    } else if (ev_id == tmrs_ev_id_) {
+    if (ev_id == tmrs_ev_id_) {
       t_out{"internal timer expired - process timeouts"};
       tmrs_.process(*this);
     } else {

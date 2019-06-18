@@ -89,7 +89,6 @@ namespace sandbox
 
 ///////////////////////////////////////////////////////////////////////////////
 
-    t_fd       get_close_fd   () const noexcept;
     t_void     enable_spin    (t_err, t_ix, t_spin_cnt) noexcept;
     t_void     disable_spin   (t_ix)         noexcept;
     t_spin_cnt get_spin_cnt   (t_ix)   const noexcept;
@@ -209,13 +208,11 @@ namespace sandbox
 
     T_thread_name   name_;
     T_thread_params params_;
-    t_fd            closefd_;
     t_tmrs_         tmrs_;
     t_dispatcher_   dispatcher_;
     t_logics_       logics_;
     t_fdevents_     fdevents_;
     t_timers_       timers_;
-    t_event_id      close_ev_id_ = BAD_EVENT_ID;
     t_event_id      tmrs_ev_id_  = BAD_EVENT_ID;
     t_spin_cnt_     spin_cnt_    = 0;
     t_msec_         spin_period_ = 10;

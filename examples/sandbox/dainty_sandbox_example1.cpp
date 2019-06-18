@@ -139,9 +139,6 @@ public:
     : logic_  {err},
       sandbox_{err, "app_thread", {&logic_, nullptr}, IN_NEW_THREAD} {
   }
-  t_void please_die() {
-    request_death(sandbox_.get_id());
-  }
 private:
   t_app_logic logic_;
   t_sandbox   sandbox_;
@@ -155,8 +152,6 @@ int main0() {
     while (1) {
       sleep(10);
     }
-
-    //app.please_die();
 
     sleep(1);
 
@@ -266,7 +261,6 @@ int main2() {
 
 int main() {
   sleep(1);
-  wait_services();
   main0();
   //main1();
   //main2();
