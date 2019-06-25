@@ -12,7 +12,7 @@ Another important objective is to use sdcli for different use scenarios, namely;
 1. as a program command line interface
 2. as a debug terminal command line interface
 3. as a messaging layer that can be used by a protocol
-3. and lastly as a management command line interface. 
+3. and lastly as a management command line interface.
 
 sdcli does not attempt to support everything; like an exhaustive set of argument types, or checking the validity of values, or defining value types. It only knows a few argument types. Argument names and values are just strings to sdcli, which may or may not be validated by the internal software. The reasoning is that values often cannot be completely checked for their validity by the user interface alone and by not doing so, results in a much simplified interface definition.
 
@@ -84,7 +84,7 @@ definition:
 use:
   "(person=(name=Kate, female, telephone=1234567))"
 result passed to software:
-  "(argument/n{type=,name/n=,value/n=,path/n=}=
+  "(argument@n{type=,name@n=,value@n=,path@n=}=
      [{/*...*/, [<person>,<female>],    [<true>],    [/*...*/]},
       {/*...*/, [<person>,<name>],      [<Kate>],    [/*...*/]},
       {/*...*/, [<person>,<telephone>], [<1234567>], [/*...*/]}])"
@@ -147,15 +147,15 @@ use:        "(debug)"
 
 ##### eg.6 an optional bounded array argument
 ``` sh
-definition: "(:places/3=)"
+definition: "(:places@3=)"
   - define a list with an optional 'places' name array which requires 3 values
-use:        "(places/3 = ['new york', jerzy, paris])"
+use:        "(places@3 = ['new york', jerzy, paris])"
   - specify a list with an array name 'places' with three values.
 ```
 
 ##### eg.7 a mandatory list argument
 ``` sh
-definition: "(customer=(name=,id=,address=, accounts/n=))"
+definition: "(customer=(name=,id=,address=, accounts@n=))"
   - define a list with a name 'customer' which is a list itself.
 use:        "(customer=(name=tom,id=xx,address='happy street, hannover 8888', accounts/1=[764297]))"
   - specify a list that has a 'customer' name which is a list with values.
@@ -163,9 +163,9 @@ use:        "(customer=(name=tom,id=xx,address='happy street, hannover 8888', ac
 
 ##### eg.8 a mandatory unbounded structure array argument
 ``` sh
-definition: "(customer/n{name=,id=,address=, accounts/n=}=)"
+definition: "(customer@n{name=,id=,address=, accounts@n=}=)"
   - define a list with a <customer> name that is an unbounded array of a fixed structure with attributes.
-use:        "(customer/n{name=,id=,address=,accounts/n=}=[(Tom,51243,'home address',[88765])])"
+use:        "(customer@n{name=,id=,address=,accounts@n=}=[(Tom,51243,'home address',[88765])])"
   - specify a list that has a <customer> structure array name with a single entry of values
 ```
 
@@ -206,7 +206,7 @@ The sdcli notation use certain ASCII characters for special purposes as demonstr
 | ]         | mark ending of an array values                                       |
 | {         | mark beginning of a structure name definition or its value(s)        |
 | }         | mark ending of a structure name definition or its value(s)           |
-| /         | array notation when it follows a name                                |
+| @         | array notation when it follows a name                                |
 | =         | name has a value that must be specified                              |
 | !         | when a name is a boolean it can be negated                           |
 | -         | used to express that a value is empty, e.g. "<>"                     |
@@ -219,8 +219,8 @@ An argument has a type that depends on its name description before '='. There is
 | 1. standard        | "(name=)"                    |
 | 2. complex         | "(name=:part1:part2)"        |
 | 3. boolean         | "(name)", "(!name)"          |
-| 4. array           | "(name/2=)"                  |
-| 5. composite array | "(name/n{name1=, name2=}=)"  |
+| 4. array           | "(name@2=)"                  |
+| 5. composite array | "(name@n{name1=, name2=}=)"  |
 | 6. list            | "(name=(...))"               |
 | 7. selection list  | "(name=name1\|name2"         |
 | 8. option list     | "(prefix-(name1\|name2=))"   |
@@ -230,13 +230,13 @@ An argument has a type that depends on its name description before '='. There is
 | 1. "(name=)"                   | "(name=value)"                                |
 | 2. "(name=:part1:part2)"       | "(name=value:part1:part2)"                    |
 | 3. "(name)", "(!name)"         | "(name)", "(!name)"                           |
-| 4. "(name/2=)"                 | "(name/2=[value1, value2])"                   |
-| 5. "(name/n{name1=, name2=}=)" | "(name/n{name1=,name2=}=[{v1, v2}, {v3, v4}]" |
+| 4. "(name@2=)"                 | "(name@2=[value1, value2])"                   |
+| 5. "(name@n{name1=, name2=}=)" | "(name@n{name1=,name2=}=[{v1, v2}, {v3, v4}]" |
 | 6. "(name=())"                 | "(name=())"                                   |
 | 7. "(name=name1\|name2)"       | "(name=name1)", "(name=name2)"                |
 | 8. "(prefix-(name1\|name2=))"  | "(prefix-name1)", "(prefix-name2=value)"      |
 
-### result notation : `"(argument/n{type/n=,name/n=,value/n=,path/n=}=)"`
+### result notation : `"(argument@n{type@n=,name@n=,value@n=,path@n=}=)"`
 
 Both the definition and use notation forms shown above are visible notations that are passed and processed by sdcli. The result notation express what the definition and use notation arguments results into after parsing. This means both the definition notation and the use notation have their respective result notations. This is practical for a number of reasons; the first is that the same parsing logic can be used, the second is that comparison is much easier in the result notation and more efficient as well (the result notation is sorted) and lastly the use notation might be used independently from the definition notation. With a few simple rules the result notations of a definition and use notation can be compared, as to validate the use notation and to provide a validated, updated result notation.
 
@@ -261,7 +261,7 @@ SDCLI->SW: result:res2
 Note over SW: use result:res2
 ```
 
-#### argument: `"argument/n{...}"`
+#### argument: `"argument@n{...}"`
 
 All the parsed arguments are available in the 'argument' unbounded composite array. Every name used in the definition notation or use notation must be represented as an `argument/n{...}` entry. The array is sorted on the size of the name array (less is better) and when the number of entries are the same, then sorting is based on alphabetical order of the names in the last entry.  Effectively it means the sort algorithm match the order of the arguments closely. Below is an example of a definition notation to result notation transformation.
 
@@ -270,7 +270,7 @@ e.g definition notation transformed into result notation
 definition:
   "(name=, :age=, :(male|female), telephone=)"
 result:
-  "(argument/n{type=, name/n=, value/n=, path/n=} =
+  "(argument@n{type=, name@n=, value@n=, path@n=} =
      [{S,  [<name],       [],       []},
       {OS, [<age>],       [],       []},
       {OZ, [-OZ1-],       [<male>], []},       /* special lookup */
@@ -280,13 +280,13 @@ result:
 ```
 Some of the values will not make sense at this point. In the following pages the values will be described in detail. But it should be noticable that all the arguments used in the definition notation are represented within the result notation.
 
-| argument/n (compound) types | argument type   | meaning                     |
+| argument@n (compound) types | argument type   | meaning                     |
 | --------------------------- | --------------- | --------------------------- |
-| 1.   argument/n{1.1-1.4}=   | composite array | arguments sorted on name/n= |
-| 1.1. type/n=                | array           | specific type of argument   |
-| 1.2  name/n=                | array           | full argument name          |
-| 1.3. value/n=               | array           | value(s) of an argument     |
-| 1.4. path/n=                | array           | full path type description  |
+| 1.   argument@n{1.1-1.4}=   | composite array | arguments sorted on name@n= |
+| 1.1. type@n=                | array           | specific type of argument   |
+| 1.2  name@n=                | array           | full argument name          |
+| 1.3. value@n=               | array           | value(s) of an argument     |
+| 1.4. path@n=                | array           | full path type description  |
 
 ##### 1.1. type=S|OS|C|OC|B|OB|MB|A|OA|X|OX|L|OL|Z|OZ|H|OH
 
@@ -304,7 +304,7 @@ The definition notation require an additional property to represent the optional
 
 single type arguments:
 
-|type |D/U| notation              |arg:M/O| value       | value/n             | default |
+|type |D/U| notation              |arg:M/O| value       | value@n             | default |
 |-----|---| --------------------- |------ | ------------|---------------------| ------- |
 | S   | D | "(name=)"             |   M   | any         | []                  | no      |
 | S   | D | "(name=value)"        |   M   | exact       | [<value>]           | no      |
@@ -321,33 +321,33 @@ single type arguments:
 | MB  | D | "(!name)"             |   M   | !name, name | [<true>], [<false>] | no      |
 | B   | U | "(name)"              |   -   | -           | [<true>]            | -       |
 | MB  | U | "(!name)"             |   -   | -           | [<false>]           | -       |
-| A   | D | "(name/2=)"           |   M   | any         | []                  | no      |
-| OA  | D | "(:name/2=)"          |   O   | any         | []                  | no      |
-| OA  | D | "(:name/2=[kate,mo])" |   O   | any         | [<kate>,<mo>]       | yes     |
-| A   | D | "(name/2=[kate,mo])"  |   M   | exact       | [<kate>,<mo>]       | yes     |
-| A   | U | "(name/2=[tom,joe])"  |   -   | -           | [<tom>,<joe>]       | -       |
-| UA  | D | "(name/n=)"           |   M   | any,        | []                  | no      |
-| OUA | D | "(:name/n=)"          |   O   | any,        | []                  | no      |
-| OUA | D | "(:name/n=[mate])"    |   O   | any,        | [<mate>]            | yes     |
-| UA  | D | "(name/n=[mate])"     |   M   | exact       | [<mate>]            | yes     |
-| UA  | U | "(name/n=[mate])"     |   -   | -           | [<mate>]            | -       |
-| UA  | U | "(name/n=[])"         |   -   | -           | []                  | -       |
+| A   | D | "(name@2=)"           |   M   | any         | []                  | no      |
+| OA  | D | "(:name@2=)"          |   O   | any         | []                  | no      |
+| OA  | D | "(:name@2=[kate,mo])" |   O   | any         | [<kate>,<mo>]       | yes     |
+| A   | D | "(name@2=[kate,mo])"  |   M   | exact       | [<kate>,<mo>]       | yes     |
+| A   | U | "(name@2=[tom,joe])"  |   -   | -           | [<tom>,<joe>]       | -       |
+| UA  | D | "(name@n=)"           |   M   | any,        | []                  | no      |
+| OUA | D | "(:name@n=)"          |   O   | any,        | []                  | no      |
+| OUA | D | "(:name@n=[mate])"    |   O   | any,        | [<mate>]            | yes     |
+| UA  | D | "(name@n=[mate])"     |   M   | exact       | [<mate>]            | yes     |
+| UA  | U | "(name@n=[mate])"     |   -   | -           | [<mate>]            | -       |
+| UA  | U | "(name@n=[])"         |   -   | -           | []                  | -       |
 
 composite type arguments:
 
 |type |D/U| notation                         |arg:M/O| value  | value/n                 | default |
 |-----|---|----------------------------------|-------|--------|-------------------------|---------|
-| X   | D | "(name/2{name1=}=)"              |   M   | any    | [<0>]                   | no      |
-| OX  | D | "(:name/2{name1=}=)"             |   O   | any    | [<0>]                   | no      |
-| OX  | D | "(:name/2{name=}=[{one},{two}])" |   O   | any    | [<2>]                   | yes     |
-| X   | D | "(name/2{name=}=[{one},{two}])"  |   M   | exact  | [<2>]                   | no      |
-| X   | U | "(name/2{name=}=[{joe},{tom}])"  |   -   | -      | [<2>]                   | -       |
-| UX  | D | "(name/n{name=}=)"               |   M   | any    | [<0>]                   | no      |
-| OUX | D | "(:name/n{name=}=)"              |   O   | any    | [<0>]                   | no      |
-| OUX | D | "(:name/n{name=}=[{one}])"       |   O   | any    | [<1>]                   | yes     |
-| UX  | D | "(name/n{name=}=[{one},{two}])"  |   M   | exact  | [<2>]                   | no      |
-| UX  | U | "(name/n{name=}=[{joe}])"        |   -   | -      | [<1>]                   | -       |
-| UX  | U | "(name/n{name=}=[])"             |   -   | -      | [<0>]                   | -       |
+| X   | D | "(name@2{name1=}=)"              |   M   | any    | [<0>]                   | no      |
+| OX  | D | "(:name@2{name1=}=)"             |   O   | any    | [<0>]                   | no      |
+| OX  | D | "(:name@2{name=}=[{one},{two}])" |   O   | any    | [<2>]                   | yes     |
+| X   | D | "(name@2{name=}=[{one},{two}])"  |   M   | exact  | [<2>]                   | no      |
+| X   | U | "(name@2{name=}=[{joe},{tom}])"  |   -   | -      | [<2>]                   | -       |
+| UX  | D | "(name@n{name=}=)"               |   M   | any    | [<0>]                   | no      |
+| OUX | D | "(:name@n{name=}=)"              |   O   | any    | [<0>]                   | no      |
+| OUX | D | "(:name@n{name=}=[{one}])"       |   O   | any    | [<1>]                   | yes     |
+| UX  | D | "(name@n{name=}=[{one},{two}])"  |   M   | exact  | [<2>]                   | no      |
+| UX  | U | "(name@n{name=}=[{joe}])"        |   -   | -      | [<1>]                   | -       |
+| UX  | U | "(name@n{name=}=[])"             |   -   | -      | [<0>]                   | -       |
 | L   | D | "(name=(..n..))"                 |   M   |        | [<n>]                   | no      |
 | OL  | D | "(:name=())"                     |   O   |        | [<0>]                   | yes     |
 | L   | U | "(name=(..n..))"                 |   -   |        | [<n>]                   | no      |
@@ -375,7 +375,7 @@ e.g. use notation transformed into result notation
 use:
   "(newspaper=(name=times, date=12.03.2018, pages=89), reader=tom)"
 result:
-  "(argument/n{type=, name/n=, value/n=, path/n=} =
+  "(argument@n{type=, name@n=, value@n=, path@n=} =
      [{L, [<newspaper>],          [<3>],          []},
       {S, [<reader>],             [<tom>],        []},
       {S, [<newspaper>, <date>],  [<12.03.2018>], [L]},
@@ -385,7 +385,7 @@ result:
 
 Here the 'reader' argument has a depth that is better than the 'newspaper' composite arguments. When the depth of arguments are the same, then the names are alphabetically ordered, which is the case with 'date', 'name' and 'pages'.
 
-##### 1.3. result argument: value/n=
+##### 1.3. result argument: value@n=
 
 The value argument is used to store strings in an array that can represent any value/s. The different argument types either use one array element to store a value and others like the argument array or composite argument can store their different values within the value argument array.
 
@@ -393,16 +393,16 @@ The difference between a standard argument and a complex argument is that a comp
 
 A value string will have the following format:
 ```sh
-  "(value/n=[<main_value>])"
-  "(value/n=[<main_value>,<part1>,<part2>])"
-  "(value/n=[<array_0>,<array_1>,<array_n>])"
+  "(value@n=[<main_value>])"
+  "(value@n=[<main_value>,<part1>,<part2>])"
+  "(value@n=[<array_0>,<array_1>,<array_n>])"
 ```
 
 The definition notation does not define what the value must be or how it is tested for validity, for it is the responsibility of the internal software. This design decision significantly reduce the complexity required of sdcli. The sdcli implementation may provide a value checking mechanism, it is just not part of the sdcli notation interface. This will later be addressed in more detail.
 
-##### 1.4. result path/n=
+##### 1.4. result path@n=
 
-The path/n argument represents the full path types of the full argument name. This path/n argument can be used to reconstruct the definition or use notation. But it is also used to validate the selection list for the definition and use notations. Another way to think of the path/n argument is as an internal representation of the internal types that doesn't have relevance on the ordering of arguments. The path/n argument and the type argument is used when validating definition and use notations and help resolve what the result notation will be.
+The path@n argument represents the full path types of the full argument name. This path/n argument can be used to reconstruct the definition or use notation. But it is also used to validate the selection list for the definition and use notations. Another way to think of the path/n argument is as an internal representation of the internal types that doesn't have relevance on the ordering of arguments. The path/n argument and the type argument is used when validating definition and use notations and help resolve what the result notation will be.
 
 e.g the [<reader>] name is composed within the initial argument list because `path/n= []` is empty.
 e.g the [<newspaper>,<pages>] name is composed within the argument <newspaper> which is a list because `path/n= [L]`.
@@ -438,39 +438,39 @@ A standard argument has a name and use the assignment operator in the definition
 
 ```sh
 definition:        "(address=)"
-definition result: "(argument/n{type=,name/n=,value/n=,path/n=}=[{S, [<address>], [],  []}])"
+definition result: "(argument@n{type=,name@n=,value@n=,path@n=}=[{S, [<address>], [],  []}])"
 
 valid uses:
   use1:    "(address='9 Upperstreet, Tweety Town, 2345')"
-  result1: "(argument/n{type=,name/n=,value/n=,path/n=}=[{[S, [<address>], [<9 Upperstreet, Tweety Town, 2345>], []}])"
+  result1: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[S, [<address>], [<9 Upperstreet, Tweety Town, 2345>], []}])"
 ```
 
 #### optional standard argument : `"(:name=)"`
 
 ```sh
 definition:        "(:address=)"
-definition result: "(argument/n{type=,name/n=,value/n=,path/n=}=[{OS, [<address>], [],  []}])"
+definition result: "(argument@n{type=,name@n=,value@n=,path@n=}=[{OS, [<address>], [],  []}])"
 
 valid uses:
   use1:    "(address='9 Upperstreet, Tweety Town, 2345')"
-  result1: "(argument/n{type=,name/n=,value/n=,path/n=}=[{[S, [<address>], [<9 Upperstreet, Tweety Town, 2345>], []}])"
+  result1: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[S, [<address>], [<9 Upperstreet, Tweety Town, 2345>], []}])"
 
   use2:    "()"
-  result2: "(argument/n{type=,name/n=,value/n=,path/n=}=[])"
+  result2: "(argument@n{type=,name@n=,value@n=,path@n=}=[])"
 ```
 
 #### optional standard argument with default value : `"(:name=value)"`
 
 ```sh
 definition:        "(:address=<parker street 10, new york>)"
-definition result: "(argument/n{type=,name/n=,value/n=,path/n=}=[{OS, [<address>], [<parker street 10, new york>],  []}])"
+definition result: "(argument@n{type=,name@n=,value@n=,path@n=}=[{OS, [<address>], [<parker street 10, new york>],  []}])"
 
 valid uses:
   use1:    "(address='9 Upperstreet, Tweety Town, 2345')"
-  result1: "(argument/n{type=,name/n=,value/n=,path/n=}=[{S, [<address>], [<9 Upperstreet, Tweety Town], 2345>, []}])"
+  result1: "(argument@n{type=,name@n=,value@n=,path@n=}=[{S, [<address>], [<9 Upperstreet, Tweety Town], 2345>, []}])"
 
   use2:    "()"
-  result2: "(argument/n{type=,name/n=,value/n=,path/n=}=[{S, [<address>], [<parker street 10, new york>], []}])"
+  result2: "(argument@n{type=,name@n=,value@n=,path@n=}=[{S, [<address>], [<parker street 10, new york>], []}])"
 ```
 
 #### mandatory standard argument with mandatory value : `"(name=value)"`
@@ -479,11 +479,11 @@ When no default value is specified for a optional name, then the name does not e
 
 ```sh
 definition:        "(address=<parker street 10, new york>)"
-definition result: "(argument/n{type=,name/n=,value/n=,path/n=}=[{S, [<address>], [<parker street 10, new york>],  []}])"
+definition result: "(argument@n{type=,name@n=,value@n=,path@n=}=[{S, [<address>], [<parker street 10, new york>],  []}])"
 
 valid uses:
   use:    "(address='parker street 10, new york')"
-  result: "(argument/n{type=,name/n=,value/n=,path/n=}=[{S, [<address>], [<parker street 10, new york>], []}])"
+  result: "(argument@n{type=,name@n=,value@n=,path@n=}=[{S, [<address>], [<parker street 10, new york>], []}])"
 
 ```
 
@@ -493,57 +493,57 @@ valid uses:
 
 ```sh
 definition:        "(book=:author:category)"
-definition result: "(argument/n{type=,name/n=,value/n=,path/n=}=[{C, [<book>], [-,<author>,<category>]  []}])"
+definition result: "(argument@n{type=,name@n=,value@n=,path@n=}=[{C, [<book>], [-,<author>,<category>]  []}])"
 
 valid uses:
   use1:    "(book='the stand')"
-  result1: "(argument/n{type=,name/n=,value/n=,path/n=}=[{[C, [<address>], [<the stand>,<author>,<category>], []}])"
+  result1: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the stand>,<author>,<category>], []}])"
 
   use2:    "(book='the stand':'steven king')"
-  result2: "(argument/n{type=,name/n=,value/n=,path/n=}=[{[C, [<address>], [<the stand>,<steven king>,<category>], []}])"
+  result2: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the stand>,<steven king>,<category>], []}])"
 
   use3:    "(book='the stand':'steven king':fiction)"
-  result3: "(argument/n{type=,name/n=,value/n=,path/n=}=[{[C, [<address>], [<the stand>,<steven king>,<fiction>], []}])"
+  result3: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the stand>,<steven king>,<fiction>], []}])"
 ```
 
 #### optional complex argument : `"(:name=:part1:part2)"`
 
 ```sh
 definition:        "(:book=:author:category)"
-definition result: "(argument/n{type=,name/n=,value/n=,path/n=}=[{OC, [<book>], [-,<author>,<category>],  []}])"
+definition result: "(argument@n{type=,name@n=,value@n=,path@n=}=[{OC, [<book>], [-,<author>,<category>],  []}])"
 
 valid uses:
   use1:    "()"
-  result1: "(argument/n{type=,name/n=,value/n=,path/n=}=[])"
+  result1: "(argument@n{type=,name@n=,value@n=,path@n=}=[])"
 
   use2:    "(book='the stand')"
-  result2: "(argument/n{type=,name/n=,value/n=,path/n=}=[{[C, [<address>], [<the stand>,<author>,<category>], []}])"
+  result2: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the stand>,<author>,<category>], []}])"
 
   use3:    "(book='the stand':'steven king')"
-  result3: "(argument/n{type=,name/n=,value/n=,path/n=}=[{[C, [<address>], [<the stand>,<steven king>,<category>], []}])"
+  result3: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the stand>,<steven king>,<category>], []}])"
 
   use4:    "(book='the stand':'steven king':fiction)"
-  result4: "(argument/n{type=,name/n=,value/n=,path/n=}=[{[C, [<address>], [<the stand>,<steven king>,<fiction>], []}])"
+  result4: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the stand>,<steven king>,<fiction>], []}])"
 ```
 
 #### optional complex argument with default value : `"(:name=value:part1:part2)"`
 
 ```sh
 definition:        "(:book='the art of war':author:category)"
-definition result: "(argument/n{type=,name/n=,value/n=,path/n=}=[{OC, [<book>], [<the art of war>,<author>,<category>],  []}])"
+definition result: "(argument@n{type=,name@n=,value@n=,path@n=}=[{OC, [<book>], [<the art of war>,<author>,<category>],  []}])"
 
 valid uses:
   use1:    "()"
-  result1: "(argument/n{type=,name/n=,value/n=,path/n=}=[{[C, [<address>], [<the art of war>,<steven king>,<fiction>], []}])"
+  result1: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the art of war>,<steven king>,<fiction>], []}])"
 
   use2:    "(book='the stand')"
-  result2: "(argument/n{type=,name/n=,value/n=,path/n=}=[{[C, [<address>], [<the stand>,<author>,<category>], []}])"
+  result2: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the stand>,<author>,<category>], []}])"
 
   use3:    "(book='the stand':'steven king')"
-  result3: "(argument/n{type=,name/n=,value/n=,path/n=}=[{[C, [<address>], [<the stand>,<steven king>,<category>], []}])"
+  result3: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the stand>,<steven king>,<category>], []}])"
 
   use4:    "(book='the stand':'steven king':fiction)"
-  result4: "(argument/n{type=,name/n=,value/n=,path/n=}=[{[C, [<address>], [<the stand>,<steven king>,<fiction>], []}])"
+  result4: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the stand>,<steven king>,<fiction>], []}])"
 ```
 
 #### mandatory complex argument with mandatory value : `"(name=value:part1:part2)"`
@@ -552,11 +552,11 @@ When no default value is specified for a optional name, then the name does not e
 
 ```sh
 definition:        "(book='the art of war':author:category)"
-definition result: "(argument/n{type=,name/n=,value/n=,path/n=}=[{C, [<book>], [<the art of war>,<author>,<category>],  []}])"
+definition result: "(argument@n{type=,name@n=,value@n=,path@n=}=[{C, [<book>], [<the art of war>,<author>,<category>],  []}])"
 
 valid uses:
   use:        "(book='the art of war':author:category)"
-  use result: "(argument/n{type=,name/n=,value/n=,path/n=}=[{C, [<book>], [<the art of war>,<author>,<category>],  []}])"
+  use result: "(argument@n{type=,name@n=,value@n=,path@n=}=[{C, [<book>], [<the art of war>,<author>,<category>],  []}])"
 
 ```
 
@@ -565,25 +565,25 @@ valid uses:
 A boolean name does not have an assignment operator.  The definition notation of a boolean name use the '!' character to indicate the name may be negated. A boolean name has a default value of 'true' unless it is negated with '!' in its use notation. A boolean name can be negate-able and optional by using the '!' and ':' characters respectively and expressed as such by the definition notation, "(!:name)". A boolean name does not have an array equivalent.
 
 
-### 4. array argument :  `"(name/2=)"`, `"(name/n=)"`
+### 4. array argument :  `"(name@2=)"`, `"(name@n=)"`
 
-A simple array name can either be bounded by a fix array size, e.g. "(name/2=)" or unbounded by using "(name/n=)".  Simple array names can also be optional as simple names, by adding ':' before the name. Only fixed size simple array names can have default or mandatory values within the definition notation.  Below is an example of a mandatory name with any values.
+A simple array name can either be bounded by a fix array size, e.g. "(name@2=)" or unbounded by using "(name/n=)".  Simple array names can also be optional as simple names, by adding ':' before the name. Only fixed size simple array names can have default or mandatory values within the definition notation.  Below is an example of a mandatory name with any values.
 
 e.g.
 ```sh
-definition notation: "(book/n=)"
-use notation:        "(book/n=['i spy', 'the stand', 'ocean of life'])"
+definition notation: "(book@n=)"
+use notation:        "(book@n=['i spy', 'the stand', 'ocean of life'])"
 ```
 
 Below is an example where the use notation must match the definition notation exactly, since the definition notation specify mandatory values. This feature might not be very useful but it is consistent with the simple name value definition.
 
 e.g.
 ```sh
-definition notation: "(book/2=[bible,koran])"
-use notation:        "(book/3=[bible,koran])"
+definition notation: "(book@2=[bible,koran])"
+use notation:        "(book@3=[bible,koran])"
 ```
 
-### 5. composite array argument : `"(name/n{name1=,name2=}=)"`
+### 5. composite array argument : `"(name@n{name1=,name2=}=)"`
 
 ### 6. list argument : `"(name=(name=))"`
 
@@ -605,11 +605,11 @@ When sdcli receive a command from the user it must either be in the general invo
 ### general cli synopsis:
 
 ```sh
-  "(:name/n=[list], :input=(C), :settings=(A))"
+  "(:name@n=[list], :input=(C), :settings=(A))"
 ```
 | argument      | meaning                                            |
 | ------------- | -------------------------------------------------- |
-| name/n=       | an argument array specifying the command full name |
+| name@n=       | an argument array specifying the command full name |
 | input=()      | an argument list specifying input arguments        |
 | :settings=(A) | an argument list specifying the command settings   |
 
@@ -619,22 +619,22 @@ When sdcli receive a command from the user it must either be in the general invo
 main alias: - execute with custom settings and input arguments.
   "> (A) name_path... command_name (C)"
 same:
-  "(name/n=[name_path..., command_name], input=(C), settings=(A))"
+  "(name@n=[name_path..., command_name], input=(C), settings=(A))"
 
 alias 1: - query with custom settings.
   "> (A) name_path... command_name"
 same:
-  "(name/n=[name_path..., command_name], settings=(A))"
+  "(name@n=[name_path..., command_name], settings=(A))"
 
 alias 2: - execute form using input arguments and default settings.
   "> name_path... command_name (C)"
 same:
-  "(name/n=[name_path..., command_name], input=(C))"
+  "(name@n=[name_path..., command_name], input=(C))"
 
 alias 3: - query form with default settings.
   "> name_path... command_name"
 same:
-  "(name/n=[name_path..., command_name])"
+  "(name@n=[name_path..., command_name])"
  ```
 
 ### builtin commands
@@ -646,19 +646,19 @@ There are three built-in commands that sdcli support at all times, namely;
 
 #### help : `"help (A)"`
 
-general cli form: `">(name/n=[<help>], input=(A))`
+general cli form: `">(name@n=[<help>], input=(A))`
 
 #### list : `"list (A)"`
 
-general cli form: `">(name/n=[<list>], input=(A))`
+general cli form: `">(name@n=[<list>], input=(A))`
 
 #### config : `"config (A)"`
 
-general cli form: `">(name/n=[<config>], input=<A>)`
+general cli form: `">(name@n=[<config>], input=<A>)`
 
 
 ```sh
-">(name/n=[muticast, createvlan], input=(vlanid=,vlanidx=,:settings=(snoopmode_(discard|forward),version_(v1|v2|v3),txprio_(cos0,cos1,cos2,cos3,cos4,cos5,cos6,cos7),enable_all_groups_(on, off))))"
+">(name@n=[muticast, createvlan], input=(vlanid=,vlanidx=,:settings=(snoopmode_(discard|forward),version_(v1|v2|v3),txprio_(cos0,cos1,cos2,cos3,cos4,cos5,cos6,cos7),enable_all_groups_(on, off))))"
 
 "multicast createvlan (vlanid=,vlanidx=,:settings=(snoopmode_(discard|forward),version_(v1|v2|v3),txprio_(cos0,cos1,cos2,cos3,cos4,cos5,cos6,cos7),enable_all_groups_(on, off)))"
 
