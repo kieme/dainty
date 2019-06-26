@@ -3,6 +3,7 @@ g++ -Wall -o dainty_dacli_example \
     $DAINTY_ROOT/examples/library/dacli/dainty_dacli_example.cpp \
     $DAINTY_ROOT/library/oops/dainty_oops.cpp \
     $DAINTY_ROOT/library/dacli/dainty_dacli.cpp \
+    $DAINTY_ROOT/library/dacli/dainty_dacli_err.cpp \
     $DAINTY_ROOT/library/named/dainty_named_string_impl.cpp \
     $DAINTY_ROOT/library/named/dainty_named_assert.cpp \
     $DAINTY_ROOT/library/named/dainty_named_terminal.cpp \

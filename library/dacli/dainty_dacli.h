@@ -49,13 +49,10 @@ namespace dacli
   using named::t_bool;
   using named::t_prefix;
   using named::string::t_string;
+  using named::string::operator""_SL;
+  using named::string::t_crange;
   using err::t_err;
   using err::r_err;
-
-/******************************************************************************/
-
-  enum  t_bool_string_tag_ {};
-  using t_bool_string = t_string<t_bool_string_tag_, 7>;
 
 /******************************************************************************/
 
@@ -69,7 +66,7 @@ namespace argn
   using named::operator"" _eix;
   using named::operator"" _n;
 
-  constexpr named::t_uint32 v_optional = 0x10000000;
+  constexpr named::t_uint32 OPTIONAL = 0x10000000;
 
   enum t_type : named::t_uint32 {
     TYPE_Q   = 0x00000000,  // 1.
@@ -84,26 +81,26 @@ namespace argn
     TYPE_H   = 0x00000080,  // 8.
     TYPE_K   = 0x00000100,  // 9.
     TYPE_XI  = 0x00000200,  // 10.
-    TYPE_OA  = v_optional | TYPE_A,
-    TYPE_OX  = v_optional | TYPE_X,
-    TYPE_OZ  = v_optional | TYPE_Z,
-    TYPE_OS  = v_optional | TYPE_S,
-    TYPE_OC  = v_optional | TYPE_C,
-    TYPE_OL  = v_optional | TYPE_L,
-    TYPE_OB  = v_optional | TYPE_MB, // looks wrong - XXX
-    TYPE_OH  = v_optional | TYPE_H,
-    TYPE_OK  = v_optional | TYPE_K
+    TYPE_OA  = OPTIONAL | TYPE_A,
+    TYPE_OX  = OPTIONAL | TYPE_X,
+    TYPE_OZ  = OPTIONAL | TYPE_Z,
+    TYPE_OS  = OPTIONAL | TYPE_S,
+    TYPE_OC  = OPTIONAL | TYPE_C,
+    TYPE_OL  = OPTIONAL | TYPE_L,
+    TYPE_OB  = OPTIONAL | TYPE_MB, // looks wrong - XXX
+    TYPE_OH  = OPTIONAL | TYPE_H,
+    TYPE_OK  = OPTIONAL | TYPE_K
   };
 
-  constexpr t_bool is_optional (t_type type) { return v_optional & type; }
-  constexpr t_bool is_simple   (t_type type) { return TYPE_S  & type;    }
-  constexpr t_bool is_array    (t_type type) { return TYPE_A  & type;    }
-  constexpr t_bool is_lookup   (t_type type) { return TYPE_X  & type;    }
-  constexpr t_bool is_compound (t_type type) { return TYPE_C  & type;    }
-  constexpr t_bool is_option   (t_type type) { return TYPE_Z  & type;    }
-  constexpr t_bool is_list     (t_type type) { return TYPE_L  & type;    }
-  constexpr t_bool is_boolean  (t_type type) { return TYPE_MB & type;    }
-  constexpr t_bool is_selection(t_type type) { return TYPE_H  & type;    }
+  constexpr t_bool is_optional (t_type type) { return OPTIONAL & type; }
+  constexpr t_bool is_simple   (t_type type) { return TYPE_S   & type; }
+  constexpr t_bool is_array    (t_type type) { return TYPE_A   & type; }
+  constexpr t_bool is_lookup   (t_type type) { return TYPE_X   & type; }
+  constexpr t_bool is_compound (t_type type) { return TYPE_C   & type; }
+  constexpr t_bool is_option   (t_type type) { return TYPE_Z   & type; }
+  constexpr t_bool is_list     (t_type type) { return TYPE_L   & type; }
+  constexpr t_bool is_boolean  (t_type type) { return TYPE_MB  & type; }
+  constexpr t_bool is_selection(t_type type) { return TYPE_H   & type; }
 
   constexpr t_type get_base_type(t_type type) {
     return (t_type)(0xFFFF & type);
@@ -144,36 +141,35 @@ namespace argn
     return TYPE_S; // can you do better
   }
 
-  constexpr P_cstr c_str(t_type argype) { // t_crange XXX
-    named::P_cstr_ str = "undefined";
+  constexpr t_crange str(t_type argype) {
     switch (argype) {
-      case TYPE_Q:   str = "Q";
-      case TYPE_A:   str = "A";
-      case TYPE_OA:  str = "OA";
-      case TYPE_X:   str = "X";
-      case TYPE_OX:  str = "OX";
-      case TYPE_XI:  str = "IX";
-      case TYPE_Z:   str = "Z";
-      case TYPE_OZ:  str = "OZ";
-      case TYPE_S:   str = "S";
-      case TYPE_OS:  str = "OS";
-      case TYPE_C:   str = "C";
-      case TYPE_OC:  str = "OC";
-      case TYPE_L:   str = "L";
-      case TYPE_OL:  str = "OL";
-      case TYPE_B:   str = "B";
-      case TYPE_OB:  str = "OB";
-      case TYPE_MB:  str = "MB";
-      case TYPE_H:   str = "H";
-      case TYPE_OH:  str = "OH";
-      case TYPE_K:   str = "K";
-      case TYPE_OK:  str = "OK";
+      case TYPE_Q:   return "Q"_SL;
+      case TYPE_A:   return "A"_SL;
+      case TYPE_OA:  return "OA"_SL;
+      case TYPE_X:   return "X"_SL;
+      case TYPE_OX:  return "OX"_SL;
+      case TYPE_XI:  return "IX"_SL;
+      case TYPE_Z:   return "Z"_SL;
+      case TYPE_OZ:  return "OZ"_SL;
+      case TYPE_S:   return "S"_SL;
+      case TYPE_OS:  return "OS"_SL;
+      case TYPE_C:   return "C"_SL;
+      case TYPE_OC:  return "OC"_SL;
+      case TYPE_L:   return "L"_SL;
+      case TYPE_OL:  return "OL"_SL;
+      case TYPE_B:   return "B"_SL;
+      case TYPE_OB:  return "OB"_SL;
+      case TYPE_MB:  return "MB"_SL;
+      case TYPE_H:   return "H"_SL;
+      case TYPE_OH:  return "OH"_SL;
+      case TYPE_K:   return "K"_SL;
+      case TYPE_OK:  return "OK"_SL;
     }
-    return P_cstr{str};
+    return t_crange{};
   }
 
-  inline t_bool_string str(t_bool state) {
-    return P_cstr{state ? "<true>" : "<false>"};
+  constexpr t_crange str(t_bool state) {
+    return state ? "<true>"_SL : "<false>"_SL;
   }
 
 /******************************************************************************/
@@ -183,7 +179,7 @@ namespace argn
   using r_word      = t_prefix<t_word>::r_;
   using R_word      = t_prefix<t_word>::R_;
 
-  using t_words     = std::vector<t_word>;
+  using t_words     = std::vector<t_word>; // change to t_segmented_string
   using R_words     = t_prefix<t_words>::R_;
 
   using t_path      = t_words;
@@ -817,12 +813,12 @@ namespace argn
   using r_text = t_prefix<t_text>::r_;
   using R_text = t_prefix<t_text>::R_;
 
-  t_void parse_syntax(t_err err, argn::r_argn argn, R_text);
-  t_void build_syntax(t_err err, r_text,       argn::R_argn);
-  t_void merge_syntax(t_err err, argn::r_argn, argn::R_argn);
+  t_void parse_notation(t_err err, argn::r_argn argn, R_text);
+  t_void build_notation(t_err err, r_text,       argn::R_argn);
+  t_void merge_notation(t_err err, argn::r_argn, argn::R_argn);
 
-  //bool parse_cmd  (t_text& err_msg, t_argn& argn, P_cstr cmd_p);
-  //bool process_cmd(t_text& err_msg, t_argn& use,  P_cstr cmd_p);
+  //bool parse_cmd  (r_text err_msg, r_argn argn, P_cstr cmd_p);
+  //bool process_cmd(r_text err_msg, r_argn use,  P_cstr cmd_p);
 
   /*
   class t_dacli {
