@@ -112,6 +112,7 @@ namespace string
     r_string va_append(t_cstr_cptr_ fmt, va_list vars) noexcept;
 
     t_void clear() noexcept;
+    t_bool remove(t_ix begin, t_ix end) noexcept;
 
     t_void display           (R_crange prefix  = NO_RANGE,
                               R_crange postfix = NO_RANGE) const noexcept;
@@ -461,7 +462,13 @@ namespace string
   template<class TAG, typename O>
   inline
   t_void t_string<TAG, 0, O>::clear() noexcept {
-    return impl_.clear(store_.get());
+    impl_.clear(store_.get());
+  }
+
+  template<class TAG, typename O>
+  inline
+  t_bool t_string<TAG, 0, O>::remove(t_ix begin, t_ix end) noexcept {
+    return impl_.remove(store_.get(), get(begin), get(end));
   }
 
   template<class TAG, typename O>

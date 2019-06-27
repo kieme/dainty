@@ -262,6 +262,18 @@ namespace string
       len_ = 0;
     }
 
+    inline t_bool remove(p_cstr_ str, t_ix_ begin, t_ix_ end) noexcept {
+      if (begin < end && end <= len_) {
+        t_n_ remove_n = end - begin;
+        while (end != len_)
+          str[begin++] = str[end++];
+        str[begin] = '\0';
+        len_ -= remove_n;
+        return true;
+      }
+      return false;
+    }
+
     inline t_void display(P_cstr_ str, R_crange prefix,
                                        R_crange postfix) const noexcept {
       if (prefix == INVALID && postfix == INVALID) {
