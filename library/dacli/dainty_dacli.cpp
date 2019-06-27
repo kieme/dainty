@@ -2068,24 +2068,24 @@ namespace argn
     return {};
   }
 
-  t_ref t_collection_ref::operator[](P_cstr name) {
+  t_ref t_collection_ref::operator[](t_string_crange name) {
     if (is_valid_()) {
       auto max = get_().second.info_.mem_.size();
       for (decltype(max) ix = 0; ix < max; ++ix) {
         p_arg arg = (p_arg)set_().second.info_.mem_[ix];
-        if (arg->first.back() == string::mk_range(name))
+        if (arg->first.back() == name)
           return make_ref_(arg);
       }
     }
     return {};
   }
 
-  t_cref t_collection_ref::operator[](P_cstr name) const {
+  t_cref t_collection_ref::operator[](t_string_crange name) const {
     if (is_valid_()) {
       auto max = get_().second.info_.mem_.size();
       for (decltype(max) ix = 0; ix < max; ++ix) {
         P_arg arg = (P_arg)get_().second.info_.mem_[ix];
-        if (arg->first.back() == string::mk_range(name))
+        if (arg->first.back() == name)
           return make_id_(arg);
       }
     }
@@ -2130,12 +2130,12 @@ namespace argn
     return {};
   }
 
-  t_cref t_collection_cref::operator[](P_cstr name) const {
+  t_cref t_collection_cref::operator[](t_string_crange name) const {
     if (is_valid_()) {
       auto max = get_().second.info_.mem_.size();
       for (decltype(max) ix = 0; ix < max; ++ix) {
         P_arg arg = (P_arg)get_().second.info_.mem_[ix];
-        if (arg->first.back() == string::mk_range(name))
+        if (arg->first.back() == name)
           return make_ref_(arg);
       }
     }
@@ -2185,10 +2185,10 @@ namespace argn
     return !err;
   }
 
-  t_ref t_list_ref::add(t_err err, P_cstr cstr) {
+  t_ref t_list_ref::add(t_err err, t_string_crange cstr) {
     ERR_GUARD(err) {
       if (is_valid_()) {
-        named::P_cstr_ p = get(cstr);
+        named::P_cstr_ p = cstr.ptr;
         p = notation::parse::parse_arg(err, *this, p);
         ERR_GUARD(err) { // XXX
           if (*p == '\0')
@@ -2374,11 +2374,11 @@ namespace argn
     return EMPTY_NAME;
   }
 
-  t_ref t_options_ref::add(t_err err, P_cstr cstr) {
+  t_ref t_options_ref::add(t_err err, t_string_crange cstr) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         if (is_empty()) { // looks wrong
-          named::P_cstr_ p = get(cstr);
+          named::P_cstr_ p = cstr.ptr;
           p = notation::parse::parse_option(err, *this, p);
           ERR_GUARD(err) {
             if (*p == '\0')
@@ -2685,13 +2685,13 @@ namespace argn
     return false;
   }
 
-  t_ref t_lookup_ref::get_value(P_cstr name) {
+  t_ref t_lookup_ref::get_value(t_string_crange name) {
     if (is_valid_())
       return set_argn_().get_lookup_value_(*this, name);
     return {};
   }
 
-  t_cref t_lookup_ref::get_value(P_cstr name) const {
+  t_cref t_lookup_ref::get_value(t_string_crange name) const {
     if (is_valid_())
       return get_argn_().get_lookup_value_(*this, name);
     return {};
@@ -2777,7 +2777,7 @@ namespace argn
     return false;
   }
 
-  t_cref t_lookup_cref::get_value(P_cstr name) const {
+  t_cref t_lookup_cref::get_value(t_string_crange name) const {
     if (is_valid_())
       return get_argn_().get_lookup_value_(*this, name);
     return {};
@@ -3304,15 +3304,15 @@ namespace argn
     }
   }
 
-  t_ref t_argn::get_lookup_value_(r_ref ref,  P_cstr name) {
+  t_ref t_argn::get_lookup_value_(r_ref ref, t_string_crange name) {
     t_fullname fullname(ref.get_fullname());
-    fullname.push_back(string::mk_range(get(name)));
+    fullname.push_back(name);
     return operator[](fullname);
   }
 
-  t_cref t_argn::get_lookup_value_(t_cref ref, P_cstr name) const {
+  t_cref t_argn::get_lookup_value_(t_cref ref, t_string_crange name) const {
     t_fullname fullname(ref.get_fullname());
-    fullname.push_back(string::mk_range(get(name)));
+    fullname.push_back(name);
     return operator[](fullname);
   }
 

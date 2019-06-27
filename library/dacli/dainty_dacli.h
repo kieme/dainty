@@ -44,15 +44,15 @@ namespace dainty
 {
 namespace dacli
 {
-  using named::P_cstr;
   using named::t_void;
   using named::t_bool;
   using named::t_prefix;
   using named::string::t_string;
   using named::string::operator""_SL;
-  using named::string::t_crange;
   using err::t_err;
   using err::r_err;
+
+  using t_string_crange = named::string::t_crange;
 
 /******************************************************************************/
 
@@ -141,7 +141,7 @@ namespace argn
     return TYPE_S; // can you do better
   }
 
-  constexpr t_crange str(t_type argype) {
+  constexpr t_string_crange str(t_type argype) {
     switch (argype) {
       case TYPE_Q:   return "Q"_SL;
       case TYPE_A:   return "A"_SL;
@@ -165,10 +165,10 @@ namespace argn
       case TYPE_K:   return "K"_SL;
       case TYPE_OK:  return "OK"_SL;
     }
-    return t_crange{};
+    return t_string_crange{};
   }
 
-  constexpr t_crange str(t_bool state) {
+  constexpr t_string_crange str(t_bool state) {
     return state ? "<true>"_SL : "<false>"_SL;
   }
 
@@ -202,7 +202,7 @@ namespace argn
   using R_values   = t_prefix<t_values>::R_;
   using x_values   = t_prefix<t_values>::x_;
 
-  t_void print(P_cstr prefix, R_words);
+  t_void print(t_string_crange prefix, R_words);
 
   struct t_arginfo {
     t_arginfo(t_type type) : type_(type) {
@@ -250,35 +250,36 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  using t_table   = std::map<t_fullname, t_argvalue, arg_compare>;
-  using t_itr     = t_table::iterator;
-  using t_citr    = t_table::const_iterator;
-  using t_range   = std::pair<t_itr, t_itr>;
-  using t_crange  = std::pair<t_citr, t_citr>;
-  using t_arg     = t_table::value_type;
-  using r_arg     = t_prefix<t_arg>::r_;
-  using R_arg     = t_prefix<t_arg>::R_;
-  using p_arg     = t_prefix<t_arg>::p_;
-  using P_arg     = t_prefix<t_arg>::P_;
-  using x_arg     = t_prefix<t_arg>::x_;
-  using t_pair    = std::pair<t_itr, t_bool>;
+  using t_table = std::map<t_fullname, t_argvalue, arg_compare>;
+  using t_itr   = t_table::iterator;        //impl
+  using t_citr  = t_table::const_iterator;  // impl
+  using t_pair  = std::pair<t_itr, t_bool>; // impl
+  using t_arg   = t_table::value_type;
+  using r_arg   = t_prefix<t_arg>::r_;
+  using R_arg   = t_prefix<t_arg>::R_;
+  using p_arg   = t_prefix<t_arg>::p_;
+  using P_arg   = t_prefix<t_arg>::P_;
+  using x_arg   = t_prefix<t_arg>::x_;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  // XXX must be cleaned up
   struct t_optional_params {
     t_bool optional_;
-    t_optional_params(t_bool optional = false) : optional_(optional) { }
+    constexpr t_optional_params(t_bool optional = false) noexcept
+      : optional_(optional) {
+    }
   };
   using t_oparams = t_prefix<t_optional_params>::t_;
   using R_oparams = t_prefix<t_oparams>::R_;
 
-  static const t_oparams optional  {true};
-  static const t_oparams mandatory {false};
+  constexpr t_oparams OPTIONAL_TRUE {true};  // XXX not really happy
+  constexpr t_oparams OPTIONAL_FALSE{false}; // XXX use explicit
 
   struct t_range_params {
     t_n range_max_;
     t_n range_min_;
-    t_range_params(t_n max = 0_n, t_n min = 0_n)
+    constexpr t_range_params(t_n max = 0_n, t_n min = 0_n)
       : range_max_(max), range_min_(min) { }
   };
   using t_rparams = t_prefix<t_range_params>::t_;
@@ -294,6 +295,7 @@ namespace argn
   using r_params = t_prefix<t_params>::r_;
   using R_params = t_prefix<t_params>::R_;
 
+  // XXX - naming
   static const t_params unbound_range{};
   static const t_params optional_unbound_range{t_oparams{true}, t_rparams{}};
 
@@ -343,12 +345,12 @@ namespace argn
   protected:
     inline t_ref(p_argn argn, p_arg arg)  : argn_(argn), arg_(arg)     { }
 
-    inline t_bool is_valid_() const       { return argn_ && arg_; }
-    inline t_void clear_()     { argn_ = nullptr; arg_ = nullptr; }
-    inline r_arg  set_()                         { return *arg_;  }
-    inline R_arg  get_() const                   { return *arg_;  }
-    inline r_argn set_argn_()                    { return *argn_; }
-    inline R_argn get_argn_() const              { return *argn_; }
+    inline t_bool is_valid_() const              { return argn_ && arg_; }
+    inline t_void clear_()            { argn_ = nullptr; arg_ = nullptr; }
+    inline r_arg  set_()                                { return *arg_;  }
+    inline R_arg  get_() const                          { return *arg_;  }
+    inline r_argn set_argn_()                           { return *argn_; }
+    inline R_argn get_argn_() const                     { return *argn_; }
 
     inline t_ref make_ref_(p_arg arg)             { return {argn_, arg}; }
     inline t_cid make_id_ (P_arg arg) const       { return {argn_, arg}; }
@@ -384,12 +386,12 @@ namespace argn
   protected:
     inline t_cref(P_argn argn, P_arg arg) : argn_(argn), arg_(arg)     { }
 
-    inline t_bool is_valid_() const       { return argn_ && arg_; }
-    inline t_void clear_()     { argn_ = nullptr; arg_ = nullptr; }
-    inline R_arg  get_() const                   { return *arg_;  }
-    inline R_argn get_argn_() const              { return *argn_; }
+    inline t_bool is_valid_() const              { return argn_ && arg_; }
+    inline t_void clear_()            { argn_ = nullptr; arg_ = nullptr; }
+    inline R_arg  get_() const                          { return *arg_;  }
+    inline R_argn get_argn_() const                     { return *argn_; }
 
-    inline t_cref make_ref_(P_arg arg) const     { return {argn_, arg}; }
+    inline t_cref make_ref_(P_arg arg) const      { return {argn_, arg}; }
 
   private:
     friend class t_argn;
@@ -412,7 +414,7 @@ namespace argn
     R_value get_value() const;
     t_bool  set_value(t_err, t_value);
   };
-   using r_simple_ref = t_prefix<t_simple_ref>::r_;
+  using r_simple_ref = t_prefix<t_simple_ref>::r_;
 
   class t_simple_cref : public t_cref {
   public:
@@ -538,18 +540,8 @@ namespace argn
     t_ref  operator[](t_ix);
     t_cref operator[](t_ix) const;
 
-    t_ref  operator[](P_cstr name);
-    t_cref operator[](P_cstr name) const;
-
-    inline
-    t_ref  operator[](R_name name) {
-      return (*this)[name.get_cstr()];
-    }
-
-    inline
-    t_cref operator[](R_name name) const {
-      return (*this)[name.get_cstr()];
-    }
+    t_ref  operator[](t_string_crange name);
+    t_cref operator[](t_string_crange name) const;
 
     t_n    get_size() const;
     t_bool is_empty() const;
@@ -561,7 +553,7 @@ namespace argn
     t_collection_cref(t_err, t_cref);
 
     t_cref operator[](t_ix idx) const;
-    t_cref operator[](P_cstr name) const;
+    t_cref operator[](t_string_crange name) const;
 
     inline
     t_cref operator[](R_name name) const {
@@ -581,7 +573,7 @@ namespace argn
 
     bool swap(t_err, t_ix, t_ix);
 
-    t_ref add (t_err, P_cstr);
+    t_ref add (t_err, t_string_crange);
     t_ref add (t_err, t_cref);
 
     t_ref add_simple   (t_err, t_name,                    R_oparams);
@@ -615,7 +607,7 @@ namespace argn
 
     R_name get_extension() const; // nothing is allowed to be optional
 
-    t_ref add (t_err, P_cstr);
+    t_ref add (t_err, t_string_crange);
     t_ref add (t_err, t_cref);
 
     t_ref add_simple   (t_err, t_name);
@@ -663,8 +655,8 @@ namespace argn
     t_ref  add_value(t_err, t_name);        // remove t_err from all calls
     t_bool del_value(R_name);
 
-    t_ref  get_value(P_cstr name);
-    t_cref get_value(P_cstr name) const;
+    t_ref  get_value(t_string_crange name);
+    t_cref get_value(t_string_crange name) const;
 
     inline
     t_ref get_value(R_name name) {
@@ -697,7 +689,7 @@ namespace argn
 
     t_bool is_initialized() const;
 
-    t_cref get_value(P_cstr name) const;
+    t_cref get_value(t_string_crange name) const;
 
     inline
     t_cref get_value(R_name name) const {
@@ -779,8 +771,8 @@ namespace argn
     t_ref  add_lookup_value_(r_err, t_ref, x_name);
     t_bool del_lookup_value_(r_ref, R_name);
     t_void clr_lookup_value_(r_ref);
-    t_ref  get_lookup_value_(r_ref,  P_cstr);
-    t_cref get_lookup_value_(t_cref, P_cstr) const;
+    t_ref  get_lookup_value_(r_ref,  t_string_crange);
+    t_cref get_lookup_value_(t_cref, t_string_crange) const;
 
     t_compound_ref transform_(r_err, r_simple_ref, x_values);
 
@@ -817,8 +809,8 @@ namespace argn
   t_void build_notation(t_err err, r_text,       argn::R_argn);
   t_void merge_notation(t_err err, argn::r_argn, argn::R_argn);
 
-  //bool parse_cmd  (r_text err_msg, r_argn argn, P_cstr cmd_p);
-  //bool process_cmd(r_text err_msg, r_argn use,  P_cstr cmd_p);
+  //bool parse_cmd  (r_text err_msg, r_argn argn, t_string_crange cmd_p);
+  //bool process_cmd(r_text err_msg, r_argn use,  t_string_crange cmd_p);
 
   /*
   class t_dacli {
