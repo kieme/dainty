@@ -24,12 +24,12 @@
 
 ******************************************************************************/
 
-#ifndef _DAINTY_CONTAINER_STORAGE_H_
-#define _DAINTY_CONTAINER_STORAGE_H_
+#ifndef _DAINTY_NAMED_BUF_H_
+#define _DAINTY_NAMED_BUF_H_
 
 #include "dainty_named_ptr.h"
 #include "dainty_named_range.h"
-#include "dainty_container_valuestore.h"
+#include "dainty_named_valuestore.h"
 
 // offer a buffer thats uninitialized but correctly aligned
 // it could be used by nearly all my container structures.
@@ -42,7 +42,7 @@
 
 namespace dainty
 {
-namespace container
+namespace named
 {
 namespace buf
 {
@@ -62,7 +62,7 @@ namespace buf
   using named::range::mk_crange;
   using named::range::t_range;
   using named::range::t_crange;
-  using container::valuestore::t_valuestore;
+  using named::valuestore::t_valuestore;
 
 ////////////////////////////////////////////////////////////////////////////////
 
