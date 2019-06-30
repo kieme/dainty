@@ -27,6 +27,7 @@
 #ifndef _DAINTY_NAMED_VALUESTORE_H_
 #define _DAINTY_NAMED_VALUESTORE_H_
 
+#include <new>
 #include "dainty_named.h"
 
 namespace dainty
@@ -57,11 +58,6 @@ namespace valuestore
 
     constexpr static t_n get_size() noexcept {
       return t_n{sizeof(T)};
-    }
-
-    template<typename U>
-    constexpr void* operator new(__SIZE_TYPE__, U* some_where) {
-      return some_where;
     }
 
     t_valuestore()                               = default;
