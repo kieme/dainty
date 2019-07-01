@@ -24,13 +24,12 @@
 
 ******************************************************************************/
 
-#ifndef _DAINTY_NAMED_BUF_H_
-#define _DAINTY_NAMED_BUF_H_
+#ifndef _DAINTY_NAMED_BUF_IMPL_H_
+#define _DAINTY_NAMED_BUF_IMPL_H_
 
-#include "dainty_named_buf_1.h"
-#include "dainty_named_buf_2.h"
-#include "dainty_named_buf_3.h"
-#include "dainty_named_buf_4.h"
+#include "dainty_named_ptr.h"
+#include "dainty_named_range.h"
+#include "dainty_named_valuestore.h"
 
 namespace dainty
 {
@@ -38,18 +37,33 @@ namespace named
 {
 namespace buf
 {
-///////////////////////////////////////////////////////////////////////////////
+  using named::VALID;
+  using named::INVALID;
+  using named::t_void;
+  using named::t_bool;
+  using named::t_validity;
+  using named::t_prefix;
+  using named::t_emplace_it;
+  using named::t_n;
+  using named::t_n_;
+  using named::t_ix;
+  using named::t_ix_;
+  using named::ptr::t_ptr;
+  using named::range::mk_range;
+  using named::range::mk_crange;
+  using named::range::t_range;
+  using named::range::t_crange;
+  using named::valuestore::t_valuestore;
 
-// offer a buffer thats uninitialized but correctly aligned
-// it could be used by nearly all my container structures.
-// it takes care where the memory comes from - maybe use an allocator
-//
-//                              class t_buf<T, 0, t_size_dynamic>
-// template<typename T, t_n_ N> class t_buf<T, N, t_size_dynamic>
-// template<typename T, t_n_ N> class t_buf<T, N, t_size_static>
-// template<typename T>         class t_buf<T, 1, t_size_static>
+////////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
+  enum t_size_dynamic { };
+  enum t_size_static  { };
+
+  template<typename, t_n_, typename = t_size_dynamic>
+  class t_buf;
+
+////////////////////////////////////////////////////////////////////////////////
 }
 }
 }
