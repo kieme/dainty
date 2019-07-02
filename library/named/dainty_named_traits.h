@@ -65,7 +65,7 @@ namespace named
 
   template<typename... Args>
   struct t_pack {
-    constexpr static const t_size N = sizeof...(Args);
+    constexpr static const t_size_ N = sizeof...(Args);
 
     template<template<typename...> class D>
     using t_into = D<Args...>;
@@ -521,8 +521,8 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename>             struct t_is_bounded_array       : t_FALSE_ { };
-  template<typename T, t_size N> struct t_is_bounded_array<T[N]> : t_TRUE_  { };
+  template<typename>              struct t_is_bounded_array       : t_FALSE_ { };
+  template<typename T, t_size_ N> struct t_is_bounded_array<T[N]> : t_TRUE_  { };
 
   template<typename T> using t_is_not_bounded_array = t_not<t_is_bounded_array<T>>;
   template<typename T> using t_if_bounded_array     = t_if<t_is_bounded_array<T>>;
@@ -1625,18 +1625,18 @@ struct t_is_precision : t_is_one_of<T, double, float, long double> { };
 ///////////////////////////////////////////////////////////////////////////////
 
   namespace impl_ {
-    template<t_size, typename...> struct t_is_subset_of_;
+    template<t_size_, typename...> struct t_is_subset_of_;
 
-    template<t_size N, typename T, typename... Ts, typename... Us>
+    template<t_size_ N, typename T, typename... Ts, typename... Us>
     struct t_is_subset_of_<N, t_pack<T, Ts...>, t_pack<Us...>>
       : t_if_then_else<t_is_one_of<T, Us...>,
                        t_is_subset_of_<N, t_pack<Ts...>, t_pack<Us...>>,
                        t_FALSE_>::t_value { };
 
-    template<t_size N, typename... Us>
+    template<t_size_ N, typename... Us>
     struct t_is_subset_of_<N, t_pack<>, t_pack<Us...>> : t_TRUE_  { };
 
-    template<t_size N, typename... Ts>
+    template<t_size_ N, typename... Ts>
     struct t_is_subset_of_<N, t_pack<Ts...>, t_pack<>> : t_FALSE_ { };
 
     template<typename... Ts, typename... Us>

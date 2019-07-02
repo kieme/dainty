@@ -132,15 +132,6 @@ namespace named
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  /*
-  template<class E, class T, class TAG, class... TAGS>
-  constexpr
-  E transform(t_logical<T, TAG, TAGS...> src) -> decltype(t_is_same(
-{
-    return typename t_is_logical<E>::{get(src)};
-  }
-  */
-
 ///////////////////////////////////////////////////////////////////////////////
 }
 }

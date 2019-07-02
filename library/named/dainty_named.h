@@ -160,7 +160,6 @@ namespace named
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_byte_tag_ { };
-  using t_byte_ = t_uchar;
   using t_byte  = t_explicit<t_byte_, t_byte_tag_>;
   using T_byte  = t_prefix<t_byte>::T_;
   using r_byte  = t_prefix<t_byte>::r_;
@@ -169,7 +168,6 @@ namespace named
   using P_byte  = t_prefix<t_byte>::P_;
 
   enum  t_fd_tag_ {};
-  using t_fd_ = t_int32;
   using t_fd  = t_explicit<t_fd_, t_fd_tag_>;
   using T_fd  = t_prefix<t_fd>::T_;
   using r_fd  = t_prefix<t_fd>::r_;
@@ -178,7 +176,6 @@ namespace named
   using P_fd  = t_prefix<t_fd>::P_;
 
   enum  t_cnt_tag_ {};
-  using t_cnt_ = t_ulong;
   using t_cnt  = t_explicit<t_cnt_, t_cnt_tag_>;
   using T_cnt  = t_prefix<t_cnt>::T_;
   using r_cnt  = t_prefix<t_cnt>::r_;
@@ -187,7 +184,6 @@ namespace named
   using P_cnt  = t_prefix<t_cnt>::P_;
 
   enum  t_n_tag_ {};
-  using t_n_ = t_ulong;
   using t_n  = t_explicit<t_n_, t_n_tag_>;
   using T_n  = t_prefix<t_n>::T_;
   using r_n  = t_prefix<t_n>::r_;
@@ -196,7 +192,6 @@ namespace named
   using P_n  = t_prefix<t_n>::P_;
 
   enum  t_ix_tag_ {};
-  using t_ix_ = t_n_;
   using t_ix  = t_explicit<t_ix_, t_ix_tag_>;
   using T_ix  = t_prefix<t_ix>::T_;
   using r_ix  = t_prefix<t_ix>::r_;
@@ -221,7 +216,6 @@ namespace named
   using P_eix = t_prefix<t_eix>::P_;
 
   enum  t_validity_tag_ {};
-  using t_validity_ = t_bool;
   using t_validity  = t_explicit<t_validity_, t_validity_tag_>;
   using T_validity  = t_prefix<t_validity>::T_;
   using r_validity  = t_prefix<t_validity>::r_;
@@ -249,7 +243,6 @@ namespace named
   using P_cstr_cptr  = t_prefix<t_cstr_cptr>::P_;
 
   enum  t_percentage_tag_ {};
-  using t_percentage_ = t_uchar; // units of precentage - no decimals
   using t_percentage  = t_explicit<t_percentage_, t_percentage_tag_>;
   using T_percentage  = t_prefix<t_percentage>::T_;
   using r_percentage  = t_prefix<t_percentage>::r_;
@@ -258,7 +251,6 @@ namespace named
   using P_percentage  = t_prefix<t_percentage>::P_;
 
   enum  t_seq_no_tag_ {};
-  using t_seq_no_ = t_uint;
   using t_seq_no  = t_explicit<t_seq_no_, t_seq_no_tag_>;
   using T_seq_no  = t_prefix<t_seq_no>::T_;
   using r_seq_no  = t_prefix<t_seq_no>::r_;
@@ -381,7 +373,6 @@ namespace named
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_errn_tag_ {};
-  using t_errn_ = named::t_int;
   using t_errn  = named::t_explicit<t_errn_, t_errn_tag_>;
 
   constexpr t_errn_ NO_ERRN_  =  0;
@@ -480,7 +471,6 @@ namespace named
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_nsec_tag_ {};
-  using t_nsec_ = t_ullong;
   using t_nsec  = t_explicit<t_nsec_, t_nsec_tag_>;
   using T_nsec  = t_prefix<t_nsec>::T_;
   using r_nsec  = t_prefix<t_nsec>::r_;
@@ -488,7 +478,6 @@ namespace named
   using P_nsec  = t_prefix<t_nsec>::P_;
 
   enum  t_usec_tag_ {};
-  using t_usec_ = t_ulong;
   using t_usec  = t_explicit<t_usec_, t_usec_tag_>;
   using T_usec  = t_prefix<t_usec>::T_;
   using r_usec  = t_prefix<t_usec>::r_;
@@ -496,7 +485,6 @@ namespace named
   using P_usec  = t_prefix<t_usec>::P_;
 
   enum  t_msec_tag_ {};
-  using t_msec_ = t_uint;
   using t_msec  = t_explicit<t_msec_, t_msec_tag_>;
   using T_msec  = t_prefix<t_msec>::T_;
   using r_msec  = t_prefix<t_msec>::r_;
@@ -504,7 +492,6 @@ namespace named
   using P_msec  = t_prefix<t_msec>::P_;
 
   enum  t_sec_tag_ {};
-  using t_sec_ = t_uint;
   using t_sec  = t_explicit<t_sec_, t_sec_tag_>;
   using T_sec  = t_prefix<t_sec>::T_;
   using r_sec  = t_prefix<t_sec>::r_;
@@ -512,7 +499,6 @@ namespace named
   using P_sec  = t_prefix<t_sec>::P_;
 
   enum  t_min_tag_ {};
-  using t_min_ = t_ushort;
   using t_min  = t_explicit<t_min_, t_min_tag_>;
   using T_min  = t_prefix<t_min>::T_;
   using r_min  = t_prefix<t_min>::r_;
@@ -520,7 +506,6 @@ namespace named
   using P_min  = t_prefix<t_min>::P_;
 
   enum  t_ticks_tag_ {};
-  using t_ticks_ = t_uint64;
   using t_ticks  = t_explicit<t_ticks_, t_ticks_tag_>;
   using T_ticks  = t_prefix<t_ticks>::T_;
   using r_ticks  = t_prefix<t_ticks>::r_;
