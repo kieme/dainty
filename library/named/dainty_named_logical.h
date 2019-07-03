@@ -103,41 +103,45 @@ namespace named
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace impl_ {
-  template<typename, typename, typename> struct t_is_allowed_ : t_FALSE_ { };
+  template<typename, typename> struct t_is_allowed_ : t_FALSE_ { };
+
+  template<class T,  class... TAGS, class T1, class... TAGS1>
+  struct t_is_allowed_<t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>
+    : t_add_result<
+        t_or<t_is_subset_of<typename t_logical<T,  TAGS... >::t_flatten,
+                            typename t_logical<T1, TAGS1...>::t_flatten>,
+             t_is_subset_of<typename t_logical<T1, TAGS1... >::t_flatten,
+                            typename t_logical<T,  TAGS...>::t_flatten>>> { };
+
+  template<typename, typename, typename> struct t_is_op_allowed_ : t_FALSE_ { };
 
   template<class C, class T,  class... TAGS, class T1, class... TAGS1>
-  struct t_is_allowed_<C, t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>> {
+  struct t_is_op_allowed_<C, t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>> {
     using t_1_ = typename t_logical<T,  TAGS... >::t_flatten;
     using t_2_ = typename t_logical<T1, TAGS1...>::t_flatten;
-    using t_result =
-        t_and<t_and<t_or<t_is_subset_of<t_1_, t_2_>,
-                         t_is_subset_of<t_2_, t_1_>>,
-                    t_is_one_of<C, t_1_>,
-              t_is_one_of<C, t_2_>>>;
+    using t_result = t_and<t_and<t_or<t_is_subset_of<t_1_, t_2_>,
+                                      t_is_subset_of<t_2_, t_1_> >,
+                                 t_is_one_of<C, t_1_>>,
+                           t_is_one_of<C, t_2_>>;
   };
 }
 
-template<typename C, typename T, typename T1>
-struct t_is_allowed : impl_::t_is_allowed_<C, T, T1>::t_result { };
+template<typename T, typename T1>
+struct t_is_allowed : impl_::t_is_allowed_<T, T1>::t_result { };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-  enum t_allow_equal_operator_tag {};
 
   template<class T,  class... TAGS,
            class T1, class... TAGS1>
   constexpr t_bool operator==(t_logical<T,  TAGS...> lh,
                               t_logical<T1, TAGS1...> rh) noexcept {
     static_assert(
-      t_is_allowed<t_allow_equal_operator_tag,
-                   t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>::VALUE,
+      t_is_allowed<t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>::VALUE,
            "logical types not allowed to do equal comparison");
     return get(lh) == get(rh);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-  enum t_allow_not_equal_operator_tag {};
 
   template<class T,  class... TAGS,
            class T1, class... TAGS1>
@@ -145,22 +149,18 @@ struct t_is_allowed : impl_::t_is_allowed_<C, T, T1>::t_result { };
                               t_logical<T1, TAGS1...> rh) noexcept {
 
     static_assert(
-      t_is_allowed<t_allow_not_equal_operator_tag,
-                   t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>::VALUE,
+      t_is_allowed<t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>::VALUE,
            "logical types not allowed to do not_equal comparison");
     return get(lh) != get(rh);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum t_allow_less_operator_tag {};
-
   template<class T,  class... TAGS, class T1, class... TAGS1>
   constexpr t_bool operator<(t_logical<T,  TAGS...>  lh,
                              t_logical<T1, TAGS1...> rh) noexcept {
     static_assert(
-      t_is_allowed<t_allow_less_operator_tag,
-                   t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>::VALUE,
+      t_is_allowed<t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>::VALUE,
            "logical types not allowed to do less comparison");
     return get(lh) < get(rh);
   }
@@ -181,7 +181,7 @@ namespace types {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_ix_tags_ = t_pack<t_ix_tag_, t_allow_equal_operator_tag>;
+  using t_ix_tags_ = t_pack<t_ix_tag_>;
   using t_ix = t_logical<t_ix_, t_ix_tags_>;
 
   enum  t_begin_ix_tag_ {};
