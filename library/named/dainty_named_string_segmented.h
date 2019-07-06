@@ -59,159 +59,419 @@ namespace segmented
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  using string::t_string;
+  using string::operator""_SL;
+  using string::t_crange;
+
+  using t_user = t_uchar; // only support values 1-63
+
   enum  t_seg_no_tag_ { };
-  using t_seg_no_ = named::t_ix_;
+  using t_seg_no_ = named::t_n_;
   using t_seg_no  = named::t_explicit<t_seg_no_, t_seq_no_tag_>;
-//  t_segment mk_segment(t_crange) noexcept;
+
+  enum  t_id_tag_ { };
+  using t_id_ = named::t_ix_;
+  using t_id  = named::t_explicit<t_ix_, t_id_tag_>;
+
+  constexpr t_id BAD_ID{0};
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename TAG, t_n_ N>
-  class t_segmented {
-  public:
-    t_segmented()    noexcept = default;
-    t_segmented(t_n) noexcept;
+  struct t_generator {
+    t_n_   cnt = 0;
+    t_char delimiter;
 
-    operator t_validity () const noexcept;
-    operator t_range    () const noexcept;
+    t_generator(t_char _delimiter = ' ') noexcept : delimiter{_delimiter} { }
 
-    t_n get_capacity    () const noexcept;
-    t_n get_size        () const noexcept;
+    template<typename TAG, t_n_ N>
+    t_void operator()(t_string<TAG, N>& str, t_crange range, t_user) noexcept {
+      if (cnt++)
+        str << delimiter << range;
+      else
+        str << range;
+    }
 
-    P_cstr_ c_str() const noexcept;
-
-    t_seg_no append(t_crange) noexcept;
-    t_bool   remove(t_seg_no) noexcept;
-    t_void   clear()          noexcept;
-
-    t_void shrink_when_more(t_n) noexcept;
-
-    t_crange operator[](t_seg_no) const noexcept;
-
-  private:
-    using t_string_ = t_string<TAG, N, t_overflow_grow>;
-
-    t_ix_ find_seg_begin_(t_crange, t_seg_no_) const noexcept;
-    t_ix_ find_seg_end_  (t_crange, t_ix_)     const noexcept;
-
-    t_n_      segs_ = 0;
-    t_ix_     last_ = 0;
-    t_string_ string_;
+    t_void reset() noexcept {
+      cnt = 0;
+    }
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename TAG, t_n_ N>
+  template<t_n_ MAX>
+  class t_segmented {
+  public:
+    struct t_result {
+      operator t_bool () const noexcept { return id != BAD_ID; }
+      t_id     id;
+      t_seg_no seg_no;
+    };
+
+    t_segmented() noexcept : next_{buf_} { }
+
+    // copy? - why not
+
+    t_n_     get_segs_num()               const noexcept;
+    t_n_     get_capacity()               const noexcept;
+    t_n_     get_size    ()               const noexcept;
+    t_crange get         (t_seg_no)       const noexcept;
+    t_crange get         (t_id)           const noexcept;
+    t_id     find        (t_crange)       const noexcept;
+    t_id     find_next   (t_crange, t_id) const noexcept;
+    t_crange operator[]  (t_seg_no)       const noexcept;
+    t_crange operator[]  (t_id)           const noexcept;
+
+    t_result insert(t_user)                         noexcept;
+    t_result insert(t_crange, t_user = 0)           noexcept;
+
+    t_bool   change(t_seg_no,           t_user)     noexcept;
+    t_bool   change(t_seg_no, t_crange, t_user = 0) noexcept;
+    t_bool   remove(t_seg_no)                       noexcept;
+
+    t_bool   change(t_id,           t_user)         noexcept;
+    t_bool   change(t_id, t_crange, t_user = 0)     noexcept;
+    t_bool   remove(t_id)                           noexcept;
+
+    t_void   clear()                                noexcept;
+
+    template<typename F>
+    t_void each(F&&) const noexcept;
+
+    template<typename BY, typename TO>
+    t_void generate(BY&&, TO&&) noexcept;
+
+    template<t_n_ MAX1>
+    t_bool is_equal     (const t_segmented<MAX1>&) const noexcept;
+
+    template<t_n_ MAX1>
+    t_bool is_less      (const t_segmented<MAX1>&) const noexcept;
+
+    template<t_n_ MAX1>
+    t_bool is_less_equal(const t_segmented<MAX1>&) const noexcept;
+
+  private:
+    template<t_n_> friend class t_segmented;
+
+    t_n_   segs_ = 0;
+    p_char next_ = nullptr;
+    t_char buf_[MAX];
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<t_n_ MAX1, t_n_ MAX2>
   inline
-  t_segmented<TAG, N>::t_segmented(t_n) noexcept {
-    // XXX
+  t_bool operator==(const t_segmented<MAX1>& lh,
+                    const t_segmented<MAX2>& rh) noexcept {
+    return lh.is_equal(rh);
   }
 
-  template<typename TAG, t_n_ N>
+  template<t_n_ MAX1, t_n_ MAX2>
   inline
-  t_segmented<TAG, N>::operator t_validity() const noexcept {
-    return string_;
+  t_bool operator!=(const t_segmented<MAX1>& lh,
+                    const t_segmented<MAX2>& rh) noexcept {
+    return !lh.is_equal(rh);
   }
 
-  template<typename TAG, t_n_ N>
+  template<t_n_ MAX1, t_n_ MAX2>
   inline
-  t_segmented<TAG, N>::operator t_range() const noexcept {
-    return string_.mk_range();
+  t_bool operator<=(const t_segmented<MAX1>& lh,
+                    const t_segmented<MAX2>& rh) noexcept {
+    return rh.is_less_equal(lh);
   }
 
-  template<typename TAG, t_n_ N>
+  template<t_n_ MAX1, t_n_ MAX2>
   inline
-  t_n t_segmented<TAG, N>::get_capacity() const noexcept {
-    return string_.get_capacity();
+  t_bool operator>=(const t_segmented<MAX1>& lh,
+                    const t_segmented<MAX2>& rh) noexcept {
+    return !rh.is_less(lh);
   }
 
-  template<typename TAG, t_n_ N>
+  template<t_n_ MAX1, t_n_ MAX2>
   inline
-  t_n t_segmented<TAG, N>::get_size() const noexcept {
-    return string_.get_size();
+  t_bool operator<(const t_segmented<MAX1>& lh,
+                   const t_segmented<MAX2>& rh) noexcept {
+    return rh.is_less(lh);
   }
 
-  template<typename TAG, t_n_ N>
+  template<t_n_ MAX1, t_n_ MAX2>
   inline
-  P_cstr_ t_segmented<TAG, N>::c_str() const noexcept {
-    return get(string_.get_cstr());
+  t_bool operator>(const t_segmented<MAX1>& lh,
+                   const t_segmented<MAX2>& rh) noexcept {
+    return !rh.is_less_equal(lh);
   }
 
-  template<typename TAG, t_n_ N>
+///////////////////////////////////////////////////////////////////////////////
+
+  p_char insert_       (p_char,           t_user)                     noexcept;
+  p_char insert_       (p_char, t_crange, t_user)                     noexcept;
+  p_char change_       (p_char, p_char, t_seg_no,           t_user)   noexcept;
+  p_char change_       (p_char, p_char, t_seg_no, t_crange, t_user)   noexcept;
+  p_char remove_       (p_char, p_char, t_seg_no)                     noexcept;
+  p_char change_       (p_char, p_char,           t_user)             noexcept;
+  p_char change_       (p_char, p_char, t_crange, t_user)             noexcept;
+  p_char remove_       (p_char, p_char)                               noexcept;
+  P_char find_         (P_char, P_char, t_crange)                     noexcept;
+  P_char find_next_    (P_char, P_char, t_crange)                     noexcept;
+  t_bool is_equal_     (t_n_,   P_char, P_char, t_n_, P_char, P_char) noexcept;
+  t_bool is_less_      (P_char, P_char, P_char, P_char)               noexcept;
+  t_bool is_less_equal_(P_char, P_char, P_char, P_char)               noexcept;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  union t_seg_hdr_ {
+    t_uint16 value;
+    t_char   raw[sizeof(t_uint16)];
+    struct t_hdr_ {
+      t_uint16 len : 10; // use 10 bits for 1023 max length per segment
+      t_uint16 usr :  6; // use 6  bits for 1-63 user codes, 0 is default
+    } hdr;
+
+    inline t_seg_hdr_() noexcept { value = 0; }
+    inline t_seg_hdr_(t_char ch1, t_char ch2) noexcept {
+      raw[0] = ch1; raw[1] = ch2;
+    }
+    inline t_seg_hdr_(t_n_ len, t_user usr) noexcept {
+      hdr.len = len; hdr.usr = usr;
+    }
+  };
+  constexpr t_n_ HDR_MAX_ = sizeof(t_seg_hdr_);
+
+  static_assert(HDR_MAX_ == 2, "expect t_seg_hdr_ to be 2 characters large");
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<t_n_ MAX>
   inline
-  t_seg_no t_segmented<TAG, N>::append(t_crange range) noexcept {
-    return t_seq_no{1};
+  t_n_ t_segmented<MAX>::get_segs_num() const noexcept {
+    return segs_;
   }
 
-  template<typename TAG, t_n_ N>
+  template<t_n_ MAX>
   inline
-  t_bool t_segmented<TAG, N>::remove(t_seg_no no) noexcept {
-    t_crange range = string_;
-    t_ix_ bix = find_seg_begin_(range, get(no));
-    if (bix < end) {
-      t_ix_ eix  = find_seg_end_(range, bix);
-      if (eix != get(range.n))
-        string_.shift_left(t_ix{bix}, t_ix{eix});
+  t_n_ t_segmented<MAX>::get_capacity() const noexcept {
+    return MAX;
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_n_ t_segmented<MAX>::get_size() const noexcept {
+    return next_ - buf_;
+  }
+
+  template<t_n_ MAX>
+  inline
+  typename t_segmented<MAX>::t_result
+      t_segmented<MAX>::insert(t_user usr) noexcept {
+    if (usr && (next_ + HDR_MAX_ <= buf_ + MAX)) {
+      t_ix_ ix = next_ - buf_;
+      next_ = insert_(next_, usr);
+      return {t_id{ix + 1}, t_seg_no{segs_++}};
+    }
+    return {BAD_ID, t_seg_no{0}};
+  }
+
+  template<t_n_ MAX>
+  inline
+  typename t_segmented<MAX>::t_result
+      t_segmented<MAX>::insert(t_crange range, t_user usr) noexcept {
+    if (next_ + HDR_MAX_ + named::get(range.n) <= buf_ + MAX) {
+      t_ix_ ix = next_ - buf_;
+      next_ = insert_(next_, range, usr);
+      return {t_id{ix + 1}, t_seg_no{segs_++}};
+    }
+    return {BAD_ID, t_seg_no{0}};
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_bool t_segmented<MAX>::change(t_id id, t_user usr) noexcept {
+    p_char ptr = buf_ + named::get(id) - 1;
+    if (ptr < next_) {
+      next_ = change_(ptr, next_, usr);
       return true;
     }
     return false;
   }
 
-  template<typename TAG, t_n_ N>
+  template<t_n_ MAX>
   inline
-  t_void t_segmented<TAG, N>::clear() noexcept {
-    last_ = segs_ = 0;
-    string_.clear();
-  }
-
-  template<typename TAG, t_n_ N>
-  inline
-  t_void t_segmented<TAG, N>::shrink_when_more(t_n) noexcept {
-  }
-
-  template<typename TAG, t_n_ N>
-  inline
-  t_ix_ t_segmented<TAG, N>::find_seg_begin_(t_crange range,
-                                             t_seg_no_ no)  const noexcept {
-    t_n_ cnt = 0, num = get(no);
-    t_ix_ ix = 0;
-    for (; range.ptr[ix]; ++ix)
-      if (range.ptr[ix] == '/') {
-        if (ix && range.ptr[ix-1] == '\\')
-          continue;
-        if (++cnt == num)
-          return ix;
+  t_bool t_segmented<MAX>::change(t_seg_no seg_no, t_user usr) noexcept {
+    if (named::get(seg_no) < segs_) {
+      p_char next = change_(buf_, next_, seg_no, usr);
+      if (next) {
+        next_ = next;
+        return true;
       }
-    return get(range.n);
+    }
+    return false;
   }
 
-  template<typename TAG, t_n_ N>
+  template<t_n_ MAX>
   inline
-  t_ix_ t_segmented<TAG, N>::find_seg_end_(t_ix_, t_ix end) const noexcept {
-    return 0;
+  t_bool t_segmented<MAX>::change(t_id id, t_crange range,
+                                  t_user usr) noexcept {
+    p_char ptr = buf_ + named::get(id) - 1;
+    if (ptr < next_) {
+      next_ = change_(ptr, next_, range, usr);
+      return true;
+    }
+    return false;
   }
 
-  template<typename TAG, t_n_ N>
+  template<t_n_ MAX>
   inline
-  t_crange t_segmented<TAG, N>::operator[](t_seg_no no) const noexcept {
-    t_crange range = string_;
-    t_ix_ bix = find_seg_begin_(range, get(no));
-    if (bix < end)
-      return string_.mk_range(bix, find_seg_end_(bix, end));
-    return t_crange{};
+  t_bool t_segmented<MAX>::change(t_seg_no seg_no, t_crange range,
+                                  t_user usr) noexcept {
+    if (named::get(seg_no) < segs_) {
+      p_char next = change_(buf_, next_, seg_no, range, usr);
+      if (next) {
+        next_ = next;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_bool t_segmented<MAX>::remove(t_id id) noexcept {
+    p_char ptr = buf_ + named::get(id) - 1;
+    if (ptr < next_) {
+      next_ = remove_(buf_, next_);
+      --segs_;
+      return true;
+    }
+    return false;
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_bool t_segmented<MAX>::remove(t_seg_no seg_no) noexcept {
+    if (named::get(seg_no) < segs_) {
+      next_ = remove_(buf_, next_, seg_no);
+      --segs_;
+      return true;
+    }
+    return false;
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_void t_segmented<MAX>::clear() noexcept {
+    segs_ = 0;
+    next_ = buf_;
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_crange t_segmented<MAX>::get(t_id id) const noexcept {
+    P_char ptr = buf_ + named::get(id) - 1;
+    t_seg_hdr_ hdr{ptr[0], ptr[1]};
+    return {ptr + HDR_MAX_, hdr.hdr.len};
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_crange t_segmented<MAX>::get(t_seg_no seg_no) const noexcept {
+    P_char ptr = buf_;
+    for (t_n_ cnt = 0; ptr < next_; ++cnt) {
+      t_seg_hdr_ hdr{ptr[0], ptr[1]};
+      if (cnt == named::get(seg_no))
+        return {ptr + HDR_MAX_, hdr.hdr.len};
+      ptr += HDR_MAX_ + hdr.hdr.len;
+    }
+    return {nullptr, t_n{0}};
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_id t_segmented<MAX>::find(t_crange range) const noexcept {
+    P_char begin = buf_;
+    if (begin < next_) {
+      P_char entry = find_(begin, next_, range);
+      if (entry != next_)
+        return t_id((entry - buf_) + 1);
+    }
+    return BAD_ID;
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_id t_segmented<MAX>::find_next(t_crange range, t_id _id) const noexcept {
+    t_id_ id = named::get(_id);
+    if (id) {
+      P_char begin = buf_ + id - 1;
+      if (begin < next_) {
+        P_char entry = find_next_(begin, next_, range);
+        if (entry != next_)
+          return t_id((entry - buf_) + 1);
+      }
+    }
+    return BAD_ID;
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_crange t_segmented<MAX>::operator[](t_id id) const noexcept {
+    return get(id);
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_crange t_segmented<MAX>::operator[](t_seg_no seg_no) const noexcept {
+    return get(seg_no);
+  }
+
+  template<t_n_ MAX>
+  template<typename F>
+  inline
+  t_void t_segmented<MAX>::each(F&& func) const noexcept {
+    P_char ptr = buf_;
+    while (ptr < next_) {
+      t_seg_hdr_ hdr{ptr[0], ptr[1]};
+      func({ptr + HDR_MAX_, hdr.hdr.len}, hdr.hdr.usr);
+      ptr += HDR_MAX_ + hdr.hdr.len;
+    }
+  }
+
+  template<t_n_ MAX>
+  template<typename BY, typename TO>
+  __attribute__((noinline))
+  t_void t_segmented<MAX>::generate(BY&& by, TO&& to) noexcept {
+    P_char ptr = buf_;
+    while (ptr < next_) {
+      t_seg_hdr_ hdr{ptr[0], ptr[1]};
+      by(std::forward<TO>(to), {ptr + HDR_MAX_, t_n{hdr.hdr.len}}, hdr.hdr.usr);
+      ptr += HDR_MAX_ + hdr.hdr.len;
+    }
+  }
+
+  template<t_n_ MAX>
+  template<t_n_ MAX1>
+  inline
+  t_bool t_segmented<MAX>
+      ::is_equal(const t_segmented<MAX1>& segs) const noexcept {
+    return is_equal_(segs_, buf_, next_, segs.segs_, segs.buf_, segs.next_);
+  }
+
+  template<t_n_ MAX>
+  template<t_n_ MAX1>
+  inline
+  t_bool t_segmented<MAX>
+      ::is_less(const t_segmented<MAX1>& segs) const noexcept {
+    return is_less_(buf_, next_, segs.buf_, segs.next_);
+  }
+
+  template<t_n_ MAX>
+  template<t_n_ MAX1>
+  inline
+  t_bool t_segmented<MAX>
+      ::is_less_equal(const t_segmented<MAX1>& segs) const noexcept {
+    return is_less_equal_(buf_, next_, segs.buf_, segs.next_);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-  /*
-  t_ix t_segmented::append(R_segment segment) noexcept {
-    if (is_valid(segment)) { // maybe only place when I need to change a string
-      t_ix_ ix = segs_++;
-      string << '/' << segment;
-      return t_ix{ix};
-    }
-  }
-  */
 }
 }
 }
