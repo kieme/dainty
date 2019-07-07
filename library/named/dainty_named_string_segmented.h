@@ -61,7 +61,7 @@ namespace segmented
 
   using string::t_string;
   using string::operator""_SL;
-  using string::t_crange;
+  using string::t_crange; // ranges should have types!
 
   using t_user = t_uchar; // only support values 1-63
 
@@ -98,6 +98,22 @@ namespace segmented
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  class t_citr {
+  public:
+    t_citr   operator++(t_int)  noexcept;
+    t_citr&  operator++()       noexcept;
+    t_crange operator* () const noexcept;
+    t_user   get_user  () const noexcept;
+
+  private:
+    template<t_n_> friend class t_segmented;
+    constexpr t_citr(P_char) noexcept;
+
+    P_char buf_;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<t_n_ MAX>
   class t_segmented {
   public:
@@ -114,8 +130,11 @@ namespace segmented
     t_n_     get_segs_num()               const noexcept;
     t_n_     get_capacity()               const noexcept;
     t_n_     get_size    ()               const noexcept;
+    t_bool   is_empty    ()               const noexcept;
     t_crange get         (t_seg_no)       const noexcept;
     t_crange get         (t_id)           const noexcept;
+    t_crange front       ()               const noexcept;
+    t_crange back        ()               const noexcept;
     t_id     find        (t_crange)       const noexcept;
     t_id     find_next   (t_crange, t_id) const noexcept;
     t_crange operator[]  (t_seg_no)       const noexcept;
@@ -123,16 +142,16 @@ namespace segmented
 
     t_result insert(t_user)                         noexcept;
     t_result insert(t_crange, t_user = 0)           noexcept;
-
     t_bool   change(t_seg_no,           t_user)     noexcept;
     t_bool   change(t_seg_no, t_crange, t_user = 0) noexcept;
     t_bool   remove(t_seg_no)                       noexcept;
-
     t_bool   change(t_id,           t_user)         noexcept;
     t_bool   change(t_id, t_crange, t_user = 0)     noexcept;
     t_bool   remove(t_id)                           noexcept;
-
     t_void   clear()                                noexcept;
+
+    t_citr begin() const noexcept;
+    t_citr end  () const noexcept;
 
     template<typename F>
     t_void each(F&&) const noexcept;
@@ -156,6 +175,18 @@ namespace segmented
     p_char next_ = nullptr;
     t_char buf_[MAX];
   };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_bool operator==(const t_citr& lh, const t_citr& rh) {
+    return true; // XXX-3
+  }
+
+  inline
+  t_bool operator!=(const t_citr& lh, const t_citr& rh) {
+    return !(lh == rh);
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -256,6 +287,12 @@ namespace segmented
   template<t_n_ MAX>
   inline
   t_n_ t_segmented<MAX>::get_size() const noexcept {
+    return next_ - buf_;
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_bool t_segmented<MAX>::is_empty() const noexcept {
     return next_ - buf_;
   }
 
@@ -386,6 +423,22 @@ namespace segmented
 
   template<t_n_ MAX>
   inline
+  t_crange t_segmented<MAX>::front() const noexcept {
+    if (segs_)
+      return get(t_seg_no{0});
+    return {nullptr, t_n{0}};
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_crange t_segmented<MAX>::back() const noexcept {
+    if (segs_)
+      return get(t_seg_no{segs_ - 1});
+    return {nullptr, t_n{0}};
+  }
+
+  template<t_n_ MAX>
+  inline
   t_id t_segmented<MAX>::find(t_crange range) const noexcept {
     P_char begin = buf_;
     if (begin < next_) {
@@ -421,6 +474,18 @@ namespace segmented
   inline
   t_crange t_segmented<MAX>::operator[](t_seg_no seg_no) const noexcept {
     return get(seg_no);
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_citr t_segmented<MAX>::begin() const noexcept {
+    return {buf_};
+  }
+
+  template<t_n_ MAX>
+  inline
+  t_citr t_segmented<MAX>::end() const noexcept {
+    return {next_};
   }
 
   template<t_n_ MAX>
@@ -469,6 +534,39 @@ namespace segmented
   t_bool t_segmented<MAX>
       ::is_less_equal(const t_segmented<MAX1>& segs) const noexcept {
     return is_less_equal_(buf_, next_, segs.buf_, segs.next_);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  constexpr
+  t_citr::t_citr(P_char buf) noexcept : buf_{buf} {
+  }
+
+  inline
+  t_citr t_citr::operator++(t_int) noexcept {
+    t_citr tmp{buf_};
+    t_seg_hdr_ hdr{buf_[0], buf_[1]};
+    buf_ += HDR_MAX_ + hdr.hdr.len;
+    return tmp;
+  }
+
+  inline
+  t_citr& t_citr::operator++() noexcept {
+    t_seg_hdr_ hdr{buf_[0], buf_[1]};
+    buf_ += HDR_MAX_ + hdr.hdr.len;
+    return *this;
+  }
+
+  inline
+  t_crange t_citr::operator*() const noexcept {
+    t_seg_hdr_ hdr{buf_[0], buf_[1]};
+    return {buf_ + HDR_MAX_, t_n{hdr.hdr.len}};
+  }
+
+  inline
+  t_user t_citr::get_user() const noexcept {
+    t_seg_hdr_ hdr{buf_[0], buf_[1]};
+    return hdr.hdr.usr;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
