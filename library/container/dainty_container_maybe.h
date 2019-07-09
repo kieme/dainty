@@ -35,26 +35,26 @@ namespace container
 {
 namespace maybe
 {
-  using named::t_emplace_it;
-  using named::EMPLACE_IT;
-  using named::t_bool;
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_emplace_it;
+  using base::EMPLACE_IT;
+  using base::t_bool;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_maybe {
   public:
-    using t_value = typename named::t_prefix<T>::t_;
-    using r_value = typename named::t_prefix<T>::r_;
-    using R_value = typename named::t_prefix<T>::R_;
-    using x_value = typename named::t_prefix<T>::x_;
+    using t_value = typename base::t_prefix<T>::t_;
+    using r_value = typename base::t_prefix<T>::r_;
+    using R_value = typename base::t_prefix<T>::R_;
+    using x_value = typename base::t_prefix<T>::x_;
 
-    using r_maybe = typename named::t_prefix<t_maybe>::r_;
-    using R_maybe = typename named::t_prefix<t_maybe>::R_;
-    using x_maybe = typename named::t_prefix<t_maybe>::x_;
+    using r_maybe = typename base::t_prefix<t_maybe>::r_;
+    using R_maybe = typename base::t_prefix<t_maybe>::R_;
+    using x_maybe = typename base::t_prefix<t_maybe>::x_;
 
      t_maybe() noexcept;
      template<typename... Args>
@@ -110,7 +110,7 @@ namespace maybe
   template<typename... Args>
   inline
   t_maybe<T>::t_maybe(t_emplace_it, Args&&... args) : valid_{VALID} {
-    store_.emplace_construct(named::preserve<Args>(args)...);
+    store_.emplace_construct(base::preserve<Args>(args)...);
   }
 
   template<typename T>
@@ -122,7 +122,7 @@ namespace maybe
   template<typename T>
   inline
   t_maybe<T>::t_maybe(x_value value) : valid_{VALID} {
-    store_.move_construct(named::x_cast(value));
+    store_.move_construct(base::x_cast(value));
   }
 
   template<typename T>
@@ -136,7 +136,7 @@ namespace maybe
   inline
   t_maybe<T>::t_maybe(x_maybe maybe) : valid_{maybe.valid_} {
     if (valid_ == VALID)
-      store_.move_construct(named::x_cast(maybe.store_.ref()));
+      store_.move_construct(base::x_cast(maybe.store_.ref()));
     maybe.release();
   }
 
@@ -162,9 +162,9 @@ namespace maybe
   inline
   typename t_maybe<T>::r_maybe t_maybe<T>::operator=(x_value value) {
     if (valid_ == VALID)
-      store_.ref() = named::x_cast(value);
+      store_.ref() = base::x_cast(value);
     else
-      store_.move_construct(named::x_cast(value));
+      store_.move_construct(base::x_cast(value));
     valid_ = VALID;
     return *this;
   }
@@ -188,9 +188,9 @@ namespace maybe
   typename t_maybe<T>::r_maybe t_maybe<T>::operator=(x_maybe maybe) {
     if (maybe == VALID) {
       if (valid_ == VALID)
-        store_.ref() = named::x_cast(maybe.store_.ref());
+        store_.ref() = base::x_cast(maybe.store_.ref());
       else
-        store_.move_construct(named::x_cast(maybe.store_.ref()));
+        store_.move_construct(base::x_cast(maybe.store_.ref()));
     } else if (valid_ == VALID)
       store_.destruct();
     valid_ = maybe.release() ? VALID : INVALID;
@@ -203,7 +203,7 @@ namespace maybe
   typename t_maybe<T>::r_maybe t_maybe<T>::emplace(Args&&... args) {
     if (valid_ == VALID)
       store_.destruct();
-    store_.emplace_construct(named::preserve<Args>(args)...);
+    store_.emplace_construct(base::preserve<Args>(args)...);
     valid_ = VALID;
     return *this;
   }

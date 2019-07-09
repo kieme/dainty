@@ -27,8 +27,8 @@
 #ifndef _DAINTY_CONTAINER_BYTEBUF_IMPL_H_
 #define _DAINTY_CONTAINER_BYTEBUF_IMPL_H_
 
-#include "dainty_named.h"
-#include "dainty_named_range.h"
+#include "dainty_base.h"
+#include "dainty_base_range.h"
 #include "dainty_container_err.h"
 
 namespace dainty
@@ -39,26 +39,26 @@ namespace bytebuf
 {
 //////////////////////////////////////////////////////////////////////////////
 
-  using named::t_validity;
-  using named::t_void;
-  using named::t_bool;
-  using named::t_ix_;
-  using named::t_ix;
-  using named::t_n_;
-  using named::t_n;
+  using base::t_validity;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_ix_;
+  using base::t_ix;
+  using base::t_n_;
+  using base::t_n;
 
-  using named::INVALID;
-  using named::VALID;
+  using base::INVALID;
+  using base::VALID;
 
-  using t_byte = named::t_uchar;
-  using p_byte = named::t_prefix<t_byte>::p_;
-  using P_byte = named::t_prefix<t_byte>::P_;
-  using r_byte = named::t_prefix<t_byte>::r_;
-  using R_byte = named::t_prefix<t_byte>::R_;
+  using t_byte = base::t_uchar;
+  using p_byte = base::t_prefix<t_byte>::p_;
+  using P_byte = base::t_prefix<t_byte>::P_;
+  using r_byte = base::t_prefix<t_byte>::r_;
+  using R_byte = base::t_prefix<t_byte>::R_;
 
   enum  t_view_tag_ { };
-  using t_view  = named::range::t_range <t_byte, t_view_tag_>;
-  using t_cview = named::range::t_crange<t_byte, t_view_tag_>;
+  using t_view  = base::range::t_range <t_byte, t_view_tag_>;
+  using t_cview = base::range::t_crange<t_byte, t_view_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 

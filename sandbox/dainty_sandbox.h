@@ -28,7 +28,7 @@ SOFTWARE.
 #define _DAINTY_SANDBOX_H_
 
 
-#include "dainty_named_ptr.h"
+#include "dainty_base_ptr.h"
 #include "dainty_container_ptr.h"
 #include "dainty_container_list.h"
 #include "dainty_sandbox_logic.h"
@@ -39,11 +39,11 @@ namespace dainty
 {
 namespace sandbox
 {
-  using named::t_n;
-  using named::t_ix;
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_n;
+  using base::t_ix;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
   using container::ptr::t_passable_ptr;
 
   enum  t_thread_name_tag {};
@@ -184,9 +184,9 @@ namespace sandbox
 
   private:
     enum t_thread_of_control_tag_ { };
-    named::ptr::t_ptr<t_thread_of_control_,
+    base::ptr::t_ptr<t_thread_of_control_,
                       t_thread_of_control_tag_,
-                      named::ptr::t_deleter> thread_of_control_;
+                      base::ptr::t_deleter> thread_of_control_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_IMPL_H_
 #define _DAINTY_SANDBOX_IMPL_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_os_clock.h"
 #include "dainty_mt_detached_thread.h"
 #include "dainty_mt_event_dispatcher.h"
@@ -40,8 +40,8 @@ namespace dainty
 {
 namespace sandbox
 {
-  using named::t_fd;
-  using named::t_msec_;
+  using base::t_fd;
+  using base::t_msec_;
   using container::list::t_list;
   using container::freelist::t_freelist;
   using mt::event_dispatcher::BAD_EVENT_ID;
@@ -70,7 +70,7 @@ namespace sandbox
     using base2_ = t_dispatcher_::t_logic;
     using base3_ = t_tmrs_::t_logic;
   public:
-    using t_errn = named::t_errn;
+    using t_errn = base::t_errn;
 
     t_impl_(t_err, R_thread_name, R_thread_params, t_n max_logics) noexcept;
     virtual ~t_impl_();

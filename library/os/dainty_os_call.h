@@ -35,55 +35,55 @@
 #include <pthread.h>
 #include <time.h>
 #include <unistd.h>
-#include "dainty_named.h"
-#include "dainty_named_range.h"
+#include "dainty_base.h"
+#include "dainty_base_range.h"
 #include "dainty_os_err.h"
 
 namespace dainty
 {
 namespace os
 {
-  using named::p_void;
-  using named::P_void;
-  using named::t_void;
-  using named::t_bool;
-  using named::t_int;
-  using named::t_msec;
-  using named::t_fd_;
-  using named::t_fd;
-  using named::t_errn;
-  using named::t_validity;
-  using named::t_n_;
-  using named::t_n;
-  using named::p_cstr;
-  using named::t_prefix;
-  using named::t_explicit;
-  using named::P_cstr;
-  using named::t_void_size_ptr;
-  using named::NO_ERRN_;
-  using named::NO_ERRN;
-  using named::BAD_ERRN_;
-  using named::BAD_ERRN;
-  using named::VALID;
-  using named::INVALID;
-  using named::BAD_FD;
-  using named::range::t_range;
-  using named::range::t_crange;
-  using named::range::t_byte_range;
-  using named::range::R_byte_range;
-  using named::range::r_byte_range;
-  using named::range::t_byte_crange;
-  using named::range::R_byte_crange;
-  using named::range::r_byte_crange;
+  using base::p_void;
+  using base::P_void;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_int;
+  using base::t_msec;
+  using base::t_fd_;
+  using base::t_fd;
+  using base::t_errn;
+  using base::t_validity;
+  using base::t_n_;
+  using base::t_n;
+  using base::p_cstr;
+  using base::t_prefix;
+  using base::t_explicit;
+  using base::P_cstr;
+  using base::t_void_size_ptr;
+  using base::NO_ERRN_;
+  using base::NO_ERRN;
+  using base::BAD_ERRN_;
+  using base::BAD_ERRN;
+  using base::VALID;
+  using base::INVALID;
+  using base::BAD_FD;
+  using base::range::t_range;
+  using base::range::t_crange;
+  using base::range::t_byte_range;
+  using base::range::R_byte_range;
+  using base::range::r_byte_range;
+  using base::range::t_byte_crange;
+  using base::range::R_byte_crange;
+  using base::range::r_byte_crange;
 
   using err::t_err;
 
   template<typename T>
-  using t_verify = named::t_verifiable<T>;
+  using t_verify = base::t_verifiable<T>;
 
   enum  t_flags_tag_ {};
-  using t_flags_ = named::t_int;
-  using t_flags  = named::t_explicit<t_flags_, t_flags_tag_>;
+  using t_flags_ = base::t_int;
+  using t_flags  = base::t_explicit<t_flags_, t_flags_tag_>;
   constexpr t_flags NO_FLAGS{0};
 
   using t_pthread_mutexattr = t_prefix<::pthread_mutexattr_t>::t_;
@@ -151,35 +151,35 @@ namespace os
   using r_socket_msghdr_crange  = t_prefix<t_socket_msghdr_crange>::r_;
 
   enum  t_socket_domain_tag_ {};
-  using t_socket_domain_  = named::t_int;
+  using t_socket_domain_  = base::t_int;
   using t_socket_domain   = t_explicit<t_socket_domain_, t_socket_domain_tag_>;
 
   enum  t_socket_type_tag_ {};
-  using t_socket_type_ = named::t_int;
+  using t_socket_type_ = base::t_int;
   using t_socket_type  = t_explicit<t_socket_type_, t_socket_type_tag_>;
 
   enum  t_socket_protocol_tag_ {};
-  using t_socket_protocol_ = named::t_int;
+  using t_socket_protocol_ = base::t_int;
   using t_socket_protocol  = t_explicit<t_socket_protocol_,
                                         t_socket_protocol_tag_>;
 
   enum  t_socket_backlog_tag_ {};
-  using t_socket_backlog_ = named::t_int;
+  using t_socket_backlog_ = base::t_int;
   using t_socket_backlog  = t_explicit<t_socket_backlog_,
                                        t_socket_backlog_tag_>;
 
   enum  t_socket_howto_tag_ {};
-  using t_socket_howto_ = named::t_int;
+  using t_socket_howto_ = base::t_int;
   using t_socket_howto  = t_explicit<t_socket_howto_, t_socket_howto_tag_>;
 
   enum  t_socket_level_tag_ {};
-  using t_socket_level_ = named::t_int;
+  using t_socket_level_ = base::t_int;
   using t_socket_level  = t_explicit<t_socket_level_, t_socket_level_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_socket_option_name_tag_ {};
-  using t_socket_option_name_ = named::t_int;
+  using t_socket_option_name_ = base::t_int;
   using t_socket_option_name  = t_explicit<t_socket_option_name_,
                                            t_socket_option_name_tag_>;
 

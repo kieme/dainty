@@ -40,12 +40,12 @@ namespace map
   using err::t_err;
   using err::r_err;
 
-  using named::t_bool;
-  using named::t_void;
-  using named::t_ix_;
-  using named::t_ix;
-  using named::t_n_;
-  using named::t_n;
+  using base::t_bool;
+  using base::t_void;
+  using base::t_ix_;
+  using base::t_ix;
+  using base::t_n_;
+  using base::t_n;
 
   using freelist::t_id_;
   using freelist::t_id;
@@ -53,23 +53,23 @@ namespace map
   //////////////////////////////////////////////////////////////////////////
 
   template<typename T> struct t_is_builtin_        { enum { RESULT = 0 }; };
-  template<> struct t_is_builtin_<named::t_char>   { enum { RESULT = 1 }; };
-  template<> struct t_is_builtin_<named::t_uchar>  { enum { RESULT = 1 }; };
-  template<> struct t_is_builtin_<named::t_short>  { enum { RESULT = 1 }; };
-  template<> struct t_is_builtin_<named::t_ushort> { enum { RESULT = 1 }; };
-  template<> struct t_is_builtin_<named::t_int>    { enum { RESULT = 1 }; };
-  template<> struct t_is_builtin_<named::t_uint>   { enum { RESULT = 1 }; };
-  template<> struct t_is_builtin_<named::t_long>   { enum { RESULT = 1 }; };
-  template<> struct t_is_builtin_<named::t_ulong>  { enum { RESULT = 1 }; };
-  template<> struct t_is_builtin_<named::t_llong>  { enum { RESULT = 1 }; };
-  template<> struct t_is_builtin_<named::t_ullong> { enum { RESULT = 1 }; };
+  template<> struct t_is_builtin_<base::t_char>   { enum { RESULT = 1 }; };
+  template<> struct t_is_builtin_<base::t_uchar>  { enum { RESULT = 1 }; };
+  template<> struct t_is_builtin_<base::t_short>  { enum { RESULT = 1 }; };
+  template<> struct t_is_builtin_<base::t_ushort> { enum { RESULT = 1 }; };
+  template<> struct t_is_builtin_<base::t_int>    { enum { RESULT = 1 }; };
+  template<> struct t_is_builtin_<base::t_uint>   { enum { RESULT = 1 }; };
+  template<> struct t_is_builtin_<base::t_long>   { enum { RESULT = 1 }; };
+  template<> struct t_is_builtin_<base::t_ulong>  { enum { RESULT = 1 }; };
+  template<> struct t_is_builtin_<base::t_llong>  { enum { RESULT = 1 }; };
+  template<> struct t_is_builtin_<base::t_ullong> { enum { RESULT = 1 }; };
 
   //////////////////////////////////////////////////////////////////////////
 
   template<typename K, typename T>
   struct t_keyvalue {
-    using t_key    = typename named::t_prefix<K>::t_;
-    using t_value  = typename named::t_prefix<T>::t_;
+    using t_key    = typename base::t_prefix<K>::t_;
+    using t_value  = typename base::t_prefix<T>::t_;
 
     const t_key key;
     t_value     value;
@@ -81,18 +81,18 @@ namespace map
 
     constexpr
     t_keyvalue(t_keyvalue&& keyvalue)
-      : key(named::x_cast(keyvalue.key)), value(named::x_cast(keyvalue.value)) {
+      : key(base::x_cast(keyvalue.key)), value(base::x_cast(keyvalue.value)) {
     }
 
     template<typename K1>
     constexpr
-    t_keyvalue(K1&& _key) : key(named::preserve_<K1>(_key)) {
+    t_keyvalue(K1&& _key) : key(base::preserve_<K1>(_key)) {
     }
 
     template<typename K1, typename V1>
     constexpr
     t_keyvalue(K1&& _key, V1&& _value)
-      : key(named::preserve_<K1>(_key)), value(named::preserve_<V1>(_value)) {
+      : key(base::preserve_<K1>(_key)), value(base::preserve_<V1>(_value)) {
     }
 
     t_keyvalue& operator=(const t_keyvalue&) = delete;
@@ -103,11 +103,11 @@ namespace map
 
   template<typename K, typename T>
   struct t_result {
-    using t_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::t_;
-    using r_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::r_;
-    using R_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::R_;
-    using p_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::p_;
-    using P_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::P_;
+    using t_keyvalue = typename base::t_prefix<t_keyvalue<K, T> >::t_;
+    using r_keyvalue = typename base::t_prefix<t_keyvalue<K, T> >::r_;
+    using R_keyvalue = typename base::t_prefix<t_keyvalue<K, T> >::R_;
+    using p_keyvalue = typename base::t_prefix<t_keyvalue<K, T> >::p_;
+    using P_keyvalue = typename base::t_prefix<t_keyvalue<K, T> >::P_;
 
     t_id       id;
     t_ix       ix;
@@ -131,8 +131,8 @@ namespace map
 
   template<typename K, typename T>
   struct t_cresult {
-    using R_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::R_;
-    using P_keyvalue = typename named::t_prefix<t_keyvalue<K, T> >::P_;
+    using R_keyvalue = typename base::t_prefix<t_keyvalue<K, T> >::R_;
+    using P_keyvalue = typename base::t_prefix<t_keyvalue<K, T> >::P_;
 
     t_id        id;
     t_ix        ix;
@@ -154,12 +154,12 @@ namespace map
 
   template<typename K, typename T>
   struct t_entry_ {
-    using t_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::t_;
-    using R_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::R_;
-    using x_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::x_;
-    using t_key      = typename named::t_prefix<t_keyvalue::t_key>::t_;
-    using R_key      = typename named::t_prefix<t_keyvalue::t_key>::R_;
-    using x_key      = typename named::t_prefix<t_keyvalue::t_key>::x_;
+    using t_keyvalue = typename base::t_prefix<map::t_keyvalue<K, T> >::t_;
+    using R_keyvalue = typename base::t_prefix<map::t_keyvalue<K, T> >::R_;
+    using x_keyvalue = typename base::t_prefix<map::t_keyvalue<K, T> >::x_;
+    using t_key      = typename base::t_prefix<t_keyvalue::t_key>::t_;
+    using R_key      = typename base::t_prefix<t_keyvalue::t_key>::R_;
+    using x_key      = typename base::t_prefix<t_keyvalue::t_key>::x_;
 
     t_keyvalue keyvalue;
     t_ix       ix;
@@ -167,18 +167,18 @@ namespace map
     t_entry_(R_key _key, t_ix _ix) : keyvalue{_key}, ix{_ix} {
     }
 
-    t_entry_(x_key _key, t_ix _ix) : keyvalue{named::x_cast(_key)}, ix{_ix} {
+    t_entry_(x_key _key, t_ix _ix) : keyvalue{base::x_cast(_key)}, ix{_ix} {
     }
 
     t_entry_(R_keyvalue _keyvalue, t_ix _ix) : keyvalue{_keyvalue}, ix{_ix} {
     }
 
     t_entry_(x_keyvalue _keyvalue, t_ix _ix)
-      : keyvalue{named::x_cast(_keyvalue)}, ix{_ix} {
+      : keyvalue{base::x_cast(_keyvalue)}, ix{_ix} {
     }
 
     t_entry_(t_entry_&& entry)
-      : keyvalue{named::x_cast(entry.keyvalue)}, ix{entry.ix} {
+      : keyvalue{base::x_cast(entry.keyvalue)}, ix{entry.ix} {
     }
 
     t_entry_(const t_entry_&) = delete;
@@ -196,23 +196,23 @@ namespace map
     using t_ids_   = list::t_list<t_id, N>;
   public:
     using t_compare  = C;
-    using t_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::t_;
-    using R_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::R_;
-    using p_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::p_;
-    using P_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::P_;
-    using x_keyvalue = typename named::t_prefix<map::t_keyvalue<K, T> >::x_;
-    using t_key      = typename named::t_prefix<t_keyvalue::t_key>::t_;
-    using R_key      = typename named::t_prefix<t_keyvalue::t_key>::R_;
-    using t_value    = typename named::t_prefix<t_keyvalue::t_value>::t_;
+    using t_keyvalue = typename base::t_prefix<map::t_keyvalue<K, T> >::t_;
+    using R_keyvalue = typename base::t_prefix<map::t_keyvalue<K, T> >::R_;
+    using p_keyvalue = typename base::t_prefix<map::t_keyvalue<K, T> >::p_;
+    using P_keyvalue = typename base::t_prefix<map::t_keyvalue<K, T> >::P_;
+    using x_keyvalue = typename base::t_prefix<map::t_keyvalue<K, T> >::x_;
+    using t_key      = typename base::t_prefix<t_keyvalue::t_key>::t_;
+    using R_key      = typename base::t_prefix<t_keyvalue::t_key>::R_;
+    using t_value    = typename base::t_prefix<t_keyvalue::t_value>::t_;
     using t_result   = map::t_result<t_key,  t_value>;
     using t_cresult  = map::t_cresult<t_key, t_value>;
 
     inline
     t_result insert(R_key key) {
-      t_n_ n = named::get(ids_.get_size());
+      t_n_ n = base::get(ids_.get_size());
       if (n < N) {
         t_ix ix = lowerbound_(key);
-        if (named::get(ix) == n ||
+        if (base::get(ix) == n ||
             C::operator()(key,
                           store_.get(*ids_.get(ix))->keyvalue.key)) {
           auto result = store_.insert(t_entry_{key, ix});
@@ -226,10 +226,10 @@ namespace map
     inline
     t_result insert(r_err err, R_key key) {
       ERR_GUARD(err) {
-        t_n_ n = named::get(ids_.get_size());
+        t_n_ n = base::get(ids_.get_size());
         if (n < N) {
           t_ix ix = lowerbound_(key);
-          if (named::get(ix) == n ||
+          if (base::get(ix) == n ||
               C::operator()(key,
                             store_.get(*ids_.get(ix))->keyvalue.key)) {
             auto result = store_.insert(t_entry_{key, ix});
@@ -245,10 +245,10 @@ namespace map
 
     inline
     t_result insert(R_keyvalue keyvalue) {
-      t_n_ n = named::get(ids_.get_size());
+      t_n_ n = base::get(ids_.get_size());
       if (n < N) {
         t_ix ix = lowerbound_(keyvalue.key);
-        if (named::get(ix) == n ||
+        if (base::get(ix) == n ||
             C::operator()(keyvalue.key,
                           store_.get(*ids_.get(ix))->keyvalue.key)) {
           auto result = store_.insert(t_entry_{keyvalue, ix});
@@ -262,10 +262,10 @@ namespace map
     inline
     t_result insert(r_err err, R_keyvalue keyvalue) {
       ERR_GUARD(err) {
-        t_n_ n = named::get(ids_.get_size());
+        t_n_ n = base::get(ids_.get_size());
         if (n < N) {
           t_ix ix = lowerbound_(keyvalue.key);
-          if (named::get(ix) == n ||
+          if (base::get(ix) == n ||
               C::operator()(keyvalue.key,
                             store_.get(*ids_.get(ix))->keyvalue.key)) {
             auto result = store_.insert(t_entry_{keyvalue, ix});
@@ -281,13 +281,13 @@ namespace map
 
     inline
     t_result insert(x_keyvalue keyvalue) {
-      t_n_ n = named::get(ids_.get_size());
+      t_n_ n = base::get(ids_.get_size());
       if (n < N) {
         t_ix ix = lowerbound_(keyvalue.key);
-        if (named::get(ix) == n ||
+        if (base::get(ix) == n ||
             C::operator()(keyvalue.key,
                           store_.get(*ids_.get(ix))->keyvalue.key)) {
-          auto result = store_.insert(t_entry_{named::x_cast(keyvalue), ix});
+          auto result = store_.insert(t_entry_{base::x_cast(keyvalue), ix});
           ids_.insert(ix, result.id);
           return t_result{result.id, ix, &result->keyvalue};
         }
@@ -298,13 +298,13 @@ namespace map
     inline
     t_result insert(r_err err, x_keyvalue keyvalue) {
       ERR_GUARD(err) {
-        t_n_ n = named::get(ids_.get_size());
+        t_n_ n = base::get(ids_.get_size());
         if (n < N) {
           t_ix ix = lowerbound_(keyvalue.key);
-          if (named::get(ix) == n ||
+          if (base::get(ix) == n ||
               C::operator()(keyvalue.key,
                             store_.get(*ids_.get(ix))->keyvalue.key)) {
-            auto result = store_.insert(t_entry_{named::x_cast(keyvalue), ix});
+            auto result = store_.insert(t_entry_{base::x_cast(keyvalue), ix});
             ids_.insert(ix, result.id);
             return t_result{result.id, ix, &result->keyvalue};
           }
@@ -317,10 +317,10 @@ namespace map
 
     inline
     t_bool erase(R_key key) {
-      t_n_ n = named::get(ids_.get_size());
+      t_n_ n = base::get(ids_.get_size());
       if (n) {
         t_ix ix = lowerbound(key);
-        if (named::get(ix) != n &&
+        if (base::get(ix) != n &&
             !C::operator()(key,
                            store_.get(*ids_.get(ix))->keyvalue.key)) {
           store_.erase(*ids_.get(ix));
@@ -334,10 +334,10 @@ namespace map
     inline
     t_bool erase(r_err err, R_key key) {
       ERR_GUARD(err) {
-        t_n_ n = named::get(ids_.get_size());
+        t_n_ n = base::get(ids_.get_size());
         if (n) {
           t_ix ix = lowerbound(key);
-          if (named::get(ix) != n &&
+          if (base::get(ix) != n &&
               !C::operator()(key,
                              store_.get(*ids_.get(ix))->keyvalue.key)) {
             store_.erase(*ids_.get(ix));
@@ -352,8 +352,8 @@ namespace map
 
     inline
     t_bool erase(t_ix ix) {
-      t_n_ n = named::get(ids_.get_size());
-      if (named::get(ix) < n) {
+      t_n_ n = base::get(ids_.get_size());
+      if (base::get(ix) < n) {
         store_.erase(*ids_.get(ix));
         ids_.erase(ix);
         return true;
@@ -364,8 +364,8 @@ namespace map
     inline
     t_bool erase(r_err err, t_ix ix) {
       ERR_GUARD(err) {
-        t_n_ n = named::get(ids_.get_size());
-        if (named::get(ix) < n) {
+        t_n_ n = base::get(ids_.get_size());
+        if (base::get(ix) < n) {
           store_.erase(*ids_.get(ix));
           ids_.erase(ix);
           return true;
@@ -410,7 +410,7 @@ namespace map
 
     inline
     t_result find(R_key key) {
-      t_n_ n = named::get(ids_.get_size());
+      t_n_ n = base::get(ids_.get_size());
       if (n) {
         t_n_ p = lowerbound(key);
         if (p < n) {
@@ -426,7 +426,7 @@ namespace map
     inline
     t_result find(r_err err, R_key key) {
       ERR_GUARD(err) {
-        t_n_ n = named::get(ids_.get_size());
+        t_n_ n = base::get(ids_.get_size());
         if (n) {
           t_n_ p = lowerbound(key);
           if (p < n) {
@@ -442,7 +442,7 @@ namespace map
 
     inline
     t_cresult find(R_key key) const {
-      t_n_ n = named::get(ids_.get_size());
+      t_n_ n = base::get(ids_.get_size());
       if (n) {
         t_n_ p = lowerbound(key);
         if (p < n) {
@@ -458,7 +458,7 @@ namespace map
     inline
     t_cresult find(r_err err, R_key key) const {
       ERR_GUARD(err) {
-        t_n_ n = named::get(ids_.get_size());
+        t_n_ n = base::get(ids_.get_size());
         if (n) {
           t_n_ p = lowerbound(key);
           if (p < n) {
@@ -489,7 +489,7 @@ namespace map
 
     inline
     p_keyvalue get(t_ix ix) {
-      if (named::get(ix) < named::get(ids_.get_size()))
+      if (base::get(ix) < base::get(ids_.get_size()))
         return &store_.get(*ids_.get(ix))->keyvalue;
       return nullptr;
     }
@@ -497,7 +497,7 @@ namespace map
     inline
     p_keyvalue get(r_err err, t_ix ix) {
       ERR_GUARD(err) {
-        if (named::get(ix) < named::get(ids_.get_size()))
+        if (base::get(ix) < base::get(ids_.get_size()))
           return &store_.get(*ids_.get(ix))->keyvalue;
       }
       return nullptr;
@@ -505,7 +505,7 @@ namespace map
 
     inline
     P_keyvalue get(t_ix ix) const {
-      if (named::get(ix) < named::get(ids_.get_size()))
+      if (base::get(ix) < base::get(ids_.get_size()))
         return &store_.get(*ids_.get(ix))->keyvalue;
       return nullptr;
     }
@@ -513,7 +513,7 @@ namespace map
     inline
     P_keyvalue get(r_err err, t_ix ix) const {
       ERR_GUARD(err) {
-        if (named::get(ix) < named::get(ids_.get_size()))
+        if (base::get(ix) < base::get(ids_.get_size()))
           return &store_.get(*ids_.get(ix))->keyvalue;
       }
       return nullptr;
@@ -558,7 +558,7 @@ namespace map
     template<typename F>
     inline
     t_void each(F f) {
-      store_.each([func = named::x_cast(f)](auto id, auto& entry) {
+      store_.each([func = base::x_cast(f)](auto id, auto& entry) {
         func(id, entry.ix, entry.keyvalue); });
     }
 
@@ -566,7 +566,7 @@ namespace map
     inline
     t_void each(r_err err, F f) {
       ERR_GUARD(err) {
-        store_.each([func = named::x_cast(f)](auto id, auto& entry) {
+        store_.each([func = base::x_cast(f)](auto id, auto& entry) {
           func(id, entry.ix, entry.keyvalue); });
       }
     }
@@ -574,7 +574,7 @@ namespace map
     template<typename F>
     inline
     t_void each(F f) const {
-      store_.each([func = named::x_cast(f)](auto id, const auto& entry) {
+      store_.each([func = base::x_cast(f)](auto id, const auto& entry) {
         func(id, entry.ix, entry.keyvalue); });
     }
 
@@ -582,7 +582,7 @@ namespace map
     inline
     t_void each(r_err err, F f) const {
       ERR_GUARD(err) {
-        store_.each([func = named::x_cast(f)](auto id, const auto& entry) {
+        store_.each([func = base::x_cast(f)](auto id, const auto& entry) {
           func(id, entry.ix, entry.keyvalue); });
       }
     }
@@ -590,7 +590,7 @@ namespace map
     template<typename F>
     inline
     t_void ordered_each(F f) {
-      ids_.each([this, func = named::x_cast(f), ix = 0](auto id) mutable {
+      ids_.each([this, func = base::x_cast(f), ix = 0](auto id) mutable {
         func(id, t_ix{ix++}, *this->store_.get(id)); });
     }
 
@@ -598,7 +598,7 @@ namespace map
     inline
     t_void ordered_each(r_err err, F f) {
       ERR_GUARD(err) {
-        ids_.each([this, func = named::x_cast(f), ix = 0](auto id) mutable {
+        ids_.each([this, func = base::x_cast(f), ix = 0](auto id) mutable {
           func(id, t_ix{ix++}, *this->store_.get(id)); });
       }
     }
@@ -606,7 +606,7 @@ namespace map
     template<typename F>
     inline
     t_void ordered_each(F f) const {
-      ids_.each([this, func = named::x_cast(f), ix = 0](auto id) mutable {
+      ids_.each([this, func = base::x_cast(f), ix = 0](auto id) mutable {
         func(id, t_ix{ix++}, *this->store_.get(id)); });
     }
 
@@ -614,7 +614,7 @@ namespace map
     inline
     t_void ordered_each(r_err err, F f) const {
       ERR_GUARD(err) {
-        ids_.each([this, func = named::x_cast(f), ix = 0](auto id) mutable {
+        ids_.each([this, func = base::x_cast(f), ix = 0](auto id) mutable {
           func(id, t_ix{ix++}, *this->store_.get(id)); });
       }
     }
@@ -623,7 +623,7 @@ namespace map
     inline
     t_ix lowerbound_(R_key key) const {
       t_ix_ ix = 0;
-      for (t_n_ range = named::get(get_size()); range;) {
+      for (t_n_ range = base::get(get_size()); range;) {
         t_n_ leap = range/2;
         if (C::operator()(store_.get(*ids_.get(t_ix{ix + leap}))->keyvalue.key,
             key)) {

@@ -63,7 +63,7 @@ namespace detached_thread
       t_cond_var_   cond_;
 
       t_data_(t_err err, P_cstr name, x_logic_ptr logic) noexcept
-        : err_(err), name_(name), logic_(named::x_cast(logic)), ready_(false) {
+        : err_(err), name_(name), logic_(base::x_cast(logic)), ready_(false) {
       }
     };
     using p_data_ = t_prefix<t_data_>::p_;
@@ -73,7 +73,7 @@ namespace detached_thread
     p_void start_(p_void arg) {
       p_data_ data = reinterpret_cast<p_data_>(arg);
 
-      t_logic_ptr logic{named::x_cast(data->logic_)};
+      t_logic_ptr logic{base::x_cast(data->logic_)};
       r_err err = data->err_;
 
       t_thread_::set_name(err, t_thread_::get_self(), data->name_);
@@ -111,7 +111,7 @@ namespace detached_thread
 
   t_thread::t_thread(t_err err, P_cstr name, x_logic_ptr logic) noexcept {
     ERR_GUARD(err) {
-      t_data_ data{err, name, named::x_cast(logic)};
+      t_data_ data{err, name, base::x_cast(logic)};
       if (get(name) && data.logic_ && data.cond_ == VALID &&
           data.lock_ == VALID) {
         t_attr_ attr;

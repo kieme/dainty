@@ -55,9 +55,9 @@ namespace dacli
 {
 ////////////////////////////////////////////////////////////////////////////////
 
-  using namespace named;
-  using namespace named::range;
-  using namespace named::string;
+  using namespace base;
+  using namespace base::range;
+  using namespace base::string;
   using namespace argn;
   using err::r_err;
 
@@ -253,7 +253,7 @@ namespace parse
         }
         ERR_GUARD(err) {
           if (!modify || (type == TYPE_MB))
-            name = named::x_cast(word);
+            name = base::x_cast(word);
           else
             err = err::E_PARSE;
         }
@@ -281,7 +281,7 @@ namespace parse
             t_word word;
             p = parse_word(err, word, p);
             ERR_GUARD(err) {
-              values.push_back(named::x_cast(word));
+              values.push_back(base::x_cast(word));
               ++cnt;
               if (*p == ',')
                 p = strip_space(p+1);
@@ -315,7 +315,7 @@ namespace parse
         ERR_GUARD(err) {
           if (!word.is_empty()) {
             ++cnt;
-            values.push_back(named::x_cast(word));
+            values.push_back(base::x_cast(word));
             while (*p == '|' && !err) {
               p = parse_word(err, word, strip_space(p+1));
               ERR_GUARD(err) {
@@ -330,7 +330,7 @@ namespace parse
                   err = err::E_PARSE;
                 ERR_GUARD(err) {
                   ++cnt;
-                  values.push_back(named::x_cast(word));
+                  values.push_back(base::x_cast(word));
                 }
               }
             }
@@ -354,12 +354,12 @@ namespace parse
       ERR_GUARD(err) {
         std::string main_value;
         if (!word.is_empty())
-          value = named::x_cast(word);
+          value = base::x_cast(word);
         while (*p == ':' && !err) {
           p = parse_word(err, word, strip_space(p+1));
           if (!err) {
             if (!word.is_empty())
-              values.push_back(named::x_cast(word));
+              values.push_back(base::x_cast(word));
             else
               err = err::E_EMPTY;
           }
@@ -381,7 +381,7 @@ namespace parse
               if (*p == ':') {
                 p = strip_space(p+1);
                 t_lookup_value_ref value(lookup.add_value(err,
-                                                          named::x_cast(word)));
+                                                          base::x_cast(word)));
                 if (value) {
                   if (*p == '{') {
                     p = strip_space(p+1);
@@ -393,7 +393,7 @@ namespace parse
                           t_simple_ref simple_ref(ref);
                           t_value value;
                           p = parse_simple_value(err, value, p);
-                          simple_ref.set_value(err, named::x_cast(value));
+                          simple_ref.set_value(err, base::x_cast(value));
                         } break;
                         case TYPE_MB: {
                           t_boolean_ref bool_ref(ref);
@@ -417,13 +417,13 @@ namespace parse
                           t_selection_ref selection_ref(ref);
                           t_value value;
                           p = parse_simple_value(err, value, p);
-                          selection_ref.set_value(err, named::x_cast(value));
+                          selection_ref.set_value(err, base::x_cast(value));
                         } break;
                         case TYPE_C: {
                           t_compound_ref compound_ref(ref);
                           t_value value;
                           p = parse_simple_value(err, value, p);
-                          compound_ref.set_value(err, named::x_cast(value));
+                          compound_ref.set_value(err, base::x_cast(value));
                         } break;
                         case TYPE_A: {
                           t_array_ref array_ref(ref);
@@ -431,7 +431,7 @@ namespace parse
                           t_bool init = false;
                           t_rparams params;
                           p = parse_array_values(err, values, init, params, p);
-                          array_ref.set_values(err, named::x_cast(values));
+                          array_ref.set_values(err, base::x_cast(values));
                         } break;
                         case TYPE_X: {
                           t_lookup_ref lookup_ref(ref);
@@ -550,7 +550,7 @@ namespace parse
             if (value.is_empty())
               list.add_simple(err, name, params);
             else
-              list.add_simple(err, name, named::x_cast(value), params);
+              list.add_simple(err, name, base::x_cast(value), params);
           } break;
           case TYPE_MB: {
             list.add_boolean(err, name, type != TYPE_MB, params);
@@ -614,7 +614,7 @@ namespace parse
               if (value.is_empty())
                 option.add_simple(err, name);
               else
-                option.add_simple(err, name, named::x_cast(value));
+                option.add_simple(err, name, base::x_cast(value));
             } break;
             case TYPE_B:
             case TYPE_MB:
@@ -1490,7 +1490,7 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
- t_void print(named::P_cstr_ prefix, const t_words& words) {
+ t_void print(base::P_cstr_ prefix, const t_words& words) {
     t_word word("[");
     auto max = words.size();
     for (decltype(max) i = 0; i < max; ++i) {
@@ -1652,7 +1652,7 @@ namespace argn
                                                 t_values values) {
     ERR_GUARD(err) {
       if (is_valid_())
-        compound = set_argn_().transform_(err, *this, named::x_cast(values));
+        compound = set_argn_().transform_(err, *this, base::x_cast(values));
       else
         err = err::E_INVALID_REF;
     }
@@ -1671,9 +1671,9 @@ namespace argn
     if (check_value(err, value)) {
       if (is_valid_()) {
         if (get_().second.values_.empty())
-          set_().second.values_.push_back(named::x_cast(value));
+          set_().second.values_.push_back(base::x_cast(value));
         else
-          set_().second.values_[0] = named::x_cast(value);
+          set_().second.values_[0] = base::x_cast(value);
       } else
         err = err::E_INVALID_REF;
     }
@@ -1804,7 +1804,7 @@ namespace argn
   t_bool t_array_ref::set_values(t_err err, t_values values) {
     if (check_values(err, values)) {
       if (is_valid_())
-        set_().second.values_ = named::x_cast(values);
+        set_().second.values_ = base::x_cast(values);
       else
         err = err::E_INVALID_REF;
     }
@@ -1890,7 +1890,7 @@ namespace argn
   t_bool t_compound_ref::set_value(t_err err, t_value value) {
     if (check_value(err, value)) {
       if (is_valid_())
-        set_().second.info_.ext_ = named::x_cast(value);
+        set_().second.info_.ext_ = base::x_cast(value);
       else
         err = err::E_INVALID_REF;
     }
@@ -1952,7 +1952,7 @@ namespace argn
   t_bool t_selection_ref::set_value(t_err err, t_value value) {
     if (is_valid_()) {
       if (check_selection_value(err, value, get_().second.values_))
-        set_().second.info_.ext_ = named::x_cast(value);
+        set_().second.info_.ext_ = base::x_cast(value);
     } else if (!err)
       err = err::E_INVALID_REF;
     return !err;
@@ -2174,7 +2174,7 @@ namespace argn
         auto max = get(to_ix(get_size()));
         decltype(max) one = get(first), two = get(second);
         if (one < max && two < max) {
-          named::p_void tmp = set_().second.info_.mem_[one];
+          base::p_void tmp = set_().second.info_.mem_[one];
           set_().second.info_.mem_[one] = set_().second.info_.mem_[two];
           set_().second.info_.mem_[two] = tmp;
         } else
@@ -2188,7 +2188,7 @@ namespace argn
   t_ref t_list_ref::add(t_err err, t_string_crange cstr) {
     ERR_GUARD(err) {
       if (is_valid_()) {
-        named::P_cstr_ p = cstr.ptr;
+        base::P_cstr_ p = cstr.ptr;
         p = notation::parse::parse_arg(err, *this, p);
         ERR_GUARD(err) { // XXX
           if (*p == '\0')
@@ -2205,7 +2205,7 @@ namespace argn
                                            const t_oparams& params) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_simple_(err, *this, named::x_cast(name), params);
+        return set_argn_().add_simple_(err, *this, base::x_cast(name), params);
       err = err::E_INVALID_REF;
     }
     return {};
@@ -2215,8 +2215,8 @@ namespace argn
                                            const t_oparams& params) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_simple_(err, *this, named::x_cast(name),
-                                       named::x_cast(value), params);
+        return set_argn_().add_simple_(err, *this, base::x_cast(name),
+                                       base::x_cast(value), params);
       err = err::E_INVALID_REF;
     }
     return {};
@@ -2226,7 +2226,7 @@ namespace argn
                                             const t_oparams& params) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_boolean_(err, *this, named::x_cast(name),
+        return set_argn_().add_boolean_(err, *this, base::x_cast(name),
                                         state, params);
       err = err::E_INVALID_REF;
     }
@@ -2237,8 +2237,8 @@ namespace argn
                                              const t_oparams& params) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_compound_(err, *this, named::x_cast(name),
-                                         named::x_cast(values), params);
+        return set_argn_().add_compound_(err, *this, base::x_cast(name),
+                                         base::x_cast(values), params);
       err = err::E_INVALID_REF;
     }
     return {};
@@ -2249,9 +2249,9 @@ namespace argn
                                              const t_oparams& params) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_compound_(err, *this, named::x_cast(name),
-                                         named::x_cast(values),
-                                         named::x_cast(value), params);
+        return set_argn_().add_compound_(err, *this, base::x_cast(name),
+                                         base::x_cast(values),
+                                         base::x_cast(value), params);
       err = err::E_INVALID_REF;
     }
     return {};
@@ -2261,7 +2261,7 @@ namespace argn
                                           const t_params& params) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_array_(err, *this, named::x_cast(name), init,
+        return set_argn_().add_array_(err, *this, base::x_cast(name), init,
                                       params);
       err = err::E_INVALID_REF;
     }
@@ -2272,8 +2272,8 @@ namespace argn
                                           const t_params& params) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_array_(err, *this, named::x_cast(name),
-                                      named::x_cast(values), params);
+        return set_argn_().add_array_(err, *this, base::x_cast(name),
+                                      base::x_cast(values), params);
       err = err::E_INVALID_REF;
     }
     return {};
@@ -2283,8 +2283,8 @@ namespace argn
                                               const t_oparams& params) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_selection_(err, *this, named::x_cast(name),
-                                          named::x_cast(values), params);
+        return set_argn_().add_selection_(err, *this, base::x_cast(name),
+                                          base::x_cast(values), params);
       err = err::E_INVALID_REF;
     }
     return {};
@@ -2294,7 +2294,7 @@ namespace argn
                                          const t_oparams& params) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_list_(err, *this, named::x_cast(name), params);
+        return set_argn_().add_list_(err, *this, base::x_cast(name), params);
       err = err::E_INVALID_REF;
     }
     return {};
@@ -2304,7 +2304,7 @@ namespace argn
                                              const t_oparams& params) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_openlist_(err, *this, named::x_cast(name),
+        return set_argn_().add_openlist_(err, *this, base::x_cast(name),
                                          params);
       err = err::E_INVALID_REF;
     }
@@ -2315,7 +2315,7 @@ namespace argn
                                            const t_oparams& params) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_option_(err, *this, named::x_cast(name),
+        return set_argn_().add_option_(err, *this, base::x_cast(name),
                                        params);
       err = err::E_INVALID_REF;
     }
@@ -2326,7 +2326,7 @@ namespace argn
                                            const t_params& params) {
     ERR_GUARD(err) {
       if (is_valid_())
-         return set_argn_().add_lookup_(err, *this, named::x_cast(name),
+         return set_argn_().add_lookup_(err, *this, base::x_cast(name),
                                         params);
       err = err::E_INVALID_REF;
     }
@@ -2378,7 +2378,7 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         if (is_empty()) { // looks wrong
-          named::P_cstr_ p = cstr.ptr;
+          base::P_cstr_ p = cstr.ptr;
           p = notation::parse::parse_option(err, *this, p);
           ERR_GUARD(err) {
             if (*p == '\0')
@@ -2397,7 +2397,7 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
-        return set_argn_().add_simple_(err, *this, named::x_cast(name),
+        return set_argn_().add_simple_(err, *this, base::x_cast(name),
                                        params);
       }
       err = err::E_INVALID_REF;
@@ -2409,8 +2409,8 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
-        return set_argn_().add_simple_(err, *this, named::x_cast(name),
-                                       named::x_cast(value), params);
+        return set_argn_().add_simple_(err, *this, base::x_cast(name),
+                                       base::x_cast(value), params);
       }
       err = err::E_INVALID_REF;
     }
@@ -2421,7 +2421,7 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
-        return set_argn_().add_boolean_(err, *this, named::x_cast(name), state,
+        return set_argn_().add_boolean_(err, *this, base::x_cast(name), state,
                                         params);
       }
       err = err::E_INVALID_REF;
@@ -2434,8 +2434,8 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
-        return set_argn_().add_compound_(err, *this, named::x_cast(name),
-                                         named::x_cast(values), params);
+        return set_argn_().add_compound_(err, *this, base::x_cast(name),
+                                         base::x_cast(values), params);
       }
       err = err::E_INVALID_REF;
     }
@@ -2448,9 +2448,9 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
-        return set_argn_().add_compound_(err, *this, named::x_cast(name),
-                                         named::x_cast(values),
-                                         named::x_cast(value), params);
+        return set_argn_().add_compound_(err, *this, base::x_cast(name),
+                                         base::x_cast(values),
+                                         base::x_cast(value), params);
       }
       err = err::E_INVALID_REF;
     }
@@ -2462,7 +2462,7 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_params params{t_oparams{false}, rparams};
-        return set_argn_().add_array_(err, *this, named::x_cast(name), init,
+        return set_argn_().add_array_(err, *this, base::x_cast(name), init,
                                       params);
       }
       err = err::E_INVALID_REF;
@@ -2475,8 +2475,8 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_params params{t_oparams{false}, rparams};
-        return set_argn_().add_array_(err, *this, named::x_cast(name),
-                                      named::x_cast(values), params);
+        return set_argn_().add_array_(err, *this, base::x_cast(name),
+                                      base::x_cast(values), params);
       }
       err = err::E_INVALID_REF;
     }
@@ -2488,8 +2488,8 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
-        return set_argn_().add_selection_(err, *this, named::x_cast(name),
-                                          named::x_cast(values), params);
+        return set_argn_().add_selection_(err, *this, base::x_cast(name),
+                                          base::x_cast(values), params);
       }
       err = err::E_INVALID_REF;
     }
@@ -2500,7 +2500,7 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
-        return set_argn_().add_list_(err, *this, named::x_cast(name), params);
+        return set_argn_().add_list_(err, *this, base::x_cast(name), params);
       }
       err = err::E_INVALID_REF;
     }
@@ -2511,7 +2511,7 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
-        return set_argn_().add_openlist_(err, *this, named::x_cast(name),
+        return set_argn_().add_openlist_(err, *this, base::x_cast(name),
                                          params);
       }
       err = err::E_INVALID_REF;
@@ -2524,7 +2524,7 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_params params{t_oparams{false}, rparams};
-        return set_argn_().add_lookup_(err, *this, named::x_cast(name), params);
+        return set_argn_().add_lookup_(err, *this, base::x_cast(name), params);
       }
       err = err::E_INVALID_REF;
     }
@@ -2584,7 +2584,7 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
-        return set_argn_().add_simple_(err, *this, named::x_cast(name), params);
+        return set_argn_().add_simple_(err, *this, base::x_cast(name), params);
       }
       err = err::E_INVALID_REF;
     }
@@ -2595,7 +2595,7 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
-        return set_argn_().add_boolean_(err, *this, named::x_cast(name), false,
+        return set_argn_().add_boolean_(err, *this, base::x_cast(name), false,
                                         params);
       }
       err = err::E_INVALID_REF;
@@ -2608,8 +2608,8 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
-        return set_argn_().add_compound_(err, *this, named::x_cast(name),
-                                         named::x_cast(values), params);
+        return set_argn_().add_compound_(err, *this, base::x_cast(name),
+                                         base::x_cast(values), params);
       }
       err = err::E_INVALID_REF;
     }
@@ -2621,8 +2621,8 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
-        return set_argn_().add_selection_(err, *this, named::x_cast(name),
-                                         named::x_cast(values), params);
+        return set_argn_().add_selection_(err, *this, base::x_cast(name),
+                                         base::x_cast(values), params);
       }
       err = err::E_INVALID_REF;
     }
@@ -2634,7 +2634,7 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_params params{t_oparams{false}, rparams};
-        return set_argn_().add_array_(err, *this, named::x_cast(name), true,
+        return set_argn_().add_array_(err, *this, base::x_cast(name), true,
                                       params);
       }
       err = err::E_INVALID_REF;
@@ -2647,7 +2647,7 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_params params{t_oparams{false}, rparams};
-        return set_argn_().add_lookup_(err, *this, named::x_cast(name), params);
+        return set_argn_().add_lookup_(err, *this, base::x_cast(name), params);
       }
       err = err::E_INVALID_REF;
     }
@@ -2673,7 +2673,7 @@ namespace argn
   t_ref t_lookup_ref::add_value(t_err err, t_name name) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_lookup_value_(err, *this, named::x_cast(name));
+        return set_argn_().add_lookup_value_(err, *this, base::x_cast(name));
       err = err::E_INVALID_REF;
     }
     return {};
@@ -2887,12 +2887,12 @@ namespace argn
         parent.set_().second.info_.ext_ = name;
         t_word opt{".opt"};
         opt << integer(++parent.set_().second.info_.list_.options_);
-        fullname.push_back(named::x_cast(opt));
+        fullname.push_back(base::x_cast(opt));
         //name = name.back(); not sure XXX
       } else
         fullname.push_back(name);
       ERR_GUARD(err) {
-        auto p = table_.insert(t_arg(fullname, t_argvalue(named::x_cast(info))));
+        auto p = table_.insert(t_arg(fullname, t_argvalue(base::x_cast(info))));
         if (p.second) {
           t_argvalue& v = p.first->second;
           if (base != TYPE_Z)
@@ -2915,9 +2915,9 @@ namespace argn
                                  t_name&&    name,
                                  t_arginfo& info,
                                  t_value&&   value) {
-    t_ref ref = add_(err, parent, named::x_cast(name), info);
+    t_ref ref = add_(err, parent, base::x_cast(name), info);
     if (ref)
-      ref.set_().second.values_.push_back(named::x_cast(value));
+      ref.set_().second.values_.push_back(base::x_cast(value));
     return ref;
   }
 
@@ -2925,9 +2925,9 @@ namespace argn
                                  t_name&&    name,
                                  t_arginfo& info,
                                  t_values&&  values) {
-    t_ref ref = add_(err, parent, named::x_cast(name), info);
+    t_ref ref = add_(err, parent, base::x_cast(name), info);
     if (ref)
-      ref.set_().second.values_ = named::x_cast(values);
+      ref.set_().second.values_ = base::x_cast(values);
     return ref;
   }
 
@@ -3055,7 +3055,7 @@ namespace argn
                                        R_oparams params) {
     if (check_name(err, name)) {
       t_arginfo info(params.optional_ ? TYPE_OS : TYPE_S);
-      return add_(err, parent, named::x_cast(name), info);
+      return add_(err, parent, base::x_cast(name), info);
     }
     return {};
   }
@@ -3066,7 +3066,7 @@ namespace argn
                                        R_oparams params) {
     if (check_name(err, name) && check_value(err, value)) {
       t_arginfo info(params.optional_ ? TYPE_OS : TYPE_S);
-      return add_(err, parent, named::x_cast(name), info, named::x_cast(value));
+      return add_(err, parent, base::x_cast(name), info, base::x_cast(value));
     }
     return {};
   }
@@ -3079,7 +3079,7 @@ namespace argn
       const t_type type = params.optional_ ? TYPE_OA : TYPE_A;
       t_arginfo info(type, get(params.range_max_), get(params.range_min_),
                      init);
-      return add_(err, parent, named::x_cast(name), info);
+      return add_(err, parent, base::x_cast(name), info);
     }
     return {};
   }
@@ -3094,7 +3094,7 @@ namespace argn
       t_arginfo info(type, get(params.range_max_), get(params.range_min_),
                      true);
       info.range_.cnt_ = values.size();
-      return add_(err, parent, named::x_cast(name), info, named::x_cast(values));
+      return add_(err, parent, base::x_cast(name), info, base::x_cast(values));
     }
     return {};
   }
@@ -3105,7 +3105,7 @@ namespace argn
                                           R_oparams params) {
     if (check_name(err, name) && check_selection_values(err, values)) {
       t_arginfo info(params.optional_ ? TYPE_OH : TYPE_H);
-      return add_(err, parent, named::x_cast(name), info, named::x_cast(values));
+      return add_(err, parent, base::x_cast(name), info, base::x_cast(values));
     }
     return {};
   }
@@ -3116,7 +3116,7 @@ namespace argn
                                          R_oparams params) {
     if (check_name(err, name) && check_values(err, values)) {
       t_arginfo info(params.optional_ ? TYPE_OC : TYPE_C);
-      return add_(err, parent, named::x_cast(name), info, named::x_cast(values));
+      return add_(err, parent, base::x_cast(name), info, base::x_cast(values));
     }
     return {};
   }
@@ -3129,8 +3129,8 @@ namespace argn
     if (check_name(err, name) && check_values(err, values) &&
         check_value(err, value)) {
       t_arginfo info(params.optional_ ? TYPE_OC : TYPE_C);
-      info.ext_ = named::x_cast(value);
-      return add_(err, parent, named::x_cast(name), info, named::x_cast(values));
+      info.ext_ = base::x_cast(value);
+      return add_(err, parent, base::x_cast(name), info, base::x_cast(values));
     }
     return {};
   }
@@ -3142,7 +3142,7 @@ namespace argn
     if (check_name(err, name)) {
       t_arginfo info(params.optional_ ? TYPE_OB : (state ? TYPE_B : TYPE_MB));
       t_name tmp{str(state)};
-      return add_(err, parent, named::x_cast(name), info, named::x_cast(tmp));
+      return add_(err, parent, base::x_cast(name), info, base::x_cast(tmp));
     }
     return {};
   }
@@ -3152,7 +3152,7 @@ namespace argn
                                      R_oparams params) {
     if (check_name(err, name)) {
       t_arginfo info(params.optional_ ? TYPE_OL : TYPE_L);
-      return add_(err, parent, named::x_cast(name), info);
+      return add_(err, parent, base::x_cast(name), info);
     }
     return {};
   }
@@ -3162,7 +3162,7 @@ namespace argn
                                          R_oparams params) {
     if (check_name(err, name)) {
       t_arginfo info(params.optional_ ? TYPE_OK : TYPE_K);
-      return add_(err, parent, named::x_cast(name), info);
+      return add_(err, parent, base::x_cast(name), info);
     }
     return {};
   }
@@ -3173,7 +3173,7 @@ namespace argn
     if (check_name(err, name)) {
       t_arginfo info(params.optional_ ? TYPE_OZ : TYPE_Z);
       info.ext_ = name;
-      return add_(err, parent, named::x_cast(name), info);
+      return add_(err, parent, base::x_cast(name), info);
     }
     return {};
   }
@@ -3184,7 +3184,7 @@ namespace argn
     if (check_name(err, name) && check_range(err, params)) {
       const t_type type = params.optional_ ? TYPE_OX : TYPE_X;
       t_arginfo info(type, get(params.range_max_), get(params.range_min_));
-      return add_(err, parent, named::x_cast(name), info);
+      return add_(err, parent, base::x_cast(name), info);
     }
     return {};
   }
@@ -3218,7 +3218,7 @@ namespace argn
     ERR_GUARD(err) {
       if (!name.is_empty()) {
         auto fullname = lookup.get_fullname();
-        fullname.push_back(named::x_cast(name));
+        fullname.push_back(base::x_cast(name));
         auto pair = table_.insert(t_arg(fullname, t_arginfo(TYPE_XI)));
         if (pair.second) {
           pair.first->second.info_.range_ = lookup.get_().second.info_.range_;
@@ -3227,7 +3227,7 @@ namespace argn
             p_arg arg = (p_arg)member;
             auto mem_name(fullname);
             mem_name.push_back(arg->first.back());
-            auto mem_pair = table_.insert(t_arg(named::x_cast(mem_name),
+            auto mem_pair = table_.insert(t_arg(base::x_cast(mem_name),
                                                 t_arginfo(arg->second.info_.type_)));
             if (mem_pair.second) {
               pair.first->second.info_.mem_.push_back(&(*mem_pair.first));
@@ -3461,7 +3461,7 @@ namespace argn
                                                x_values values) {
     if (check_values(err, values)) {
       ref.set_().second.info_.ext_  = ref.set_().second.values_.front();
-      ref.set_().second.values_     = named::x_cast(values);
+      ref.set_().second.values_     = base::x_cast(values);
       ref.set_().second.info_.type_ =
         is_optional(ref.get_().second.info_.type_) ? TYPE_OC : TYPE_C;
       t_compound_ref tmp = ref;

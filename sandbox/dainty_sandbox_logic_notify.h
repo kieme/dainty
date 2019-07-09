@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_LOGIC_NOTIFY_H_
 #define _DAINTY_SANDBOX_LOGIC_NOTIFY_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_sandbox_err.h"
 #include "dainty_sandbox_logic_api.h"
 
@@ -38,8 +38,8 @@ namespace dainty
 namespace sandbox
 {
   using t_err = err::t_err;
-  using named::t_msec;
-  using named::t_void;
+  using base::t_msec;
+  using base::t_void;
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -25,7 +25,7 @@
 ******************************************************************************/
 
 #include <map>
-#include "dainty_named_terminal.h"
+#include "dainty_base_terminal.h"
 #include "dainty_container_maybe.h"
 #include "dainty_container_freelist.h"
 #include "dainty_os_threading.h"
@@ -41,8 +41,8 @@
 #include "dainty_messaging.h"
 
 using namespace dainty;
-using namespace dainty::named;
-using namespace dainty::named::terminal;
+using namespace dainty::base;
+using namespace dainty::base::terminal;
 using namespace dainty::container;
 using namespace dainty::mt;
 using namespace dainty::os;
@@ -111,7 +111,7 @@ using r_messenger_monitor_list    = messenger::r_monitor_list;
 
 namespace dainty
 {
-namespace named
+namespace base
 {
   inline t_bool operator<(R_messenger_key lh, R_messenger_key rh) {
     return get(lh) < get(rh);
@@ -366,7 +366,7 @@ namespace message
   t_message::t_message() {
   }
 
-  t_message::t_message(t_n n) : buf_{t_n{named::get(n) + sizeof(t_hdr_)}} {
+  t_message::t_message(t_n n) : buf_{t_n{base::get(n) + sizeof(t_hdr_)}} {
   }
 
   t_message::t_message(R_bytebuf buf) : buf_{buf} {
@@ -1336,7 +1336,7 @@ namespace message
 
         auto m = monitored_.find(ctxt->info.name);
         if (m != monitored_.end()) {
-          named::reset(m->second.key);
+          base::reset(m->second.key);
           m->second.state = message::STATE_UNAVAILABLE;
           update_msgs(msgs, m->first, m->second);
         }
@@ -1443,7 +1443,7 @@ namespace message
           if (is_valid(ctxt->key)) {
             if (password == ctxt->password) {
               update_msgs(msgs, message::STATE_UNAVAILABLE, ctxt);
-              named::reset(ctxt->key);
+              base::reset(ctxt->key);
             } else
               err = err::E_XXX;
           } else
@@ -2367,7 +2367,7 @@ namespace messenger
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  //t_ptr<t_messaging, t_messaging, named::ptr::t_deleter>
+  //t_ptr<t_messaging, t_messaging, base::ptr::t_deleter>
   p_messaging_ mr_ = nullptr; // atomic or shared_ptr
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2388,7 +2388,7 @@ namespace messenger
 
   t_messenger::t_messenger(x_messenger messenger)
     : id_{messenger.id_}, processor_{x_cast(messenger.processor_)} {
-    named::reset(messenger.id_);
+    base::reset(messenger.id_);
   }
 
   t_messenger::~t_messenger() {

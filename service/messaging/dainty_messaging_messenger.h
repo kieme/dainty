@@ -28,7 +28,7 @@
 #define _DAINTY_MESSAGING_MESSENGER_H_
 
 #include <map>
-#include "dainty_named_string.h"
+#include "dainty_base_string.h"
 #include "dainty_mt_chained_queue.h"
 #include "dainty_container_list.h"
 #include "dainty_container_maybe.h"
@@ -41,15 +41,15 @@ namespace messaging
 {
 namespace messenger
 {
-  using named::t_bool;
-  using named::t_void;
-  using named::t_n;
-  using named::t_validity;
-  using named::t_prefix;
-  using named::string::t_string;
-  using named::VALID;
-  using named::INVALID;
-  using named::t_fd;
+  using base::t_bool;
+  using base::t_void;
+  using base::t_n;
+  using base::t_validity;
+  using base::t_prefix;
+  using base::string::t_string;
+  using base::VALID;
+  using base::INVALID;
+  using base::t_fd;
   using container::maybe::t_maybe;
   using err::t_err;
   using message::t_message;

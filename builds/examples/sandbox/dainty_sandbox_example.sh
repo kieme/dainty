@@ -36,13 +36,13 @@ g++ -Wall -o run $DAINTY_ROOT/examples/sandbox/dainty_sandbox_example.cpp \
                  $DAINTY_ROOT/library/os/dainty_os_scheduling.cpp \
                  $DAINTY_ROOT/library/os/dainty_os.cpp \
                  $DAINTY_ROOT/library/oops/dainty_oops.cpp \
-                 $DAINTY_ROOT/library/named/dainty_named_string_impl.cpp \
-                 $DAINTY_ROOT/library/named/dainty_named_assert.cpp \
-                 $DAINTY_ROOT/library/named/dainty_named_terminal.cpp \
-                 $DAINTY_ROOT/library/named/dainty_named_range.cpp \
+                 $DAINTY_ROOT/library/base/dainty_base_string_impl.cpp \
+                 $DAINTY_ROOT/library/base/dainty_base_assert.cpp \
+                 $DAINTY_ROOT/library/base/dainty_base_terminal.cpp \
+                 $DAINTY_ROOT/library/base/dainty_base_range.cpp \
                  -I$DAINTY_ROOT/sandbox \
                  -I$DAINTY_ROOT/sandbox/logic_extensions \
-                 -I$DAINTY_ROOT/library/named \
+                 -I$DAINTY_ROOT/library/base \
                  -I$DAINTY_ROOT/library/mt \
                  -I$DAINTY_ROOT/library/os \
                  -I$DAINTY_ROOT/library/oops \

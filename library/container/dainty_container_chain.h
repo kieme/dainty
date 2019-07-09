@@ -27,7 +27,7 @@
 #ifndef _DAINTY_CONTAINER_CHAIN_H_
 #define _DAINTY_CONTAINER_CHAIN_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_container_err.h"
 
 namespace dainty
@@ -37,21 +37,21 @@ namespace container
 namespace chain
 {
   using err::t_err;
-  using named::t_void;
-  using named::t_n;
+  using base::t_void;
+  using base::t_n;
 
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_item final {
   public:
-    using t_value = typename named::t_prefix<T>::t_;
-    using p_item  = typename named::t_prefix<t_item>::p_;
-    using P_item  = typename named::t_prefix<t_item>::P_;
+    using t_value = typename base::t_prefix<T>::t_;
+    using p_item  = typename base::t_prefix<t_item>::p_;
+    using P_item  = typename base::t_prefix<t_item>::P_;
 
     t_item() = default;
 
@@ -68,8 +68,8 @@ namespace chain
   class t_chain final {
   public:
     using t_n    = chain::t_n;
-    using p_item = typename named::t_prefix<t_item<T> >::p_;
-    using P_item = typename named::t_prefix<t_item<T> >::P_;
+    using p_item = typename base::t_prefix<t_item<T> >::p_;
+    using P_item = typename base::t_prefix<t_item<T> >::P_;
 
     operator t_validity() const;
 

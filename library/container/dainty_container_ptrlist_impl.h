@@ -27,7 +27,7 @@
 #ifndef _DAINTY_CONTAINER_PTRLIST_IMPL_H_
 #define _DAINTY_CONTAINER_PTRLIST_IMPL_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_container_err.h"
 
 namespace dainty
@@ -39,11 +39,11 @@ namespace ptrlist
   using err::t_err;
   using err::r_err;
 
-  using named::t_bool;
-  using named::t_void;
-  using named::t_n;
-  using named::t_n_;
-  using named::t_ix_;
+  using base::t_bool;
+  using base::t_void;
+  using base::t_n;
+  using base::t_n_;
+  using base::t_ix_;
 
 ///////////////////////////////////////////////////////////////////////////////
 

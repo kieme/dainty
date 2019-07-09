@@ -42,13 +42,13 @@ namespace freelist
   using err::t_err;
   using err::r_err;
 
-  using named::t_void;
-  using named::t_bool;
-  using named::t_n_;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_n_;
 
   enum  t_id_tag_ {};
-  using t_id_ = named::t_n_;
-  using t_id  = named::t_explicit<t_id_, t_id_tag_>;
+  using t_id_ = base::t_n_;
+  using t_id  = base::t_explicit<t_id_, t_id_tag_>;
 
   constexpr t_id_ BAD_ID_{0};
   constexpr t_id  BAD_ID {BAD_ID_};
@@ -56,11 +56,11 @@ namespace freelist
   template<typename T>
   struct t_result {
     using t_id    = freelist::t_id;
-    using t_value = typename named::t_prefix<T>::t_;
-    using r_value = typename named::t_prefix<T>::r_;
-    using R_value = typename named::t_prefix<T>::R_;
-    using p_value = typename named::t_prefix<T>::p_;
-    using P_value = typename named::t_prefix<T>::P_;
+    using t_value = typename base::t_prefix<T>::t_;
+    using r_value = typename base::t_prefix<T>::r_;
+    using R_value = typename base::t_prefix<T>::R_;
+    using p_value = typename base::t_prefix<T>::p_;
+    using P_value = typename base::t_prefix<T>::P_;
 
     t_id    id;
     p_value ptr;
@@ -92,16 +92,16 @@ namespace freelist
     using t_id     = freelist::t_id;
     using t_result = typename freelist::t_result<T>;
     using t_entry  = typename freelist::t_entry<T>;
-    using p_entry  = typename named::t_prefix<t_entry>::p_;
-    using P_entry  = typename named::t_prefix<t_entry>::P_;
-    using r_entry  = typename named::t_prefix<t_entry>::r_;
-    using R_entry  = typename named::t_prefix<t_entry>::R_;
-    using t_value  = typename named::t_prefix<T>::t_;
-    using p_value  = typename named::t_prefix<T>::p_;
-    using P_value  = typename named::t_prefix<T>::P_;
-    using r_value  = typename named::t_prefix<T>::r_;
-    using R_value  = typename named::t_prefix<T>::R_;
-    using x_value  = typename named::t_prefix<T>::x_;
+    using p_entry  = typename base::t_prefix<t_entry>::p_;
+    using P_entry  = typename base::t_prefix<t_entry>::P_;
+    using r_entry  = typename base::t_prefix<t_entry>::r_;
+    using R_entry  = typename base::t_prefix<t_entry>::R_;
+    using t_value  = typename base::t_prefix<T>::t_;
+    using p_value  = typename base::t_prefix<T>::p_;
+    using P_value  = typename base::t_prefix<T>::P_;
+    using r_value  = typename base::t_prefix<T>::r_;
+    using R_value  = typename base::t_prefix<T>::R_;
+    using x_value  = typename base::t_prefix<T>::x_;
 
     inline
     t_freelist_impl_(p_entry _entry, t_n_ max) : size_{0}, free_{0} {
@@ -194,7 +194,7 @@ namespace freelist
       if (free_ < max) {
         r_entry entry = _entry[free_];
         t_result tmp(free_ + 1,
-                     entry.store_.move_construct(named::x_cast(value)));
+                     entry.store_.move_construct(base::x_cast(value)));
         free_ = entry.free_;
         entry.free_ = max + 1;
         ++size_;
@@ -210,7 +210,7 @@ namespace freelist
           if (free_ < max) {
             r_entry entry = _entry[free_];
             t_result tmp(free_ + 1,
-                         entry.store_.move_construct(named::x_cast(value)));
+                         entry.store_.move_construct(base::x_cast(value)));
             free_ = entry.free_;
             entry.free_ = max + 1;
             ++size_;
@@ -264,9 +264,9 @@ namespace freelist
 
     inline
     t_bool erase(p_entry entry, t_n_ max, P_value p) {
-      named::t_uint64 begin = (named::t_uint64)entry,
+      base::t_uint64 begin = (base::t_uint64)entry,
                       end   = begin + (sizeof(t_entry)*max),
-                      pos   = (named::t_uint64)p;
+                      pos   = (base::t_uint64)p;
       if (pos >= begin && pos < end && !(pos % alignof(t_value)))
         return erase((pos - begin)/sizeof(t_entry));
       return false;
@@ -275,9 +275,9 @@ namespace freelist
     inline
     t_bool erase(r_err err, p_entry entry, t_n_ max, P_value p) {
       ERR_GUARD(err) {
-        named::t_uint64 begin = (named::t_uint64)entry,
+        base::t_uint64 begin = (base::t_uint64)entry,
                         end   = begin + (sizeof(t_entry)*max),
-                        pos   = (named::t_uint64)p;
+                        pos   = (base::t_uint64)p;
         if (pos >= begin && pos < end && !(pos % alignof(t_value)))
           return erase((pos - begin)/sizeof(t_entry));
       }

@@ -359,7 +359,7 @@ composite type arguments:
 
 ##### 1.2. result argument name/n=
 
-The name/n argument represents a specific argument name. Its an array that contains the full name path (including names of ancestors) with the last entry the name of the specific argument. This naming scheme enables the construction of named trees, tables and lists. Its also efficient in terms of the number of characters required to represent a unique full name path. The argument/n argument is sorted using the name/n argument with the intention to have a reliable, predictable order. Each argument name has a depth which is represented by the size of the argument name array.
+The name/n argument represents a specific argument name. Its an array that contains the full name path (including names of ancestors) with the last entry the name of the specific argument. This naming scheme enables the construction of base trees, tables and lists. Its also efficient in terms of the number of characters required to represent a unique full name path. The argument/n argument is sorted using the name/n argument with the intention to have a reliable, predictable order. Each argument name has a depth which is represented by the size of the argument name array.
 
  The c++ code snippet below is used to demonstrate the algorithm used for the sorting. The less operator is used to determine if left should be sorted before right.
 

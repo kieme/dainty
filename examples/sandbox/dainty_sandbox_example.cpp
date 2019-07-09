@@ -1,10 +1,10 @@
-#include "dainty_named_terminal.h"
+#include "dainty_base_terminal.h"
 #include "dainty_sandbox.h"
 
 using t_err = dainty::oops::t_oops<>;
-using dainty::named::t_int;
-using dainty::named::string::mk_range;
-using dainty::named::string::t_crange;
+using dainty::base::t_int;
+using dainty::base::string::mk_range;
+using dainty::base::string::t_crange;
 using namespace dainty::sandbox;
 
 class juggle : public t_logic {

@@ -26,7 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "dainty_named_assert.h"
+#include "dainty_base_assert.h"
 #include "dainty_container_bytebuf_impl.h"
 
 namespace dainty
@@ -35,7 +35,7 @@ namespace container
 {
 namespace bytebuf
 {
-  using named::P_cstr;
+  using base::P_cstr;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -44,9 +44,9 @@ namespace bytebuf
     if (n) {
       byte = (p_byte)::malloc(n);
       if (!byte)
-        named::assert_now(P_cstr("bytebuf: allocation failed"));
+        base::assert_now(P_cstr("bytebuf: allocation failed"));
     } else
-      named::assert_now(P_cstr("bytebuf: zero byte allocation is invalid"));
+      base::assert_now(P_cstr("bytebuf: zero byte allocation is invalid"));
     return byte;
   }
 
@@ -54,14 +54,14 @@ namespace bytebuf
     if (byte)
       ::free(byte);
     else
-      named::assert_now(P_cstr("bytebuf: trying to free an nullptr"));
+      base::assert_now(P_cstr("bytebuf: trying to free an nullptr"));
   }
 
   t_void copy_(p_byte dst, t_n_ dst_n, P_byte src, t_n_ src_n) {
     if (src_n <= dst_n)
       ::memcpy(dst, src, src_n);
     else
-      named::assert_now(P_cstr("bytebuf: copy would be truncated"));
+      base::assert_now(P_cstr("bytebuf: copy would be truncated"));
   }
 
   t_bool is_equal_(P_byte buf1, P_byte buf2, t_n_ n) {
@@ -74,13 +74,13 @@ namespace bytebuf
 
   t_view mk_view_(p_byte byte, t_n_ max, t_ix_ begin) {
     if (max <= begin)
-      named::assert_now(P_cstr("bytebuf: begin is bigger than max"));
+      base::assert_now(P_cstr("bytebuf: begin is bigger than max"));
     return {byte + begin, t_n{max - begin}};
   }
 
   t_view mk_view_(p_byte byte, t_n_ max, t_ix_ begin, t_ix_ end) {
     if (max <= begin || end <= begin)
-      named::assert_now(P_cstr("bytebuf: begin/end/max ranges are incorrect "));
+      base::assert_now(P_cstr("bytebuf: begin/end/max ranges are incorrect "));
     return {byte + begin, t_n{end - begin}};
   }
 
@@ -90,13 +90,13 @@ namespace bytebuf
 
   t_cview mk_cview_(P_byte byte, t_n_ max, t_ix_ begin) {
     if (max <= begin)
-      named::assert_now(P_cstr("bytebuf: begin is bigger than max"));
+      base::assert_now(P_cstr("bytebuf: begin is bigger than max"));
     return {byte + begin, t_n{max - begin}};
   }
 
   t_cview mk_cview_(P_byte byte, t_n_ max, t_ix_ begin, t_ix_ end) {
     if (max <= begin || end <= begin)
-      named::assert_now(P_cstr("bytebuf: begin/end/max ranges are incorrect "));
+      base::assert_now(P_cstr("bytebuf: begin/end/max ranges are incorrect "));
     return {byte + begin, t_n{end - begin}};
   }
 

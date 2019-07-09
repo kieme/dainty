@@ -24,7 +24,7 @@
 
 ******************************************************************************/
 
-#include "dainty_named_assert.h"
+#include "dainty_base_assert.h"
 #include "dainty_os_clock.h"
 
 namespace dainty

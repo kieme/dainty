@@ -27,7 +27,7 @@
 #ifndef _DAINTY_MT_NET_IP_H_
 #define _DAINTY_MT_NET_IP_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_mt_err.h"
 #include "dainty_os_networking.h"
 
@@ -37,7 +37,7 @@ namespace mt
 {
 namespace net_ip
 {
-  using named::t_n_;
+  using base::t_n_;
 
 ///////////////////////////////////////////////////////////////////////////////
 

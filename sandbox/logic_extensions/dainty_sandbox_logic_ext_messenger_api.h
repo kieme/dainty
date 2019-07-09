@@ -36,12 +36,12 @@ namespace sandbox
 {
 namespace logic_messenger_ext
 {
-  using named::t_void;
-  using named::t_bool;
-  using named::t_validity;
-  using named::t_explicit;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_validity;
+  using base::t_explicit;
+  using base::VALID;
+  using base::INVALID;
   using container::ptr::t_passable_ptr;
   using t_err = err::t_err;
 
@@ -73,7 +73,7 @@ namespace logic_messenger_ext
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_messenger_msg_notify_id_tag_ {};
-  using t_messenger_msg_notify_id_ = named::t_short;
+  using t_messenger_msg_notify_id_ = base::t_short;
   using t_messenger_msg_notify_id  = t_explicit<t_messenger_msg_notify_id_,
                                                 t_messenger_msg_notify_id_tag_>;
   constexpr t_messenger_msg_notify_id BAD_MSG_NOTIFY_ID{-1};
@@ -106,7 +106,7 @@ namespace logic_messenger_ext
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_messenger_monitor_id_tag_ {};
-  using t_messenger_monitor_id_ = named::t_short;
+  using t_messenger_monitor_id_ = base::t_short;
   using t_messenger_monitor_id  = t_explicit<t_messenger_monitor_id_,
                                              t_messenger_monitor_id_tag_>;
   constexpr t_messenger_monitor_id BAD_MONITOR_ID{-1};

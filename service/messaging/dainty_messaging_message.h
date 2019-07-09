@@ -27,8 +27,8 @@
 #ifndef _DAINTY_MESSAGING_MESSAGE_H_
 #define _DAINTY_MESSAGING_MESSAGE_H_
 
-#include "dainty_named.h"
-#include "dainty_named_string.h"
+#include "dainty_base.h"
+#include "dainty_base_string.h"
 #include "dainty_container_bytebuf.h"
 
 namespace dainty
@@ -39,20 +39,20 @@ namespace message
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  using named::t_bool;
-  using named::r_bool;
-  using named::t_n_;
-  using named::t_n;
-  using named::r_n;
-  using named::t_ix;
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_bool;
+  using base::r_bool;
+  using base::t_n_;
+  using base::t_n;
+  using base::r_n;
+  using base::t_ix;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
 
-  using named::t_uint16;
-  using named::t_explicit;
-  using named::t_prefix;
-  using named::string::t_string;
+  using base::t_uint16;
+  using base::t_explicit;
+  using base::t_prefix;
+  using base::string::t_string;
 
   using container::bytebuf::p_byte;
   using container::bytebuf::P_byte;
@@ -61,7 +61,7 @@ namespace message
 
   enum  t_bytebuf_tag_ { };
   using t_bytebuf = container::bytebuf::t_bytebuf<t_bytebuf_tag_, 0>;
-  using R_bytebuf = named::t_prefix<t_bytebuf>::R_;
+  using R_bytebuf = base::t_prefix<t_bytebuf>::R_;
 
   enum t_messenger_state {
     STATE_AVAILABLE,
@@ -73,11 +73,11 @@ namespace message
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_messenger_user_tag_ {};
-  using t_messenger_user = named::t_user<t_messenger_user_tag_>;
+  using t_messenger_user = base::t_user<t_messenger_user_tag_>;
   using r_messenger_user = t_prefix<t_messenger_user>::r_;
 
   enum  t_messenger_key_tag_ {};
-  using t_messenger_key_ = named::t_uint64;
+  using t_messenger_key_ = base::t_uint64;
   using t_messenger_key  = t_explicit<t_messenger_key_, t_messenger_key_tag_>;
   using r_messenger_key  = t_prefix<t_messenger_key>::r_;
   using R_messenger_key  = t_prefix<t_messenger_key>::R_;
@@ -87,24 +87,24 @@ namespace message
   using r_messenger_name = t_prefix<t_messenger_name>::r_;
 
   enum  t_messenger_prio_tag_ {};
-  using t_messenger_prio_ = named::t_uint16;
+  using t_messenger_prio_ = base::t_uint16;
   using t_messenger_prio  = t_explicit<t_messenger_prio_, t_messenger_prio_tag_>;
   using r_messenger_prio  = t_prefix<t_messenger_prio>::r_;
 
   enum  t_multiple_of_100ms_tag_ {};
-  using t_multiple_of_100ms = named::t_multiple<100, t_multiple_of_100ms_tag_>;
+  using t_multiple_of_100ms = base::t_multiple<100, t_multiple_of_100ms_tag_>;
   using r_multiple_of_100ms = t_prefix<t_multiple_of_100ms>::r_;
 
   enum  t_domain_tag_ {};
-  using t_domain_ = named::t_uchar;
+  using t_domain_ = base::t_uchar;
   using t_domain  = t_explicit<t_domain_, t_domain_tag_>;
 
   enum  t_user_tag_ {};
-  using t_user_ = named::t_uchar;
+  using t_user_ = base::t_uchar;
   using t_user  = t_explicit<t_user_, t_user_tag_>;
 
   enum  t_version_tag_ {};
-  using t_version_ = named::t_uchar;
+  using t_version_ = base::t_uchar;
   using t_version  = t_explicit<t_version_, t_version_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -150,9 +150,9 @@ namespace message
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_message;
-  using r_message = named::t_prefix<t_message>::r_;
-  using x_message = named::t_prefix<t_message>::x_;
-  using R_message = named::t_prefix<t_message>::R_;
+  using r_message = base::t_prefix<t_message>::r_;
+  using x_message = base::t_prefix<t_message>::x_;
+  using R_message = base::t_prefix<t_message>::R_;
 
   class t_message {
   public:
@@ -217,24 +217,24 @@ namespace message
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_notify_message;
-  using r_notify_message = named::t_prefix<t_notify_message>::r_;
-  using x_notify_message = named::t_prefix<t_notify_message>::x_;
+  using r_notify_message = base::t_prefix<t_notify_message>::r_;
+  using x_notify_message = base::t_prefix<t_notify_message>::x_;
 
   class t_notify_message : public t_message {
   public:
     t_notify_message();
 
     inline
-    t_notify_message(x_message msg) : t_message(named::x_cast(msg)) {
+    t_notify_message(x_message msg) : t_message(base::x_cast(msg)) {
     }
 
     inline
-    t_notify_message(x_notify_message msg) : t_message(named::x_cast(msg)) {
+    t_notify_message(x_notify_message msg) : t_message(base::x_cast(msg)) {
     }
 
     inline
     r_notify_message operator=(x_notify_message msg) {
-      t_message::operator=(named::x_cast(msg));
+      t_message::operator=(base::x_cast(msg));
       return *this;
     }
 
@@ -248,24 +248,24 @@ namespace message
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_timeout_message;
-  using r_timeout_message = named::t_prefix<t_timeout_message>::r_;
-  using x_timeout_message = named::t_prefix<t_timeout_message>::x_;
+  using r_timeout_message = base::t_prefix<t_timeout_message>::r_;
+  using x_timeout_message = base::t_prefix<t_timeout_message>::x_;
 
   class t_timeout_message : public t_message {
   public:
     t_timeout_message();
 
     inline
-    t_timeout_message(x_message msg) : t_message(named::x_cast(msg)) {
+    t_timeout_message(x_message msg) : t_message(base::x_cast(msg)) {
     }
 
     inline
-    t_timeout_message(x_timeout_message msg) : t_message(named::x_cast(msg)) {
+    t_timeout_message(x_timeout_message msg) : t_message(base::x_cast(msg)) {
     }
 
     inline
     r_timeout_message operator=(x_timeout_message msg) {
-      t_message::operator=(named::x_cast(msg));
+      t_message::operator=(base::x_cast(msg));
       return *this;
     }
 
@@ -279,8 +279,8 @@ namespace message
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_fail_message;
-  using r_fail_message = named::t_prefix<t_fail_message>::r_;
-  using x_fail_message = named::t_prefix<t_fail_message>::x_;
+  using r_fail_message = base::t_prefix<t_fail_message>::r_;
+  using x_fail_message = base::t_prefix<t_fail_message>::x_;
 
   class t_fail_message : public t_message {
   public:
@@ -294,16 +294,16 @@ namespace message
     }
 
     inline
-    t_fail_message(x_message msg) : t_message(named::x_cast(msg)) {
+    t_fail_message(x_message msg) : t_message(base::x_cast(msg)) {
     }
 
     inline
-    t_fail_message(x_fail_message msg) : t_message(named::x_cast(msg)) {
+    t_fail_message(x_fail_message msg) : t_message(base::x_cast(msg)) {
     }
 
     inline
     r_fail_message operator=(x_fail_message msg) {
-      t_message::operator=(named::x_cast(msg));
+      t_message::operator=(base::x_cast(msg));
       return *this;
     }
 
@@ -313,24 +313,24 @@ namespace message
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_alive_message;
-  using r_alive_message = named::t_prefix<t_alive_message>::r_;
-  using x_alive_message = named::t_prefix<t_alive_message>::x_;
+  using r_alive_message = base::t_prefix<t_alive_message>::r_;
+  using x_alive_message = base::t_prefix<t_alive_message>::x_;
 
   class t_alive_message : public t_message {
   public:
     t_alive_message();
 
     inline
-    t_alive_message(x_message msg) : t_message(named::x_cast(msg)) {
+    t_alive_message(x_message msg) : t_message(base::x_cast(msg)) {
     }
 
     inline
-    t_alive_message(x_alive_message msg) : t_message(named::x_cast(msg)) {
+    t_alive_message(x_alive_message msg) : t_message(base::x_cast(msg)) {
     }
 
     inline
     r_alive_message operator=(x_alive_message msg) {
-      t_message::operator=(named::x_cast(msg));
+      t_message::operator=(base::x_cast(msg));
       return *this;
     }
 

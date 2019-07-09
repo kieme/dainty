@@ -36,9 +36,9 @@ namespace container
 {
 namespace valuestore
 {
-  using named::t_void;
-  using named::t_uchar;
-  using named::t_n;
+  using base::t_void;
+  using base::t_uchar;
+  using base::t_n;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -57,13 +57,13 @@ namespace valuestore
   template<typename T>
   inline
   T* move_construct_(T* ptr, T&& value) {
-    return new (ptr) T(named::x_cast(value));
+    return new (ptr) T(base::x_cast(value));
   }
 
   template<typename T, typename... Args>
   inline
   T* emplace_construct_(T* ptr, Args&&... args) {
-    return new (ptr) T(named::preserve<Args>(args)...);
+    return new (ptr) T(base::preserve<Args>(args)...);
   }
 
   template<typename T>
@@ -79,14 +79,14 @@ namespace valuestore
     enum t_bytes_tag_ { };
   public:
     using t_bytes = bytebuf::t_bytebuf<t_bytes_tag_, sizeof(T)>;
-    using r_bytes = typename named::t_prefix<t_bytes>::r_;
-    using R_bytes = typename named::t_prefix<t_bytes>::R_;
-    using t_value = typename named::t_prefix<T>::t_;
-    using r_value = typename named::t_prefix<T>::r_;
-    using R_value = typename named::t_prefix<T>::R_;
-    using p_value = typename named::t_prefix<T>::p_;
-    using P_value = typename named::t_prefix<T>::P_;
-    using x_value = typename named::t_prefix<T>::x_;
+    using r_bytes = typename base::t_prefix<t_bytes>::r_;
+    using R_bytes = typename base::t_prefix<t_bytes>::R_;
+    using t_value = typename base::t_prefix<T>::t_;
+    using r_value = typename base::t_prefix<T>::r_;
+    using R_value = typename base::t_prefix<T>::R_;
+    using p_value = typename base::t_prefix<T>::p_;
+    using P_value = typename base::t_prefix<T>::P_;
+    using x_value = typename base::t_prefix<T>::x_;
 
     constexpr static t_n get_size() {
       return t_n{sizeof(T)};
@@ -104,13 +104,13 @@ namespace valuestore
 
     inline
     p_value move_construct(x_value value) {
-      return move_construct_(ptr(), named::x_cast(value));
+      return move_construct_(ptr(), base::x_cast(value));
     }
 
     template<typename... Args>
     inline
     p_value emplace_construct(Args&&... args) {
-      return emplace_construct_(ptr(), named::preserve<Args>(args)...);
+      return emplace_construct_(ptr(), base::preserve<Args>(args)...);
     }
 
     inline
@@ -161,27 +161,27 @@ namespace valuestore
   t_void destruct_(t_valuestore<type>*, t_n) {           \
   }
 
-  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(named::t_bool)
+  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(base::t_bool)
 
-  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(named::t_char)
+  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(base::t_char)
 
-  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(named::t_short)
+  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(base::t_short)
 
-  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(named::t_int)
+  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(base::t_int)
 
-  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(named::t_long)
+  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(base::t_long)
 
-  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(named::t_llong)
+  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(base::t_llong)
 
-  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(named::t_uchar)
+  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(base::t_uchar)
 
-  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(named::t_ushort)
+  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(base::t_ushort)
 
-  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(named::t_uint)
+  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(base::t_uint)
 
-  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(named::t_ulong)
+  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(base::t_ulong)
 
-  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(named::t_ullong)
+  DAINTY_CONTAINER_VALUESTORE_DESTRUCT_IMPL(base::t_ullong)
 
   // XXX - must add other buildtins as well
 
@@ -210,27 +210,27 @@ namespace valuestore
   t_void destruct_(type*) {                                       \
   }
 
-  DAINTY_CONTAINER_VALUESTORE_IMPL(named::t_bool)
+  DAINTY_CONTAINER_VALUESTORE_IMPL(base::t_bool)
 
-  DAINTY_CONTAINER_VALUESTORE_IMPL(named::t_char)
+  DAINTY_CONTAINER_VALUESTORE_IMPL(base::t_char)
 
-  DAINTY_CONTAINER_VALUESTORE_IMPL(named::t_short)
+  DAINTY_CONTAINER_VALUESTORE_IMPL(base::t_short)
 
-  DAINTY_CONTAINER_VALUESTORE_IMPL(named::t_int)
+  DAINTY_CONTAINER_VALUESTORE_IMPL(base::t_int)
 
-  DAINTY_CONTAINER_VALUESTORE_IMPL(named::t_long)
+  DAINTY_CONTAINER_VALUESTORE_IMPL(base::t_long)
 
-  DAINTY_CONTAINER_VALUESTORE_IMPL(named::t_llong)
+  DAINTY_CONTAINER_VALUESTORE_IMPL(base::t_llong)
 
-  DAINTY_CONTAINER_VALUESTORE_IMPL(named::t_uchar)
+  DAINTY_CONTAINER_VALUESTORE_IMPL(base::t_uchar)
 
-  DAINTY_CONTAINER_VALUESTORE_IMPL(named::t_ushort)
+  DAINTY_CONTAINER_VALUESTORE_IMPL(base::t_ushort)
 
-  DAINTY_CONTAINER_VALUESTORE_IMPL(named::t_uint)
+  DAINTY_CONTAINER_VALUESTORE_IMPL(base::t_uint)
 
-  DAINTY_CONTAINER_VALUESTORE_IMPL(named::t_ulong)
+  DAINTY_CONTAINER_VALUESTORE_IMPL(base::t_ulong)
 
-  DAINTY_CONTAINER_VALUESTORE_IMPL(named::t_ullong)
+  DAINTY_CONTAINER_VALUESTORE_IMPL(base::t_ullong)
 
   // XXX - must add other buildtins as well
 

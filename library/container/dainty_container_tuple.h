@@ -36,14 +36,14 @@ namespace container
 {
 namespace tuple
 {
-  using named::t_n_;
-  using named::t_n;
-  using named::t_ix;
-  using named::t_prefix;
-  using named::t_validity;
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_n_;
+  using base::t_n;
+  using base::t_ix;
+  using base::t_prefix;
+  using base::t_validity;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
   using any::t_any;
   using any::t_user;
 
@@ -63,8 +63,8 @@ namespace tuple
     }
     template<typename Arg, typename... Args>
     t_tuple_(r_store_ store, Arg&& arg, Args&&... args)
-      : tuple_ {store, named::preserve<Arg> (arg)},
-        tuples_{store, named::preserve<Args>(args)...} {
+      : tuple_ {store, base::preserve<Arg> (arg)},
+        tuples_{store, base::preserve<Args>(args)...} {
     }
   };
 
@@ -78,7 +78,7 @@ namespace tuple
     template<typename Arg>
     t_tuple_(r_store_ store, Arg&& arg) {
       (store.push_back())->template emplace<T>(t_user{0L},
-                                               named::preserve<Arg>(arg));
+                                               base::preserve<Arg>(arg));
     }
   };
 
@@ -90,7 +90,7 @@ namespace tuple
     }
 
     template<typename... Args>
-    t_tuple(Args&&... args) : tuple_{store_, named::preserve<Args>(args)...} {
+    t_tuple(Args&&... args) : tuple_{store_, base::preserve<Args>(args)...} {
     }
 
     inline

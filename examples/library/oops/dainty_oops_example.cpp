@@ -37,7 +37,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using namespace dainty;
-using named::P_cstr;
+using base::P_cstr;
 
 namespace asystem {
   using t_error_context = oops::t_ctxt<>;

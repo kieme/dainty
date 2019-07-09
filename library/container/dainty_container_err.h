@@ -50,7 +50,7 @@ namespace err
   oops::t_def err_what(oops::t_id);
 
   using t_err = oops::t_oops<err_what, t_err_codes>;
-  using r_err = named::t_prefix<t_err>::r_;
+  using r_err = base::t_prefix<t_err>::r_;
 }
 }
 }

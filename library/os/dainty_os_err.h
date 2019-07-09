@@ -37,13 +37,13 @@ namespace err
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
-  using named::t_errn;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
+  using base::t_errn;
 
   template<typename T>
-  using t_verify = named::t_verifiable<T>;
+  using t_verify = base::t_verifiable<T>;
 
 ///////////////////////////////////////////////////////////////////////////////
 

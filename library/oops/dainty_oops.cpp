@@ -24,14 +24,14 @@
 
 ******************************************************************************/
 
-#include "dainty_named_terminal.h"
+#include "dainty_base_terminal.h"
 #include "dainty_oops.h"
 
 namespace dainty
 {
 namespace oops
 {
-  using namespace named::terminal;
+  using namespace base::terminal;
 
   t_def default_what(t_id) noexcept {
     return t_def{UNRECOVERABLE, P_cstr{"unspecified oops"}};

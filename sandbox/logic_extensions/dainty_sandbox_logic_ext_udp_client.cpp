@@ -24,7 +24,7 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#include "dainty_named_terminal.h"
+#include "dainty_base_terminal.h"
 #include "dainty_sandbox_logic_ext_udp_client.h"
 
 namespace dainty
@@ -33,7 +33,7 @@ namespace sandbox
 {
 namespace logic_udp_client_ext
 {
-  using namespace named::terminal;
+  using namespace base::terminal;
 
 ///////////////////////////////////////////////////////////////////////////////
 

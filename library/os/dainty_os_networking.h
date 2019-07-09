@@ -32,7 +32,7 @@
 //
 //  not a complete API but only the things used by dainty.
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_oops.h"
 #include "dainty_container_transfer.h"
 #include "dainty_os_call.h"

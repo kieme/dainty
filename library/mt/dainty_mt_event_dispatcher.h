@@ -27,8 +27,8 @@
 #ifndef _DAINTY_MT_EVENT_DISPATCHER_H_
 #define _DAINTY_MT_EVENT_DISPATCHER_H_
 
-#include "dainty_named_ptr.h"
-#include "dainty_named_string.h"
+#include "dainty_base_ptr.h"
+#include "dainty_base_string.h"
 #include "dainty_container_freelist.h"
 #include "dainty_container_list.h"
 #include "dainty_container_ptrlist.h"
@@ -42,33 +42,33 @@ namespace event_dispatcher
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  using named::t_fd;
-  using named::t_void;
-  using named::t_bool;
-  using named::t_n;
-  using named::T_n;
-  using named::t_msec;
-  using named::r_msec;
-  using named::t_ix;
-  using named::string::t_string;
-  using named::string::FMT;
-  using named::t_validity;
-  using named::t_errn;
-  using named::t_prefix;
-  using named::t_explicit;
-  using named::VALID;
-  using named::INVALID;
-  using named::BAD_FD;
+  using base::t_fd;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_n;
+  using base::T_n;
+  using base::t_msec;
+  using base::r_msec;
+  using base::t_ix;
+  using base::string::t_string;
+  using base::string::FMT;
+  using base::t_validity;
+  using base::t_errn;
+  using base::t_prefix;
+  using base::t_explicit;
+  using base::VALID;
+  using base::INVALID;
+  using base::BAD_FD;
   using err::t_err;
 
   enum  t_event_id_tag_ {};
-  using t_event_id_ = named::t_short;
+  using t_event_id_ = base::t_short;
   using t_event_id  = t_explicit<t_event_id_, t_event_id_tag_>;
   using t_event_ids = container::list::t_list<t_event_id, 200>;
   using r_event_ids = t_prefix<t_event_ids>::r_;
 
   enum  t_event_user_tag_ {};
-  using t_event_user = named::t_user<t_event_user_tag_>;
+  using t_event_user = base::t_user<t_event_user_tag_>;
 
   enum  t_service_name_tag_ {};
   using t_service_name = t_string<t_service_name_tag_, 20>;
@@ -80,7 +80,7 @@ namespace event_dispatcher
 
   enum  t_event_type { RD_EVENT, WR_EVENT };
 
-  using t_event_prio = named::t_uchar;
+  using t_event_prio = base::t_uchar;
 
   enum  t_quit_tag_ {};
   using t_quit = t_explicit<t_bool, t_quit_tag_>;
@@ -95,8 +95,8 @@ namespace event_dispatcher
 
   class t_impl_;
   enum  t_impl_owner_tag_ { };
-  using t_impl_owner_ = named::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
-                                          named::ptr::t_deleter>;
+  using t_impl_owner_ = base::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
+                                          base::ptr::t_deleter>;
 
 ///////////////////////////////////////////////////////////////////////////////
 

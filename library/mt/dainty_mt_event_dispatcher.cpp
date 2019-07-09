@@ -35,10 +35,10 @@ namespace mt
 {
 namespace event_dispatcher
 {
-  using named::t_n_;
-  using named::t_ix_;
-  using named::string::operator""_SL;
-  using named::t_uint32;
+  using base::t_n_;
+  using base::t_ix_;
+  using base::string::operator""_SL;
+  using base::t_uint32;
   using os::fdbased::t_epoll;
   using err::r_err;
 

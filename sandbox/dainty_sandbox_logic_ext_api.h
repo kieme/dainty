@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_LOGIC_EXT_API_H_
 #define _DAINTY_SANDBOX_LOGIC_EXT_API_H_
 
-#include "dainty_named_string.h"
+#include "dainty_base_string.h"
 #include "dainty_sandbox_logic_api.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,13 +36,13 @@ namespace dainty
 {
 namespace sandbox
 {
-  using named::VALID;
-  using named::INVALID;
-  using named::t_void;
-  using named::t_bool;
-  using named::t_validity;
-  using named::t_prefix;
-  using named::string::t_string;
+  using base::VALID;
+  using base::INVALID;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_validity;
+  using base::t_prefix;
+  using base::string::t_string;
 
   using t_err = err::t_err;
 

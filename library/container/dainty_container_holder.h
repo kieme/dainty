@@ -27,8 +27,8 @@
 #ifndef _DAINTY_CONTAINER_HOLDER_H_
 #define _DAINTY_CONTAINER_HOLDER_H_
 
-#include "dainty_named.h"
-#include "dainty_named_ptr.h"
+#include "dainty_base.h"
+#include "dainty_base_ptr.h"
 
 namespace dainty
 {
@@ -36,9 +36,9 @@ namespace container
 {
 namespace holder
 {
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@ namespace holder
   };
   using p_it_ = t_prefix<t_it_>::p_;
 
-  using t_ptr_ = named::ptr::t_ptr<t_it_, t_it_, named::ptr::t_deleter>;
+  using t_ptr_ = base::ptr::t_ptr<t_it_, t_it_, base::ptr::t_deleter>;
 
   template<class T>
   struct t_store_ final : t_it_ {
@@ -58,7 +58,7 @@ namespace holder
     T value_;
 
     template<class... Args> t_store_(Args&&... args)
-      : value_(named::preserve<Args>(args)...) {
+      : value_(base::preserve<Args>(args)...) {
     }
 
     t_store_()                   = delete;
@@ -110,7 +110,7 @@ namespace holder
   template<typename T, typename... Args>
   inline
   t_holder t_holder::construct(Args&&... args) {
-    return {static_cast<p_it>(new t_store_<T>(named::preserve<Args>(args)...))};
+    return {static_cast<p_it>(new t_store_<T>(base::preserve<Args>(args)...))};
   }
 
   inline
@@ -124,12 +124,12 @@ namespace holder
   template<typename T>
   inline
   t_holder::t_holder(T&& value)
-    : store_{new t_store_<T>(named::preserve<T>(value))} {
+    : store_{new t_store_<T>(base::preserve<T>(value))} {
   }
 
   inline
   r_holder t_holder::operator=(x_holder holder) {
-    store_ = named::x_cast(holder.store_);
+    store_ = base::x_cast(holder.store_);
     return *this;
   }
 
@@ -141,7 +141,7 @@ namespace holder
   template<typename T, typename... Args>
   inline
   T& t_holder::emplace(Args&&... args) {
-    store_ = new t_store_<T>(named::preserve<Args>(args)...);
+    store_ = new t_store_<T>(base::preserve<Args>(args)...);
     return ref<T>();
   }
 

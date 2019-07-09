@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_LOGIC_EXT_TIPC_SERVER_NOTIFY_H_
 #define _DAINTY_SANDBOX_LOGIC_EXT_TIPC_SERVER_NOTIFY_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_sandbox_err.h"
 #include "dainty_sandbox_logic_ext_tipc_server.h"
 
@@ -37,7 +37,7 @@ namespace sandbox
 {
 namespace logic_tipc_server_ext
 {
-  using named::t_void;
+  using base::t_void;
   using t_err = err::t_err;
 
 ///////////////////////////////////////////////////////////////////////////////

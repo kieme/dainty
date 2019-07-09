@@ -130,14 +130,14 @@
 //   DAINTY_OOPS_TRACE  - track and print use path of owner
 //
 
-#include "dainty_named_assert.h"
+#include "dainty_base_assert.h"
 #include "dainty_oops_ctxt.h"
 
 namespace dainty
 {
 namespace oops
 {
-  using named::assert_now;
+  using base::assert_now;
 
 ////////////////////////////////////////////////////////////////////////////////
 

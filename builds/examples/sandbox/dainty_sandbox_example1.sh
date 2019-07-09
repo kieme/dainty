@@ -50,12 +50,12 @@ g++ -Wall -o dainty_sandbox_example1 \
   $DAINTY_ROOT/library/os/dainty_os_scheduling.cpp \
   $DAINTY_ROOT/library/os/dainty_os.cpp \
   $DAINTY_ROOT/library/oops/dainty_oops.cpp \
-  $DAINTY_ROOT/library/named/dainty_named_string_impl.cpp \
-  $DAINTY_ROOT/library/named/dainty_named_assert.cpp \
-  $DAINTY_ROOT/library/named/dainty_named_terminal.cpp \
+  $DAINTY_ROOT/library/base/dainty_base_string_impl.cpp \
+  $DAINTY_ROOT/library/base/dainty_base_assert.cpp \
+  $DAINTY_ROOT/library/base/dainty_base_terminal.cpp \
   -I$DAINTY_ROOT/sandbox \
   -I$DAINTY_ROOT/sandbox/logic_extensions \
-  -I$DAINTY_ROOT/library/named \
+  -I$DAINTY_ROOT/library/base \
   -I$DAINTY_ROOT/library/mt \
   -I$DAINTY_ROOT/library/os \
   -I$DAINTY_ROOT/library/oops \

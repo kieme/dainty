@@ -27,7 +27,7 @@
 #ifndef _DAINTY_OS_FDBASED_H_
 #define _DAINTY_OS_FDBASED_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_oops.h"
 #include "dainty_os_call.h"
 #include "dainty_os_clock.h"
@@ -38,13 +38,13 @@ namespace os
 {
 namespace fdbased
 {
-  using named::t_prefix;
-  using named::t_fd;
-  using named::t_void;
-  using named::t_n_;
-  using named::t_n;
-  using named::t_fd;
-  using named::BAD_FD;
+  using base::t_prefix;
+  using base::t_fd;
+  using base::t_void;
+  using base::t_n_;
+  using base::t_n;
+  using base::t_fd;
+  using base::BAD_FD;
   using err::t_err;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ namespace fdbased
   class t_eventfd final {
   public:
     using t_fd    = fdbased::t_fd;
-    using t_value = named::t_uint64;
+    using t_value = base::t_uint64;
     using r_value = t_prefix<t_value>::r_;
     using R_value = t_prefix<t_value>::R_;
 
@@ -98,8 +98,8 @@ namespace fdbased
 
   class t_epoll final {
   public:
-    using t_n          = named::t_n;
-    using t_msec       = named::t_msec;
+    using t_n          = base::t_n;
+    using t_msec       = base::t_msec;
     using t_fd         = fdbased::t_fd;
     using t_event_mask = ::uint32_t;
     using t_event_data = ::epoll_data;
@@ -182,7 +182,7 @@ namespace fdbased
     using t_timerspec = t_prefix<::itimerspec>::t_;
     using r_timerspec = t_prefix<t_timerspec>::r_;
     using R_timerspec = t_prefix<t_timerspec>::R_;
-    using t_data      = named::t_uint64;
+    using t_data      = base::t_uint64;
     using r_data      = t_prefix<t_data>::r_;
 
     static t_timerspec mk_timerspec(t_time value, t_time interval);

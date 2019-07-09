@@ -32,7 +32,7 @@ namespace os
 {
 namespace fdbased
 {
-  using named::t_void;
+  using base::t_void;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +44,7 @@ namespace fdbased
   }
 
   t_eventfd::t_eventfd(x_eventfd event) noexcept
-    : fd_{named::reset(event.fd_)} {
+    : fd_{base::reset(event.fd_)} {
   }
 
   t_eventfd::~t_eventfd() {
@@ -130,7 +130,7 @@ namespace fdbased
   }
 
   t_epoll::t_epoll(x_epoll epoll) noexcept
-    : fd_{named::reset(epoll.fd_)} {
+    : fd_{base::reset(epoll.fd_)} {
   }
 
   t_epoll::~t_epoll() {
@@ -263,7 +263,7 @@ namespace fdbased
   }
 
   t_timerfd::t_timerfd(x_timerfd timerfd) noexcept
-    : fd_{named::reset(timerfd.fd_)} {
+    : fd_{base::reset(timerfd.fd_)} {
   }
 
   t_timerfd::~t_timerfd() {

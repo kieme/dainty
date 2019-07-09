@@ -27,7 +27,7 @@
 #ifndef _DAINTY_MT_NET_TIPC_H_
 #define _DAINTY_MT_NET_TIPC_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_mt_err.h"
 #include "dainty_mt_net_connect.h"
 
@@ -41,18 +41,18 @@ namespace net_tipc
 {
   using err::t_err;
 
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
-  using named::t_prefix;
-  using named::t_explicit;
-  using named::t_void;
-  using named::t_bool;
-  using named::t_n;
-  using named::t_fd;
-  using named::t_errn;
-  using named::NO_ERRN;
-  using named::BAD_ERRN;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
+  using base::t_prefix;
+  using base::t_explicit;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_n;
+  using base::t_fd;
+  using base::t_errn;
+  using base::NO_ERRN;
+  using base::BAD_ERRN;
 
   using os::t_verify;
   using os::t_socket_address;

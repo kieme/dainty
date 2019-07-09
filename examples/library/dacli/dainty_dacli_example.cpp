@@ -362,11 +362,11 @@ int main7(int argc, const char* argv[]) {
 
   if (argc == 3) {
     t_argn def(err);
-    parse_notation(err, def, dainty::named::string::mk_range(argv[1]));
+    parse_notation(err, def, dainty::base::string::mk_range(argv[1]));
     def.print();
 
     t_argn use(err);
-    parse_notation(err, use, dainty::named::string::mk_range(argv[2]));
+    parse_notation(err, use, dainty::base::string::mk_range(argv[2]));
     use.print();
 
     merge_notation(err, use, def);
@@ -388,7 +388,7 @@ int main1(int argc, const char* argv[]) {
   t_argn use(err);
 
   if (argc > 1) {
-    parse_notation(err, use, dainty::named::string::mk_range(argv[1]));
+    parse_notation(err, use, dainty::base::string::mk_range(argv[1]));
   } else
     err = err::E_XXX;
   if (!err) {

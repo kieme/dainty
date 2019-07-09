@@ -3,8 +3,8 @@
 
 #include "dainty_state.h"
 
-using dainty::named::t_void;
-using dainty::named::t_prefix;
+using dainty::base::t_void;
+using dainty::base::t_prefix;
 
 ////////////////////////// design phase ////////////////////////////////
 

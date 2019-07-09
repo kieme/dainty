@@ -25,14 +25,14 @@ SOFTWARE.
 ******************************************************************************/
 
 #include <unistd.h>
-#include "dainty_named_terminal.h"
+#include "dainty_base_terminal.h"
 #include "dainty_mt_event.h"
 #include "dainty_sandbox.h"
 #include "dainty_mt_timers.h"
 
-using namespace dainty::named;
+using namespace dainty::base;
 using namespace dainty::sandbox;
-using namespace dainty::named::terminal;
+using namespace dainty::base::terminal;
 
 using t_event_client          = dainty::mt::event::t_client;
 using x_event_client          = dainty::mt::event::x_client;

@@ -47,7 +47,7 @@ namespace networking
     : fd_{call_socket(err, domain, type, protocol)} {
   }
 
-  t_socket::t_socket(x_socket socket) noexcept : fd_{named::reset(socket.fd_)} {
+  t_socket::t_socket(x_socket socket) noexcept : fd_{base::reset(socket.fd_)} {
   }
 
   t_socket::~t_socket() {
@@ -413,7 +413,7 @@ namespace networking
 
   t_tipc_stream_client
     ::t_tipc_stream_client(x_tipc_stream_client client) noexcept
-      : socket_{named::x_cast(client.socket_)} {
+      : socket_{base::x_cast(client.socket_)} {
   }
 
   t_tipc_stream_client::operator t_validity() const noexcept {

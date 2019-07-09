@@ -25,13 +25,13 @@ SOFTWARE.
 ******************************************************************************/
 
 #include <unistd.h>
-#include "dainty_named_terminal.h"
+#include "dainty_base_terminal.h"
 #include "dainty_sandbox.h"
 #include "dainty_sandbox_logic_ext_cli.h"
 #include "dainty_sandbox_logic_ext_large_msg.h"
 #include "dainty_sandbox_logic_ext_messenger.h"
 
-using namespace dainty::named::terminal;
+using namespace dainty::base::terminal;
 using namespace dainty::sandbox;
 using namespace dainty::sandbox::logic_cli_ext;
 using namespace dainty::sandbox::logic_large_msg_ext;

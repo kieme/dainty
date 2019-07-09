@@ -36,8 +36,8 @@ namespace container
 {
 namespace bytebuf
 {
-  using named::t_prefix;
-  using named::P_cstr;
+  using base::t_prefix;
+  using base::P_cstr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -117,7 +117,7 @@ namespace bytebuf
 
   template<typename T, typename P, typename U>
   inline P resolve_(U u, t_n n) {
-    if ((reinterpret_cast<named::t_uintptr>(u) % alignof(T)) ||
+    if ((reinterpret_cast<base::t_uintptr>(u) % alignof(T)) ||
         (sizeof(T) != get(n)))
       assert_now(P_cstr{"not aligned and/or size is wrong"});
     return reinterpret_cast<P>(u);
@@ -322,7 +322,7 @@ namespace bytebuf
   template<typename TAG>
   inline
   t_bytebuf<TAG, 0>::t_bytebuf(t_bytebuf&& buf)
-    : max_{named::reset(buf.max_)}, store_{named::reset(buf.store_)} {
+    : max_{base::reset(buf.max_)}, store_{base::reset(buf.store_)} {
   }
 
   template<typename TAG>
@@ -352,15 +352,15 @@ namespace bytebuf
   t_bytebuf<TAG, 0>& t_bytebuf<TAG, 0>::operator=(t_bytebuf&& buf) {
     if (store_)
       dealloc_(store_);
-    max_   = named::reset(buf.max_);
-    store_ = named::reset(buf.store_);
+    max_   = base::reset(buf.max_);
+    store_ = base::reset(buf.store_);
     return *this;
   }
 
   template<typename TAG>
   inline
   t_bytebuf<TAG, 0>& t_bytebuf<TAG, 0>::sized_copy_(P_byte byte, t_n_ max) {
-    t_n_ old = named::reset(max_, max);
+    t_n_ old = base::reset(max_, max);
     if (max_) {
       if (old < max_) {
         if (store_)
@@ -369,7 +369,7 @@ namespace bytebuf
       }
       copy_(store_, max_, byte, max_);
     } else if (store_)
-      dealloc_(named::reset(store_));
+      dealloc_(base::reset(store_));
     return *this;
   }
 
@@ -433,8 +433,8 @@ namespace bytebuf
   inline
   t_bool t_bytebuf<TAG, 0>::release() {
     if (store_) {
-      dealloc_(named::reset(store_));
-      named::reset(max_);
+      dealloc_(base::reset(store_));
+      base::reset(max_);
       return true;
     }
     return false;

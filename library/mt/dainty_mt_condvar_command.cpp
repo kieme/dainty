@@ -34,7 +34,7 @@ namespace mt
 namespace condvar_command
 {
   using err::r_err;
-  using named::t_n_;
+  using base::t_n_;
   using namespace dainty::os::threading;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,7 +161,7 @@ namespace condvar_command
 
   t_client::t_client(x_client client) noexcept
     : impl_{client.impl_.release()},
-      user_{named::reset(client.user_)} {
+      user_{base::reset(client.user_)} {
   }
 
   t_client::operator t_validity() const noexcept {

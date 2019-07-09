@@ -27,7 +27,7 @@
 #ifndef _DAINTY_CONTAINER_BITS_H_
 #define _DAINTY_CONTAINER_BITS_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_container_bits_impl.h"
 
 namespace dainty
@@ -36,11 +36,11 @@ namespace container
 {
 namespace bits
 {
-  using named::t_n;
-  using named::t_validity;
-  using named::t_bool;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_n;
+  using base::t_validity;
+  using base::t_bool;
+  using base::VALID;
+  using base::INVALID;
   using container::err::t_err;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -240,9 +240,9 @@ namespace bits
   }
 
   inline t_bits<0>::t_bits(t_bits&& bits) noexcept
-    : max_  {named::reset(bits.max_)},
-      store_{named::x_cast(bits.store_)},
-      impl_ {named::reset(bits.impl_.size_)} {
+    : max_  {base::reset(bits.max_)},
+      store_{base::x_cast(bits.store_)},
+      impl_ {base::reset(bits.impl_.size_)} {
   }
 
   inline t_bits<0>::operator t_validity() const noexcept {

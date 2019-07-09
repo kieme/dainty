@@ -27,8 +27,8 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_LOGIC_API_H_
 #define _DAINTY_SANDBOX_LOGIC_API_H_
 
-#include "dainty_named.h"
-#include "dainty_named_string.h"
+#include "dainty_base.h"
+#include "dainty_base_string.h"
 #include "dainty_container_ptr.h"
 #include "dainty_mt_event_dispatcher.h"
 #include "dainty_mt_timers.h"
@@ -42,14 +42,14 @@ namespace dainty
 namespace sandbox
 {
   using t_err = err::t_err;
-  using named::t_fd;
-  using named::t_msec;
-  using named::t_void;
-  using named::t_bool;
-  using named::t_prefix;
-  using named::t_explicit;
-  using named::t_validity;
-  using named::string::t_string;
+  using base::t_fd;
+  using base::t_msec;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_prefix;
+  using base::t_explicit;
+  using base::t_validity;
+  using base::string::t_string;
   using container::ptr::t_passable_ptr;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,8 +62,8 @@ namespace sandbox
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_spin_cnt_tag_ {};
-  using t_spin_cnt_ = named::t_int;
-  using t_spin_cnt  = named::t_explicit<t_spin_cnt_, t_spin_cnt_tag_>;
+  using t_spin_cnt_ = base::t_int;
+  using t_spin_cnt  = base::t_explicit<t_spin_cnt_, t_spin_cnt_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 

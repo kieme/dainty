@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_LOGIC_EXT_TCP_CLIENT_NOTIFY_H_
 #define _DAINTY_SANDBOX_LOGIC_EXT_TCP_CLIENT_NOTIFY_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_sandbox_err.h"
 
 namespace dainty
@@ -36,7 +36,7 @@ namespace sandbox
 {
 namespace logic_tcp_client_ext
 {
-  using named::t_void;
+  using base::t_void;
   using t_err = err::t_err;
 
 ///////////////////////////////////////////////////////////////////////////////

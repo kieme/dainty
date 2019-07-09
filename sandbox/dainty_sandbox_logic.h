@@ -39,7 +39,7 @@ namespace dainty
 {
 namespace sandbox
 {
-  using named::t_ix;
+  using base::t_ix;
   using container::ptrlist::t_ptrlist;
   using t_logic_exts = t_ptrlist<t_logic_ext, 10>;
 

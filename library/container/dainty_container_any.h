@@ -27,8 +27,8 @@
 #ifndef _DAINTY_CONTAINER_ANY_H_
 #define _DAINTY_CONTAINER_ANY_H_
 
-#include "dainty_named.h"
-#include "dainty_named_ptr.h"
+#include "dainty_base.h"
+#include "dainty_base_ptr.h"
 
 namespace dainty
 {
@@ -36,15 +36,15 @@ namespace container
 {
 namespace any
 {
-  using named::t_prefix;
-  using named::t_void;
-  using named::t_bool;
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_prefix;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
 
   enum  t_user_tag_ { };
-  using t_user = named::t_user<t_user_tag_>;
+  using t_user = base::t_user<t_user_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +54,7 @@ namespace any
 
   class t_type_ {
   public:
-    using t_ptr_ = named::ptr::t_ptr<t_type_, t_type_, named::ptr::t_deleter>;
+    using t_ptr_ = base::ptr::t_ptr<t_type_, t_type_, base::ptr::t_deleter>;
 
     virtual ~t_type_() {}
     virtual t_bool is_equal(R_type_) const = 0;
@@ -73,7 +73,7 @@ namespace any
     T value_;
 
     template<typename... Args> t_store_(Args&&... args)
-      : value_(named::preserve<Args>(args)...) {
+      : value_(base::preserve<Args>(args)...) {
     }
 
     t_store_(R_store_)           = delete;
@@ -153,7 +153,7 @@ namespace any
   inline
   t_any t_any::construct(t_user user, Args&&... args) {
     return {user,
-            static_cast<p_type_>(new t_store_<T>(named::preserve<Args>(args)...))};
+            static_cast<p_type_>(new t_store_<T>(base::preserve<Args>(args)...))};
   }
 
   inline
@@ -167,7 +167,7 @@ namespace any
   template<typename T>
   inline
   t_any::t_any(t_user user, T&& value)
-    : user_{user}, store_{new t_store_<T>(named::preserve<T>(value))} {
+    : user_{user}, store_{new t_store_<T>(base::preserve<T>(value))} {
   }
 
   inline
@@ -177,8 +177,8 @@ namespace any
   }
 
   inline
-  t_any::t_any(x_any any) : user_{any.user_}, store_{named::x_cast(any.store_)} {
-    named::reset(any.user_);
+  t_any::t_any(x_any any) : user_{any.user_}, store_{base::x_cast(any.store_)} {
+    base::reset(any.user_);
   }
 
   inline
@@ -195,7 +195,7 @@ namespace any
   inline
   T& t_any::emplace(t_user user, Args&&... args) {
     user_  = user;
-    store_ = new t_store_<T>(named::preserve<Args>(args)...);
+    store_ = new t_store_<T>(base::preserve<Args>(args)...);
     return ref<T>();
   }
 

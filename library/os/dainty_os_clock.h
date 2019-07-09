@@ -37,28 +37,28 @@ namespace clock
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  using named::t_void;
-  using named::t_bool;
-  using named::t_nsec;
-  using named::r_nsec;
-  using named::t_usec;
-  using named::r_usec;
-  using named::t_msec;
-  using named::r_msec;
-  using named::t_sec;
-  using named::r_sec;
-  using named::t_min;
-  using named::r_min;
-  using named::t_ticks;
-  using named::r_ticks;
-  using named::t_prefix;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_nsec;
+  using base::r_nsec;
+  using base::t_usec;
+  using base::r_usec;
+  using base::t_msec;
+  using base::r_msec;
+  using base::t_sec;
+  using base::r_sec;
+  using base::t_min;
+  using base::r_min;
+  using base::t_ticks;
+  using base::r_ticks;
+  using base::t_prefix;
 
   template<typename T> struct t_test_;
-  template<> struct t_test_<t_nsec> { using t_dummy_ = named::t_void; };
-  template<> struct t_test_<t_usec> { using t_dummy_ = named::t_void; };
-  template<> struct t_test_<t_msec> { using t_dummy_ = named::t_void; };
-  template<> struct t_test_<t_sec>  { using t_dummy_ = named::t_void; };
-  template<> struct t_test_<t_min>  { using t_dummy_ = named::t_void; };
+  template<> struct t_test_<t_nsec> { using t_dummy_ = base::t_void; };
+  template<> struct t_test_<t_usec> { using t_dummy_ = base::t_void; };
+  template<> struct t_test_<t_msec> { using t_dummy_ = base::t_void; };
+  template<> struct t_test_<t_sec>  { using t_dummy_ = base::t_void; };
+  template<> struct t_test_<t_min>  { using t_dummy_ = base::t_void; };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -144,7 +144,7 @@ namespace clock
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<> struct t_test_<t_time> { using t_dummy_ = named::t_void;  };
+  template<> struct t_test_<t_time> { using t_dummy_ = base::t_void;  };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -171,7 +171,7 @@ namespace clock
 #elif (defined(__x86_64__))
     unsigned int a, d;
     asm volatile("rdtsc" : "=a" (a), "=d" (d));
-    tmp = (((named::t_uint64)d) << 32) | a;
+    tmp = (((base::t_uint64)d) << 32) | a;
 #elif (defined(__powerpc__) || defined(__ppc__))
     unsigned int tbl, tbu0, tbu1;
     do {
@@ -179,7 +179,7 @@ namespace clock
       __asm__ __volatile__("mftb %0"  : "=r"(tbl));
       __asm__ __volatile__("mftbu %0" : "=r"(tbu1));
      } while (tbu0 != tbu1);
-     tmp = (((named::t_uint64)tbu0) << 32) | tbl;
+     tmp = (((base::t_uint64)tbu0) << 32) | tbl;
 #endif
     return t_ticks{tmp};
   }
@@ -203,12 +203,12 @@ namespace clock
 
   constexpr ::timespec to_(t_nsec nsec) noexcept {
     return { ::time_t(get(nsec)/1000000000),
-             named::t_long(get(nsec)%1000000000)}; // narrow - XXX
+             base::t_long(get(nsec)%1000000000)}; // narrow - XXX
   }
 
   constexpr ::timespec to_(t_usec usec) noexcept {
     return { ::time_t(get(usec)/1000000),
-             named::t_long(get(usec)%1000000)}; // narrow - XXX
+             base::t_long(get(usec)%1000000)}; // narrow - XXX
   }
 
   constexpr ::timespec to_(t_msec msec) noexcept {

@@ -27,7 +27,7 @@
 #ifndef _DAINTY_MT_WAITABLE_CHAINED_QUEUE_H_
 #define _DAINTY_MT_WAITABLE_CHAINED_QUEUE_H_
 
-#include "dainty_named_ptr.h"
+#include "dainty_base_ptr.h"
 #include "dainty_container_any.h"
 #include "dainty_container_chained_queue.h"
 #include "dainty_mt_err.h"
@@ -38,18 +38,18 @@ namespace mt
 {
 namespace waitable_chained_queue
 {
-  using named::t_fd;
-  using named::t_n;
-  using named::t_void;
-  using named::t_validity;
-  using named::t_errn;
-  using named::t_prefix;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_fd;
+  using base::t_n;
+  using base::t_void;
+  using base::t_validity;
+  using base::t_errn;
+  using base::t_prefix;
+  using base::VALID;
+  using base::INVALID;
   using err::t_err;
 
   enum  t_user_tag_ { };
-  using t_user = named::t_user<t_user_tag_>;
+  using t_user = base::t_user<t_user_tag_>;
 
   using t_any = container::any::t_any;
 
@@ -63,11 +63,11 @@ namespace waitable_chained_queue
 
   class t_impl_;
   enum  t_impl_user_tag_ { };
-  using t_impl_user_ = named::ptr::t_ptr<t_impl_, t_impl_user_tag_,
-                                         named::ptr::t_no_deleter>;
+  using t_impl_user_ = base::ptr::t_ptr<t_impl_, t_impl_user_tag_,
+                                         base::ptr::t_no_deleter>;
   enum  t_impl_owner_tag_ { };
-  using t_impl_owner_ = named::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
-                                          named::ptr::t_deleter>;
+  using t_impl_owner_ = base::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
+                                          base::ptr::t_deleter>;
 
 ///////////////////////////////////////////////////////////////////////////////
 

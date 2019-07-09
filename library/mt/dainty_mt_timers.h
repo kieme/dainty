@@ -27,9 +27,9 @@
 #ifndef _DAINTY_MT_TIMERS_H_
 #define _DAINTY_MT_TIMERS_H_
 
-#include "dainty_named.h"
-#include "dainty_named_ptr.h"
-#include "dainty_named_string.h"
+#include "dainty_base.h"
+#include "dainty_base_ptr.h"
+#include "dainty_base_string.h"
 #include "dainty_container_list.h"
 #include "dainty_container_ptrlist.h"
 #include "dainty_mt_err.h"
@@ -40,29 +40,29 @@ namespace mt
 {
 namespace timers
 {
-  using named::t_fd;
-  using named::t_void;
-  using named::t_bool;
-  using named::t_ix;
-  using named::t_n;
-  using named::T_n;
-  using named::t_msec;
-  using named::t_errn;
-  using named::string::t_string;
-  using named::t_validity;
-  using named::t_prefix;
-  using named::t_percentage;
-  using named::T_percentage;
-  using named::t_explicit;
-  using named::VALID;
-  using named::INVALID;
-  using named::BAD_FD;
+  using base::t_fd;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_ix;
+  using base::t_n;
+  using base::T_n;
+  using base::t_msec;
+  using base::t_errn;
+  using base::string::t_string;
+  using base::t_validity;
+  using base::t_prefix;
+  using base::t_percentage;
+  using base::T_percentage;
+  using base::t_explicit;
+  using base::VALID;
+  using base::INVALID;
+  using base::BAD_FD;
   using err::t_err;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_timer_id_tag_ {};
-  using t_timer_id_ = named::t_int;
+  using t_timer_id_ = base::t_int;
   using t_timer_id  = t_explicit<t_timer_id_, t_timer_id_tag_>;
   constexpr t_timer_id BAD_TIMER_ID{-1};
 
@@ -70,9 +70,9 @@ namespace timers
   using r_timer_ids = t_prefix<t_timer_ids>::r_;
 
   enum  t_timer_user_tag_ {};
-  using t_timer_user = named::t_user<t_timer_user_tag_>;
+  using t_timer_user = base::t_user<t_timer_user_tag_>;
 
-  using t_timer_prio = named::t_uchar;
+  using t_timer_prio = base::t_uchar;
   using T_timer_prio = t_prefix<t_timer_prio>::T_;
 
   enum  t_service_name_tag_ {};
@@ -116,8 +116,8 @@ namespace timers
 
   class t_impl_;
   enum  t_impl_owner_tag_ { };
-  using t_impl_owner_ = named::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
-                                          named::ptr::t_deleter>;
+  using t_impl_owner_ = base::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
+                                          base::ptr::t_deleter>;
 
 ///////////////////////////////////////////////////////////////////////////////
 

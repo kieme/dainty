@@ -32,7 +32,7 @@
 //
 //  not a complete API but only the things used by dainty.
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_os_networking.h"
 #include "dainty_container_list.h"
 #include "dainty_container_maybe.h"
@@ -46,17 +46,17 @@ namespace net_connect
 {
   using err::t_err;
 
-  using named::t_prefix;
-  using named::t_explicit;
-  using named::t_fd;
-  using named::t_n;
-  using named::t_void;
-  using named::t_bool;
-  using named::BAD_FD;
-  using named::t_user;
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_prefix;
+  using base::t_explicit;
+  using base::t_fd;
+  using base::t_n;
+  using base::t_void;
+  using base::t_bool;
+  using base::BAD_FD;
+  using base::t_user;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
 
   using container::list::t_list;
   using container::maybe::t_maybe;
@@ -73,7 +73,7 @@ namespace net_connect
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_connect_id_tag_ {};
-  using t_connect_id_ = named::t_int;
+  using t_connect_id_ = base::t_int;
   using t_connect_id  = t_explicit<t_connect_id_, t_connect_id_tag_>;
 
   constexpr t_connect_id BAD_CONNECT_ID{-1}; // BAD_ID - XXX

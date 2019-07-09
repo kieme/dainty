@@ -33,8 +33,8 @@
 #include <vector>
 #include <map>
 
-#include "dainty_named.h"
-#include "dainty_named_string.h"
+#include "dainty_base.h"
+#include "dainty_base_string.h"
 #include "dainty_oops.h"
 #include "dainty_dacli_err.h"
 
@@ -44,31 +44,31 @@ namespace dainty
 {
 namespace dacli
 {
-  using named::t_void;
-  using named::t_bool;
-  using named::t_prefix;
-  using named::string::t_string;
-  using named::string::operator""_SL;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_prefix;
+  using base::string::t_string;
+  using base::string::operator""_SL;
   using err::t_err;
   using err::r_err;
 
-  using t_string_crange = named::string::t_crange;
+  using t_string_crange = base::string::t_crange;
 
 /******************************************************************************/
 
 namespace argn
 {
-  using named::t_ix;
-  using named::t_n;
+  using base::t_ix;
+  using base::t_n;
 
-  using named::operator"" _ix;
-  using named::operator"" _bix;
-  using named::operator"" _eix;
-  using named::operator"" _n;
+  using base::operator"" _ix;
+  using base::operator"" _bix;
+  using base::operator"" _eix;
+  using base::operator"" _n;
 
-  constexpr named::t_uint32 OPTIONAL = 0x10000000;
+  constexpr base::t_uint32 OPTIONAL = 0x10000000;
 
-  enum t_type : named::t_uint32 {
+  enum t_type : base::t_uint32 {
     TYPE_Q   = 0x00000000,  // 1.
     TYPE_A   = 0x00000001,  // 1.
     TYPE_X   = 0x00000002,  // 2.
@@ -226,11 +226,11 @@ namespace argn
         t_bool       init_ = false;
       } range_;
       struct {
-        named::t_uint16 options_ = 0;
+        base::t_uint16 options_ = 0;
       } list_;
     };
     t_name                     ext_;
-    std::vector<named::p_void> mem_; // XXX - placeholder for a freelistid
+    std::vector<base::p_void> mem_; // XXX - placeholder for a freelistid
   };
   using r_arginfo = t_prefix<t_arginfo>::r_;
   using R_arginfo = t_prefix<t_arginfo>::R_;

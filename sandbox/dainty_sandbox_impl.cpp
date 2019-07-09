@@ -24,8 +24,8 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#include "dainty_named.h"
-#include "dainty_named_terminal.h"
+#include "dainty_base.h"
+#include "dainty_base_terminal.h"
 #include "dainty_sandbox_impl.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,9 +34,9 @@ namespace dainty
 {
 namespace sandbox
 {
-  using namespace dainty::named::terminal;
-  using named::t_ix;
-  using named::t_percentage;
+  using namespace dainty::base::terminal;
+  using base::t_ix;
+  using base::t_percentage;
   using mt::event_dispatcher::DONT_QUIT;
   using mt::event_dispatcher::QUIT;
   using mt::event_dispatcher::RD_EVENT;
@@ -172,7 +172,7 @@ namespace sandbox
             timer_entry->params     = params;
             timer_entry->tmr_id     = tmr_id;
             timer_entry->id         = id;
-            timer_entry->notify_ptr = named::x_cast(ptr);
+            timer_entry->notify_ptr = base::x_cast(ptr);
             logic_entry->timer_ids.push_back(id);
             return id;
           }
@@ -221,7 +221,7 @@ namespace sandbox
       tmrs_.clear_timer(timer_entry->tmr_id);
 
       if (timer_entry->notify_ptr == VALID)
-        tmp = named::x_cast(timer_entry->notify_ptr);
+        tmp = base::x_cast(timer_entry->notify_ptr);
 
       auto logic_entry = logics_.get(ix);
       logic_entry->timer_ids.erase(
@@ -291,7 +291,7 @@ namespace sandbox
             fd_entry->name       = name;
             fd_entry->params     = params;
             fd_entry->ev_id      = ev_id;
-            fd_entry->notify_ptr = named::x_cast(notify_ptr);
+            fd_entry->notify_ptr = base::x_cast(notify_ptr);
             fd_entry->id         = id;
             logic_entry->event_ids.push_back(id);
             return id;
@@ -312,7 +312,7 @@ namespace sandbox
       dispatcher_.del_event(fd_entry->ev_id);
 
       if (fd_entry->notify_ptr == VALID)
-        tmp = named::x_cast(fd_entry->notify_ptr);
+        tmp = base::x_cast(fd_entry->notify_ptr);
 
       auto logic_entry = logics_.get(ix);
       logic_entry->event_ids.erase(
@@ -633,7 +633,7 @@ namespace sandbox
   t_single_impl_::t_single_impl_(t_err err, R_name name, R_params params,
                                  x_ptr ptr) noexcept
     : t_impl_{err, name, params, t_n{1}},
-      ptr_{named::x_cast(ptr)} {
+      ptr_{base::x_cast(ptr)} {
     ERR_GUARD(err) {
       register_logic(err, ptr_.get());
     }
@@ -644,7 +644,7 @@ namespace sandbox
   t_shared_impl_::t_shared_impl_(t_err err, R_name name, R_params params,
                                  x_ptrlist ptrlist) noexcept
     : t_impl_{err, name, params, ptrlist.get_size()},
-      ptrlist_{named::x_cast(ptrlist)} {
+      ptrlist_{base::x_cast(ptrlist)} {
     ERR_GUARD(err) {
       t_ix_ end = get(ptrlist_.get_size());
       for (t_ix_ ix = 0; !err && ix < end; ++ix)

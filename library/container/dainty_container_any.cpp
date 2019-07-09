@@ -51,8 +51,8 @@ namespace any
   }
 
   r_any t_any::operator=(x_any any) {
-    user_  = named::reset(any.user_);
-    store_ = named::x_cast(any.store_);
+    user_  = base::reset(any.user_);
+    store_ = base::x_cast(any.store_);
     return *this;
   }
 

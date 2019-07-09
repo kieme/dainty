@@ -36,16 +36,16 @@ namespace os
 {
 namespace threading
 {
-  using named::p_void;
-  using named::t_void;
-  using named::t_bool;
-  using named::t_int;
-  using named::t_validity;
-  using named::t_n;
-  using named::p_cstr;
-  using named::P_cstr;
-  using named::VALID;
-  using named::INVALID;
+  using base::p_void;
+  using base::t_void;
+  using base::t_bool;
+  using base::t_int;
+  using base::t_validity;
+  using base::t_n;
+  using base::p_cstr;
+  using base::P_cstr;
+  using base::VALID;
+  using base::INVALID;
   using clock::t_time;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ namespace threading
 
   private:
     friend L;
-    using p_lock = typename named::t_prefix<t_lock>::p_;
+    using p_lock = typename base::t_prefix<t_lock>::p_;
     t_locked_scope(p_lock) noexcept;
     p_lock swap_(p_lock)  noexcept;
 
@@ -270,7 +270,7 @@ namespace threading
     t_void enter_scope_(t_locked_scope*) noexcept;
     t_void leave_scope_(t_locked_scope*) noexcept;
 
-    named::t_uint        cnt_    = 0;
+    base::t_uint        cnt_    = 0;
     ::pthread_t          owner_;
     t_mutex_lock         mutex_;
     t_monotonic_cond_var cond_;

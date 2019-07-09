@@ -36,9 +36,9 @@ namespace mt
 {
 namespace timers
 {
-  using named::t_ix_;
-  using named::t_msec;
-  using named::string::operator""_SL;
+  using base::t_ix_;
+  using base::t_msec;
+  using base::string::operator""_SL;
   using os::clock::monotonic_now;
   using container::freelist::t_freelist;
   using container::ptrlist::t_ptrlist;

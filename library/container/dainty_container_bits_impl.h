@@ -27,8 +27,8 @@
 #ifndef _DAINTY_CONTAINER_BITS_IMPL_H_
 #define _DAINTY_CONTAINER_BITS_IMPL_H_
 
-#include "dainty_named.h"
-#include "dainty_named_ptr.h"
+#include "dainty_base.h"
+#include "dainty_base_ptr.h"
 #include "dainty_container_err.h"
 #include <stdlib.h>
 
@@ -38,15 +38,15 @@ namespace container
 {
 namespace bits
 {
-  using named::t_n_;
-  using named::t_uint;
-  using named::t_validity;
-  using named::t_bool;
-  using named::t_void;
-  using named::t_logical;
-  using named::t_prefix;
-  using named::t_byte_;
-  using named::ptr::t_ptr;
+  using base::t_n_;
+  using base::t_uint;
+  using base::t_validity;
+  using base::t_bool;
+  using base::t_void;
+  using base::t_logical;
+  using base::t_prefix;
+  using base::t_byte_;
+  using base::ptr::t_ptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 

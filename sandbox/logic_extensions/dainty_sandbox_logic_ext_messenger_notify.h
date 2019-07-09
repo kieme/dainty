@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_LOGIC_EXT_MESSENGER_NOTIFY_H_
 #define _DAINTY_SANDBOX_LOGIC_EXT_MESSENGER_NOTIFY_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_sandbox_logic_ext_messenger_api.h"
 
 namespace dainty

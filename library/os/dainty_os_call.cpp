@@ -31,7 +31,7 @@ namespace dainty
 {
 namespace os
 {
-  using named::BAD_ERRN;
+  using base::BAD_ERRN;
 
   using err::get_pthread_mutexattr_init_err_code;
   using err::get_clock_gettime_err_code;
@@ -725,14 +725,14 @@ namespace os
 
   t_errn call_close(t_fd& fd) noexcept {
     if (fd != BAD_FD)
-      return t_errn{::close(get(named::reset(fd)))};
+      return t_errn{::close(get(base::reset(fd)))};
     return BAD_ERRN;
   }
 
   t_void call_close(t_err err, t_fd& fd) noexcept {
     ERR_GUARD(err) {
       if (fd != BAD_FD)
-        ::close(get(named::reset(fd)));
+        ::close(get(base::reset(fd)));
       else
         err = err::E_XXX;
     }

@@ -27,7 +27,7 @@
 #ifndef _DAINTY_CONTIANER_PTR_H_
 #define _DAINTY_CONTIANER_PTR_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 
 namespace dainty
 {
@@ -35,10 +35,10 @@ namespace container
 {
 namespace ptr
 {
-  using named::t_void;
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_void;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
 
   template<typename T>
   inline t_void default_deleter(T* t) {
@@ -61,7 +61,7 @@ namespace ptr
 
     inline
     t_passable_ptr(t_passable_ptr&& ptr)
-      : ptr_(named::reset(ptr.ptr_)), deleter_(named::reset(ptr.deleter_)) {
+      : ptr_(base::reset(ptr.ptr_)), deleter_(base::reset(ptr.deleter_)) {
     }
 
     inline
@@ -74,8 +74,8 @@ namespace ptr
     t_passable_ptr& operator=(t_passable_ptr&& ptr) {
       if (deleter_ && ptr_)
         deleter_(ptr_);
-      ptr_     = named::reset(ptr.ptr_);
-      deleter_ = named::reset(ptr.deleter_);
+      ptr_     = base::reset(ptr.ptr_);
+      deleter_ = base::reset(ptr.deleter_);
       return *this;
     }
 
@@ -129,7 +129,7 @@ namespace ptr
 
     inline
     t_passable_ptr(t_passable_ptr&& ptr)
-      : ptr_(named::reset(ptr.ptr_)), deleter_(named::reset(ptr.deleter_)) {
+      : ptr_(base::reset(ptr.ptr_)), deleter_(base::reset(ptr.deleter_)) {
     }
 
     inline
@@ -142,8 +142,8 @@ namespace ptr
     t_passable_ptr& operator=(t_passable_ptr&& ptr) {
       if (deleter_ && ptr_)
         deleter_(ptr_);
-      ptr_     = named::reset(ptr.ptr_);
-      deleter_ = named::reset(ptr.deleter_);
+      ptr_     = base::reset(ptr.ptr_);
+      deleter_ = base::reset(ptr.deleter_);
       return *this;
     }
 

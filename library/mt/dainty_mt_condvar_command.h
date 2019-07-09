@@ -27,7 +27,7 @@
 #ifndef _DAINTY_MT_CONDVAR_COMMAND_H_
 #define _DAINTY_MT_CONDVAR_COMMAND_H_
 
-#include "dainty_named_ptr.h"
+#include "dainty_base_ptr.h"
 #include "dainty_mt_err.h"
 
 namespace dainty
@@ -36,21 +36,21 @@ namespace mt
 {
 namespace condvar_command
 {
-  using named::t_n;
-  using named::t_void;
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
-  using named::t_errn;
-  using named::t_prefix;
+  using base::t_n;
+  using base::t_void;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
+  using base::t_errn;
+  using base::t_prefix;
   using err::t_err;
 
   enum  t_user_tag_ { };
-  using t_user = named::t_user<t_user_tag_>;
+  using t_user = base::t_user<t_user_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_id = named::t_uint;
+  using t_id = base::t_uint;
 
   class t_command {
   public:
@@ -66,11 +66,11 @@ namespace condvar_command
 
   class t_impl_;
   enum  t_impl_user_tag_ { };
-  using t_impl_user_ = named::ptr::t_ptr<t_impl_, t_impl_user_tag_,
-                                         named::ptr::t_no_deleter>;
+  using t_impl_user_ = base::ptr::t_ptr<t_impl_, t_impl_user_tag_,
+                                         base::ptr::t_no_deleter>;
   enum  t_impl_owner_tag_ { };
-  using t_impl_owner_ = named::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
-                                          named::ptr::t_deleter>;
+  using t_impl_owner_ = base::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
+                                          base::ptr::t_deleter>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -124,7 +124,7 @@ namespace condvar_command
       virtual t_void async_process(       t_user, p_command) noexcept = 0;
     };
 
-    using r_logic = named::t_prefix<t_logic>::r_;
+    using r_logic = base::t_prefix<t_logic>::r_;
 
      t_processor(t_err)       noexcept;
      t_processor(x_processor) noexcept;

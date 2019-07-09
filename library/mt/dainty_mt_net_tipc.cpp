@@ -71,7 +71,7 @@ namespace net_tipc
 
   t_tipc_stream_client
     ::t_tipc_stream_client(x_tipc_stream_client client) noexcept
-      : socket_{named::x_cast(client.socket_)} {
+      : socket_{base::x_cast(client.socket_)} {
   }
 
   t_tipc_stream_client::operator t_validity() const noexcept {
@@ -218,8 +218,8 @@ namespace net_tipc
   t_tipc_stream_server
     ::t_tipc_stream_server(x_tipc_stream_server server) noexcept
       : params_{server.params_},
-        socket_{named::x_cast(server.socket_)}, logic_{server.logic_},
-        table_ {named::x_cast(server.table_)} {
+        socket_{base::x_cast(server.socket_)}, logic_{server.logic_},
+        table_ {base::x_cast(server.table_)} {
     // XXX move - don't forget logic_
   }
 

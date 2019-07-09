@@ -35,8 +35,8 @@ namespace dainty
 {
 namespace sandbox
 {
-  using named::t_void;
-  using named::t_prefix;
+  using base::t_void;
+  using base::t_prefix;
 
   using t_err = err::t_err;
 

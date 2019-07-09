@@ -27,7 +27,7 @@
 #ifndef _DAINTY_CONTAINER_CHAINED_QUEUE_H_
 #define _DAINTY_CONTAINER_CHAINED_QUEUE_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 #include "dainty_container_freelist.h"
 #include "dainty_container_chained_queue_impl.h"
 

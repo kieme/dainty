@@ -24,7 +24,7 @@ SOFTWARE.
 
 ******************************************************************************/
 
-#include "dainty_named_terminal.h"
+#include "dainty_base_terminal.h"
 #include "dainty_sandbox_logic_ext_inotify.h"
 
 namespace dainty
@@ -33,7 +33,7 @@ namespace sandbox
 {
 namespace logic_inotify_ext
 {
-  using namespace named::terminal;
+  using namespace base::terminal;
 
 ///////////////////////////////////////////////////////////////////////////////
 

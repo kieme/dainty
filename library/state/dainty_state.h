@@ -27,7 +27,7 @@
 #ifndef _DAINTY_STATE_
 #define _DAINTY_STATE_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 
 namespace dainty
 {
@@ -60,8 +60,8 @@ namespace state
   //  A template statemashine has been written that can be copied and pasted
   //  as a starting point and then be modified.
 
-  using named::t_prefix;
-  using named::t_void;
+  using base::t_prefix;
+  using base::t_void;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -88,13 +88,13 @@ namespace state
 
     using t_state        = state::t_state       <ID, USER, IF>;
     using t_statemachine = state::t_statemachine<ID, USER, IF>;
-    using t_state_id     = typename named::t_prefix<ID>::t_;
-    using t_interface    = typename named::t_prefix<IF>::t_;
-    using t_user         = typename named::t_prefix<USER>::t_;
-    using r_user         = typename named::t_prefix<USER>::r_;
-    using R_user         = typename named::t_prefix<USER>::R_;
-    using p_state        = typename named::t_prefix<t_state>::p_;
-    using P_state        = typename named::t_prefix<t_state>::P_;
+    using t_state_id     = typename base::t_prefix<ID>::t_;
+    using t_interface    = typename base::t_prefix<IF>::t_;
+    using t_user         = typename base::t_prefix<USER>::t_;
+    using r_user         = typename base::t_prefix<USER>::r_;
+    using R_user         = typename base::t_prefix<USER>::R_;
+    using p_state        = typename base::t_prefix<t_state>::p_;
+    using P_state        = typename base::t_prefix<t_state>::P_;
   };
 
   template<typename ID, typename IF>
@@ -103,10 +103,10 @@ namespace state
 
     using t_state        = state::t_state       <ID, t_no_user, IF>;
     using t_statemachine = state::t_statemachine<ID, t_no_user, IF>;
-    using t_state_id     = typename named::t_prefix<ID>::t_;
-    using t_interface    = typename named::t_prefix<IF>::t_;
-    using p_state        = typename named::t_prefix<t_state>::p_;
-    using P_state        = typename named::t_prefix<t_state>::P_;
+    using t_state_id     = typename base::t_prefix<ID>::t_;
+    using t_interface    = typename base::t_prefix<IF>::t_;
+    using p_state        = typename base::t_prefix<t_state>::p_;
+    using P_state        = typename base::t_prefix<t_state>::P_;
   };
 
   template<typename ID, typename USER>
@@ -115,12 +115,12 @@ namespace state
 
     using t_state        = state::t_state       <ID, USER, t_no_if>;
     using t_statemachine = state::t_statemachine<ID, USER, t_no_if>;
-    using t_state_id     = typename named::t_prefix<ID>::t_;
-    using t_user         = typename named::t_prefix<USER>::t_;
-    using r_user         = typename named::t_prefix<USER>::r_;
-    using R_user         = typename named::t_prefix<USER>::R_;
-    using p_state        = typename named::t_prefix<t_state>::p_;
-    using P_state        = typename named::t_prefix<t_state>::P_;
+    using t_state_id     = typename base::t_prefix<ID>::t_;
+    using t_user         = typename base::t_prefix<USER>::t_;
+    using r_user         = typename base::t_prefix<USER>::r_;
+    using R_user         = typename base::t_prefix<USER>::R_;
+    using p_state        = typename base::t_prefix<t_state>::p_;
+    using P_state        = typename base::t_prefix<t_state>::P_;
   };
 
   template<typename ID>
@@ -129,9 +129,9 @@ namespace state
 
     using t_state        = state::t_state       <ID, t_no_user, t_no_if>;
     using t_statemachine = state::t_statemachine<ID, t_no_user, t_no_if>;
-    using t_state_id     = typename named::t_prefix<ID>::t_;
-    using p_state        = typename named::t_prefix<t_state>::p_;
-    using P_state        = typename named::t_prefix<t_state>::P_;
+    using t_state_id     = typename base::t_prefix<ID>::t_;
+    using p_state        = typename base::t_prefix<t_state>::p_;
+    using P_state        = typename base::t_prefix<t_state>::P_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

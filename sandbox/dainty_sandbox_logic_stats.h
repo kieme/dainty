@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef _DAINTY_SANDBOX_LOGIC_STATS_H_
 #define _DAINTY_SANDBOX_LOGIC_STATS_H_
 
-#include "dainty_named.h"
+#include "dainty_base.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ namespace dainty
 {
 namespace sandbox
 {
-  using named::t_prefix;
+  using base::t_prefix;
 
 ///////////////////////////////////////////////////////////////////////////////
 

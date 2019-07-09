@@ -33,7 +33,7 @@ namespace mt
 {
 namespace condvar_event
 {
-  using named::t_n_;
+  using base::t_n_;
   using err::r_err;
   using namespace dainty::os::threading;
 
@@ -70,7 +70,7 @@ namespace condvar_event
                 cond_.wait(err, lock_);
               } while (!err && !cnt_);
             }
-            cnt = named::reset(cnt_);
+            cnt = base::reset(cnt_);
           }
         %>
         if (!err)
@@ -83,11 +83,11 @@ namespace condvar_event
         t_cnt_ cnt = 0;
         <% auto scope = lock_.make_locked_scope(err);
           if (!err) {
-            named::reset(cnt_);
+            base::reset(cnt_);
             do {
               cond_.wait(err, lock_);
             } while (!err && !cnt_);
-            cnt = named::reset(cnt_);
+            cnt = base::reset(cnt_);
           }
         %>
         if (!err)
@@ -144,7 +144,7 @@ namespace condvar_event
 
   t_client::t_client(x_client client) noexcept
     : impl_{client.impl_.release()},
-      user_{named::reset(client.user_)} {
+      user_{base::reset(client.user_)} {
   }
 
   t_client::operator t_validity() const noexcept {

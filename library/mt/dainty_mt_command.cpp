@@ -63,13 +63,13 @@ namespace command
           if (!err) {
             if (wait_) {
               if (async_) {
-                p_command cmd = named::reset(cmd_);
+                p_command cmd = base::reset(cmd_);
                 t_user user = user_;
                 cond_.signal(err);
                 logic.async_process(user, cmd);
               } else {
                 logic.process(err, user_, *cmd_);
-                named::reset(cmd_);
+                base::reset(cmd_);
                 cond_.signal();
               }
             } else {
@@ -182,7 +182,7 @@ namespace command
 
   t_client::t_client(x_client client) noexcept
       : impl_{client.impl_.release()},
-        user_{named::reset(client.user_)} {
+        user_{base::reset(client.user_)} {
   }
 
   t_client::operator t_validity() const noexcept {

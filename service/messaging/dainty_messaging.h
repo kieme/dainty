@@ -34,17 +34,17 @@ namespace dainty
 {
 namespace messaging
 {
-  using named::t_bool;
-  using named::p_bool;
-  using named::t_void;
-  using named::t_n_;
-  using named::t_n;
-  using named::P_cstr;
-  using named::t_validity;
-  using named::string::t_string;
-  using named::t_prefix;
-  using named::VALID;
-  using named::INVALID;
+  using base::t_bool;
+  using base::p_bool;
+  using base::t_void;
+  using base::t_n_;
+  using base::t_n;
+  using base::P_cstr;
+  using base::t_validity;
+  using base::string::t_string;
+  using base::t_prefix;
+  using base::VALID;
+  using base::INVALID;
   using err::t_err;
   using messenger::t_multiple_of_100ms;
   using messenger::t_messenger;

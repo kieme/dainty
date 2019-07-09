@@ -39,13 +39,13 @@ namespace link_map
   using err::t_err;
   using err::r_err;
 
-  using named::t_bool;
-  using named::t_void;
-  using named::t_n;
-  using named::t_validity;
-  using named::VALID;
-  using named::INVALID;
-  using named::t_prefix;
+  using base::t_bool;
+  using base::t_void;
+  using base::t_n;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
+  using base::t_prefix;
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +57,7 @@ namespace link_map
 
     t_entry_() = default;
     template<typename T1>
-    t_entry_(T1&& value) : value_{named::preserve<T1>(value)} { }
+    t_entry_(T1&& value) : value_{base::preserve<T1>(value)} { }
 
     t_value  value_;
     P_key    key_  = nullptr;
@@ -203,7 +203,7 @@ namespace link_map
         else
           return nullptr;
       }
-      itr = lk_.insert(itr, t_lk_value_{named::preserve<K1>(key), t_entry_{}});
+      itr = lk_.insert(itr, t_lk_value_{base::preserve<K1>(key), t_entry_{}});
       if (itr != lk_.end()) {
         entry       = &itr->second;
         entry->key_ = &itr->first;
@@ -230,7 +230,7 @@ namespace link_map
     template<typename K1>
     t_itr insert(t_err err, K1&& key) {
       ERR_GUARD(err) {
-         auto itr = insert(named::preserve<K1>(key));
+         auto itr = insert(base::preserve<K1>(key));
          if (itr != VALID)
            err = err::E_NOT_UNIQUE;
          return itr;
@@ -248,8 +248,8 @@ namespace link_map
         else
           return nullptr;
       }
-      itr = lk_.insert(itr, t_lk_value_{named::preserve<K1>(key),
-                                        t_entry_{named::preserve<T1>(value)}});
+      itr = lk_.insert(itr, t_lk_value_{base::preserve<K1>(key),
+                                        t_entry_{base::preserve<T1>(value)}});
       if (itr != lk_.end()) {
         entry       = &itr->second;
         entry->key_ = &itr->first;
@@ -276,7 +276,7 @@ namespace link_map
     template<typename K1, typename T1>
     t_itr insert(t_err err, K1&& key, T1&& value) {
       ERR_GUARD(err) {
-         auto itr = insert(named::preserve<K1>(key), named::preserve<T1>(value));
+         auto itr = insert(base::preserve<K1>(key), base::preserve<T1>(value));
          if (itr != VALID)
            err = err::E_NOT_UNIQUE;
          return itr;

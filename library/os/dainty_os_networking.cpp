@@ -32,7 +32,7 @@ namespace os
 {
 namespace networking
 {
-  using named::EMPLACE_IT;
+  using base::EMPLACE_IT;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +40,7 @@ namespace networking
   }
 
   t_connect_socket::t_connect_socket(x_connect_socket socket) noexcept
-    : fd_{named::reset(socket.fd_)} {
+    : fd_{base::reset(socket.fd_)} {
   }
 
   t_connect_socket::~t_connect_socket() {
@@ -272,7 +272,7 @@ namespace networking
     : fd_{call_socket(err, domain, type, protocol)} {
   }
 
-  t_socket::t_socket(x_socket socket) noexcept : fd_{named::reset(socket.fd_)} {
+  t_socket::t_socket(x_socket socket) noexcept : fd_{base::reset(socket.fd_)} {
   }
 
   t_socket::~t_socket() {

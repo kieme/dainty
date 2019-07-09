@@ -45,7 +45,7 @@ namespace notify_change
     using r_logic = t_processor::r_logic;
 
     t_impl_(r_err err, t_any&& any) noexcept
-      : lock_(err), eventfd_(err, t_n{0}), any_(named::x_cast(any)) {
+      : lock_(err), eventfd_(err, t_n{0}), any_(base::x_cast(any)) {
       if (lock_ == VALID && eventfd_ == VALID)
         valid_ = VALID;
     }
@@ -73,7 +73,7 @@ namespace notify_change
             }
           %>
           if (!err && changed)
-            logic.process(user, named::x_cast(any));
+            logic.process(user, base::x_cast(any));
         }
       }
     }
@@ -82,7 +82,7 @@ namespace notify_change
       <% auto scope = lock_.make_locked_scope();
         if (scope == VALID && any != any_) {
           user_    = user;
-          any_     = named::x_cast(any);
+          any_     = base::x_cast(any);
           changed_ = true;
 
           t_eventfd::t_value value = 1;
@@ -96,7 +96,7 @@ namespace notify_change
       <% auto scope = lock_.make_locked_scope(err);
         if (!err && any != any_) {
           user_    = user;
-          any_     = named::x_cast(any);
+          any_     = base::x_cast(any);
           changed_ = true;
 
           t_eventfd::t_value value = 1;
@@ -136,7 +136,7 @@ namespace notify_change
 
   t_client::t_client(x_client client) noexcept
     : impl_{client.impl_.release()},
-      user_{named::reset(client.user_)} {
+      user_{base::reset(client.user_)} {
   }
 
   t_client::operator t_validity() const noexcept {
@@ -145,14 +145,14 @@ namespace notify_change
 
   t_errn t_client::post(t_any&& any) noexcept {
     if (*this == VALID)
-      return impl_->post(user_, named::x_cast(any));
+      return impl_->post(user_, base::x_cast(any));
     return t_errn{-1};
   }
 
   t_void t_client::post(t_err err, t_any&& any) noexcept {
     ERR_GUARD(err) {
       if (*this == VALID)
-        impl_->post(err, user_, named::x_cast(any));
+        impl_->post(err, user_, base::x_cast(any));
       else
         err = err::E_XXX;
     }
@@ -162,7 +162,7 @@ namespace notify_change
 
   t_processor::t_processor(t_err err, t_any&& any) noexcept {
     ERR_GUARD(err) {
-      impl_ = new t_impl_(err, named::x_cast(any));
+      impl_ = new t_impl_(err, base::x_cast(any));
       if (impl_ == VALID) {
         if (err)
           impl_.clear();

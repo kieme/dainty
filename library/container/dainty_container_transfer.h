@@ -35,25 +35,25 @@ namespace container
 {
 namespace transfer
 {
-  using named::t_errn;
-  using named::t_validity;
-  using named::t_emplace_it;
-  using named::EMPLACE_IT;
-  using named::VALID;
-  using named::INVALID;
-  using named::NO_ERRN;
-  using named::BAD_ERRN;
+  using base::t_errn;
+  using base::t_validity;
+  using base::t_emplace_it;
+  using base::EMPLACE_IT;
+  using base::VALID;
+  using base::INVALID;
+  using base::NO_ERRN;
+  using base::BAD_ERRN;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_transfer {
   public:
-    using t_value    = typename named::t_prefix<T>::t_;
-    using x_value    = typename named::t_prefix<T>::x_;
-    using r_transfer = typename named::t_prefix<t_transfer>::r_;
-    using R_transfer = typename named::t_prefix<t_transfer>::R_;
-    using x_transfer = typename named::t_prefix<t_transfer>::x_;
+    using t_value    = typename base::t_prefix<T>::t_;
+    using x_value    = typename base::t_prefix<T>::x_;
+    using r_transfer = typename base::t_prefix<t_transfer>::r_;
+    using R_transfer = typename base::t_prefix<t_transfer>::R_;
+    using x_transfer = typename base::t_prefix<t_transfer>::x_;
 
     t_transfer() = default;
     template<typename... Args>
@@ -94,11 +94,11 @@ namespace transfer
   template<typename T>
   class t_errn_transfer {
   public:
-    using t_value         = typename named::t_prefix<T>::t_;
-    using x_value         = typename named::t_prefix<T>::x_;
-    using r_errn_transfer = typename named::t_prefix<t_errn_transfer>::r_;
-    using R_errn_transfer = typename named::t_prefix<t_errn_transfer>::R_;
-    using x_errn_transfer = typename named::t_prefix<t_errn_transfer>::x_;
+    using t_value         = typename base::t_prefix<T>::t_;
+    using x_value         = typename base::t_prefix<T>::x_;
+    using r_errn_transfer = typename base::t_prefix<t_errn_transfer>::r_;
+    using R_errn_transfer = typename base::t_prefix<t_errn_transfer>::R_;
+    using x_errn_transfer = typename base::t_prefix<t_errn_transfer>::x_;
 
     template<typename... Args>
     t_errn_transfer(t_emplace_it, Args&&...);
@@ -141,19 +141,19 @@ namespace transfer
   template<typename... Args>
   inline
   t_transfer<T>::t_transfer(t_emplace_it, Args&&... args)
-    : maybe_{EMPLACE_IT, named::preserve<Args>(args)...} {
+    : maybe_{EMPLACE_IT, base::preserve<Args>(args)...} {
   }
 
   template<typename T>
   inline
   t_transfer<T>::t_transfer(x_value value)
-    : maybe_{named::x_cast(value)} {
+    : maybe_{base::x_cast(value)} {
   }
 
   template<typename T>
   inline
   t_transfer<T>::t_transfer(x_transfer transfer)
-    : maybe_{named::x_cast(transfer.maybe_)} {
+    : maybe_{base::x_cast(transfer.maybe_)} {
   }
 
   template<typename T>
@@ -168,7 +168,7 @@ namespace transfer
     //if (maybe_ == INVALID)
     // assert
 
-    T tmp(named::x_cast(set(maybe_)));
+    T tmp(base::x_cast(set(maybe_)));
     maybe_.release();
     return tmp;
   }
@@ -179,7 +179,7 @@ namespace transfer
   template<typename... Args>
   inline
   t_errn_transfer<T>::t_errn_transfer(t_emplace_it, Args&&... args)
-    : maybe_{EMPLACE_IT, named::preserve<Args>(args)...}, errn_{NO_ERRN} {
+    : maybe_{EMPLACE_IT, base::preserve<Args>(args)...}, errn_{NO_ERRN} {
   }
 
   template<typename T>
@@ -194,7 +194,7 @@ namespace transfer
   template<typename T>
   inline
   t_errn_transfer<T>::t_errn_transfer(x_value value)
-    : maybe_{named::x_cast(value)}, errn_{NO_ERRN} {
+    : maybe_{base::x_cast(value)}, errn_{NO_ERRN} {
   }
 
   template<typename T>
@@ -202,7 +202,7 @@ namespace transfer
   t_errn_transfer<T>::t_errn_transfer(x_errn_transfer transfer)
       : errn_{transfer} {
     if (errn_ == NO_ERRN) {
-      maybe_ = named::x_cast(transfer.maybe_);
+      maybe_ = base::x_cast(transfer.maybe_);
       transfer.release();
     }
   }
@@ -218,7 +218,7 @@ namespace transfer
     //if (errn_ != NO_ERRN)
     // assert
 
-    T tmp(named::x_cast(set(maybe_)));
+    T tmp(base::x_cast(set(maybe_)));
     errn_ = BAD_ERRN;
     maybe_.release();
     return tmp;

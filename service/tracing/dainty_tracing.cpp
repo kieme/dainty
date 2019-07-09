@@ -29,7 +29,7 @@
 #include <map>
 #include <algorithm>
 #include <limits>
-#include "dainty_named_terminal.h"
+#include "dainty_base_terminal.h"
 #include "dainty_container_ptr.h"
 #include "dainty_mt_waitable_chained_queue.h"
 #include "dainty_mt_command.h"
@@ -40,8 +40,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-using namespace dainty::named;
-using namespace dainty::named::terminal;
+using namespace dainty::base;
+using namespace dainty::base::terminal;
 using namespace dainty::container;
 using namespace dainty::mt;
 using namespace dainty::os;
@@ -217,7 +217,7 @@ namespace tracer
 
   class t_shm_output_ : public t_output_impl_ {
   public:
-    t_shm_output_(t_err) { //XXX must implement - named shared memory ring buf
+    t_shm_output_(t_err) { //XXX must implement - base shared memory ring buf
     }
 
     ~t_shm_output_() {
@@ -671,7 +671,7 @@ namespace tracer
       if (entry.second) {
         entry.first->second.info.name   = name;
         entry.first->second.info.params = params; //XXX impl must be added
-        entry.first->second.impl        = named::x_cast(impl);
+        entry.first->second.impl        = base::x_cast(impl);
         return &entry.first->second;
       } else
         err = err::E_XXX;
@@ -685,7 +685,7 @@ namespace tracer
       if (entry != std::cend(observers_)) {
         entry->second.info.name   = name;
         entry->second.info.params = params;
-        entry->second.impl        = named::x_cast(impl);
+        entry->second.impl        = base::x_cast(impl);
         // bound to all - XXX-0
         return VALID;
       } else
@@ -708,7 +708,7 @@ namespace tracer
               tracers_.erase(tracer);
           }
         }
-        impl = named::x_cast(entry->second.impl);
+        impl = base::x_cast(entry->second.impl);
         observers_.erase(entry);
       } else
         err = err::E_XXX;
@@ -1042,7 +1042,7 @@ namespace tracer
           impl = t_output_impl_ptr_{&shm_, nullptr};
           break;
       }
-      data_.add_observer(err, cmd.name, cmd.params, named::x_cast(impl));
+      data_.add_observer(err, cmd.name, cmd.params, base::x_cast(impl));
     }
 
     t_void process(err::t_err err, r_destroy_observer_cmd_ cmd) noexcept {
@@ -1479,7 +1479,7 @@ namespace tracer
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  //t_ptr<t_tracing, t_tracing, named::ptr::t_deleter>
+  //t_ptr<t_tracing, t_tracing, base::ptr::t_deleter>
   p_tracing_ tr_ = nullptr; // atomic or shared_ptr thread safe
 
 ///////////////////////////////////////////////////////////////////////////////

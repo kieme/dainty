@@ -1,27 +1,27 @@
 #include <assert.h>
-#include "dainty_named_string.h"
-#include "dainty_named_assert.h"
+#include "dainty_base_string.h"
+#include "dainty_base_assert.h"
 #include "dainty_state.h"
 
 namespace coffee_machine
 {
-  using dainty::named::P_cstr;
-  using dainty::named::t_prefix;
-  using dainty::named::t_void;
-  using dainty::named::P_char;
-  using dainty::named::t_bool;
-  using dainty::named::r_bool;
-  using dainty::named::t_int;
-  using dainty::named::t_n_;
-  using dainty::named::t_n;
-  using dainty::named::t_ix_;
-  using dainty::named::string::t_string;
-  using dainty::named::string::t_crange;
-  using dainty::named::string::operator""_SL;
-  using dainty::named::string::format;
-  using dainty::named::string::integer;
-  using dainty::named::string::NL;
-  using dainty::named::string::SP_2;
+  using dainty::base::P_cstr;
+  using dainty::base::t_prefix;
+  using dainty::base::t_void;
+  using dainty::base::P_char;
+  using dainty::base::t_bool;
+  using dainty::base::r_bool;
+  using dainty::base::t_int;
+  using dainty::base::t_n_;
+  using dainty::base::t_n;
+  using dainty::base::t_ix_;
+  using dainty::base::string::t_string;
+  using dainty::base::string::t_crange;
+  using dainty::base::string::operator""_SL;
+  using dainty::base::string::format;
+  using dainty::base::string::integer;
+  using dainty::base::string::NL;
+  using dainty::base::string::SP_2;
 
   enum  t_tracker_tag_ {};
   using t_tracker = t_string<t_tracker_tag_>;

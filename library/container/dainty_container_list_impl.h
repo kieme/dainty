@@ -39,26 +39,26 @@ namespace list
   using err::t_err;
   using err::r_err;
 
-  using named::t_bool;
-  using named::t_void;
-  using named::t_n;
-  using named::t_n_;
-  using named::t_ix_;
+  using base::t_bool;
+  using base::t_void;
+  using base::t_n;
+  using base::t_n_;
+  using base::t_ix_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_list_impl_ {
   public:
-    using t_entry = typename named::t_prefix<valuestore::t_valuestore<T>>::t_;
-    using p_store = typename named::t_prefix<t_entry>::p_;
-    using P_store = typename named::t_prefix<t_entry>::P_;
-    using t_value = typename named::t_prefix<T>::t_;
-    using p_value = typename named::t_prefix<T>::p_;
-    using P_value = typename named::t_prefix<T>::P_;
-    using r_value = typename named::t_prefix<T>::r_;
-    using R_value = typename named::t_prefix<T>::R_;
-    using x_value = typename named::t_prefix<T>::x_;
+    using t_entry = typename base::t_prefix<valuestore::t_valuestore<T>>::t_;
+    using p_store = typename base::t_prefix<t_entry>::p_;
+    using P_store = typename base::t_prefix<t_entry>::P_;
+    using t_value = typename base::t_prefix<T>::t_;
+    using p_value = typename base::t_prefix<T>::p_;
+    using P_value = typename base::t_prefix<T>::P_;
+    using r_value = typename base::t_prefix<T>::r_;
+    using R_value = typename base::t_prefix<T>::R_;
+    using x_value = typename base::t_prefix<T>::x_;
 
     inline
     t_list_impl_() : next_(0) {
@@ -107,7 +107,7 @@ namespace list
     inline
     p_value push_back(p_store store, t_n_ max, x_value value) {
       if (next_ < max)
-        return store[next_++].move_construct(named::x_cast(value));
+        return store[next_++].move_construct(base::x_cast(value));
       return nullptr;
     }
 
@@ -116,7 +116,7 @@ namespace list
       ERR_GUARD(err) {
         if (store) {
           if (next_ < max)
-            return store[next_++].move_construct(named::x_cast(value));
+            return store[next_++].move_construct(base::x_cast(value));
           err =  err::E_NO_SPACE;
         } else
           err = err::E_INVALID_INST;
@@ -192,9 +192,9 @@ namespace list
       if (next_ < max) {
         if (ix < next_) {
           move_up_(store, ix, next_++);
-          return store[ix].move_construct(named::x_cast(value));
+          return store[ix].move_construct(base::x_cast(value));
         } else if ((!next_ && !ix) || (ix == next_))
-          return push_back(store, max, named::x_cast(value));
+          return push_back(store, max, base::x_cast(value));
       }
       return nullptr;
     }
@@ -207,9 +207,9 @@ namespace list
           if (next_ < max) {
             if (ix < next_) {
               move_up_(store, ix, next_++);
-              return store[ix].move_construct(named::x_cast(value));
+              return store[ix].move_construct(base::x_cast(value));
             } else if ((!next_ && !ix) || (ix == next_))
-              return push_back(store, max, named::x_cast(value));
+              return push_back(store, max, base::x_cast(value));
             err = err::E_INVALID_IX;
           } else
             err = err::E_NO_SPACE;
@@ -406,7 +406,7 @@ namespace list
     t_void move_up_(p_store store, t_ix_ ix, t_ix_ max) {
       for (t_ix_ i = max; i > ix; /**/) {
         const t_ix_ x = i--;
-        store[x].move_construct(named::x_cast(store[i].ref()));
+        store[x].move_construct(base::x_cast(store[i].ref()));
         store[i].destruct();
       }
     }
@@ -415,7 +415,7 @@ namespace list
     t_void move_down_(p_store store, t_ix_ ix, t_ix_ max) {
       for (t_ix_ i = ix; i < max; /**/) {
         const t_ix_ x = i++;
-        store[x].move_construct(named::x_cast(store[i].ref()));
+        store[x].move_construct(base::x_cast(store[i].ref()));
         store[i].destruct();
       }
     }
