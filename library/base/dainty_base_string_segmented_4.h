@@ -162,7 +162,7 @@ namespace segmented
     return impl_.insert(store_, store_ + max_, seg_no, user);
   }
 
-  template<class TAG
+  template<class TAG>
   inline
   t_result t_segmented<TAG, 0, t_overflow_grow>::
       insert(t_seg_no seg_no, t_crange range, t_user user) noexcept {
@@ -252,7 +252,7 @@ namespace segmented
   template<class TAG>
   inline
   t_id t_segmented<TAG, 0, t_overflow_grow>
-      ::find_next(t_crange range, t_id _id) const noexcept {
+      ::find_next(t_crange range, t_id id) const noexcept {
     return impl_.find_next(store_, range, id);
   }
 
@@ -289,6 +289,7 @@ namespace segmented
     return impl_.each(store_, preserve<F>(func));
   }
 
+  template<class TAG>
   template<typename BY, typename TO>
   t_void t_segmented<TAG, 0, t_overflow_grow>
       ::generate(BY&& by, TO&& to) noexcept {

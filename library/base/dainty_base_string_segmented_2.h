@@ -39,7 +39,7 @@ namespace segmented
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<class TAG, t_n_ N = 0>
+  template<class TAG, t_n_ N>
   class t_segmented<TAG, N, t_overflow_grow> {
     using t_impl_ = t_segmented_impl_<t_overflow_grow>;
   public:
@@ -83,17 +83,17 @@ namespace segmented
     template<typename BY, typename TO>
     t_void generate(BY&&, TO&&) noexcept;
 
-    template<class TAG1, t_n_ N11, typename O1>
+    template<class TAG1, t_n_ N1, typename O1>
     t_bool is_equal     (const t_segmented<TAG1, N1, O1>&) const noexcept;
 
-    template<class TAG1, t_n_ N11, typename O1>
+    template<class TAG1, t_n_ N1, typename O1>
     t_bool is_less      (const t_segmented<TAG1, N1, O1>&) const noexcept;
 
-    template<class TAG1, t_n_ N11, typename O1>
+    template<class TAG1, t_n_ N1, typename O1>
     t_bool is_less_equal(const t_segmented<TAG1, N1, O1>&) const noexcept;
 
   private:
-    template<t_n_> friend class t_segmented;
+    template<typename, t_n_, typename> friend class t_segmented;
 
     // XXX
     t_char  buf_[N]; // SSO
@@ -253,7 +253,7 @@ namespace segmented
   template<class TAG, t_n_ N>
   inline
   t_id t_segmented<TAG, N, t_overflow_grow>
-      ::find_next(t_crange range, t_id _id) const noexcept {
+      ::find_next(t_crange range, t_id id) const noexcept {
     return impl_.find_next(store_, range, id);
   }
 
@@ -290,6 +290,7 @@ namespace segmented
     return impl_.each(store_, preserve<F>(func));
   }
 
+  template<class TAG, t_n_ N>
   template<typename BY, typename TO>
   t_void t_segmented<TAG, N, t_overflow_grow>
       ::generate(BY&& by, TO&& to) noexcept {

@@ -93,7 +93,7 @@ namespace segmented
     t_bool is_less_equal(const t_segmented<TAG1, N1, O1>&) const noexcept;
 
   private:
-    template<t_n_> friend class t_segmented;
+    template<typename, t_n_, typename> friend class t_segmented;
 
     t_char  store_[N];
     t_impl_ impl_;
@@ -242,7 +242,7 @@ namespace segmented
   template<class TAG, t_n_ N, typename O>
   inline
   t_id t_segmented<TAG, N, O>::find_next(t_crange range,
-                                         t_id _id) const noexcept {
+                                         t_id id) const noexcept {
     return impl_.find_next(store_, range, id);
   }
 
@@ -277,6 +277,7 @@ namespace segmented
     return impl_.each(store_, preserve<F>(func));
   }
 
+  template<class TAG, t_n_ N, typename O>
   template<typename BY, typename TO>
   t_void t_segmented<TAG, N, O>::generate(BY&& by, TO&& to) noexcept {
     return impl_.generate(store_, preserve<BY>(by), preserve<TO>(to));

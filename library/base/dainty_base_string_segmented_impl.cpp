@@ -71,14 +71,7 @@ namespace segmented
     return end;
   }
 
-  p_char insert_(p_char buf, t_user usr) noexcept {
-    t_seg_hdr_ hdr{0, usr};
-    *buf++ = hdr.raw[0];
-    *buf++ = hdr.raw[1];
-    return buf;
-  }
-
-  p_char insert_(p_char buf, t_crange range, t_user usr) noexcept {
+  p_char push_back_(p_char buf, t_crange range, t_user usr) noexcept {
     t_n_ range_n = get(range.n);
     t_seg_hdr_ hdr{range_n, usr};
     *buf++ = hdr.raw[0];
@@ -87,33 +80,34 @@ namespace segmented
     return buf + range_n;
   }
 
-  p_char change_(p_char buf, p_char end, t_user usr) noexcept {
+  p_char change_(p_char buf, p_char next, t_user usr) noexcept {
     t_seg_hdr_ hdr1{buf[0], buf[1]}, hdr2{0, usr};
     buf[0] = hdr2.raw[0];
     buf[1] = hdr2.raw[1];
     if (hdr1.hdr.len) {
       t_n_ size = HDR_MAX_ + hdr1.hdr.len;
-      if (end != buf + size)
-        std::memmove(buf, buf + size, (end - buf) - size);
-      end -= size;
+      if (next != buf + size)
+        std::memmove(buf, buf + size, (next - buf) - size);
+      next -= size;
     }
-    return end;
+    return next;
   }
 
-  p_char change_(p_char buf, p_char end, t_seg_no seg_no, t_user usr) noexcept {
+  p_char change_(p_char buf, p_char next, t_seg_no seg_no,
+                 t_user usr) noexcept {
     p_char ptr = buf;
-    for (t_n_ cnt = 0; ptr < end; ++cnt) {
+    for (t_n_ cnt = 0; ptr < next; ++cnt) {
       t_seg_hdr_ hdr{ptr[0], ptr[1]};
       t_n_ size = HDR_MAX_ + hdr.hdr.len;
       if (cnt == base::get(seg_no)) {
-        if (end != ptr + size)
-          std::memmove(ptr, ptr + size, (end - ptr) - size);
-        end -= size;
+        if (next != ptr + size)
+          std::memmove(ptr, ptr + size, (next - ptr) - size);
+        next -= size;
         break;
       }
       ptr += size;
     }
-    return end;
+    return next;
   }
 
   p_char change_(p_char buf, p_char end, t_crange range, t_user usr) noexcept {
