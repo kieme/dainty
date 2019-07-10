@@ -36,10 +36,10 @@ namespace base
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_void assert_now   (P_cstr reason)           noexcept;
-  t_void assert_now   (t_fmt, P_cstr_ fmt, ...) noexcept
+  t_void assert_now(P_cstr reason)           noexcept;
+  t_void assert_now(t_fmt, P_cstr_ fmt, ...) noexcept
     __attribute__((format(printf, 2, 3)));
-  t_void assert_now_va(t_fmt, P_cstr_ fmt, va_list) noexcept;
+  t_void assert_now(t_fmt_va, P_cstr_ fmt, va_list) noexcept;
 
   inline
    t_void assert_if_true(t_bool cond, P_cstr reason) noexcept{
