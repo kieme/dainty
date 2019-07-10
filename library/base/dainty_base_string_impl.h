@@ -51,6 +51,9 @@ namespace string
   using base::t_char;
   using base::t_int;
   using base::t_int;
+  using base::FMT;
+  using base::FMT_IT;
+  using base::FMT_VA_IT;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +65,6 @@ namespace string
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum t_fmt                 { FMT };
   enum t_plus1_     : t_n_   { NOT_PLUS1     = 0,     PLUS1     = 1    };
   enum t_incl_char_ : t_n_   { NOT_INCL_CHAR = 0,     INCL_CHAR = 1 };
   enum t_eol_       : t_bool { NOT_EOL_OK    = false, EOL_OK    = true };
@@ -422,12 +424,12 @@ namespace string
       len_ += fill_(str + len_, max - len_, block, OVERFLOW_ASSERT);
     }
 
-    inline t_void va_assign(p_cstr_ str, t_n_ max, P_cstr_ fmt,
-                            va_list vars) noexcept {
+    inline t_void assign(t_fmt_va, p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                         va_list vars) noexcept {
       len_ = build_(str, max, fmt, vars, OVERFLOW_ASSERT);
     }
 
-    inline t_void va_append(p_cstr_ str, t_n_ max, P_cstr_ fmt,
+    inline t_void append(t_fmt_va, p_cstr_ str, t_n_ max, P_cstr_ fmt,
                             va_list vars) noexcept {
       len_ += build_(str + len_, max - len_, fmt, vars, OVERFLOW_ASSERT);
     }
@@ -507,13 +509,13 @@ namespace string
       len_ += fill_(str + len_, max - len_, block, OVERFLOW_TRUNCATE);
     }
 
-    inline t_void va_assign(p_cstr_ str, t_n_ max, P_cstr_ fmt,
-                            va_list vars) noexcept {
+    inline t_void assign(t_fmt_va, p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                         va_list vars) noexcept {
       len_ = build_(str, max, fmt, vars, OVERFLOW_TRUNCATE);
     }
 
-    inline t_void va_append(p_cstr_ str, t_n_ max, P_cstr_ fmt,
-                            va_list vars) noexcept {
+    inline t_void append(t_fmt_va, p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                         va_list vars) noexcept {
       len_ += build_(str + len_, max - len_, fmt, vars, OVERFLOW_TRUNCATE);
     }
 
@@ -598,16 +600,16 @@ namespace string
       len_ += fill_(str + len_, max - len_, block, OVERFLOW_TRUNCATE);
     }
 
-    inline t_n_ va_assign_try(p_cstr_ str, t_n_ max, P_cstr_ fmt,
-                              va_list vars) noexcept {
+    inline t_n_ assign_try(t_fmt_va, p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                           va_list vars) noexcept {
       auto n = build_(str, max, fmt, vars, OVERFLOW_GROW);
       if (n < max)
         len_ = n;
       return n;
     }
 
-    inline t_n_ va_append_try(p_cstr_ str, t_n_ max, P_cstr_ fmt,
-                              va_list vars) noexcept {
+    inline t_n_ append_try(t_fmt_va, p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                           va_list vars) noexcept {
       auto left = max - len_;
       auto n = build_(str + len_, left, fmt, vars, OVERFLOW_GROW);
       if (n < left)
@@ -615,13 +617,13 @@ namespace string
       return n;
     }
 
-    inline t_void va_assign(p_cstr_ str, t_n_ max, P_cstr_ fmt,
-                            va_list vars) noexcept {
+    inline t_void assign(t_fmt_va, p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                         va_list vars) noexcept {
       len_ = build_(str, max, fmt, vars, OVERFLOW_TRUNCATE);
     }
 
-    inline t_void va_append(p_cstr_ str, t_n_ max, P_cstr_ fmt,
-                            va_list vars) noexcept {
+    inline t_void append(t_fmt_va, p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                         va_list vars) noexcept {
       len_ += build_(str + len_, max - len_, fmt, vars, OVERFLOW_TRUNCATE);
     }
 

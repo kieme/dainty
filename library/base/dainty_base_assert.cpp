@@ -38,7 +38,7 @@ namespace base
 {
   using namespace terminal;
 
-  t_void assert_now(P_cstr reason) {
+  t_void assert_now(P_cstr reason) noexcept {
     t_out{FMT, "assert: %s\n", get(reason)};
 
     p_void array[20];
@@ -50,6 +50,29 @@ namespace base
     fflush(stderr);
 
     assert(0);
+  }
+
+  t_void assert_now_va(t_fmt, P_cstr_ fmt, va_list args) noexcept {
+    t_out out{"assert:"};
+    out.append(FMT_VA_IT, fmt, args);
+    out.display();
+
+    p_void array[20];
+    auto size = backtrace(array, 20);
+
+    backtrace_symbols_fd(array, size, STDERR_FILENO);
+
+    fflush(stdout);
+    fflush(stderr);
+
+    assert(0);
+  }
+
+  t_void assert_now(t_fmt, P_cstr_ fmt, ...) noexcept {
+    va_list args;
+    va_start(args, fmt);
+    assert_now_va(FMT_IT, fmt, args);
+    va_end(args);
   }
 }
 }

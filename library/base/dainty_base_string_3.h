@@ -108,8 +108,8 @@ namespace string
     template<class TAG1, t_n_ N1, typename O1>
     r_string append(const t_string<TAG1, N1, O1>&) noexcept;
 
-    r_string va_assign(t_cstr_cptr_ fmt, va_list vars) noexcept;
-    r_string va_append(t_cstr_cptr_ fmt, va_list vars) noexcept;
+    r_string assign(t_fmt_va, t_cstr_cptr_ fmt, va_list vars) noexcept;
+    r_string append(t_fmt_va, t_cstr_cptr_ fmt, va_list vars) noexcept;
 
     t_void clear() noexcept;
     t_bool remove(t_ix begin, t_ix end) noexcept;
@@ -224,7 +224,7 @@ namespace string
     va_start(vars, fmt);
     max_   = length_(fmt, vars) + 1;
     store_ = alloc_ (max_);
-    impl_.va_assign(store_.get(), max_, fmt, vars);
+    impl_.assign(FMT_VA_IT, store_.get(), max_, fmt, vars);
     va_end(vars);
   }
 
@@ -234,7 +234,7 @@ namespace string
       : t_string{max} {
     va_list vars;
     va_start(vars, fmt);
-    va_assign(fmt, vars);
+    assign(FMT_VA_IT, fmt, vars);
     va_end(vars);
   }
 
@@ -340,7 +340,7 @@ namespace string
       ::assign(t_fmt, t_cstr_cptr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
-    impl_.va_assign(store_.get(), max_, fmt, vars);
+    impl_.assign(FMT_VA_IT, store_.get(), max_, fmt, vars);
     va_end(vars);
     return *this;
   }
@@ -384,7 +384,7 @@ namespace string
       ::append(t_fmt, t_cstr_cptr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
-    impl_.va_append(store_.get(), max_, fmt, vars);
+    impl_.append(FMT_VA_IT, store_.get(), max_, fmt, vars);
     va_end(vars);
     return *this;
   }
@@ -410,16 +410,16 @@ namespace string
   template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
-      ::va_assign(t_cstr_cptr_ fmt, va_list vars) noexcept {
-    impl_.va_assign(store_.get(), max_, fmt, vars);
+      ::assign(t_fmt_va, t_cstr_cptr_ fmt, va_list vars) noexcept {
+    impl_.assign(FMT_VA_IT, store_.get(), max_, fmt, vars);
     return *this;
   }
 
   template<class TAG, typename O>
   inline
   typename t_string<TAG, 0, O>::r_string t_string<TAG, 0, O>
-      ::va_append(t_cstr_cptr_ fmt, va_list vars) noexcept {
-    impl_.va_append(store_.get(), max_, fmt, vars);
+      ::append(t_fmt_va, t_cstr_cptr_ fmt, va_list vars) noexcept {
+    impl_.append(FMT_VA_IT, store_.get(), max_, fmt, vars);
     return *this;
   }
 

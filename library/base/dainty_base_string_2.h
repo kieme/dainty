@@ -111,8 +111,8 @@ namespace string
     template<class TAG1, t_n_ N1, typename O1>
     r_string append(const t_string<TAG1, N1, O1>&) noexcept;
 
-    r_string va_assign(t_cstr_cptr_ fmt, va_list vars) noexcept;
-    r_string va_append(t_cstr_cptr_ fmt, va_list vars) noexcept;
+    r_string assign(t_fmt_va, t_cstr_cptr_ fmt, va_list vars) noexcept;
+    r_string append(t_fmt_va, t_cstr_cptr_ fmt, va_list vars) noexcept;
 
     t_void clear() noexcept;
     t_bool remove(t_ix begin, t_ix end) noexcept;
@@ -241,7 +241,7 @@ namespace string
                                               t_cstr_cptr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
-    va_assign(fmt, vars);
+    assign(FMT_VA_IT, fmt, vars);
     va_end(vars);
   }
 
@@ -252,7 +252,7 @@ namespace string
       : t_string{max} {
     va_list vars;
     va_start(vars, fmt);
-    va_assign(fmt, vars);
+    assign(FMT_VA_IT, fmt, vars);
     va_end(vars);
   }
 
@@ -425,7 +425,7 @@ namespace string
       ::assign(t_fmt, t_cstr_cptr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
-    va_assign(fmt, vars);
+    assign(FMT_VA_IT, fmt, vars);
     va_end(vars);
     return *this;
   }
@@ -475,7 +475,7 @@ namespace string
       ::append(t_fmt, t_cstr_cptr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
-    va_append(fmt, vars);
+    append(FMT_VA_IT, fmt, vars);
     va_end(vars);
     return *this;
   }
@@ -506,9 +506,9 @@ namespace string
   inline
   typename t_string<TAG, N, t_overflow_grow>::r_string
     t_string<TAG, N, t_overflow_grow>
-      ::va_assign(t_cstr_cptr_ fmt, va_list vars) noexcept {
-    if (assign_size_(impl_.va_assign_try(store_, max_, fmt, vars)))
-      impl_.va_assign(store_, max_, fmt, vars);
+      ::assign(t_fmt_va, t_cstr_cptr_ fmt, va_list vars) noexcept {
+    if (assign_size_(impl_.assign_try(FMT_VA_IT, store_, max_, fmt, vars)))
+      impl_.assign(FMT_VA_IT, store_, max_, fmt, vars);
     return *this;
   }
 
@@ -516,9 +516,9 @@ namespace string
   inline
   typename t_string<TAG, N, t_overflow_grow>::r_string
     t_string<TAG, N, t_overflow_grow>
-      ::va_append(t_cstr_cptr_ fmt, va_list vars) noexcept {
-    if (append_size_(impl_.va_append_try(store_, max_, fmt, vars)))
-      impl_.va_append(store_, max_, fmt, vars);
+      ::append(t_fmt_va, t_cstr_cptr_ fmt, va_list vars) noexcept {
+    if (append_size_(impl_.append_try(FMT_VA_IT, store_, max_, fmt, vars)))
+      impl_.append(FMT_VA_IT, store_, max_, fmt, vars);
     return *this;
   }
 

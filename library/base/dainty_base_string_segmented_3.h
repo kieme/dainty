@@ -62,10 +62,10 @@ namespace segmented
 
     t_result push_back(          t_user)               noexcept;
     t_result push_back(t_crange, t_user = 0)           noexcept;
-    t_result insert   (t_id,               t_user)     noexcept;
-    t_result insert   (t_id,     t_crange, t_user = 0) noexcept;
-    t_result insert   (t_seg_no,           t_user)     noexcept;
-    t_result insert   (t_seg_no, t_crange, t_user = 0) noexcept;
+    t_id     insert   (t_id,               t_user)     noexcept;
+    t_id     insert   (t_id,     t_crange, t_user = 0) noexcept;
+    t_id     insert   (t_seg_no,           t_user)     noexcept;
+    t_id     insert   (t_seg_no, t_crange, t_user = 0) noexcept;
     t_bool   change   (t_seg_no,           t_user)     noexcept;
     t_bool   change   (t_id,               t_user)     noexcept;
     t_bool   change   (t_seg_no, t_crange, t_user = 0) noexcept;
@@ -143,28 +143,27 @@ namespace segmented
 
   template<class TAG, typename O>
   inline
-  t_result t_segmented<TAG, 0, O>::insert(t_id id, t_user user) noexcept {
+  t_id t_segmented<TAG, 0, O>::insert(t_id id, t_user user) noexcept {
     return impl_.insert(store_, store_ + max_, id, user);
   }
 
   template<class TAG, typename O>
   inline
-  t_result t_segmented<TAG, 0, O>::insert(t_id id, t_crange range,
-                                          t_user user) noexcept {
+  t_id t_segmented<TAG, 0, O>::insert(t_id id, t_crange range,
+                                      t_user user) noexcept {
     return impl_.insert(store_, store_ + max_, id, range, user);
   }
 
   template<class TAG, typename O>
   inline
-  t_result t_segmented<TAG, 0, O>::insert(t_seg_no seg_no,
-                                          t_user user) noexcept {
+  t_id t_segmented<TAG, 0, O>::insert(t_seg_no seg_no, t_user user) noexcept {
     return impl_.insert(store_, store_ + max_, seg_no, user);
   }
 
   template<class TAG, typename O>
   inline
-  t_result t_segmented<TAG, 0, O>::insert(t_seg_no seg_no, t_crange range,
-                                          t_user user) noexcept {
+  t_id t_segmented<TAG, 0, O>::insert(t_seg_no seg_no, t_crange range,
+                                      t_user user) noexcept {
     return impl_.insert(store_, store_ + max_, seg_no, range, user);
   }
 

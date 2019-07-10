@@ -89,8 +89,8 @@ namespace string
     template<class TAG1, t_n_ N1, typename O1>
     r_string append(const t_string<TAG1, N1, O1>&) noexcept;
 
-    r_string va_assign(t_cstr_cptr_ fmt, va_list vars) noexcept;
-    r_string va_append(t_cstr_cptr_ fmt, va_list vars) noexcept;
+    r_string assign(t_fmt_va, t_cstr_cptr_ fmt, va_list vars) noexcept;
+    r_string append(t_fmt_va, t_cstr_cptr_ fmt, va_list vars) noexcept;
 
     t_void clear() noexcept;
     t_bool remove(t_ix begin, t_ix end) noexcept;
@@ -180,7 +180,7 @@ namespace string
   t_string<TAG, N, O>::t_string(t_fmt, t_cstr_cptr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
-    impl_.va_assign(store_, MAX_, fmt, vars);
+    impl_.assign(FMT_VA_IT, store_, MAX_, fmt, vars);
     va_end(vars);
   }
 
@@ -260,7 +260,7 @@ namespace string
       ::assign(t_fmt, t_cstr_cptr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
-    impl_.va_assign(store_, MAX_, fmt, vars);
+    impl_.assign(FMT_VA_IT, store_, MAX_, fmt, vars);
     va_end(vars);
     return *this;
   }
@@ -304,7 +304,7 @@ namespace string
       ::append(t_fmt, t_cstr_cptr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
-    impl_.va_append(store_, MAX_, fmt, vars);
+    impl_.append(FMT_VA_IT, store_, MAX_, fmt, vars);
     va_end(vars);
     return *this;
   }
@@ -330,16 +330,16 @@ namespace string
   template<class TAG, t_n_ N, typename O>
   inline
   typename t_string<TAG, N, O>::r_string t_string<TAG, N, O>
-      ::va_assign(t_cstr_cptr_ fmt, va_list vars) noexcept {
-    impl_.va_assign(store_, MAX_, fmt, vars);
+      ::assign(t_fmt_va, t_cstr_cptr_ fmt, va_list vars) noexcept {
+    impl_.assign(FMT_VA_IT, store_, MAX_, fmt, vars);
     return *this;
   }
 
   template<class TAG, t_n_ N, typename O>
   inline
   typename t_string<TAG, N, O>::r_string t_string<TAG, N, O>
-      ::va_append(t_cstr_cptr_ fmt, va_list vars) noexcept {
-    impl_.va_append(store_, MAX_, fmt, vars);
+      ::append(t_fmt_va, t_cstr_cptr_ fmt, va_list vars) noexcept {
+    impl_.append(FMT_VA_IT, store_, MAX_, fmt, vars);
     return *this;
   }
 

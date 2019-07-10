@@ -270,7 +270,9 @@ namespace base
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum t_emplace_it { EMPLACE_IT }; // XXX TRY_EMPLACE ?
+  enum t_emplace_it { EMPLACE_IT  }; // XXX TRY_EMPLACE ?
+  enum t_fmt        { FMT, FMT_IT }; // XXX FMT is deprecated
+  enum t_fmt_va     { FMT_VA_IT   };
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -27,25 +27,33 @@
 #ifndef _DAINTY_BASE_ASSERT_H_
 #define _DAINTY_BASE_ASSERT_H_
 
+#include <stdarg.h>
 #include "dainty_base.h"
 
 namespace dainty
 {
 namespace base
 {
-  t_void assert_now(P_cstr reason);
+///////////////////////////////////////////////////////////////////////////////
+
+  t_void assert_now   (P_cstr reason)           noexcept;
+  t_void assert_now   (t_fmt, P_cstr_ fmt, ...) noexcept
+    __attribute__((format(printf, 2, 3)));
+  t_void assert_now_va(t_fmt, P_cstr_ fmt, va_list) noexcept;
 
   inline
-   t_void assert_if_true(t_bool cond, P_cstr reason) {
+   t_void assert_if_true(t_bool cond, P_cstr reason) noexcept{
     if (cond)
       assert_now(reason);
   }
 
   inline
-  t_void assert_if_false(t_bool cond, P_cstr reason) {
+  t_void assert_if_false(t_bool cond, P_cstr reason) noexcept {
     if (!cond)
       assert_now(reason);
   }
+
+///////////////////////////////////////////////////////////////////////////////
 }
 }
 

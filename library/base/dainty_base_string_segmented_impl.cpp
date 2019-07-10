@@ -93,21 +93,15 @@ namespace segmented
     return next;
   }
 
-  p_char change_(p_char buf, p_char next, t_seg_no seg_no,
-                 t_user usr) noexcept {
-    p_char ptr = buf;
-    for (t_n_ cnt = 0; ptr < next; ++cnt) {
-      t_seg_hdr_ hdr{ptr[0], ptr[1]};
-      t_n_ size = HDR_MAX_ + hdr.hdr.len;
-      if (cnt == base::get(seg_no)) {
-        if (next != ptr + size)
-          std::memmove(ptr, ptr + size, (next - ptr) - size);
-        next -= size;
-        break;
-      }
-      ptr += size;
-    }
-    return next;
+  p_char insert_(p_char store, p_char next, t_user user) noexcept {
+    // XXX - 1
+    return nullptr;
+  }
+
+  p_char insert_(p_char store, p_char next, t_crange range,
+                 t_user user) noexcept {
+    // XXX - 2
+    return nullptr;
   }
 
   p_char change_(p_char buf, p_char end, t_crange range, t_user usr) noexcept {
@@ -133,43 +127,22 @@ namespace segmented
     return end;
   }
 
-  p_char change_(p_char buf, p_char end, t_seg_no seg_no, t_crange range,
-                 t_user usr) noexcept {
+  p_char remove_(p_char buf, p_char next, t_n n) noexcept {
+    /*
+    T_n_   max = get(n);
     p_char ptr = buf;
-    for (t_n_ cnt = 0; ptr < end; ++cnt) {
+    for (t_n_ cnt = 0; ptr < next; ++cnt) {
       t_seg_hdr_ hdr{ptr[0], ptr[1]};
-      if (cnt == base::get(seg_no)) {
-        end = change_(ptr, end, range, usr);
+      if (cnt == max)
         break;
-      }
       ptr += HDR_MAX_ + hdr.hdr.len;
-    }
-    return end;
-  }
-
-  p_char remove_(p_char buf, p_char end) noexcept {
-    t_seg_hdr_ hdr{buf[0], buf[1]};
+    } */
+    t_seg_hdr_ hdr{buf[0], buf[1]}; // XXX - 3
     t_n_ size = HDR_MAX_ + hdr.hdr.len;
-    if (end != buf + size)
-      std::memmove(buf, buf + size, (end - buf) - size);
-    end -= size;
-    return end;
-  }
-
-  p_char remove_(p_char buf, p_char end, t_seg_no seg_no) noexcept {
-    p_char ptr = buf;
-    for (t_n_ cnt = 0; ptr < end; ++cnt) {
-      t_seg_hdr_ hdr{ptr[0], ptr[1]};
-      if (cnt == base::get(seg_no)) {
-        t_n_ size = HDR_MAX_ + hdr.hdr.len;
-        if (end != ptr + size)
-          std::memmove(ptr, ptr + size, (end - ptr) - size);
-        end -= size;
-        break;
-      }
-      ptr += HDR_MAX_ + hdr.hdr.len;
-    }
-    return end;
+    if (next != buf + size)
+      std::memmove(buf, buf + size, (next - buf) - size);
+    next -= size;
+    return next;
   }
 
   t_bool is_equal_(t_n_ lh_segs, P_char lh_begin, P_char lh_end,
