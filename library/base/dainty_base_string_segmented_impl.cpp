@@ -71,6 +71,15 @@ namespace segmented
     return end;
   }
 
+  inline
+  p_char push_back_(p_char buf, t_user usr) noexcept {
+    t_seg_hdr_ hdr{0, usr};
+    *buf++ = hdr.raw[0];
+    *buf++ = hdr.raw[1];
+    return buf;
+  }
+
+  inline
   p_char push_back_(p_char buf, t_crange range, t_user usr) noexcept {
     t_n_ range_n = get(range.n);
     t_seg_hdr_ hdr{range_n, usr};
@@ -80,6 +89,7 @@ namespace segmented
     return buf + range_n;
   }
 
+  inline
   p_char change_(p_char buf, p_char next, t_user usr) noexcept {
     t_seg_hdr_ hdr1{buf[0], buf[1]}, hdr2{0, usr};
     buf[0] = hdr2.raw[0];
@@ -93,17 +103,28 @@ namespace segmented
     return next;
   }
 
-  p_char insert_(p_char store, p_char next, t_user user) noexcept {
-    // XXX - 1
-    return nullptr;
+  inline
+  p_char insert_(p_char buf, p_char next, t_user user) noexcept {
+    t_seg_hdr_ hdr{0, user};
+    std::memmove(buf + HDR_MAX_, buf, next - buf);
+    *buf++ = hdr.raw[0];
+    *buf++ = hdr.raw[1];
+    return next + HDR_MAX_;
   }
 
-  p_char insert_(p_char store, p_char next, t_crange range,
+  inline
+  p_char insert_(p_char buf, p_char next, t_crange range,
                  t_user user) noexcept {
-    // XXX - 2
-    return nullptr;
+    T_n_ len = get(range.n);
+    t_seg_hdr_ hdr{len, user};
+    std::memmove(buf + HDR_MAX_ + hdr.hdr.len, buf, next - buf);
+    *buf++ = hdr.raw[0];
+    *buf++ = hdr.raw[1];
+    std::memcpy(buf, range.ptr, len);
+    return next + HDR_MAX_ + hdr.hdr.len;
   }
 
+  inline
   p_char change_(p_char buf, p_char end, t_crange range, t_user usr) noexcept {
     t_seg_hdr_ hdr1{buf[0], buf[1]};
     t_n_ new_len = get(range.n), old_len = hdr1.hdr.len;
@@ -127,22 +148,20 @@ namespace segmented
     return end;
   }
 
+  inline
   p_char remove_(p_char buf, p_char next, t_n n) noexcept {
-    /*
-    T_n_   max = get(n);
+    t_n_   max = get(n), cnt = 0;
     p_char ptr = buf;
-    for (t_n_ cnt = 0; ptr < next; ++cnt) {
+    for (; cnt < max && ptr < next; ++cnt) {
       t_seg_hdr_ hdr{ptr[0], ptr[1]};
-      if (cnt == max)
-        break;
       ptr += HDR_MAX_ + hdr.hdr.len;
-    } */
-    t_seg_hdr_ hdr{buf[0], buf[1]}; // XXX - 3
-    t_n_ size = HDR_MAX_ + hdr.hdr.len;
-    if (next != buf + size)
-      std::memmove(buf, buf + size, (next - buf) - size);
-    next -= size;
-    return next;
+    }
+    if (cnt == max) {
+      if (ptr < next)
+        std::memmove(buf, ptr, next - ptr);
+      return next - (ptr - buf);
+    }
+    return nullptr;
   }
 
   t_bool is_equal_(t_n_ lh_segs, P_char lh_begin, P_char lh_end,
@@ -201,6 +220,137 @@ namespace segmented
         rh += HDR_MAX_ + rh_len;
       }
       return true;
+    }
+    return false;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  t_result t_segmented_impl_base_::push_back(p_char store,
+                                             t_user user) noexcept {
+    t_ix_ ix = next_ - store;
+    next_    = push_back_(next_, user);
+    return {t_id{ix + 1}, t_seg_no{segs_++}};
+  }
+
+  t_result t_segmented_impl_base_::push_back(p_char store, t_crange range,
+                                             t_user user) noexcept {
+    t_ix_ ix = next_ - store;
+    next_ = push_back_(next_, range, user);
+    return {t_id{ix + 1}, t_seg_no{segs_++}};
+  }
+
+  t_id t_segmented_impl_base_::insert(p_char store, t_seg_no seg_no,
+                                      t_user user) noexcept {
+    auto info = get_seg(store, seg_no);
+    if (info) {
+      next_ = insert_(info.ptr, next_, user);
+      ++segs_;
+      return t_id((info.ptr - store) + 1);
+    }
+    return BAD_ID;
+  }
+
+  t_id t_segmented_impl_base_::insert(p_char store, t_seg_no seg_no,
+                                      t_crange range, t_user user) noexcept {
+    auto info = get_seg(store, seg_no);
+    if (info) {
+      next_ = insert_(info.ptr, next_, range, user);
+      ++segs_;
+      return t_id((info.ptr - store) + 1);
+    }
+    return BAD_ID;
+  }
+
+  t_id t_segmented_impl_base_::insert(p_char store, t_id id,
+                                      t_user user) noexcept {
+    auto info = get_seg(store, id);
+    if (info) {
+      next_ = insert_(info.ptr, next_, user);
+      ++segs_;
+      return t_id((info.ptr - store) + 1);
+    }
+    return BAD_ID;
+  }
+
+  t_id t_segmented_impl_base_::insert(p_char store, t_id id, t_crange range,
+                                      t_user user) noexcept {
+    auto info = get_seg(store, id);
+    if (info) {
+      next_ = insert_(info.ptr, next_, range, user);
+      ++segs_;
+      return t_id((info.ptr - store) + 1);
+    }
+    return BAD_ID;
+  }
+
+  t_bool t_segmented_impl_base_::change(p_char store, t_seg_no seg_no,
+                                        t_user user) noexcept {
+    auto info = get_seg(store, seg_no);
+    if (info) {
+      next_ = change_(info.ptr, next_, user);
+      return true;
+    }
+    return false;
+  }
+
+  t_bool t_segmented_impl_base_::change(p_char store, p_char end,
+                                        t_seg_no seg_no,
+                                        t_crange range, t_user user) noexcept {
+    auto info = get_seg(store, seg_no);
+    if (info) {
+      t_n_ available = (end - next_) + info.hdr.hdr.len;
+      if (available >= base::get(range.n))
+        next_ = change_(info.ptr, next_, range, user);
+      return true;
+    }
+    return false;
+  }
+
+  t_bool t_segmented_impl_base_::change(p_char store, t_id id,
+                                        t_user user) noexcept {
+    auto info = get_seg(store, id);
+    if (info) {
+      next_ = change_(info.ptr, next_, user);
+      return true;
+    }
+    return false;
+  }
+
+  t_bool t_segmented_impl_base_::change(p_char store, p_char end, t_id id,
+                                        t_crange range, t_user user) noexcept {
+    auto info = get_seg(store, id);
+    if (info) {
+      t_n_ available = (end - next_) + info.hdr.hdr.len;
+      if (available >= base::get(range.n))
+        next_ = change_(info.ptr, next_, range, user);
+      return true;
+    }
+    return false;
+  }
+
+  t_bool t_segmented_impl_base_::remove(p_char store, t_seg_no seg_no,
+                                        t_n _n) noexcept {
+    t_n_ n = base::get(_n);
+    if (base::get(seg_no) + n <= segs_) {
+      auto info = get_seg(store, seg_no);
+      next_ = remove_(info.ptr, next_, _n);
+      segs_ -= n;
+      return true;
+    }
+    return false;
+  }
+
+  t_bool t_segmented_impl_base_::remove(p_char store, t_id id,
+                                        t_n n) noexcept {
+    auto info = get_seg(store, id);
+    if (info) {
+      p_char next = remove_(info.ptr, next_, n);
+      if (next) {
+        next_ = next;
+        segs_ -= base::get(n);
+        return true;
+      }
     }
     return false;
   }

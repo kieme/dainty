@@ -201,11 +201,11 @@ namespace segmented
     t_result push_back    (p_char, t_user)           noexcept;
     t_result push_back    (p_char, t_crange, t_user) noexcept;
 
-    t_id     insert       (p_char, p_char, t_seg_no, t_user)           noexcept;
-    t_id     insert       (p_char, p_char, t_seg_no, t_crange, t_user) noexcept;
+    t_id     insert       (p_char, t_seg_no, t_user)           noexcept;
+    t_id     insert       (p_char, t_seg_no, t_crange, t_user) noexcept;
 
-    t_id     insert       (p_char, p_char, t_id, t_user)           noexcept;
-    t_id     insert       (p_char, p_char, t_id, t_crange, t_user) noexcept;
+    t_id     insert       (p_char, t_id, t_user)           noexcept;
+    t_id     insert       (p_char, t_id, t_crange, t_user) noexcept;
 
     t_bool   change       (p_char, t_seg_no, t_user) noexcept;
     t_bool   change       (p_char, t_id,     t_user) noexcept;
@@ -317,13 +317,6 @@ namespace segmented
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  p_char push_back_    (p_char,           t_user)                     noexcept;
-  p_char push_back_    (p_char, t_crange, t_user)                     noexcept;
-  p_char insert_       (p_char, p_char,   t_user)                     noexcept;
-  p_char insert_       (p_char, p_char,   t_crange, t_user)           noexcept;
-  p_char change_       (p_char, p_char,           t_user)             noexcept;
-  p_char change_       (p_char, p_char, t_crange, t_user)             noexcept;
-  p_char remove_       (p_char, p_char, t_n)                          noexcept;
   P_char find_         (P_char, P_char, t_crange)                     noexcept;
   P_char find_next_    (P_char, P_char, t_crange)                     noexcept;
   t_bool is_equal_     (t_n_,   P_char, P_char, t_n_, P_char, P_char) noexcept;
@@ -507,145 +500,6 @@ namespace segmented
     }
   }
 
-  inline
-  t_result t_segmented_impl_base_::push_back(p_char store,
-                                             t_user user) noexcept {
-    t_ix_ ix = next_ - store;
-    next_    = push_back_(next_, user);
-    return {t_id{ix + 1}, t_seg_no{segs_++}};
-  }
-
-  inline
-  t_result t_segmented_impl_base_::push_back(p_char store, t_crange range,
-                                             t_user user) noexcept {
-    t_ix_ ix = next_ - store;
-    next_ = push_back_(next_, range, user);
-    return {t_id{ix + 1}, t_seg_no{segs_++}};
-  }
-
-  inline
-  t_id t_segmented_impl_base_::insert(p_char store, p_char end,
-                                      t_seg_no seg_no, t_user user) noexcept {
-    auto info = get_seg(store, seg_no);
-    if (info && (next_ + HDR_MAX_ <= end)) {
-      next_ = insert_(info.ptr, next_, user);
-      ++segs_;
-      return t_id((info.ptr - store) + 1);
-    }
-    return BAD_ID;
-  }
-
-  inline
-  t_id t_segmented_impl_base_::insert(p_char store, p_char end,
-                                      t_seg_no seg_no, t_crange range,
-                                      t_user user) noexcept {
-    auto info = get_seg(store, seg_no);
-    if (info && (next_ + HDR_MAX_ + base::get(range.n) <= end)) {
-      next_ = insert_(info.ptr, next_, range, user);
-      ++segs_;
-      return t_id((info.ptr - store) + 1);
-    }
-    return BAD_ID;
-  }
-
-  inline
-  t_id t_segmented_impl_base_::insert(p_char store, p_char end, t_id id,
-                                      t_user user) noexcept {
-    auto info = get_seg(store, id);
-    if (info && (next_ + HDR_MAX_ <= end)) {
-      next_ = insert_(info.ptr, next_, user);
-      ++segs_;
-      return t_id((info.ptr - store) + 1);
-    }
-    return BAD_ID;
-  }
-
-  inline
-  t_id t_segmented_impl_base_::insert(p_char store, p_char end, t_id id,
-                                      t_crange range, t_user user) noexcept {
-    auto info = get_seg(store, id);
-    if (info && (next_ + HDR_MAX_ + base::get(range.n) <= end)) {
-      next_ = insert_(info.ptr, next_, range, user);
-      ++segs_;
-      return t_id((info.ptr - store) + 1);
-    }
-    return BAD_ID;
-  }
-
-  inline
-  t_bool t_segmented_impl_base_::change(p_char store, t_seg_no seg_no,
-                                        t_user user) noexcept {
-    auto info = get_seg(store, seg_no);
-    if (info) {
-      next_ = change_(info.ptr, next_, user);
-      return true;
-    }
-    return false;
-  }
-
-  inline
-  t_bool t_segmented_impl_base_::change(p_char store, p_char end,
-                                        t_seg_no seg_no,
-                                        t_crange range, t_user user) noexcept {
-    auto info = get_seg(store, seg_no);
-    if (info) {
-      t_n_ available = (end - next_) + info.hdr.hdr.len;
-      if (available >= base::get(range.n))
-        next_ = change_(info.ptr, next_, range, user);
-      return true;
-    }
-    return false;
-  }
-
-  inline
-  t_bool t_segmented_impl_base_::change(p_char store, t_id id,
-                                        t_user user) noexcept {
-    auto info = get_seg(store, id);
-    if (info) {
-      next_ = change_(info.ptr, next_, user);
-      return true;
-    }
-    return false;
-  }
-
-  inline
-  t_bool t_segmented_impl_base_::change(p_char store, p_char end, t_id id,
-                                        t_crange range, t_user user) noexcept {
-    auto info = get_seg(store, id);
-    if (info) {
-      t_n_ available = (end - next_) + info.hdr.hdr.len;
-      if (available >= base::get(range.n))
-        next_ = change_(info.ptr, next_, range, user);
-      return true;
-    }
-    return false;
-  }
-
-  inline
-  t_bool t_segmented_impl_base_::remove(p_char store, t_seg_no seg_no,
-                                        t_n _n) noexcept {
-    t_n_ n = base::get(_n);
-    if (base::get(seg_no) + n <= segs_) {
-      auto info = get_seg(store, seg_no);
-      next_ = remove_(info.ptr, next_, _n);
-      segs_ -= n;
-      return true;
-    }
-    return false;
-  }
-
-  inline
-  t_bool t_segmented_impl_base_::remove(p_char store, t_id id,
-                                        t_n n) noexcept {
-    auto info = get_seg(store, id);
-    if (info) {
-      next_ = remove_(info.ptr, next_, n);
-      segs_ -= base::get(n);
-      return true;
-    }
-    return false;
-  }
-
 ///////////////////////////////////////////////////////////////////////////////
 
   inline
@@ -671,26 +525,44 @@ namespace segmented
 
   inline
   t_id t_segmented_impl_<t_overflow_assert>::
-      insert(p_char, p_char, t_seg_no, t_user) noexcept {
-    return BAD_ID; // XXX - 6
+      insert(p_char store, p_char end, t_seg_no seg_no, t_user user) noexcept {
+    if (next_ + HDR_MAX_ <= end)
+      return t_segmented_impl_base_::insert(store, seg_no, user);
+
+    assert_now(FMT, "t_segmented: insert failed");
+    return BAD_ID;
   }
 
   inline
   t_id t_segmented_impl_<t_overflow_assert>::
-      insert(p_char, p_char, t_seg_no, t_crange, t_user) noexcept {
-    return BAD_ID; // XXX - 7
+      insert(p_char store, p_char end, t_seg_no seg_no, t_crange range,
+             t_user user) noexcept {
+    if (next_ + HDR_MAX_ + base::get(range.n) <= end)
+      return t_segmented_impl_base_::insert(store, seg_no, range, user);
+
+    assert_now(FMT, "t_segmented: insert failed");
+    return BAD_ID;
   }
 
   inline
   t_id t_segmented_impl_<t_overflow_assert>::
-      insert(p_char, p_char, t_id, t_user) noexcept {
-    return BAD_ID; // XXX - 8
+      insert(p_char store, p_char end, t_id id, t_user user) noexcept {
+    if (next_ + HDR_MAX_ <= end)
+      return t_segmented_impl_base_::insert(store, id, user);
+
+    assert_now(FMT, "t_segmented: insert failed");
+    return BAD_ID;
   }
 
   inline
   t_id t_segmented_impl_<t_overflow_assert>::
-      insert(p_char, p_char, t_id, t_crange, t_user) noexcept {
-    return BAD_ID; // XXX - 9
+      insert(p_char store, p_char end, t_id id, t_crange range,
+             t_user user) noexcept {
+    if (next_ + HDR_MAX_ + base::get(range.n) <= end)
+      return t_segmented_impl_base_::insert(store, id, range, user);
+
+    assert_now(FMT, "t_segmented: insert failed");
+    return BAD_ID;
   }
 
   inline
@@ -761,26 +633,41 @@ namespace segmented
 
   inline
   t_id t_segmented_impl_<t_overflow_truncate>::
-      insert(p_char, p_char, t_seg_no, t_user) noexcept {
-    return BAD_ID; // XXX - 14
+      insert(p_char store, p_char end, t_seg_no seg_no,
+             t_user user) noexcept {
+    if (next_ + HDR_MAX_ <= end)
+      return t_segmented_impl_base_::insert(store, seg_no, user);
+
+    return BAD_ID;
   }
 
   inline
   t_id t_segmented_impl_<t_overflow_truncate>::
-      insert(p_char, p_char, t_seg_no, t_crange, t_user) noexcept {
-    return BAD_ID; // XXX - 15
+      insert(p_char store, p_char end, t_seg_no seg_no, t_crange range,
+             t_user user) noexcept {
+    if (next_ + HDR_MAX_ + base::get(range.n) <= end)
+      return t_segmented_impl_base_::insert(store, seg_no, range, user);
+
+    return BAD_ID;
   }
 
   inline
   t_id t_segmented_impl_<t_overflow_truncate>::
-      insert(p_char, p_char, t_id, t_user) noexcept {
-    return BAD_ID; // XXX - 16
+      insert(p_char store, p_char end, t_id id, t_user user) noexcept {
+    if (next_ + HDR_MAX_ <= end)
+      return t_segmented_impl_base_::insert(store, id, user);
+
+    return BAD_ID;
   }
 
   inline
   t_id t_segmented_impl_<t_overflow_truncate>::
-      insert(p_char, p_char, t_id, t_crange, t_user) noexcept {
-    return BAD_ID; // XXX - 17
+      insert(p_char store, p_char end, t_id id, t_crange range,
+             t_user user) noexcept {
+    if (next_ + HDR_MAX_ + base::get(range.n) <= end)
+      return t_segmented_impl_base_::insert(store, id, range, user);
+
+    return BAD_ID;
   }
 
   inline
@@ -817,7 +704,7 @@ namespace segmented
     if (user && (next_ + HDR_MAX_ <= end))
       return t_segmented_impl_base_::push_back(store, user);
 
-    // must grow string XXX - 20
+    // must grow string XXX - 1
     return t_segmented_impl_base_::push_back(store, user);
   }
 
@@ -828,7 +715,7 @@ namespace segmented
     if (next_ + HDR_MAX_ + base::get(range.n) <= end)
       return t_segmented_impl_base_::push_back(store, range, user);
 
-    // must grow string XXX - 21
+    // must grow string XXX - 2
     return t_segmented_impl_base_::push_back(store, range, user);
   }
 
@@ -836,25 +723,43 @@ namespace segmented
   t_id t_segmented_impl_<t_overflow_grow>::
       insert(p_char store, p_char end, t_seg_no seg_no,
              t_user user) noexcept {
-    return BAD_ID; // XXX - 22
+    if (next_ + HDR_MAX_ <= end)
+      return t_segmented_impl_base_::insert(store, seg_no, user);
+
+    // must grow string XXX - 3
+    return t_segmented_impl_base_::insert(store, seg_no, user);
   }
 
   inline
   t_id t_segmented_impl_<t_overflow_grow>::
-      insert(p_char, p_char, t_seg_no, t_crange, t_user) noexcept {
-    return BAD_ID; // XXX - 23
+      insert(p_char store, p_char end, t_seg_no seg_no, t_crange range,
+             t_user user) noexcept {
+    if (next_ + HDR_MAX_ + base::get(range.n) <= end)
+      return t_segmented_impl_base_::insert(store, seg_no, range, user);
+
+    // must grow string XXX - 4
+    return t_segmented_impl_base_::insert(store, seg_no, range, user);
   }
 
   inline
   t_id t_segmented_impl_<t_overflow_grow>::
-      insert(p_char, p_char, t_id, t_user) noexcept {
-    return BAD_ID; // XXX - 24
+      insert(p_char store, p_char end, t_id id, t_user user) noexcept {
+    if (next_ + HDR_MAX_ <= end)
+      return t_segmented_impl_base_::insert(store, id, user);
+
+    // must grow string XXX - 5
+    return t_segmented_impl_base_::insert(store, id, user);
   }
 
   inline
   t_id t_segmented_impl_<t_overflow_grow>::
-      insert(p_char, p_char, t_id, t_crange, t_user) noexcept {
-    return BAD_ID; // XXX - 25
+      insert(p_char store, p_char end, t_id id, t_crange range,
+             t_user user) noexcept {
+    if (next_ + HDR_MAX_ + base::get(range.n) <= end)
+      return t_segmented_impl_base_::insert(store, id, range, user);
+
+    // must grow string XXX - 6
+    return t_segmented_impl_base_::insert(store, id, range, user);
   }
 
   inline
@@ -876,11 +781,11 @@ namespace segmented
       change(p_char store, p_char end, t_seg_no seg_no, t_crange range,
              t_user user) noexcept {
     if (base::get(seg_no) < segs_) {
-      if (!t_segmented_impl_base_::change(store, end, seg_no, range, user)) {
-        // must grow - retry - XXX - 28
-        t_segmented_impl_base_::change(store, end, seg_no, range, user);
-      }
-      return true;
+      if (t_segmented_impl_base_::change(store, end, seg_no, range, user))
+        return true;
+
+        // must grow - retry - XXX - 7
+      return t_segmented_impl_base_::change(store, end, seg_no, range, user);
     }
     return false;
   }
@@ -889,21 +794,11 @@ namespace segmented
   t_bool t_segmented_impl_<t_overflow_grow>::
       change(p_char store, p_char end, t_id id, t_crange range,
              t_user user) noexcept {
-    if (!t_segmented_impl_base_::change(store, end, id, range, user)) {
-      // grow - store/end XXX
-      t_segmented_impl_base_::change(store, end, id, range, user);
-    }
-    return true;
-  }
+    if (t_segmented_impl_base_::change(store, end, id, range, user))
+      return true;
 
-///////////////////////////////////////////////////////////////////////////////
-
-  inline
-  p_char push_back_(p_char buf, t_user usr) noexcept {
-    t_seg_hdr_ hdr{0, usr};
-    *buf++ = hdr.raw[0];
-    *buf++ = hdr.raw[1];
-    return buf;
+    // must grow  XXX - 8
+    return t_segmented_impl_base_::change(store, end, id, range, user);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

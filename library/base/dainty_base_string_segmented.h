@@ -48,8 +48,9 @@ namespace segmented
 
     t_generator(t_char _delimiter = ' ') noexcept : delimiter{_delimiter} { }
 
-    template<typename TAG, t_n_ N>
-    t_void operator()(t_string<TAG, N>& str, t_crange range, t_user) noexcept {
+    template<typename TAG, t_n_ N, typename O>
+    t_void operator()(t_string<TAG, N, O>& str, t_crange range,
+                      t_user) noexcept {
       if (cnt++)
         str << delimiter << range;
       else
