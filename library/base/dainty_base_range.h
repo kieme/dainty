@@ -36,19 +36,6 @@ namespace base
 {
 namespace range
 {
-  using base::t_void;
-  using base::P_void;
-  using base::t_bool;
-  using base::t_ix_;
-  using base::t_ix;
-  using base::t_n_;
-  using base::t_n;
-  using base::t_byte;
-  using base::t_char;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
-
 ///////////////////////////////////////////////////////////////////////////////
 
   enum t_skip_ { SKIP_ };

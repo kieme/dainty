@@ -414,6 +414,48 @@ namespace base
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template<typename T, typename TAG>
+  constexpr t_explicit<T, TAG> minimum(t_explicit<T, TAG> _value1,
+                                       t_explicit<T, TAG> _value2) noexcept {
+    T value1 = get(_value1), value2 = get(_value2);
+    return t_explicit<T, TAG>{value1 < value2 ? value1 : value2};
+  }
+
+  template<typename T, typename TAG>
+  constexpr T minimum(t_explicit<T, TAG> _value1, T value2) noexcept {
+    T value1 = get(_value1);
+    return value1 < value2 ? value1 : value2;
+  }
+
+  template<typename T, typename TAG>
+  constexpr T minimum(T value1, t_explicit<T, TAG> _value2) noexcept {
+    T value2 = get(_value2);
+    return value1 < value2 ? value1 : value2;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename TAG>
+  constexpr t_explicit<T, TAG> maximum(t_explicit<T, TAG> _value1,
+                                       t_explicit<T, TAG> _value2) noexcept {
+    T value1 = get(_value1), value2 = get(_value2);
+    return t_explicit<T, TAG>{value1 > value2 ? value1 : value2};
+  }
+
+  template<typename T, typename TAG>
+  constexpr T maximum(t_explicit<T, TAG> _value1, T value2) noexcept {
+    T value1 = get(_value1);
+    return value1 > value2 ? value1 : value2;
+  }
+
+  template<typename T, typename TAG>
+  constexpr T maximum(T value1, t_explicit<T, TAG> _value2) noexcept {
+    T value2 = get(_value2);
+    return value1 > value2 ? value1 : value2;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
   constexpr t_n   to_n  (t_ix ix)  noexcept  { return transform<t_n>  (ix); }
   constexpr t_bix to_bix(t_ix ix)  noexcept  { return transform<t_bix>(ix); }
   constexpr t_eix to_eix(t_ix ix)  noexcept  { return transform<t_eix>(ix); }

@@ -40,12 +40,14 @@ namespace buf
   template<typename T>
   class t_buf<T, 0, t_size_dynamic> {
   public:
-    using t_value = typename t_prefix<T>::t_;
-    using r_value = typename t_prefix<T>::r_;
-    using R_value = typename t_prefix<T>::R_;
-    using p_value = typename t_prefix<T>::p_;
-    using P_value = typename t_prefix<T>::P_;
-    using x_value = typename t_prefix<T>::x_;
+    using t_value      = typename t_prefix<T>::t_;
+    using r_value      = typename t_prefix<T>::r_;
+    using R_value      = typename t_prefix<T>::R_;
+    using p_value      = typename t_prefix<T>::p_;
+    using P_value      = typename t_prefix<T>::P_;
+    using x_value      = typename t_prefix<T>::x_;
+    using t_buf_range  = buf::t_buf_range<t_value>;
+    using t_buf_crange = buf::t_buf_crange<t_value>;
 
     t_buf(t_n) noexcept;
     template<typename F>
@@ -55,8 +57,11 @@ namespace buf
     t_buf& operator=(const t_buf&) = delete;
 
     t_bool   use_heap    () const noexcept;
-    operator t_validity  () const noexcept;
     t_n      get_capacity() const noexcept;
+
+    operator t_validity  () const noexcept;
+    operator t_buf_range ()       noexcept;
+    operator t_buf_crange() const noexcept;
 
     p_value construct(t_ix)          noexcept;
     p_value construct(t_ix, R_value) noexcept;
@@ -64,10 +69,6 @@ namespace buf
     template<typename... Args>
     p_value construct(t_emplace_it, t_ix, Args&&...) noexcept;
     t_void  destruct (t_ix) noexcept;
-
-    p_value get_ptr ()       noexcept;
-    P_value get_ptr () const noexcept;
-    P_value get_cptr() const noexcept;
 
     p_value get_ptr (t_ix)       noexcept;
     P_value get_ptr (t_ix) const noexcept;
@@ -80,11 +81,19 @@ namespace buf
     r_value operator[](t_ix)       noexcept;
     R_value operator[](t_ix) const noexcept;
 
-    t_n realloc_shrink (t_n by) noexcept;
-    t_n realloc_enlarge(t_n by) noexcept;
+    p_value  begin()       noexcept;
+    P_value  begin() const noexcept;
+    P_value cbegin() const noexcept;
 
-    template<typename F> t_n shrink (t_n by, F&&) noexcept;
-    template<typename F> t_n enlarge(t_n by, F&&) noexcept;
+    p_value  end  ()       noexcept;
+    P_value  end  () const noexcept;
+    P_value cend  () const noexcept;
+
+    t_n shrink_by (t_n by) noexcept;
+    t_n enlarge_by(t_n by) noexcept;
+
+    template<typename F> t_n shrink_by (t_n, F&&) noexcept;
+    template<typename F> t_n enlarge_by(t_n, F&&) noexcept;
 
     template<typename TAG> t_range <T, TAG> mk_range ()       noexcept;
     template<typename TAG> t_crange<T, TAG> mk_range () const noexcept;
@@ -117,9 +126,9 @@ namespace buf
   template<typename F>
   inline
   t_buf<T, 0, t_size_dynamic>::t_buf(t_n max, t_emplace_it,
-                                              F&& func) noexcept
+                                     F&& func) noexcept
       : max_{get(max)}, ptr_{new t_valuestore<t_value>[max_]} {
-    func(max, ptr_[t_ix{0}].ptr());
+    func(max, ptr_.get());
   }
 
   template<typename T>
@@ -130,14 +139,26 @@ namespace buf
 
   template<typename T>
   inline
+  t_n t_buf<T, 0, t_size_dynamic>::get_capacity() const noexcept {
+    return t_n{max_};
+  }
+
+  template<typename T>
+  inline
   t_buf<T, 0, t_size_dynamic>::operator t_validity () const noexcept {
     return ptr_;
   }
 
   template<typename T>
   inline
-  t_n t_buf<T, 0, t_size_dynamic>::get_capacity() const noexcept {
-    return t_n{max_};
+  t_buf<T, 0, t_size_dynamic>::operator t_buf_range() noexcept {
+    return t_buf_range{begin(), t_n{max_}};
+  }
+
+  template<typename T>
+  inline
+  t_buf<T, 0, t_size_dynamic>::operator t_buf_crange() const noexcept {
+    return t_buf_crange{cbegin(), t_n{max_}};
   }
 
   template<typename T>
@@ -183,53 +204,77 @@ namespace buf
 
   template<typename T>
   inline
-  t_n t_buf<T, 0, t_size_dynamic>::realloc_shrink(t_n by) noexcept {
+  t_n t_buf<T, 0, t_size_dynamic>::shrink_by(t_n by) noexcept {
     //XXX - 1
-    return t_n{0};
+    return 0_n;
   }
 
   template<typename T>
   inline
-  t_n t_buf<T, 0, t_size_dynamic>::realloc_enlarge(t_n by) noexcept {
-    //XXX - 2
-    return t_n{0};
+  t_n t_buf<T, 0, t_size_dynamic>::enlarge_by(t_n n) noexcept {
+    t_buf_range range{ptr_.release(), max_};
+    range = enlarge_by_(n, range);
+    ptr_  = range.ptr;
+    max_  = get(range.n);
+    return range.n;
   }
 
   template<typename T>
   template<typename F>
   inline
-  t_n t_buf<T, 0, t_size_dynamic>::shrink(t_n by, F&& func) noexcept {
+  t_n t_buf<T, 0, t_size_dynamic>::shrink_by(t_n by, F&& func) noexcept {
     //XXX - 3
-    return t_n{0};
+    return 0_n;
   }
 
   template<typename T>
   template<typename F>
   inline
-  t_n t_buf<T, 0, t_size_dynamic>::enlarge(t_n by, F&& func) noexcept {
+  t_n t_buf<T, 0, t_size_dynamic>::enlarge_by(t_n by, F&& func) noexcept {
     //XXX - 4
-    return t_n{0};
+    return 0_n;
   }
 
   template<typename T>
   inline
   typename t_buf<T, 0, t_size_dynamic>::p_value
-      t_buf<T, 0, t_size_dynamic>::get_ptr() noexcept {
-    return ptr_[0].ptr();
+      t_buf<T, 0, t_size_dynamic>::begin() noexcept {
+    return ptr_[0_ix].ptr();
   }
 
   template<typename T>
   inline
   typename t_buf<T, 0, t_size_dynamic>::P_value
-      t_buf<T, 0, t_size_dynamic>::get_ptr() const noexcept {
-    return ptr_[0].cptr();
+      t_buf<T, 0, t_size_dynamic>::begin() const noexcept {
+    return ptr_[0_ix].cptr();
   }
 
   template<typename T>
   inline
   typename t_buf<T, 0, t_size_dynamic>::P_value
-      t_buf<T, 0, t_size_dynamic>::get_cptr() const noexcept {
-    return ptr_[0].cptr();
+      t_buf<T, 0, t_size_dynamic>::cbegin() const noexcept {
+    return ptr_[0_ix].cptr();
+  }
+
+  template<typename T>
+  inline
+  typename t_buf<T, 0, t_size_dynamic>::p_value
+      t_buf<T, 0, t_size_dynamic>::end() noexcept {
+    return ptr_[t_ix{max_}].ptr();
+  }
+
+  template<typename T>
+  inline
+  typename t_buf<T, 0, t_size_dynamic>::P_value
+      t_buf<T, 0, t_size_dynamic>::end() const noexcept {
+    return ptr_[t_ix{max_}].cptr();
+  }
+
+  template<typename T>
+  inline
+  typename t_buf<T, 0, t_size_dynamic>::P_value
+      t_buf<T, 0, t_size_dynamic>::cend() const noexcept {
+    return ptr_[t_ix{max_}].cptr();
   }
 
   template<typename T>
@@ -292,14 +337,14 @@ namespace buf
   template<typename TAG>
   inline
   t_range<T, TAG> t_buf<T, 0, t_size_dynamic>::mk_range() noexcept {
-    return {ptr_[0].ptr(), t_n{max_}};
+    return {ptr_[0_ix].ptr(), t_n{max_}};
   }
 
   template<typename T>
   template<typename TAG>
   inline
   t_crange<T, TAG> t_buf<T, 0, t_size_dynamic>::mk_range() const noexcept {
-    return {ptr_[0].ptr(), t_n{max_}};
+    return {ptr_[0_ix].ptr(), t_n{max_}};
   }
 
   template<typename T>
@@ -307,7 +352,7 @@ namespace buf
   inline
   t_crange<T, TAG> t_buf<T, 0, t_size_dynamic>
       ::mk_crange() const noexcept {
-    return {ptr_[0].cptr(), t_n{max_}};
+    return {ptr_[0_ix].cptr(), t_n{max_}};
   }
 
   template<typename T>
@@ -338,7 +383,7 @@ namespace buf
   template<typename TAG>
   inline
   t_range<T, TAG> t_buf<T, 0, t_size_dynamic>
-      ::mk_range (t_ix begin, t_ix end) noexcept {
+      ::mk_range(t_ix begin, t_ix end) noexcept {
     return buf::mk_range(mk_range(), begin, end);
   }
 
@@ -346,7 +391,7 @@ namespace buf
   template<typename TAG>
   inline
   t_crange<T, TAG> t_buf<T, 0, t_size_dynamic>
-      ::mk_range (t_ix begin, t_ix end) const noexcept {
+      ::mk_range(t_ix begin, t_ix end) const noexcept {
     return buf::mk_range(mk_range(), begin, end);
   }
 

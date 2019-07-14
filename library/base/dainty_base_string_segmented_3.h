@@ -47,9 +47,9 @@ namespace segmented
 
     // copy? - why not
 
-    t_n_     get_segs_num()               const noexcept;
-    t_n_     get_capacity()               const noexcept;
-    t_n_     get_size    ()               const noexcept;
+    t_n      get_segs_num()               const noexcept;
+    t_n      get_capacity()               const noexcept;
+    t_n      get_size    ()               const noexcept;
     t_bool   is_empty    ()               const noexcept;
     t_crange get         (t_seg_no)       const noexcept;
     t_crange get         (t_id)           const noexcept;
@@ -81,7 +81,7 @@ namespace segmented
     t_void each(F&&) const noexcept;
 
     template<typename BY, typename TO>
-    t_void generate(BY&&, TO&&) noexcept;
+    t_void generate(BY&&, TO&&) const noexcept;
 
     template<class TAG1, t_n_ N1, typename O1>
     t_bool is_equal     (const t_segmented<TAG1, N1, O1>&) const noexcept;
@@ -95,30 +95,29 @@ namespace segmented
   private:
     template<typename, t_n_, typename> friend class t_segmented;
 
-    // XXX
-    t_n_    max_;
-    p_char  store_;
-    p_char  end_;
-    t_impl_ impl_;
+    using t_store_ = buf::t_buf<t_char, 0, buf::t_size_dynamic>;
+
+    t_store_ store_;
+    t_impl_  impl_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<class TAG, typename O>
   inline
-  t_n_ t_segmented<TAG, 0, O>::get_segs_num() const noexcept {
+  t_n t_segmented<TAG, 0, O>::get_segs_num() const noexcept {
     return impl_.get_segs_num();
   }
 
   template<class TAG, typename O>
   inline
-  t_n_ t_segmented<TAG, 0, O>::get_capacity() const noexcept {
-    return max_;
+  t_n t_segmented<TAG, 0, O>::get_capacity() const noexcept {
+    return store_.get_capacity();
   }
 
   template<class TAG, typename O>
   inline
-  t_n_ t_segmented<TAG, 0, O>::get_size() const noexcept {
+  t_n t_segmented<TAG, 0, O>::get_size() const noexcept {
     return impl_.get_size(store_);
   }
 
@@ -131,40 +130,40 @@ namespace segmented
   template<class TAG, typename O>
   inline
   t_result t_segmented<TAG, 0, O>::push_back(t_user user) noexcept {
-    return impl_.push_back(store_, store_ + max_, user);
+    return impl_.push_back(store_, user);
   }
 
   template<class TAG, typename O>
   inline
   t_result t_segmented<TAG, 0, O>::push_back(t_crange range,
                                              t_user user) noexcept {
-    return impl_.push_back(store_, store_ + max_, range, user);
+    return impl_.push_back(store_, range, user);
   }
 
   template<class TAG, typename O>
   inline
   t_id t_segmented<TAG, 0, O>::insert(t_id id, t_user user) noexcept {
-    return impl_.insert(store_, store_ + max_, id, user);
+    return impl_.insert(store_, id, user);
   }
 
   template<class TAG, typename O>
   inline
   t_id t_segmented<TAG, 0, O>::insert(t_id id, t_crange range,
                                       t_user user) noexcept {
-    return impl_.insert(store_, store_ + max_, id, range, user);
+    return impl_.insert(store_, id, range, user);
   }
 
   template<class TAG, typename O>
   inline
   t_id t_segmented<TAG, 0, O>::insert(t_seg_no seg_no, t_user user) noexcept {
-    return impl_.insert(store_, store_ + max_, seg_no, user);
+    return impl_.insert(store_, seg_no, user);
   }
 
   template<class TAG, typename O>
   inline
   t_id t_segmented<TAG, 0, O>::insert(t_seg_no seg_no, t_crange range,
                                       t_user user) noexcept {
-    return impl_.insert(store_, store_ + max_, seg_no, range, user);
+    return impl_.insert(store_, seg_no, range, user);
   }
 
   template<class TAG, typename O>
@@ -183,14 +182,14 @@ namespace segmented
   inline
   t_bool t_segmented<TAG, 0, O>::change(t_id id, t_crange range,
                                         t_user user) noexcept {
-    return impl_.change(store_, store_ + max_, id, range, user);
+    return impl_.change(store_, id, range, user);
   }
 
   template<class TAG, typename O>
   inline
   t_bool t_segmented<TAG, 0, O>::change(t_seg_no seg_no, t_crange range,
                                         t_user user) noexcept {
-    return impl_.change(store_, store_ + max_, seg_no, range, user);
+    return impl_.change(store_, seg_no, range, user);
   }
 
   template<class TAG, typename O>
@@ -281,7 +280,7 @@ namespace segmented
 
   template<class TAG, typename O>
   template<typename BY, typename TO>
-  t_void t_segmented<TAG, 0, O>::generate(BY&& by, TO&& to) noexcept {
+  t_void t_segmented<TAG, 0, O>::generate(BY&& by, TO&& to) const noexcept {
     return impl_.generate(store_, preserve<BY>(by), preserve<TO>(to));
   }
 
