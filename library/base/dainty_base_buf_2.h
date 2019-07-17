@@ -53,12 +53,14 @@ namespace buf
     t_buf(t_n) noexcept;
     template<typename F>
     t_buf(t_n, t_emplace_it, F&&) noexcept;
+   ~t_buf();
 
     t_buf(const t_buf&)            = delete;
     t_buf& operator=(const t_buf&) = delete;
 
     t_bool   use_heap    () const noexcept;
     t_n      get_capacity() const noexcept;
+    t_void   clear       ()       noexcept;
 
     operator t_validity  () const noexcept;
     operator t_buf_range ()       noexcept;
@@ -90,11 +92,8 @@ namespace buf
     P_value  end  () const noexcept;
     P_value cend  () const noexcept;
 
-    t_n shrink_by (t_n) noexcept;
-    t_n enlarge_by(t_n) noexcept;
-
-    template<typename F> t_n shrink_by (t_n, F&&) noexcept;
-    template<typename F> t_n enlarge_by(t_n, F&&) noexcept;
+    t_void enlarge_by(t_n) noexcept;
+    t_void resize_to (t_n) noexcept;
 
     template<typename TAG> t_range <T, TAG> mk_range ()       noexcept;
     template<typename TAG> t_crange<T, TAG> mk_range () const noexcept;
@@ -109,11 +108,9 @@ namespace buf
     template<typename TAG> t_crange<T, TAG> mk_crange(t_ix, t_ix) const noexcept;
 
   private:
-    using t_ptr_ = base::ptr::t_ptr<t_valuestore<T>[], t_buf,
-	                                  base::ptr::t_no_deleter>;
     t_valuestore<T> store_[N];
     t_n_            max_;
-    t_ptr_          ptr_;
+    t_ptr_<T>       ptr_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -130,28 +127,44 @@ namespace buf
     t_n_ max = get(_max);
     if (max > N) {
       max_ = max;
-      ptr_ = new t_valuestore<t_value>[max_];
+      ptr_ = alloc_<t_valuestore<t_value>>(_max);
     }
   }
 
   template<typename T, t_n_ N>
   template<typename F>
   inline
-  t_buf<T, N, t_size_dynamic>::t_buf(t_n _max, t_emplace_it,
-                                     F&& func) noexcept
+  t_buf<T, N, t_size_dynamic>::t_buf(t_n _max, t_emplace_it, F&& func) noexcept
       : max_{N}, ptr_{store_} {
     t_n_ max = get(_max);
     if (max > N) {
       max_ = max;
-      ptr_ = new t_valuestore<t_value>[max_];
+      ptr_ = alloc_<t_valuestore<t_value>>(_max);
     }
     func(max, ptr_.get());
   }
 
   template<typename T, t_n_ N>
   inline
+  t_buf<T, N, t_size_dynamic>::~t_buf() {
+    if (use_heap())
+      dealloc_(ptr_.release());
+  }
+
+  template<typename T, t_n_ N>
+  inline
   t_bool t_buf<T, N, t_size_dynamic>::use_heap() const noexcept {
     return ptr_.get() != store_;
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  t_void t_buf<T, N, t_size_dynamic>::clear() noexcept {
+    if (use_heap()) {
+      dealloc_(ptr_.release());
+      max_ = N;
+      ptr_ = store_;
+    }
   }
 
   template<typename T, t_n_ N>
@@ -221,32 +234,31 @@ namespace buf
 
   template<typename T, t_n_ N>
   inline
-  t_n t_buf<T, N, t_size_dynamic>::shrink_by(t_n by) noexcept {
-    //XXX - 1
-    return 0_n;
+  t_void t_buf<T, N, t_size_dynamic>::enlarge_by(t_n by) noexcept {
+    max_ += get(by);
+    if (use_heap())
+      ptr_ = realloc_<t_valuestore<t_value>>(ptr_.release(), t_n{max_});
+    else
+      ptr_ = alloc_<t_valuestore<t_value>>(t_n{max_});
   }
 
   template<typename T, t_n_ N>
   inline
-  t_n t_buf<T, N, t_size_dynamic>::enlarge_by(t_n by) noexcept {
-    //XXX - 2
-    return 0_n;
-  }
-
-  template<typename T, t_n_ N>
-  template<typename F>
-  inline
-  t_n t_buf<T, N, t_size_dynamic>::shrink_by(t_n by, F&& func) noexcept {
-    //XXX - 3
-    return 0_n;
-  }
-
-  template<typename T, t_n_ N>
-  template<typename F>
-  inline
-  t_n t_buf<T, N, t_size_dynamic>::enlarge_by(t_n by, F&& func) noexcept {
-    //XXX - 4
-    return 0_n;
+  t_void t_buf<T, N, t_size_dynamic>::resize_to(t_n n) noexcept {
+    t_n_ max = get(n);
+    if (max <= N) {
+      if (use_heap()) {
+        dealloc_(ptr_.release());
+        ptr_ = store_;
+        max_ = N;
+      }
+    } else {
+      max_ = max;
+      if (use_heap())
+        ptr_ = realloc_<t_valuestore<t_value>>(ptr_.release(), n);
+      else
+        ptr_ = alloc_<t_valuestore<t_value>>(n);
+    }
   }
 
   template<typename T, t_n_ N>
