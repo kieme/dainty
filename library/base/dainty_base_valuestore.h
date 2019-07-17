@@ -38,15 +38,19 @@ namespace valuestore
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<t_n_ N>
-  struct t_store { base::t_byte_ bytes[N]; };
+  using t_alignment = t_int;
+
+  template<t_n_ N, t_alignment ALIGNMENT>
+  struct t_store {
+    alignas(ALIGNMENT) base::t_byte_ bytes[N];
+  };
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_valuestore {
   public:
-    using t_store = valuestore::t_store<sizeof(T)>;
+    using t_store = valuestore::t_store<sizeof(T), alignof(T)>;
     using r_store = typename base::t_prefix<t_store>::r_;
     using R_store = typename base::t_prefix<t_store>::R_;
     using t_value = typename base::t_prefix<T>::t_;
@@ -115,7 +119,7 @@ namespace valuestore
       return reinterpret_cast<P_value>(store_.bytes);
     }
 
-    alignas(t_value) t_store store_;
+    t_store store_;
   };
 
 ////////////////////////////////////////////////////////////////////////////////
