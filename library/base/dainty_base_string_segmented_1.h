@@ -39,13 +39,23 @@ namespace segmented
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<class TAG, t_n_ N = 0, typename O = t_overflow_grow>
+  template<class TAG, t_n_ N, typename O>
   class t_segmented {
     using t_impl_ = t_segmented_impl_<O>;
-  public:
-    t_segmented() noexcept : impl_{store_} { }
+    using t_self_ = t_segmented<TAG, N, O>;
+    using r_self_ = typename t_prefix<t_self_>::r_;
+    using R_self_ = typename t_prefix<t_self_>::R_;
+    using x_self_ = typename t_prefix<t_self_>::x_;
 
-    // copy? - why not
+  public:
+    t_segmented()              noexcept : impl_{store_} { }
+    t_segmented(R_self_)       noexcept;
+    r_self_ operator=(R_self_) noexcept;
+
+    template<t_n_ N1, typename O1>
+    t_segmented(const t_segmented<TAG, N1, O1>&) noexcept;
+    template<t_n_ N1, typename O1>
+    r_self_ operator=(const t_segmented<TAG, N1, O1>&) noexcept;
 
     t_n      get_segs_num()               const noexcept;
     t_n      get_capacity()               const noexcept;
@@ -102,6 +112,38 @@ namespace segmented
   };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  template<class TAG, t_n_ N, typename O>
+  inline
+  t_segmented<TAG, N, O>::
+      t_segmented(R_self_ segmented) noexcept {
+    // XXX - 1
+  }
+
+  template<class TAG, t_n_ N, typename O>
+  template<t_n_ N1, typename O1>
+  inline
+  t_segmented<TAG, N, O>::
+      t_segmented(const t_segmented<TAG, N1, O1>& segmented) noexcept {
+    // XXX - 2
+  }
+
+  template<class TAG, t_n_ N, typename O>
+  inline
+  typename t_segmented<TAG, N, O>::r_self_ t_segmented<TAG, N, O>::
+      operator=(R_self_ segmented) noexcept {
+    // XXX - 3
+    return *this;
+  }
+
+  template<class TAG, t_n_ N, typename O>
+  template<t_n_ N1, typename O1>
+  inline
+  typename t_segmented<TAG, N, O>::r_self_ t_segmented<TAG, N, O>::
+      operator=(const t_segmented<TAG, N1, O1>& segmented) noexcept {
+    // XXX - 4
+    return *this;
+  }
 
   template<class TAG, t_n_ N, typename O>
   inline

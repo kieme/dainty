@@ -48,6 +48,65 @@ namespace valuestore
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
+  inline
+  T* default_construct(t_store<sizeof(T), alignof(T)>& store) noexcept {
+    return new (store.bytes) T;
+  }
+
+  template<typename T>
+  inline
+  T* copy_construct(t_store<sizeof(T), alignof(T)>& store,
+                    const T& value) noexcept {
+    return new (store.bytes) T(value);
+  }
+
+  template<typename T>
+  inline
+  T* move_construct(t_store<sizeof(T), alignof(T)>& store,
+                    T&& value) noexcept {
+    return new (store.bytes) T(x_cast(value));
+  }
+
+  template<typename T, typename... Args>
+  inline
+  T* emplace_construct(t_store<sizeof(T), alignof(T)>& store,
+                       Args&&... args) noexcept {
+    return new (store.bytes) T(preserve<Args>(args)...);
+  }
+
+  template<typename T>
+  inline
+  t_void destruct(t_store<sizeof(T), alignof(T)>& store) noexcept {
+    reinterpret_cast<T*>(store.bytes)->~T();
+  }
+
+  template<typename T>
+  constexpr
+  T* get_ptr(t_store<sizeof(T), alignof(T)>& store) noexcept {
+    return reinterpret_cast<T*>(store.bytes);
+  }
+
+  template<typename T>
+  constexpr
+  const T* get_cptr(const t_store<sizeof(T), alignof(T)>& store) noexcept {
+    return reinterpret_cast<const T*>(store.bytes);
+  }
+
+  template<typename T>
+  constexpr
+  T& get_ref(t_store<sizeof(T), alignof(T)>& store) noexcept {
+    return *get_ptr(store);
+  }
+
+  template<typename T>
+  constexpr
+  const T& get_cref(const t_store<sizeof(T), alignof(T)>& store) noexcept {
+    return *get_cptr(store);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
   class t_valuestore {
   public:
     using t_store = valuestore::t_store<sizeof(T), alignof(T)>;
@@ -72,28 +131,28 @@ namespace valuestore
 
     inline
     p_value default_construct() noexcept {
-      return new (ptr()) T;
+      return valuestore::default_construct<T>(store);
     }
 
     inline
     p_value copy_construct(R_value value) noexcept {
-      return new (ptr()) T(value);
+      return valuestore::copy_construct<T>(store, value);
     }
 
     inline
     p_value move_construct(x_value value) noexcept {
-      return new (ptr()) T(base::x_cast(value));
+      return valuestore::move_construct<T>(store, x_cast(value));
     }
 
     template<typename... Args>
     inline
     p_value emplace_construct(Args&&... args) noexcept {
-      return new (ptr()) T(base::preserve<Args>(args)...);
+      return valuestore::emplace_construct<T>(store, preserve<Args>(args)...);
     }
 
     inline
     t_void destruct() noexcept {
-      ptr()->~T();
+      valuestore::destruct<T>(store);
     }
 
     constexpr p_value  ptr()         noexcept { return mk_ptr(); }
@@ -109,14 +168,14 @@ namespace valuestore
     constexpr R_store cstore() const noexcept { return store_; }
 
   private:
-    inline
+    constexpr
     p_value mk_ptr() noexcept {
-      return reinterpret_cast<p_value>(store_.bytes);
+      return valuestore::get_ptr<T>(store_);
     }
 
-    inline
+    constexpr
     P_value mk_ptr() const noexcept {
-      return reinterpret_cast<P_value>(store_.bytes);
+      return valuestore::get_cptr<T>(store_);
     }
 
     t_store store_;

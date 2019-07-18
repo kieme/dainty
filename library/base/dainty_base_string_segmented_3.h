@@ -42,10 +42,15 @@ namespace segmented
   template<class TAG, typename O>
   class t_segmented<TAG, 0, O> {
     using t_impl_ = t_segmented_impl_<O>;
-  public:
-    t_segmented(t_n max) noexcept : impl_{store_} { }
+    using t_self_ = t_segmented<TAG, 0, O>;
+    using r_self_ = typename t_prefix<t_self_>::r_;
+    using R_self_ = typename t_prefix<t_self_>::R_;
+    using x_self_ = typename t_prefix<t_self_>::x_;
 
-    // copy? - why not
+  public:
+    t_segmented(t_n max)       noexcept : impl_{store_} { }
+
+    // copy ?
 
     t_n      get_segs_num()               const noexcept;
     t_n      get_capacity()               const noexcept;
