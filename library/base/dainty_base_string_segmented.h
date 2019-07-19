@@ -40,6 +40,11 @@ namespace string
 {
 namespace segmented
 {
+  // - t_segmented<TAG, N, O>               - static, cannot grow
+  // - t_segmented<TAG, 0, O>               - heap cannot grow
+  // - t_segmented<TAG, N, t_overflow_grow> - static SSO, and can grow (heap)
+  // - t_segmented<TAG, 0, t_overflow_grow> - heap, and can grow
+
 ///////////////////////////////////////////////////////////////////////////////
 
   struct t_generator {

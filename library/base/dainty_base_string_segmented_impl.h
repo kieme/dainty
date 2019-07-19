@@ -207,6 +207,8 @@ namespace segmented
     t_id     find         (t_buf_crange, t_crange)       const noexcept;
     t_id     find_next    (t_buf_crange, t_crange, t_id) const noexcept;
 
+    t_void   assign       (t_buf_range, t_citr, t_citr) noexcept;
+
     t_result push_back    (t_buf_range, t_user)           noexcept;
     t_result push_back    (t_buf_range, t_crange, t_user) noexcept;
 
@@ -252,6 +254,7 @@ namespace segmented
     t_seg_info_  get_seg (p_char, t_id)           noexcept;
     t_seg_cinfo_ get_cseg(P_char, t_seg_no) const noexcept;
     t_seg_cinfo_ get_cseg(P_char, t_id)     const noexcept;
+    t_n_         get_size(t_citr, t_citr)   const noexcept;
 
   protected:
     t_n_   segs_ = 0;
@@ -283,6 +286,8 @@ namespace segmented
 
     t_bool   change   (t_buf_range, t_seg_no, t_crange, t_user) noexcept;
     t_bool   change   (t_buf_range, t_id,     t_crange, t_user) noexcept;
+
+    t_bool   assign   (t_buf_range, t_citr, t_citr) noexcept;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -306,6 +311,8 @@ namespace segmented
 
     t_bool   change   (t_buf_range, t_seg_no, t_crange, t_user) noexcept;
     t_bool   change   (t_buf_range, t_id,     t_crange, t_user) noexcept;
+
+    t_bool   assign   (t_buf_range, t_citr, t_citr) noexcept;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -337,6 +344,9 @@ namespace segmented
     t_bool   change   (t_grow_buf<N>&, t_seg_no, t_crange, t_user) noexcept;
     template<t_n_ N>
     t_bool   change   (t_grow_buf<N>&, t_id,     t_crange, t_user) noexcept;
+
+    template<t_n_ N>
+    t_bool   assign   (t_grow_buf<N>&, t_citr, t_citr) noexcept;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -367,6 +377,12 @@ namespace segmented
   inline
   t_bool t_segmented_impl_base_::is_empty() const noexcept {
     return !segs_;
+  }
+
+  inline
+  t_n_ t_segmented_impl_base_::get_size(t_citr begin,
+                                        t_citr end) const noexcept {
+    return end.buf_ - begin.buf_;
   }
 
   inline
@@ -648,6 +664,18 @@ namespace segmented
     return false;
   }
 
+  inline
+  t_bool t_segmented_impl_<t_overflow_assert>::
+      assign(t_buf_range store, t_citr begin, t_citr end) noexcept {
+    if (get_size(begin, end) <= base::get(store.n)) {
+       t_segmented_impl_base_::assign(store, begin, end);
+       return true;
+    }
+
+    assert_now(FMT, "t_segmented: assign failed");
+    return false;
+  }
+
 ///////////////////////////////////////////////////////////////////////////////
 
   inline
@@ -732,6 +760,16 @@ namespace segmented
     return t_segmented_impl_base_::change(store, id, range, user);
   }
 
+  inline
+  t_bool t_segmented_impl_<t_overflow_truncate>::
+      assign(t_buf_range store, t_citr begin, t_citr end) noexcept {
+    if (get_size(begin, end) <= base::get(store.n)) {
+       t_segmented_impl_base_::assign(store, begin, end);
+       return true;
+    }
+    return false;
+  }
+
 ///////////////////////////////////////////////////////////////////////////////
 
   template<t_n_ N>
@@ -741,7 +779,7 @@ namespace segmented
     if (user && (next_ + HDR_MAX_ <= store.cend()))
       return t_segmented_impl_base_::push_back(store, user);
 
-    store.enlarge_by(t_n{HDR_MAX_});
+    store.enlarge_by(t_n{HDR_MAX_}); // XXX next_ must be updated
     return t_segmented_impl_base_::push_back(store, user);
   }
 
@@ -752,7 +790,7 @@ namespace segmented
     if (next_ + HDR_MAX_ + base::get(range.n) <= store.cend())
       return t_segmented_impl_base_::push_back(store, range, user);
 
-    store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)});
+    store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)}); //XXX next_
     return t_segmented_impl_base_::push_back(store, range, user);
   }
 
@@ -763,7 +801,7 @@ namespace segmented
     if (next_ + HDR_MAX_ <= store.cend())
       return t_segmented_impl_base_::insert(store, seg_no, user);
 
-    store.enlarge_by(t_n{HDR_MAX_});
+    store.enlarge_by(t_n{HDR_MAX_}); //XXX next_
     return t_segmented_impl_base_::insert(store, seg_no, user);
   }
 
@@ -775,7 +813,7 @@ namespace segmented
     if (next_ + HDR_MAX_ + base::get(range.n) <= store.cend())
       return t_segmented_impl_base_::insert(store, seg_no, range, user);
 
-    store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)});
+    store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)}); //XXX next_
     return t_segmented_impl_base_::insert(store, seg_no, range, user);
   }
 
@@ -786,7 +824,7 @@ namespace segmented
     if (next_ + HDR_MAX_ <= store.cend())
       return t_segmented_impl_base_::insert(store, id, user);
 
-    store.enlarge_by(t_n{HDR_MAX_});
+    store.enlarge_by(t_n{HDR_MAX_}); //XXX next_
     return t_segmented_impl_base_::insert(store, id, user);
   }
 
@@ -798,7 +836,7 @@ namespace segmented
     if (next_ + HDR_MAX_ + base::get(range.n) <= store.cend())
       return t_segmented_impl_base_::insert(store, id, range, user);
 
-    store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)});
+    store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)}); //XXX next_
     return t_segmented_impl_base_::insert(store, id, range, user);
   }
 
@@ -825,7 +863,7 @@ namespace segmented
       if (t_segmented_impl_base_::change(store, seg_no, range, user))
         return true;
 
-      store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)});
+      store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)}); //XXX next_
       return t_segmented_impl_base_::change(store, seg_no, range, user);
     }
     return false;
@@ -839,8 +877,22 @@ namespace segmented
     if (t_segmented_impl_base_::change(store, id, range, user))
       return true;
 
-    store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)});
+    store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)}); //XXX next_
     return t_segmented_impl_base_::change(store, id, range, user);
+  }
+
+  template<t_n_ N>
+  inline
+  t_bool t_segmented_impl_<t_overflow_grow>::
+      assign(t_grow_buf<N>& store, t_citr begin, t_citr end) noexcept {
+    t_n_ need = get_size(begin, end);
+    if (need <= base::get(store.n)) {
+       t_segmented_impl_base_::assign(store, begin, end);
+       return true;
+    }
+    store.resize_to(t_n{need}); //XXX next_
+    t_segmented_impl_base_::assign(store, begin, end);
+    return true;
   }
 
 ///////////////////////////////////////////////////////////////////////////////

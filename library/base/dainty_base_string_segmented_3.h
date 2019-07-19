@@ -48,9 +48,23 @@ namespace segmented
     using x_self_ = typename t_prefix<t_self_>::x_;
 
   public:
-    t_segmented(t_n max)       noexcept : impl_{store_} { }
+    t_segmented(t_n max) noexcept : store_{max}, impl_{store_} { }
+    t_segmented(const t_segmented&) = delete;
 
-    // copy ?
+    template<t_n_ N, typename O1>
+    t_segmented(t_n max, const t_segmented<TAG, N, O1>&) noexcept;
+    template<t_n_ N>
+    t_segmented(t_n max, t_segmented<TAG, N, t_overflow_grow>&&) noexcept;
+    template<typename O1>
+    t_segmented(t_n max, t_segmented<TAG, 0, O1>&&) noexcept;
+
+    r_self_ operator=(R_self_) noexcept;
+    r_self_ operator=(x_self_) noexcept;
+
+    template<t_n_ N, typename O1>
+    r_self_ operator=(const t_segmented<TAG, N, O1>&) noexcept;
+    template<t_n_ N>
+    r_self_ operator=(t_segmented<TAG, N, t_overflow_grow>&&) noexcept;
 
     t_n      get_segs_num()               const noexcept;
     t_n      get_capacity()               const noexcept;
@@ -107,6 +121,66 @@ namespace segmented
   };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  template<class TAG, typename O>
+  template<t_n_ N, typename O1>
+  inline
+  t_segmented<TAG, 0, O>::
+      t_segmented(t_n max, const t_segmented<TAG, N, O1>& segmented) noexcept
+    : store_{max}, impl_{store_} {
+    impl_.assign(store_, segmented.begin(), segmented.end());
+  }
+
+  template<class TAG, typename O>
+  template<t_n_ N>
+  inline
+  t_segmented<TAG, 0, O>::
+      t_segmented(t_n max,
+                  t_segmented<TAG, N, t_overflow_grow>&& segmented) noexcept {
+    // XXX - 1
+  }
+
+  template<class TAG, typename O>
+  template<typename O1>
+  inline
+  t_segmented<TAG, 0, O>::
+      t_segmented(t_n max, t_segmented<TAG, 0, O1>&& segmented) noexcept {
+    // XXX - 2
+  }
+
+  template<class TAG, typename O>
+  inline
+  typename t_segmented<TAG, 0, O>::r_self_ t_segmented<TAG, 0, O>::
+      operator=(R_self_ segmented) noexcept {
+    impl_.assign(store_, segmented.begin(), segmented.end());
+    return *this;
+  }
+
+  template<class TAG, typename O>
+  inline
+  typename t_segmented<TAG, 0, O>::r_self_ t_segmented<TAG, 0, O>::
+      operator=(x_self_ segmented) noexcept {
+    // XXX - 3
+    return *this;
+  }
+
+  template<class TAG, typename O>
+  template<t_n_ N, typename O1>
+  inline
+  typename t_segmented<TAG, 0, O>::r_self_ t_segmented<TAG, 0, O>::
+      operator=(const t_segmented<TAG, N, O1>& segmented) noexcept {
+    impl_.assign(store_, segmented.begin(), segmented.end());
+    return *this;
+  }
+
+  template<class TAG, typename O>
+  template<t_n_ N>
+  inline
+  typename t_segmented<TAG, 0, O>::r_self_ t_segmented<TAG, 0, O>::
+      operator=(t_segmented<TAG, N, t_overflow_grow>&& segmented) noexcept {
+    // XXX - 4
+    return *this;
+  }
 
   template<class TAG, typename O>
   inline

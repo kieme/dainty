@@ -127,15 +127,16 @@ namespace segmented
   template<class TAG, t_n_ N>
   inline
   t_segmented<TAG, N, t_overflow_grow>::
-      t_segmented(R_self_ segmented) noexcept {
-    // XXX - 1
+    t_segmented(R_self_ segmented) noexcept
+      : store_{segmented.get_size()},impl_{store_} {
+    impl_.assign(store_, segmented.begin(), segmented.end());
   }
 
   template<class TAG, t_n_ N>
   inline
   t_segmented<TAG, N, t_overflow_grow>::
-      t_segmented(x_self_ segmented) noexcept {
-    // XXX - 2
+      t_segmented(x_self_ segmented) noexcept : impl_{store_} {
+    // XXX - 1
   }
 
   template<class TAG, t_n_ N>
@@ -143,7 +144,7 @@ namespace segmented
   typename t_segmented<TAG, N, t_overflow_grow>::r_self_
     t_segmented<TAG, N, t_overflow_grow>::
       operator=(R_self_ segmented) noexcept {
-    // XXX - 3
+    impl_.assign(store_, segmented.begin(), segmented.end());
     return *this;
   }
 
@@ -152,7 +153,7 @@ namespace segmented
   typename t_segmented<TAG, N, t_overflow_grow>::r_self_
     t_segmented<TAG, N, t_overflow_grow>::
       operator=(x_self_ segmented) noexcept {
-    // XXX - 4
+    // XXX - 2
     return *this;
   }
 
@@ -160,8 +161,9 @@ namespace segmented
   template<t_n_ N1, typename O>
   inline
   t_segmented<TAG, N, t_overflow_grow>::
-      t_segmented(const t_segmented<TAG, N1, O>& segmented) noexcept {
-    // XXX - 5
+    t_segmented(const t_segmented<TAG, N1, O>& segmented) noexcept
+      : store_{segmented.get_size()}, impl_{store_} {
+    impl_.assign(store_, segmented.begin(), segmented.end());
   }
 
   template<class TAG, t_n_ N>
@@ -169,7 +171,7 @@ namespace segmented
   inline
   t_segmented<TAG, N, t_overflow_grow>::
       t_segmented(t_segmented<TAG, N1, t_overflow_grow>&& segmented) noexcept {
-    // XXX - 6
+    // XXX - 3
   }
 
   template<class TAG, t_n_ N>
@@ -177,7 +179,7 @@ namespace segmented
   inline
   t_segmented<TAG, N, t_overflow_grow>::
       t_segmented(t_segmented<TAG, 0, O>&&) noexcept {
-    // XXX - 7
+    // XXX - 4
   }
 
   template<class TAG, t_n_ N>
@@ -186,7 +188,7 @@ namespace segmented
   typename t_segmented<TAG, N, t_overflow_grow>::r_self_
     t_segmented<TAG, N, t_overflow_grow>::
       operator=(const t_segmented<TAG, N1, O>& segmented) noexcept {
-    // XXX - 8
+    impl_.assign(store_, segmented.begin(), segmented.end());
     return *this;
   }
 
@@ -196,7 +198,7 @@ namespace segmented
   typename t_segmented<TAG, N, t_overflow_grow>::r_self_
     t_segmented<TAG, N, t_overflow_grow>::
       operator=(t_segmented<TAG, N1, t_overflow_grow>&& segmented) noexcept {
-    // XXX - 9
+    // XXX - 5
     return *this;
   }
 
@@ -206,7 +208,7 @@ namespace segmented
   typename t_segmented<TAG, N, t_overflow_grow>::r_self_
     t_segmented<TAG, N, t_overflow_grow>::
       operator=(t_segmented<TAG, 0, O>&&) noexcept {
-    // XXX - 10
+    // XXX - 6
     return *this;
   }
 

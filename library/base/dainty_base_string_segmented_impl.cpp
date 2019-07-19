@@ -226,6 +226,18 @@ namespace segmented
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_void t_segmented_impl_base_::assign(t_buf_range store, t_citr begin,
+                                        t_citr end) noexcept {
+    for (; begin != end; ++begin) {
+      auto range = *begin;
+      auto user  = begin.get_user();
+      if (range == VALID)
+        push_back(store, range, user);
+      else
+        push_back(store, user);
+    }
+  }
+
   t_result t_segmented_impl_base_::push_back(t_buf_range store,
                                              t_user user) noexcept {
     t_ix_ ix = next_ - store.ptr;
