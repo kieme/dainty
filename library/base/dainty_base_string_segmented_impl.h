@@ -886,7 +886,7 @@ namespace segmented
   t_bool t_segmented_impl_<t_overflow_grow>::
       assign(t_grow_buf<N>& store, t_citr begin, t_citr end) noexcept {
     t_n_ need = get_size(begin, end);
-    if (need <= base::get(store.n)) {
+    if (need <= base::get(store.get_capacity())) {
        t_segmented_impl_base_::assign(store, begin, end);
        return true;
     }
