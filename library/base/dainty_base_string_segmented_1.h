@@ -48,7 +48,7 @@ namespace segmented
     using x_self_ = typename t_prefix<t_self_>::x_;
 
   public:
-    t_segmented()              noexcept : impl_{store_} { }
+    t_segmented()              noexcept { }
     t_segmented(R_self_)       noexcept;
     r_self_ operator=(R_self_) noexcept;
 
@@ -116,7 +116,7 @@ namespace segmented
   template<class TAG, t_n_ N, typename O>
   inline
   t_segmented<TAG, N, O>::
-      t_segmented(R_self_ segmented) noexcept : impl_{store_} {
+      t_segmented(R_self_ segmented) noexcept {
     impl_.assign(store_, segmented.begin(), segmented.end());
   }
 
@@ -124,8 +124,7 @@ namespace segmented
   template<t_n_ N1, typename O1>
   inline
   t_segmented<TAG, N, O>::
-      t_segmented(const t_segmented<TAG, N1, O1>& segmented) noexcept
-      : impl_{store_} {
+      t_segmented(const t_segmented<TAG, N1, O1>& segmented) noexcept {
     impl_.assign(store_, segmented.begin(), segmented.end());
   }
 
@@ -161,7 +160,7 @@ namespace segmented
   template<class TAG, t_n_ N, typename O>
   inline
   t_n t_segmented<TAG, N, O>::get_size() const noexcept {
-    return impl_.get_size(store_);
+    return impl_.get_size();
   }
 
   template<class TAG, t_n_ N, typename O>
@@ -250,7 +249,7 @@ namespace segmented
   template<class TAG, t_n_ N, typename O>
   inline
   t_void t_segmented<TAG, N, O>::clear() noexcept {
-    return impl_.clear(store_);
+    return impl_.clear();
   }
 
   template<class TAG, t_n_ N, typename O>
@@ -311,7 +310,7 @@ namespace segmented
   template<class TAG, t_n_ N, typename O>
   inline
   t_citr t_segmented<TAG, N, O>::end() const noexcept {
-    return impl_.end();
+    return impl_.end(store_);
   }
 
   template<class TAG, t_n_ N, typename O>

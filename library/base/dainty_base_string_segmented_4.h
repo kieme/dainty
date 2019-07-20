@@ -48,8 +48,8 @@ namespace segmented
     using x_self_ = typename t_prefix<t_self_>::x_;
 
   public:
-    t_segmented()              noexcept :              impl_{store_} { }
-    t_segmented(t_n max)       noexcept : store_{max}, impl_{store_} { }
+    t_segmented()              noexcept               { }
+    t_segmented(t_n max)       noexcept : store_{max} { }
     t_segmented(R_self_)       noexcept;
     t_segmented(x_self_)       noexcept;
     r_self_ operator=(R_self_) noexcept;
@@ -128,16 +128,15 @@ namespace segmented
   template<class TAG>
   inline
   t_segmented<TAG, 0, t_overflow_grow>::
-      t_segmented(R_self_ segmented) noexcept
-      : store_{segmented.get_size()}, impl_{store_} {
+      t_segmented(R_self_ segmented) noexcept : store_{segmented.get_size()} {
     impl_.assign(store_, segmented.begin(), segmented.end());
   }
 
   template<class TAG>
   inline
   t_segmented<TAG, 0, t_overflow_grow>::
-      t_segmented(x_self_ segmented) noexcept {
-    // XXX - 1
+      t_segmented(x_self_ segmented) noexcept : store_{segmented.get_size()} {
+    impl_.assign(store_, segmented.begin(), segmented.end()); // XXX - copy!
   }
 
   template<class TAG>
@@ -154,7 +153,7 @@ namespace segmented
   typename t_segmented<TAG, 0, t_overflow_grow>::r_self_
     t_segmented<TAG, 0, t_overflow_grow>::
       operator=(x_self_ segmented) noexcept {
-    // XXX - 2
+    impl_.assign(store_, segmented.begin(), segmented.end()); // XXX - copy!
     return *this;
   }
 
@@ -163,7 +162,7 @@ namespace segmented
   inline
   t_segmented<TAG, 0, t_overflow_grow>::
     t_segmented(const t_segmented<TAG, N, O>& segmented) noexcept
-      : store_{segmented.get_size()}, impl_{store_} {
+      : store_{segmented.get_size()} {
     impl_.assign(store_, segmented.begin(), segmented.end());
   }
 
@@ -171,16 +170,18 @@ namespace segmented
   template<t_n_ N>
   inline
   t_segmented<TAG, 0, t_overflow_grow>::
-      t_segmented(t_segmented<TAG, N, t_overflow_grow>&& segmented) noexcept {
-    // XXX - 3
+    t_segmented(t_segmented<TAG, N, t_overflow_grow>&& segmented) noexcept
+      : store_{segmented.get_size()} {
+    impl_.assign(store_, segmented.begin(), segmented.end()); // XXX - copy!
   }
 
   template<class TAG>
   template<typename O>
   inline
   t_segmented<TAG, 0, t_overflow_grow>::
-      t_segmented(t_segmented<TAG, 0, O>&& segmented) noexcept {
-    // XXX - 4
+    t_segmented(t_segmented<TAG, 0, O>&& segmented) noexcept
+      : store_{segmented.get_size()} {
+    impl_.assign(store_, segmented.begin(), segmented.end()); // XXX - copy!
   }
 
   template<class TAG>
@@ -198,8 +199,8 @@ namespace segmented
   inline
   typename t_segmented<TAG, 0, t_overflow_grow>::r_self_
     t_segmented<TAG, 0, t_overflow_grow>::
-      operator=(t_segmented<TAG, N, t_overflow_grow>&&) noexcept {
-    // XXX - 5
+      operator=(t_segmented<TAG, N, t_overflow_grow>&& segmented) noexcept {
+    impl_.assign(store_, segmented.begin(), segmented.end()); // XXX - copy!
     return *this;
   }
 
@@ -208,8 +209,8 @@ namespace segmented
   inline
   typename t_segmented<TAG, 0, t_overflow_grow>::r_self_
     t_segmented<TAG, 0, t_overflow_grow>::
-      operator=(t_segmented<TAG, 0, O>&&) noexcept {
-    // XXX - 6
+      operator=(t_segmented<TAG, 0, O>&& segmented) noexcept {
+    impl_.assign(store_, segmented.begin(), segmented.end()); // XXX - copy!
     return *this;
   }
 
@@ -228,7 +229,7 @@ namespace segmented
   template<class TAG>
   inline
   t_n t_segmented<TAG, 0, t_overflow_grow>::get_size() const noexcept {
-    return impl_.get_size(store_);
+    return impl_.get_size();
   }
 
   template<class TAG>
@@ -325,7 +326,7 @@ namespace segmented
   template<class TAG>
   inline
   t_void t_segmented<TAG, 0, t_overflow_grow>::clear() noexcept {
-    return impl_.clear(store_);
+    return impl_.clear();
   }
 
   template<class TAG>
@@ -390,7 +391,7 @@ namespace segmented
   template<class TAG>
   inline
   t_citr t_segmented<TAG, 0, t_overflow_grow>::end() const noexcept {
-    return impl_.end();
+    return impl_.end(store_);
   }
 
   template<class TAG>

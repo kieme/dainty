@@ -52,7 +52,7 @@ namespace segmented
     return end;
   }
 
-  P_char find_next_(P_char buf, P_char end, t_crange range) noexcept {
+  P_char find_next(P_char buf, P_char end, t_crange range) noexcept {
     t_n_ range_n = get(range.n);
     P_char ptr = buf;
     if (ptr < end) {
@@ -240,15 +240,15 @@ namespace segmented
 
   t_result t_segmented_impl_base_::push_back(t_buf_range store,
                                              t_user user) noexcept {
-    t_ix_ ix = next_ - store.ptr;
-    next_    = push_back_(next_, user);
+    t_ix_ ix = size_;
+    size_    = push_back_(store.ptr + size_, user) - store.ptr;
     return {t_id{ix + 1}, t_seg_no{segs_++}};
   }
 
   t_result t_segmented_impl_base_::push_back(t_buf_range store, t_crange range,
                                              t_user user) noexcept {
-    t_ix_ ix = next_ - store.ptr;
-    next_ = push_back_(next_, range, user);
+    t_ix_ ix = size_;
+    size_    = push_back_(store.ptr + size_, range, user) - store.ptr;
     return {t_id{ix + 1}, t_seg_no{segs_++}};
   }
 
@@ -256,7 +256,7 @@ namespace segmented
                                       t_user user) noexcept {
     auto info = get_seg(store.ptr, seg_no);
     if (info) {
-      next_ = insert_(info.ptr, next_, user);
+      size_ = insert_(info.ptr, store.ptr + size_, user) - store.ptr;
       ++segs_;
       return t_id((info.ptr - store.ptr) + 1);
     }
@@ -267,7 +267,7 @@ namespace segmented
                                       t_crange range, t_user user) noexcept {
     auto info = get_seg(store.ptr, seg_no);
     if (info) {
-      next_ = insert_(info.ptr, next_, range, user);
+      size_ = insert_(info.ptr, store.ptr + size_, range, user) - store.ptr;
       ++segs_;
       return t_id((info.ptr - store.ptr) + 1);
     }
@@ -278,7 +278,7 @@ namespace segmented
                                       t_user user) noexcept {
     auto info = get_seg(store.ptr, id);
     if (info) {
-      next_ = insert_(info.ptr, next_, user);
+      size_ = insert_(info.ptr, store.ptr + size_, user) - store.ptr;
       ++segs_;
       return t_id((info.ptr - store.ptr) + 1);
     }
@@ -289,7 +289,7 @@ namespace segmented
                                       t_crange range, t_user user) noexcept {
     auto info = get_seg(store.ptr, id);
     if (info) {
-      next_ = insert_(info.ptr, next_, range, user);
+      size_ = insert_(info.ptr, store.ptr + size_, range, user) - store.ptr;
       ++segs_;
       return t_id((info.ptr - store.ptr) + 1);
     }
@@ -300,7 +300,7 @@ namespace segmented
                                         t_user user) noexcept {
     auto info = get_seg(store.ptr, seg_no);
     if (info) {
-      next_ = change_(info.ptr, next_, user);
+      size_ = change_(info.ptr, store.ptr + size_, user) - store.ptr;
       return true;
     }
     return false;
@@ -310,9 +310,9 @@ namespace segmented
                                         t_crange range, t_user user) noexcept {
     auto info = get_seg(store.ptr, seg_no);
     if (info) {
-      t_n_ available = (range::cend(store) - next_) + info.hdr.hdr.len;
+      t_n_ available = (base::get(store.n) - size_) + info.hdr.hdr.len;
       if (available >= base::get(range.n))
-        next_ = change_(info.ptr, next_, range, user);
+        size_ = change_(info.ptr, store.ptr + size_, range, user) - store.ptr;
       return true;
     }
     return false;
@@ -322,7 +322,7 @@ namespace segmented
                                         t_user user) noexcept {
     auto info = get_seg(store.ptr, id);
     if (info) {
-      next_ = change_(info.ptr, next_, user);
+      size_ = change_(info.ptr, store.ptr + size_, user) - store.ptr;
       return true;
     }
     return false;
@@ -332,9 +332,9 @@ namespace segmented
                                         t_crange range, t_user user) noexcept {
     auto info = get_seg(store.ptr, id);
     if (info) {
-      t_n_ available = (range::cend(store) - next_) + info.hdr.hdr.len;
+      t_n_ available = (base::get(store.n) - size_) + info.hdr.hdr.len;
       if (available >= base::get(range.n))
-        next_ = change_(info.ptr, next_, range, user);
+        size_ = change_(info.ptr, store.ptr + size_, range, user) - store.ptr;
       return true;
     }
     return false;
@@ -345,7 +345,7 @@ namespace segmented
     t_n_ n = base::get(_n);
     if (base::get(seg_no) + n <= segs_) {
       auto info = get_seg(store.ptr, seg_no);
-      next_ = remove_(info.ptr, next_, _n);
+      size_ = remove_(info.ptr, store.ptr + size_, _n) - store.ptr;
       segs_ -= n;
       return true;
     }
@@ -356,9 +356,9 @@ namespace segmented
                                         t_n n) noexcept {
     auto info = get_seg(store.ptr, id);
     if (info) {
-      p_char next = remove_(info.ptr, next_, n);
-      if (next) {
-        next_ = next;
+      p_char end = remove_(info.ptr, store.ptr + size_, n);
+      if (end) {
+        size_  = end - store.ptr;
         segs_ -= base::get(n);
         return true;
       }
