@@ -74,7 +74,7 @@ namespace range
     template<typename F> t_void ceach(F) const;
 
     p_item const ptr = nullptr;
-    t_n          n   = t_n{0};
+    T_n          n   = t_n{0};
   };
 
   template<typename T, typename TAG>
@@ -100,7 +100,7 @@ namespace range
     template<typename F> t_void ceach(F) const;
 
     P_item const ptr = nullptr;
-    t_n          n   = t_n{0};
+    T_n          n   = t_n{0};
   };
 
   template<typename T, typename TAG> class t_range<const T, TAG>;
