@@ -114,9 +114,9 @@ namespace string
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  struct t_snippet;
-  using  r_snippet = t_prefix<t_snippet>::r_;
-  using  p_snippet = t_prefix<t_snippet>::p_;
+  class t_snippet;
+  using r_snippet = t_prefix<t_snippet>::r_;
+  using p_snippet = t_prefix<t_snippet>::p_;
 
   class t_snippet {
   public:
@@ -692,7 +692,7 @@ namespace string
     return use;
   }
 
-#if __LONG_WIDTH__ == 32
+#if __LONG_WIDTH__ == 32 || __SIZEOF_LONG__ == 4
   inline t_n_ to_integer_(r_long value, P_cstr_ str) {
     t_n_ use = 0;
     value = static_cast<t_long>(to_sint_(use, '9', '8', '7', 20, str));
@@ -704,7 +704,7 @@ namespace string
     value = static_cast<t_ulong>(to_uint_(use, '1', '5', 20, str));
     return use;
   }
-#elif __LONG_WIDTH__ == 64
+#elif __LONG_WIDTH__ == 64 || __SIZEOF_LONG__ == 8
   inline t_n_ to_integer_(r_long value, P_cstr_ str) {
     t_n_ use = 0;
     value = static_cast<t_long>(to_sint_(use, '9', '8', '7', 20, str));
@@ -717,7 +717,7 @@ namespace string
     return use;
   }
 #else
-#error unknown compiler
+#error  compiler
 #endif
 
   inline t_n_ to_integer_(r_llong value, P_cstr_ str) {
@@ -776,7 +776,7 @@ namespace string
     return use;
   }
 
-#if __LONG_WIDTH__ == 32
+#if __LONG_WIDTH__ == 32 || __SIZEOF_LONG__ == 4
   inline t_n_ to_hexidecimal_(r_long value, P_cstr_ str) {
     t_n_ use = 0;
     value = static_cast<t_long>(hex_to_uint_(use, 8, str));
@@ -788,7 +788,7 @@ namespace string
     value = static_cast<t_ulong>(hex_to_uint_(use, 8, str));
     return use;
   }
-#elif __LONG_WIDTH__ == 64
+#elif __LONG_WIDTH__ == 64 || __SIZEOF_LONG__ == 8
   inline t_n_ to_hexidecimal_(r_long value, P_cstr_ str) {
     t_n_ use = 0;
     value = static_cast<t_long>(hex_to_uint_(use, 16, str));
