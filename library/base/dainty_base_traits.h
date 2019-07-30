@@ -1654,6 +1654,51 @@ struct t_is_precision : t_is_one_of<T, double, float, long double> { };
   template<typename... Ts> using t_if_not_subset_of = t_if<t_is_not_subset_of<Ts...>>;
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  namespace impl_ {
+    template<typename T, typename... Types>
+    struct t_union_ {
+      template<t_n_ N>
+      struct t_sizeof_ {
+       constexpr static t_n_ VALUE = t_union_<Types...>::
+         template t_sizeof_<(N > sizeof(T) ?  N : sizeof(T))>::VALUE;
+      };
+      constexpr static t_n_ SIZEOF_ =
+        t_union_<Types...>::template t_sizeof_<sizeof(T)>::VALUE;
+
+      template<t_n_ N>
+      struct t_align_  {
+        constexpr static t_n_ VALUE = t_union_<Types...>::
+          template t_align_<(N > alignof(T) ?  N : alignof(T))>::VALUE;
+      };
+      constexpr static t_n_ ALIGNMENT_ =
+        t_union_<Types...>::template t_align_<alignof(T)>::VALUE;
+    };
+
+    template<typename T>
+    struct t_union_<T> {
+      template<t_n_ N>
+      struct t_sizeof_ {
+        constexpr static t_n_ VALUE = (N > sizeof(T) ? N : sizeof(T));
+      };
+      constexpr static t_n_ SIZEOF_ = sizeof(T);
+
+      template<t_n_ N>
+      struct t_align_ {
+        constexpr static t_n_ VALUE = (N > alignof(T) ? N : alignof(T));
+      };
+      constexpr static t_n_ ALIGNMENT_ = alignof(T);
+    };
+  }
+
+  template<typename... Types>
+  struct t_union {
+    using t_types = t_pack<Types...>;
+    constexpr static t_n_ SIZEOF    = impl_::t_union_<Types...>::SIZEOF_;
+    constexpr static t_n_ ALIGNMENT = impl_::t_union_<Types...>::ALIGNMENT_;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
 }
 }
 
