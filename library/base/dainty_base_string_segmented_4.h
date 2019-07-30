@@ -48,12 +48,13 @@ namespace segmented
     using x_self_ = typename t_prefix<t_self_>::x_;
 
   public:
-    t_segmented()              noexcept               { }
-    t_segmented(t_n max)       noexcept : store_{max} { }
-    t_segmented(R_self_)       noexcept;
-    t_segmented(x_self_)       noexcept;
-    r_self_ operator=(R_self_) noexcept;
-    r_self_ operator=(x_self_) noexcept;
+    t_segmented()                 noexcept = default;
+    t_segmented(t_n max)          noexcept : store_{max} { }
+    t_segmented(t_char, t_crange) noexcept;
+    t_segmented(R_self_)          noexcept;
+    t_segmented(x_self_)          noexcept;
+    r_self_ operator=(R_self_)    noexcept;
+    r_self_ operator=(x_self_)    noexcept;
 
     template<t_n_ N, typename O>
     t_segmented(const t_segmented<TAG, N, O>&) noexcept;
@@ -124,6 +125,13 @@ namespace segmented
   };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  template<class TAG>
+  inline
+  t_segmented<TAG, 0, t_overflow_grow>::
+      t_segmented(t_char, t_crange) noexcept {
+    // call impl XXX
+  }
 
   template<class TAG>
   inline
