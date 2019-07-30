@@ -30,7 +30,6 @@
 #include "dainty_base_buf_1.h"
 #include "dainty_base_buf_2.h"
 #include "dainty_base_buf_3.h"
-#include "dainty_base_buf_4.h"
 
 namespace dainty
 {
@@ -47,7 +46,6 @@ namespace buf
 //                              class t_buf<T, 0, t_size_dynamic>
 // template<typename T, t_n_ N> class t_buf<T, N, t_size_dynamic>
 // template<typename T, t_n_ N> class t_buf<T, N, t_size_static>
-// template<typename T>         class t_buf<T, 1, t_size_static>
 
 ///////////////////////////////////////////////////////////////////////////////
 }
