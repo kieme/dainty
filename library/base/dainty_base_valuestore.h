@@ -29,6 +29,7 @@
 
 #include <new>
 #include "dainty_base.h"
+#include "dainty_base_traits.h"
 
 namespace dainty
 {
@@ -43,6 +44,11 @@ namespace valuestore
   template<t_n_ N, t_alignment ALIGNMENT>
   struct t_store {
     alignas(ALIGNMENT) base::t_byte_ bytes[N];
+  };
+
+  template<typename... Types>
+  struct t_union_store : t_store<t_union<Types...>::SIZEOF,
+                                 t_union<Types...>::ALIGNMENT> {
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -101,6 +107,72 @@ namespace valuestore
   template<typename T>
   constexpr
   const T& get_cref(const t_store<sizeof(T), alignof(T)>& store) noexcept {
+    return *get_cptr(store);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename... Ts>
+  inline
+  T* default_construct(t_union_store<Ts...>& store) noexcept {
+    static_assert(t_is_one_of<T, Ts...>::VALUE, "not in the union");
+    return new (store.bytes) T;
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  T* copy_construct(t_union_store<Ts...>& store, const T& value) noexcept {
+    static_assert(t_is_one_of<T, Ts...>::VALUE, "not in the union");
+    return new (store.bytes) T(value);
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  T* move_construct(t_union_store<Ts...>& store, T&& value) noexcept {
+    static_assert(t_is_one_of<T, Ts...>::VALUE, "not in the union");
+    return new (store.bytes) T(x_cast(value));
+  }
+
+  template<typename T, typename... Ts, typename... Args>
+  inline
+  T* emplace_construct(t_union_store<Ts...>& store,
+                       Args&&... args) noexcept {
+    static_assert(t_is_one_of<T, Ts...>::VALUE, "not in the union");
+    return new (store.bytes) T(preserve<Args>(args)...);
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  t_void destruct(t_union_store<Ts...>& store) noexcept {
+    static_assert(t_is_one_of<T, Ts...>::VALUE, "not in the union");
+    reinterpret_cast<T*>(store.bytes)->~T();
+  }
+
+  template<typename T, typename... Ts>
+  constexpr
+  T* get_ptr(t_union_store<Ts...>& store) noexcept {
+    static_assert(t_is_one_of<T, Ts...>::VALUE, "not in the union");
+    return reinterpret_cast<T*>(store.bytes);
+  }
+
+  template<typename T, typename... Ts>
+  constexpr
+  const T* get_cptr(const t_union_store<Ts...>& store) noexcept {
+    static_assert(t_is_one_of<T, Ts...>::VALUE, "not in the union");
+    return reinterpret_cast<const T*>(store.bytes);
+  }
+
+  template<typename T, typename... Ts>
+  constexpr
+  T& get_ref(t_union_store<Ts...>& store) noexcept {
+    static_assert(t_is_one_of<T, Ts...>::VALUE, "not in the union");
+    return *get_ptr(store);
+  }
+
+  template<typename T, typename... Ts>
+  constexpr
+  const T& get_cref(const t_union_store<Ts...>& store) noexcept {
+    static_assert(t_is_one_of<T, Ts...>::VALUE, "not in the union");
     return *get_cptr(store);
   }
 
