@@ -85,7 +85,8 @@ namespace segmented
     t_seg_hdr_ hdr{range_n, usr};
     *buf++ = hdr.raw[0];
     *buf++ = hdr.raw[1];
-    std::memcpy(buf, range.ptr, range_n);
+    if (range_n)
+      std::memcpy(buf, range.ptr, range_n);
     return buf + range_n;
   }
 
@@ -226,8 +227,34 @@ namespace segmented
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_n t_segmented_impl_base_::assign(t_buf_range store, t_char delimit,
+                                     t_crange range) noexcept {
+    t_n_ n = 0, max = base::get(store.n), range_n = base::get(range.n);
+    P_char last = range.ptr, end = range.ptr + range_n;
+    size_ = 0;
+    for (P_char ptr = last; ptr < end; ++ptr) {
+      if (*ptr == delimit) {
+        t_n_ len = ptr - last;
+        if (size_ + HDR_MAX_ + len <= max)
+          size_ = push_back_(store.ptr + size_, t_crange{last, t_n{len}}, 0) -
+                  store.ptr;
+        last = ptr + 1;
+        n += len + HDR_MAX_;
+      }
+    }
+    if (range_n) {
+      t_n_ len = end - last;
+      if (size_ + HDR_MAX_ + len <= max)
+        size_ = push_back_(store.ptr + size_, t_crange{last, t_n{len}}, 0) -
+                store.ptr;
+      n += len + HDR_MAX_;
+    }
+    return t_n{n};
+  }
+
   t_void t_segmented_impl_base_::assign(t_buf_range store, t_citr begin,
                                         t_citr end) noexcept {
+    size_ = 0;
     for (; begin != end; ++begin) {
       auto range = *begin;
       auto user  = begin.get_user();

@@ -205,7 +205,8 @@ namespace segmented
     t_id     find         (t_buf_crange, t_crange)       const noexcept;
     t_id     find_next    (t_buf_crange, t_crange, t_id) const noexcept;
 
-    t_void   assign       (t_buf_range, t_citr, t_citr) noexcept;
+    t_n      assign       (t_buf_range, t_char, t_crange) noexcept;
+    t_void   assign       (t_buf_range, t_citr, t_citr)   noexcept;
 
     t_result push_back    (t_buf_range, t_user)           noexcept;
     t_result push_back    (t_buf_range, t_crange, t_user) noexcept;
@@ -281,7 +282,8 @@ namespace segmented
     t_bool   change   (t_buf_range, t_seg_no, t_crange, t_user) noexcept;
     t_bool   change   (t_buf_range, t_id,     t_crange, t_user) noexcept;
 
-    t_bool   assign   (t_buf_range, t_citr, t_citr) noexcept;
+    t_bool   assign   (t_buf_range, t_char, t_crange) noexcept;
+    t_bool   assign   (t_buf_range, t_citr, t_citr)   noexcept;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -306,7 +308,8 @@ namespace segmented
     t_bool   change   (t_buf_range, t_seg_no, t_crange, t_user) noexcept;
     t_bool   change   (t_buf_range, t_id,     t_crange, t_user) noexcept;
 
-    t_bool   assign   (t_buf_range, t_citr, t_citr) noexcept;
+    t_bool   assign   (t_buf_range, t_char, t_crange) noexcept;
+    t_bool   assign   (t_buf_range, t_citr, t_citr)   noexcept;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -340,7 +343,9 @@ namespace segmented
     t_bool   change   (t_grow_buf<N>&, t_id,     t_crange, t_user) noexcept;
 
     template<t_n_ N>
-    t_bool   assign   (t_grow_buf<N>&, t_citr, t_citr) noexcept;
+    t_bool   assign   (t_grow_buf<N>&, t_char, t_crange) noexcept;
+    template<t_n_ N>
+    t_bool   assign   (t_grow_buf<N>&, t_citr, t_citr)   noexcept;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -639,6 +644,17 @@ namespace segmented
 
   inline
   t_bool t_segmented_impl_<t_overflow_assert>::
+      assign(t_buf_range store, t_char delimit, t_crange range) noexcept {
+    t_n need = t_segmented_impl_base_::assign(store, delimit, range);
+    if (need <= store.n)
+       return true;
+
+    assert_now(FMT, "t_segmented: assign failed");
+    return false;
+  }
+
+  inline
+  t_bool t_segmented_impl_<t_overflow_assert>::
       assign(t_buf_range store, t_citr begin, t_citr end) noexcept {
     if (get_size(begin, end) <= base::get(store.n)) {
        t_segmented_impl_base_::assign(store, begin, end);
@@ -731,6 +747,13 @@ namespace segmented
       change(t_buf_range store, t_id id, t_crange range,
              t_user user) noexcept {
     return t_segmented_impl_base_::change(store, id, range, user);
+  }
+
+  inline
+  t_bool t_segmented_impl_<t_overflow_truncate>::
+      assign(t_buf_range store, t_char delimit, t_crange range) noexcept {
+    t_n need = t_segmented_impl_base_::assign(store, delimit, range);
+    return need <= store.n;
   }
 
   inline
@@ -855,6 +878,19 @@ namespace segmented
 
     store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)});
     return t_segmented_impl_base_::change(store, id, range, user);
+  }
+
+  template<t_n_ N>
+  inline
+  t_bool t_segmented_impl_<t_overflow_grow>::
+      assign(t_grow_buf<N>& store, t_char delimit, t_crange range) noexcept {
+    t_n need = t_segmented_impl_base_::assign(store, delimit, range);
+    if (need <= store.get_capacity())
+      return true;
+
+    store.resize_to(need);
+    t_segmented_impl_base_::assign(store, delimit, range);
+    return true;
   }
 
   template<t_n_ N>

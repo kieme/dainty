@@ -80,6 +80,7 @@ namespace segmented
     t_crange operator[]  (t_seg_no)       const noexcept;
     t_crange operator[]  (t_id)           const noexcept;
 
+    t_bool   assign   (t_char, t_crange)               noexcept;
     t_result push_back(          t_user)               noexcept;
     t_result push_back(t_crange, t_user = 0)           noexcept;
     t_id     insert   (t_id,               t_user)     noexcept;
@@ -126,8 +127,9 @@ namespace segmented
   template<class TAG, typename O>
   inline
   t_segmented<TAG, 0, O>::
-    t_segmented(t_n max, t_char, t_crange) noexcept {
-    // call impl XXX
+    t_segmented(t_n max, t_char delimit, t_crange range) noexcept
+      : store_{max} {
+    impl_.assign(store_, delimit, range);
   }
 
   template<class TAG, typename O>
@@ -214,6 +216,13 @@ namespace segmented
   inline
   t_bool t_segmented<TAG, 0, O>::is_empty() const noexcept {
     return impl_.is_empty();
+  }
+
+  template<class TAG, typename O>
+  inline
+  t_bool t_segmented<TAG, 0, O>::assign(t_char delimit,
+                                        t_crange range) noexcept {
+    return impl_.assign(store_, delimit, range);
   }
 
   template<class TAG, typename O>
