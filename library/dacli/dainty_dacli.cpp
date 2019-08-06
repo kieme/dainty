@@ -573,7 +573,7 @@ namespace parse
             t_values values;
             t_bool init = false;
             p = parse_array_values(err, values, init, params, p);
-            if (!values.empty())
+            if (!values.is_empty())
               list.add_array(err, name, values, params);
             else
               list.add_array(err, name, init, params);
@@ -638,7 +638,7 @@ namespace parse
               t_values values;
               t_bool init = false;
               p = parse_array_values(err, values, init, params, p);
-              if (!values.empty())
+              if (!values.is_empty())
                 option.add_array(err, name, values, params);
               else
                 option.add_array(err, name, init, params);
@@ -702,7 +702,7 @@ namespace parse
               t_bool init = false;
               p = parse_array_values(err, values, init, params, p);
               ERR_GUARD(err) {
-                if (!init && values.empty())
+                if (!init && values.is_empty())
                   lookup.add_lookup(err, name, params);
                 else
                   err = err::E_NOT_EMPTY;
@@ -820,7 +820,7 @@ namespace build
         text << integer(get(params.range_max_));
         text << '=';
       }
-      if (!ref.get_values().empty()) {
+      if (!ref.get_values().is_empty()) {
         text << '[';
         auto last = cend(ref.get_values());
         for (auto k = cbegin(ref.get_values());;) {
@@ -1117,7 +1117,7 @@ namespace merge
           } break;
           case TYPE_A: {
             t_array_cref array(use_ref);
-            if (array.get_values().empty())
+            if (array.get_values().is_empty())
               err = err::E_EMPTY;
           } break;
           case TYPE_X: {
@@ -1210,7 +1210,7 @@ namespace merge
                                   def_array.get_range_params());
             t_bool insert = false;
             auto max = get(use.get_size());
-            if (!def_array.get_values().empty()) {
+            if (!def_array.get_values().is_empty()) {
               use.add_array(err, def_ref.get_name(),
                                  def_array.get_values(),
                                  params);
@@ -1352,7 +1352,7 @@ namespace merge
           if (def_array.get_range_params() ==
               use_array.get_range_params()) {
             if (!is_optional(def_type) &&
-                !def_array.get_values().empty() &&
+                !def_array.get_values().is_empty() &&
                  def_array.get_values() != use_array.get_values())
               err = err::E_NO_MATCH;
           } else
@@ -1392,7 +1392,7 @@ namespace merge
 
 namespace argn
 {
-  t_bool check_empty(t_err err, t_word& word) {
+  t_bool check_empty(t_err err, t_string_crange word) {
     /* XXX
     ERR_GUARD(err) {
       if (!word.is_empty() &&
@@ -1408,10 +1408,10 @@ namespace argn
         err = err::EMPTY;
     }
     */
-    return true;
+    return word == INVALID;
   }
 
-  t_bool check_name(t_err err, t_name& name) {
+  t_bool check_name(t_err err, t_string_crange name) {
     ERR_GUARD(err) {
       if (!check_empty(err, name)) {
         return true;
@@ -1420,7 +1420,7 @@ namespace argn
     return false;
   }
 
-  t_bool check_value(t_err err, t_value& value) {
+  t_bool check_value(t_err err, t_string_crange value) {
     ERR_GUARD(err) {
       if (!check_empty(err, value)) {
         return true;
@@ -1429,10 +1429,10 @@ namespace argn
     return false;
   }
 
-  t_bool check_values(t_err err, t_values& values) {
+  t_bool check_values(t_err err, const t_values& values) {
     ERR_GUARD(err) {
-      if (!values.empty()) {
-        for (auto&& value : values) {
+      if (!values.is_empty()) {
+        for (auto value : values) {
           if (!check_value(err, value))
             return false;
         }
@@ -1447,7 +1447,7 @@ namespace argn
     ERR_GUARD(err) {
       if (check_values(err, values)) {
         auto last = cend(values);
-        for (auto&& value : values)
+        for (auto value : values)
           if (std::find_if(cbegin(values), last,
                            [&value](const auto& v) {
                              return &value != &v && value == v;}) != last)
@@ -1492,10 +1492,10 @@ namespace argn
 
  t_void print(base::P_cstr_ prefix, const t_words& words) {
     t_word word("[");
-    auto max = words.size();
-    for (decltype(max) i = 0; i < max; ++i) {
-      word << words[i];
-      if (i < max - 1)
+    auto itr = words.begin(), end = words.end();
+    while (itr != end) {
+      word << *itr;
+      if (++itr != end)
         word << ',';
     }
     word << "]";
@@ -1504,10 +1504,10 @@ namespace argn
 
   t_bool match(const argn::t_fullname& maybe, const argn::t_fullname& name,
                unsigned n) {
-    auto m = maybe.size();
+    auto m = get(maybe.get_segs_num());
     if (m >= n) {
       for (decltype(m) ix = 0; ix < n; ++ix)
-        if (maybe[ix] != name[ix])
+        if (maybe[t_seg_no{ix}] != name[t_seg_no{ix}])
           return false;
       return true;
     }
@@ -1517,40 +1517,7 @@ namespace argn
   // not sure how to do this yet - efficiency
   t_bool arg_compare::operator()(const t_fullname& lh,
                                  const t_fullname& rh) const {
-    auto lhs = lh.size();
-    auto rhs = rh.size();
-    auto min = lhs < rhs ? lhs : rhs;
-    for (decltype(min) i = 0; i < min; ++i) { // comparson missing because of <>
-      auto lh_range = lh[i].mk_range();
-      auto rh_range = rh[i].mk_range();
-
-      if (lh_range[t_ix{0}] == '/')
-        return false;
-      if (rh_range[t_ix{0}] == '/')
-        return true;
-      if (lh_range[t_ix{0}] == '.' && rh_range[t_ix{0}] != '.')
-        return true;
-      if (lh_range[t_ix{0}] != '.' && rh_range[t_ix{0}] == '.')
-        return false;
-
-      t_name l;
-      if (lh_range[t_ix{0}] == '<')
-        l = mk_range(lh_range, t_ix{1}, t_ix{get(lh_range.n) - 2});
-      else
-        l = lh_range;
-
-      t_name r;
-      if (rh_range[t_ix{0}] == '<')
-        l = mk_range(rh_range, t_ix{1}, t_ix{get(rh_range.n) - 2});
-      else
-        l = rh_range;
-
-      if (l < r)
-        return true;
-      if (l > r)
-        return false;
-    }
-    return lhs < rhs;
+    return lh < rh;
   }
 
 ////////////////////////////////////////////////////////////////////////////////

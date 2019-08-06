@@ -35,7 +35,7 @@
 
 #include "dainty_base.h"
 #include "dainty_base_string.h"
-#include "dainty_oops.h"
+#include "dainty_base_string_segmented.h"
 #include "dainty_dacli_err.h"
 
 /******************************************************************************/
@@ -48,6 +48,8 @@ namespace dacli
   using base::t_bool;
   using base::t_prefix;
   using base::string::t_string;
+  using base::string::segmented::t_segmented;
+  using base::string::segmented::t_seg_no;
   using base::string::operator""_SL;
   using err::t_err;
   using err::r_err;
@@ -179,7 +181,8 @@ namespace argn
   using r_word      = t_prefix<t_word>::r_;
   using R_word      = t_prefix<t_word>::R_;
 
-  using t_words     = std::vector<t_word>; // change to t_segmented_string
+  enum  t_words_tag_ { };
+  using t_words     = t_segmented<t_words_tag_, 32>;
   using R_words     = t_prefix<t_words>::R_;
 
   using t_path      = t_words;
