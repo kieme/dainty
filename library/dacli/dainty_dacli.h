@@ -243,8 +243,8 @@ namespace argn
     }
 
     t_arginfo info_;
-    t_values   values_;
-    t_path     path_;
+    t_values  values_;
+    t_path    path_;
   };
 
   struct arg_compare {
@@ -254,7 +254,7 @@ namespace argn
 ////////////////////////////////////////////////////////////////////////////////
 
   using t_table = std::map<t_fullname, t_argvalue, arg_compare>;
-  using t_itr   = t_table::iterator;        //impl
+  using t_itr   = t_table::iterator;        // impl
   using t_citr  = t_table::const_iterator;  // impl
   using t_pair  = std::pair<t_itr, t_bool>; // impl
   using t_arg   = t_table::value_type;
@@ -808,9 +808,9 @@ namespace argn
   using r_text = t_prefix<t_text>::r_;
   using R_text = t_prefix<t_text>::R_;
 
-  t_void parse_notation(t_err err, argn::r_argn argn, R_text);
-  t_void build_notation(t_err err, r_text,       argn::R_argn);
-  t_void merge_notation(t_err err, argn::r_argn, argn::R_argn);
+  t_void parse_notation(t_err, argn::r_argn, R_text);
+  t_void build_notation(t_err, r_text,       argn::R_argn);
+  t_void merge_notation(t_err, argn::r_argn, argn::R_argn);
 
   //bool parse_cmd  (r_text err_msg, r_argn argn, t_string_crange cmd_p);
   //bool process_cmd(r_text err_msg, r_argn use,  t_string_crange cmd_p);

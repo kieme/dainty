@@ -7,14 +7,14 @@ dacli define a strict argument based notation and the way it is processed. It at
 
 dacli is the result of converging objectives. It's main objective is: how to discover, express and use a functionality being offered through a cli.
 
-Another important objective is to use sdcli for different use scenarios, namely;
+Another important objective is to use dacli for different use scenarios, namely;
 
 1. as a program command line interface
 2. as a debug terminal command line interface
 3. as a messaging layer that can be used by a protocol
 3. and lastly as a management command line interface.
 
-sdcli does not attempt to support everything; like an exhaustive set of argument types, or checking the validity of values, or defining value types. It only knows a few argument types. Argument names and values are just strings to sdcli, which may or may not be validated by the internal software. The reasoning is that values often cannot be completely checked for their validity by the user interface alone and by not doing so, results in a much simplified interface definition.
+dacli does not attempt to support everything; like an exhaustive set of argument types, or checking the validity of values, or defining value types. It only knows a few argument types. Argument names and values are just strings to dacli, which may or may not be validated by the internal software. The reasoning is that values often cannot be completely checked for their validity by the user interface alone and by not doing so, results in a much simplified interface definition.
 
 ## Primary goals
 
@@ -39,9 +39,9 @@ sdcli does not attempt to support everything; like an exhaustive set of argument
 ## Secondary goals
 
     Provide demonstration software framework in c++ (initially 03).
-    - sdcli library       : c++ (03) library
-    - sdcli_notation_demo : parse sdcli argument notation
-    - sdcli_demo          : sdcli command notation and processing rules.
+    - dacli library       : c++ (03) library
+    - dacli_notation_demo : parse dacli argument notation
+    - dacli_demo          : dacli command notation and processing rules.
 
 ## requires
 
@@ -50,7 +50,7 @@ sdcli does not attempt to support everything; like an exhaustive set of argument
 
 # overview
 
-dacli (DACLI) can been seen as an intelligent, efficient interpreter and facilitator between what a software (SW) offers and what a user (USER) wants to use. The software express to sdcli what it supports by specifying a command definition using the sdcli notation syntax, which is known in the rest of the text as the definition notation form, or definition notation. The user can query sdcli what functionality(s) it offers. Once sdcli is queried, it will respond by providing the user with an appropriate command definition notation, which the user then can use as a dacli command use notation form, or short use notation. sdcli is then responsible for processing the use notation, possibly responding if it is an unsupported or illegal use notation, or transforming it into a defined, accessible notation known as the result notation, which is then passed to the software. The result notation is an internal representation of the definition notation and the use notation, which is used to define what the software must receive from sdcli.
+dacli (DACLI) can been seen as an intelligent, efficient interpreter and facilitator between what a software (SW) offers and what a user (USER) wants to use. The software express to dacli what it supports by specifying a command definition using the dacli notation syntax, which is known in the rest of the text as the definition notation form, or definition notation. The user can query dacli what functionality(s) it offers. Once dacli is queried, it will respond by providing the user with an appropriate command definition notation, which the user then can use as a dacli command use notation form, or short use notation. dacli is then responsible for processing the use notation, possibly responding if it is an unsupported or illegal use notation, or transforming it into a defined, accessible notation known as the result notation, which is then passed to the software. The result notation is an internal representation of the definition notation and the use notation, which is used to define what the software must receive from dacli.
 
 ```sequence
 participant USER
@@ -69,13 +69,13 @@ DACLI->SW: result notation
 Note over SW: use result
 ```
 
-The definition, use and result notation forms are all specified using the sdcli notation syntax. The syntax notation use a very simple grammar and only few argument types. How sdcli respond to built-in commands  will be discussed in processing section. The sdcli notation is discussed and specified first.
+The definition, use and result notation forms are all specified using the dacli notation syntax. The syntax notation use a very simple grammar and only few argument types. How dacli respond to built-in commands  will be discussed in processing section. The dacli notation is discussed and specified first.
 
 -------------------------------------------------------------------------------------------------
 
 # notation syntax
 
-At the hart of sdcli is a notation used to describe arguments. An argument is identified by a unique name that has a value, type and a path. With the sdcli notation it should be possible to express any data model, both in its definition and its use, with a "short hand" form. In the text that follows, name is synonymous to argument name, and value is synonymous to argument value. There are three notation forms used by sdcli to express definition, use and result. The definition and use notation forms look very similar to one another so that the definition can easily be modified to express a certain use. Another practical consideration is to use the same parsing logic. The result notation form is what the definition and use notation forms results into and more will be said about it later.
+At the hart of dacli is a notation used to describe arguments. An argument is identified by a unique name that has a value, type and a path. With the dacli notation it should be possible to express any data model, both in its definition and its use, with a "short hand" form. In the text that follows, name is synonymous to argument name, and value is synonymous to argument value. There are three notation forms used by dacli to express definition, use and result. The definition and use notation forms look very similar to one another so that the definition can easily be modified to express a certain use. Another practical consideration is to use the same parsing logic. The result notation form is what the definition and use notation forms results into and more will be said about it later.
 
 e.g. definition, use and result notation forms
 ```sh
@@ -92,22 +92,22 @@ result passed to software:
 
 ### basic notation rules
 - rule1:  the syntax is written with ASCII characters and terminated with '\0'.
-- rule2: all input and output are encapsulated in sdcli arguments.
+- rule2: all input and output are encapsulated in dacli arguments.
 - rule3: the argument notation always start with an initial argument list. "</>".
 - rule4: an argument is always unique identify-able by a name, which can have an associated  value(s).
 - rule5: argument names and values are just strings.
 
 ### examples
-The following examples demonstrate some uses of the sdcli notation. A sdcli argument list is a c-string and is expressed as such by placing sdcli arguments within "". All the examples specify arguments within the initial argument list.
+The following examples demonstrate some uses of the dacli notation. A dacli argument list is a c-string and is expressed as such by placing dacli arguments within "". All the examples specify arguments within the initial argument list.
 
 ##### a mandatory argument definition
 
-``` sdcli notation
+``` dacli notation
 "(queue=)"
 ```
 Define a mandatory <queue> argument name which requires a value.
 
-``` sdcli notation
+``` dacli notation
 "(queue=mq_rx1)"
 ```
 Specify <queue> name that have a value of <mq_rx1>.
@@ -191,7 +191,7 @@ use:        "(pattern=*trala*)"
 ```
 
 #### special character table
-The sdcli notation use certain ASCII characters for special purposes as demonstrated by the previous examples and listed below in the table. Names and values can use ' or < and > at the beginning and ending of a word to ignore special characters within the word. This also simplify the parsing of names and values.
+The dacli notation use certain ASCII characters for special purposes as demonstrated by the previous examples and listed below in the table. Names and values can use ' or < and > at the beginning and ending of a word to ignore special characters within the word. This also simplify the parsing of names and values.
 
 | character | meaning                                                              |
 | --------- | ---------------------------------------------------------------------|
@@ -238,7 +238,7 @@ An argument has a type that depends on its name description before '='. There is
 
 ### result notation : `"(argument@n{type@n=,name@n=,value@n=,path@n=}=)"`
 
-Both the definition and use notation forms shown above are visible notations that are passed and processed by sdcli. The result notation express what the definition and use notation arguments results into after parsing. This means both the definition notation and the use notation have their respective result notations. This is practical for a number of reasons; the first is that the same parsing logic can be used, the second is that comparison is much easier in the result notation and more efficient as well (the result notation is sorted) and lastly the use notation might be used independently from the definition notation. With a few simple rules the result notations of a definition and use notation can be compared, as to validate the use notation and to provide a validated, updated result notation.
+Both the definition and use notation forms shown above are visible notations that are passed and processed by dacli. The result notation express what the definition and use notation arguments results into after parsing. This means both the definition notation and the use notation have their respective result notations. This is practical for a number of reasons; the first is that the same parsing logic can be used, the second is that comparison is much easier in the result notation and more efficient as well (the result notation is sorted) and lastly the use notation might be used independently from the definition notation. With a few simple rules the result notations of a definition and use notation can be compared, as to validate the use notation and to provide a validated, updated result notation.
 
 The sequence diagram below express in more detail the use of the result notation form. A short hand form is used, e.g. definition:def1, to specify a use (def1) of the definition notation.
 
@@ -398,7 +398,7 @@ A value string will have the following format:
   "(value@n=[<array_0>,<array_1>,<array_n>])"
 ```
 
-The definition notation does not define what the value must be or how it is tested for validity, for it is the responsibility of the internal software. This design decision significantly reduce the complexity required of sdcli. The sdcli implementation may provide a value checking mechanism, it is just not part of the sdcli notation interface. This will later be addressed in more detail.
+The definition notation does not define what the value must be or how it is tested for validity, for it is the responsibility of the internal software. This design decision significantly reduce the complexity required of dacli. The dacli implementation may provide a value checking mechanism, it is just not part of the dacli notation interface. This will later be addressed in more detail.
 
 ##### 1.4. result path@n=
 
@@ -589,18 +589,18 @@ use notation:        "(book@3=[bible,koran])"
 
 ### 7. selection list argument : `"(prefix_(name1|name2=))"`
 
-## sdcli_notation_demo
+## dacli_notation_demo
 
-sdcli_notation_demo is a small application that demonstates how the different notation arguments are processed. When executing the application without any arguments it prints its definition notation.
+dacli_notation_demo is a small application that demonstates how the different notation arguments are processed. When executing the application without any arguments it prints its definition notation.
 
-e.g. sdcli_notation_demo prints is definition notation
+e.g. dacli_notation_demo prints is definition notation
 ```sh
-  $ sdcli_notation_demo
+  $ dacli_notation_demo
 (input=(:definition_notation=(), :use_notation=()), output=(:definition_notation=(result=((valid|error=)), internal_notation=(arguments/n{name=,default=,path,!negate,!optional})), :use_notation=(result=((valid|error=)), internal_notation=(arguments/n{type=,name/n=,value/n=,path/n=}))))
 ```
 # processing
 
-When sdcli receive a command from the user it must either be in the general invoke sdcli notation or one of its alias notation forms.  An alias notation is available, prefixed with '>', as to improve type-ability and read-ability, by reducing the amount of typing required. The alias notation support different specializations as to reduce the amount of typing even further.
+When dacli receive a command from the user it must either be in the general invoke dacli notation or one of its alias notation forms.  An alias notation is available, prefixed with '>', as to improve type-ability and read-ability, by reducing the amount of typing required. The alias notation support different specializations as to reduce the amount of typing even further.
 
 ### general cli synopsis:
 
@@ -639,7 +639,7 @@ same:
 
 ### builtin commands
 
-There are three built-in commands that sdcli support at all times, namely;
+There are three built-in commands that dacli support at all times, namely;
  1. help   : help on help, help on commands and inputs
  2. list   : list all commands
  3. config : configure the cli session.

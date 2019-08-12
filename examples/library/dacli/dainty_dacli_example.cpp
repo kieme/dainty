@@ -46,9 +46,9 @@ std::ostream& operator<<(std::ostream& out, const t_text& text) {
 
 t_name make_long(const t_fullname& fullname) {
   t_name name("[");
-  auto max = fullname.size();
+  auto max = get(fullname.get_segs_num());
   for (decltype(max) i = 0; i < max; ++i) {
-    name << fullname[i];
+    name << fullname[t_seg_no{i}];
     if (i < max - 1)
       name << ',';
   }
@@ -125,7 +125,7 @@ void example1() {
                "(vlans@n{param1=,param2=}="
                "[vlan-1:{1,2},vlan-2:{2,3},vlan-3:{3,4}])"_SL);
   if (!err) {
-    t_fullname vlans_dict{"</>", "<vlans>"};
+    t_fullname vlans_dict{'.', "</>.<vlans>"_SL};
     t_lookup_ref       dict  (err, argn[vlans_dict]);
     t_lookup_value_ref vlan_1(err, dict.get_value("<vlan-1>"_SL));
     t_simple_ref         param1(err, vlan_1["<param1>"_SL]);
@@ -225,8 +225,8 @@ void example4() {
   t_lookup_ref vlans (root.add_lookup(err, "<vlans>"_SL, unbound_range));
                       vlans. add_simple    (err, "<param1>"_SL);
   t_lookup_ref groups(vlans.add_lookup(err, "<groups>"_SL, unbound_range));
-                      groups.add_selection (err, "<mode>"_SL, {"proxy"_SL,
-                                                               "snoop"_SL});
+                      groups.add_selection (err, "<mode>"_SL,
+                                            {'.', "proxy.snoop"_SL});
 
   {
     t_lookup_value_ref vlan(vlans.add_value(err, "<vlan-1>"_SL));
@@ -278,7 +278,7 @@ void example5() {
   merge_notation(err, argn1, argn);
   if (!err) {
     t_list_ref list = cmd_option_ref.add_list(err, "name"_SL);//make_name(t_array_cref{argn1["cmd"]}.get_values()),
-    append(err, list, argn1[t_fullname{"args"_SL}]);
+    append(err, list, argn1[t_fullname{' ', "args"_SL}]);
   }
 
   // incoming

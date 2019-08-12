@@ -83,24 +83,33 @@ namespace parse
   P_cstr_ parse_args(t_err, P, t_char delimit, P_cstr_);
 
   // >> skip_spaces()
-  inline P_cstr_ strip_space(P_cstr_ p) {
+  constexpr P_cstr_ strip_spaces(P_cstr_ p) noexcept {
     for (; *p == ' '; ++p);
     return p;
   }
 
-  template<char C>
-  inline P_cstr_ find(P_cstr_ p) {
+  constexpr P_cstr_ find(P_cstr_ p, t_char C) noexcept {
     for (auto b = p; *p; ++p)
       if (*p == C && (b == p || p[-1] != '/')) // escape character
         break;
     return p;
   }
 
-  inline P_cstr_ find_end_of_word(P_cstr_ p) {
-    for (; *p && *p != ',' && *p != '=' && *p != '(' && *p != ')' &&
-           *p != (':') && *p != '[' && *p != ']' && *p != ' ' &&
-           *p != '|' && *p != '@' && *p != '{' && *p != '}' && *p != '>' &&
-           *p != '<'; ++p);
+  constexpr P_cstr_ find_end_of_word(P_cstr_ p) noexcept {
+    for (; *p && *p != ',' &&
+                 *p != '=' &&
+                 *p != '(' &&
+                 *p != ')' &&
+                 *p != ':' &&
+                 *p != '[' &&
+                 *p != ']' &&
+                 *p != ' ' &&
+                 *p != '|' &&
+                 *p != '@' &&
+                 *p != '{' &&
+                 *p != '}' &&
+                 *p != '>' &&
+                 *p != '<'; ++p);
     return p;
   }
 
@@ -109,7 +118,7 @@ namespace parse
       P_cstr_ b   = p;
       P_cstr_ end = 0;
       if (*b == '<') {
-        end = find<'>'>(++b);
+        end = find(++b, '>');
         if (*end == '>')
           p = end + 1;
         else
@@ -120,7 +129,7 @@ namespace parse
         word << '<';
         ///word.append(b, end - b); - XXX
         word << '>';
-        p = strip_space(p);
+        p = strip_spaces(p);
       }
     }
     return p;
@@ -135,10 +144,10 @@ namespace parse
   P_cstr_ parse_bound(r_err err, r_rparams params, P_cstr_ p) {
     ERR_GUARD(err) {
       if (*p == '@') {
-        p = strip_space(p+1);
+        p = strip_spaces(p+1);
         if (*p == 'n') {
           params.range_max_ = params.range_min_ = 0_n;
-          p = strip_space(p+1);
+          p = strip_spaces(p+1);
         } else {
           t_n min = 0_n, max = 0_n;
           t_bool stop = false, is_range = false;
@@ -149,10 +158,10 @@ namespace parse
               case '-':
                 is_range = true;
                 min = to_num(b, p - b);
-                p = strip_space(p+1);
+                p = strip_spaces(p+1);
                 if (*p == 'n') {
                   stop = true;
-                  p = strip_space(p+1);
+                  p = strip_spaces(p+1);
                   if (*p != '=' && *p != '{')
                     err = err::E_PARSE;
                 }
@@ -184,34 +193,34 @@ namespace parse
       t_bool modify = false;
       if (*p == '!') {
         modify = true;
-        p = strip_space(p+1);
+        p = strip_spaces(p+1);
       }
       params.optional_ = false;
       if (*p == ':') {
         params.optional_ = true;
-        p = strip_space(p+1);
+        p = strip_spaces(p+1);
       }
       t_word word;
       p = parse_word(err, word, p);
       ERR_GUARD(err) {
         switch (*p) {
           case '=': {
-            P_cstr_ b = strip_space(p+1);
+            P_cstr_ b = strip_spaces(p+1);
             switch (*b) {
               case '(': {
                 if (b[1] == '*' && b[2] == ')') {
-                  p = strip_space(b+3);
+                  p = strip_spaces(b+3);
                   type = params.optional_ ? TYPE_OK : TYPE_K;
                 } else
                   type = params.optional_ ? TYPE_OL : TYPE_L;
               } break;
               case '[': {
                 type = params.optional_ ? TYPE_OH : TYPE_H;
-                p = strip_space(p+1);
+                p = strip_spaces(p+1);
               } break;
               default: {
                 if (*b == '<')
-                  b = find<'>'>(++b);
+                  b = find(++b, '>');
                 else
                   b = find_end_of_word(b);
                 switch(*b) {
@@ -220,7 +229,7 @@ namespace parse
                   default:  type = params.optional_ ? TYPE_OS : TYPE_S;
                     break;
                 }
-                p = strip_space(p+1);
+                p = strip_spaces(p+1);
               } break;
             }
           } break;
@@ -239,7 +248,7 @@ namespace parse
             ERR_GUARD(err) {
               switch (*p) {
                 case '=': type = params.optional_ ? TYPE_OA : TYPE_A;
-                  p = strip_space(p+1);
+                  p = strip_spaces(p+1);
                   break;
                 case '{': type = params.optional_ ? TYPE_OX : TYPE_X;
                   break;
@@ -273,7 +282,7 @@ namespace parse
                              r_rparams params, P_cstr_ p) {
     ERR_GUARD(err) {
       if (*p == '[') {
-        p = strip_space(p+1);
+        p = strip_spaces(p+1);
         if (*p != ']') {
           auto max = get(params.range_max_);
           decltype(max) cnt = 0;
@@ -284,7 +293,7 @@ namespace parse
               values.push_back(base::x_cast(word));
               ++cnt;
               if (*p == ',')
-                p = strip_space(p+1);
+                p = strip_spaces(p+1);
               else
                 break;
             }
@@ -298,7 +307,7 @@ namespace parse
           }
         } else
           init = true;
-        p = strip_space(p+1);
+        p = strip_spaces(p+1);
       } else
         init = false;
     }
@@ -309,7 +318,7 @@ namespace parse
     ERR_GUARD(err) {
       t_n::t_value cnt = 0;
       if (*p == '[') {
-        p = strip_space(p+1);
+        p = strip_spaces(p+1);
         t_word word;
         p = parse_word(err, word, p);
         ERR_GUARD(err) {
@@ -317,7 +326,7 @@ namespace parse
             ++cnt;
             values.push_back(base::x_cast(word));
             while (*p == '|' && !err) {
-              p = parse_word(err, word, strip_space(p+1));
+              p = parse_word(err, word, strip_spaces(p+1));
               ERR_GUARD(err) {
                 if (!word.is_empty()) {
                   for (auto&& i : values) {
@@ -339,7 +348,7 @@ namespace parse
         }
       }
       if (*p == ']')
-        p = strip_space(p+1);
+        p = strip_spaces(p+1);
       else
         err = err::E_PARSE;
     }
@@ -356,7 +365,7 @@ namespace parse
         if (!word.is_empty())
           value = base::x_cast(word);
         while (*p == ':' && !err) {
-          p = parse_word(err, word, strip_space(p+1));
+          p = parse_word(err, word, strip_spaces(p+1));
           if (!err) {
             if (!word.is_empty())
               values.push_back(base::x_cast(word));
@@ -372,19 +381,19 @@ namespace parse
   P_cstr_ parse_lookup_values(t_err err, t_lookup_ref lookup, P_cstr_ p) {
     ERR_GUARD(err) {
       if (*p == '[') {
-        p = strip_space(p+1);
+        p = strip_spaces(p+1);
         if (*p != ']') {
           do {
             t_word word;
             p = parse_word(err, word, p);
             ERR_GUARD(err) {
               if (*p == ':') {
-                p = strip_space(p+1);
+                p = strip_spaces(p+1);
                 t_lookup_value_ref value(lookup.add_value(err,
                                                           base::x_cast(word)));
                 if (value) {
                   if (*p == '{') {
-                    p = strip_space(p+1);
+                    p = strip_spaces(p+1);
                     auto max = get(value.get_size());
                     for (decltype(max) cnt = 0; !err && cnt < max;) {
                       t_ref ref(err, value[t_ix{cnt}]);
@@ -443,16 +452,16 @@ namespace parse
 
                       if (++cnt < max) {
                         if (*p == ',')
-                          p = strip_space(p+1);
+                          p = strip_spaces(p+1);
                         else
                           err = err::E_PARSE;
                       }
                     }
                   }
                   if (*p == '}') {
-                    p = strip_space(p+1);
+                    p = strip_spaces(p+1);
                     if (*p == ',')
-                      p = strip_space(p+1);
+                      p = strip_spaces(p+1);
                     else
                       break;
                   } else
@@ -463,12 +472,12 @@ namespace parse
             }
           } while(!err);
           if (*p == ']')
-            p = strip_space(p+1);
+            p = strip_spaces(p+1);
           else
             err = err::E_PARSE;
         } else {
           lookup.set_as_initialized();
-          p = strip_space(p+1);
+          p = strip_spaces(p+1);
         }
       } else
         err = err::E_PARSE;
@@ -479,14 +488,14 @@ namespace parse
   P_cstr_ parse_lookup(t_err err, t_lookup_ref lookup, P_cstr_ p) {
     ERR_GUARD(err) {
       if (*p == '{') {
-        p = strip_space(p+1);
+        p = strip_spaces(p+1);
         if (*p != '}') {
           p = parse_args(err, lookup, ',', p);
           ERR_GUARD(err) {
             if (*p == '}') {
-              p = strip_space(p+1);
+              p = strip_spaces(p+1);
               if (*p == '=') {
-                p = strip_space(p+1);
+                p = strip_spaces(p+1);
                 if (*p == '[')
                   p = parse_lookup_values(err, lookup, p);
               } else
@@ -505,13 +514,13 @@ namespace parse
   P_cstr_ parse_option(t_err err, t_options_ref option, P_cstr_ p) {
     ERR_GUARD(err) {
       if (*p == '(') {
-        p = strip_space(p+1);
+        p = strip_spaces(p+1);
         if (*p != ')')
           p = parse_args(err, option, '|', p);
         else
           err = err::E_EMPTY;
         if (*p == ')')
-           p = strip_space(p+1);
+           p = strip_spaces(p+1);
         else if (!err)
           err = err::E_PARSE;
       } else
@@ -523,11 +532,11 @@ namespace parse
   P_cstr_ parse_list(t_err err, t_list_ref list, P_cstr_ p) {
     ERR_GUARD(err) {
       if (*p == '(') {
-        p = strip_space(p+1);
+        p = strip_spaces(p+1);
         if (*p != ')')
           p = parse_args(err, list, ',', p);
         if (*p == ')')
-           p = strip_space(p+1);
+           p = strip_spaces(p+1);
         else if (!err)
           err = err::E_PARSE;
       } else
@@ -580,7 +589,7 @@ namespace parse
           } break;
           case TYPE_L: {
             p = parse_list(err, list.add_list(err, name, params),
-                           strip_space(p+1));
+                           strip_spaces(p+1));
           } break;
           case TYPE_K: {
             list.add_openlist(err, name, params);
@@ -645,7 +654,7 @@ namespace parse
             } break;
             case TYPE_L: {
               p = parse_list(err, option.add_list(err, name),
-                             strip_space(p+1));
+                             strip_spaces(p+1));
             } break;
             case TYPE_K:
               option.add_openlist(err, name);
@@ -724,7 +733,7 @@ namespace parse
   template<typename P>
   P_cstr_ parse_args(t_err err, P parent, const char delimit, P_cstr_ p) {
     ERR_GUARD(err) {
-      for (; *p && !err; p = strip_space(p+1)) {
+      for (; *p && !err; p = strip_spaces(p+1)) {
         p = parse_arg(err, parent, p);
         if (*p != delimit)
           break;
@@ -738,10 +747,10 @@ namespace parse
 
 namespace build
 {
-  t_void build_name(t_err err, t_text&         text,
-                                const t_name&   name,
-                                const t_type    type,
-                                const t_params& params) {
+  t_void build_name(t_err err, r_text   text,
+                               R_name   name,
+                               t_type   type,
+                               t_params params) {
     ERR_GUARD(err) {
       if (params.optional_)
         text << ':';
@@ -749,9 +758,9 @@ namespace build
     }
   }
 
-  t_void build_simple(t_err err, t_text&       text,
-                                  const t_name& name,
-                                  t_simple_cref ref) {
+  t_void build_simple(t_err err, r_text        text,
+                                 R_name        name,
+                                 t_simple_cref ref) {
     ERR_GUARD(err) {
       text << name;
       text << '=';
@@ -760,9 +769,9 @@ namespace build
     }
   }
 
-  t_void build_boolean(t_err err, t_text&        text,
-                                   const t_name&  name,
-                                   t_boolean_cref ref) {
+  t_void build_boolean(t_err err, r_text         text,
+                                  R_name         name,
+                                  t_boolean_cref ref) {
     ERR_GUARD(err) {
       if (!ref.get_value())
         text << '!';
@@ -770,9 +779,9 @@ namespace build
     }
   }
 
-  t_void build_selection(t_err err, t_text&          text,
-                                     const t_name&    name,
-                                     t_selection_cref ref) {
+  t_void build_selection(t_err err, r_text           text,
+                                    R_name           name,
+                                    t_selection_cref ref) {
     ERR_GUARD(err) {
       text << name;
       text << "=["_SL;
@@ -788,9 +797,9 @@ namespace build
     }
   }
 
-  t_void build_compound(t_err err, t_text&         text,
-                                    const t_name&   name,
-                                    t_compound_cref ref) {
+  t_void build_compound(t_err err, r_text          text,
+                                   R_name          name,
+                                   t_compound_cref ref) {
     ERR_GUARD(err) {
       text << name;
       text << '=';
@@ -803,9 +812,9 @@ namespace build
     }
   }
 
-  t_void build_array(t_err err, t_text&       text,
-                                 const t_name& name,
-                                 t_array_cref  ref) {
+  t_void build_array(t_err err, r_text       text,
+                                R_name       name,
+                                t_array_cref ref) {
     ERR_GUARD(err) {
       t_rparams params(ref.get_range_params());
       text << name;
@@ -836,8 +845,8 @@ namespace build
     }
   }
 
-  t_void build_lookup_values(t_err err, t_text&       text,
-                                         t_lookup_cref lookup) {
+  t_void build_lookup_values(t_err err, r_text        text,
+                                        t_lookup_cref lookup) {
     ERR_GUARD(err) {
       if (lookup.is_initialized() || get(lookup.size_value())) { // not efficient
         text << '[';
@@ -887,10 +896,11 @@ namespace build
     }
   }
 
-  template<typename P> t_void build_args(t_err, t_text&, const P, char);
+  template<typename P> t_void build_args(t_err, r_text, const P, char);
 
-  t_void build_lookup(t_err err, r_text text, R_name name,
-                      t_lookup_cref lookup) {
+  t_void build_lookup(t_err err, r_text        text,
+                                 R_name        name,
+                                 t_lookup_cref lookup) {
     ERR_GUARD(err) {
       t_rparams params(lookup.get_range_params());
       text << name;
@@ -913,18 +923,18 @@ namespace build
     }
   }
 
-  t_void build_openlist(t_err err, t_text&         text,
-                                    const t_name&   name,
-                                    t_openlist_cref openlist) {
+  t_void build_openlist(t_err err, r_text          text,
+                                   R_name          name,
+                                   t_openlist_cref openlist) {
     ERR_GUARD(err) {
       text << name;
       text << "=(*)";
     }
   }
 
-  t_void build_option(t_err err, t_text&       text,
-                                  const t_name& name,
-                                  t_options_cref option) {
+  t_void build_option(t_err err, r_text         text,
+                                 R_name         name,
+                                 t_options_cref option) {
     ERR_GUARD(err) {
       text << option.get_extension();
       text << '(';
@@ -935,9 +945,9 @@ namespace build
     }
   }
 
-  t_void build_list(t_err err, t_text&       text,
-                                const t_name& name,
-                                t_list_cref   list) {
+  t_void build_list(t_err err, r_text      text,
+                               R_name      name,
+                               t_list_cref list) {
     ERR_GUARD(err) {
       text << name;
       text << "=("_SL;
@@ -948,7 +958,8 @@ namespace build
     }
   }
 
-  t_void build_list(t_err err, t_text& text, t_list_cref list) {
+  t_void build_list(t_err err, r_text      text,
+                               t_list_cref list) {
     ERR_GUARD(err) {
       text << '(';
       build_args(err, text, list, ',');
@@ -958,9 +969,9 @@ namespace build
     }
   }
 
-  t_void build_arg(t_err err, t_text&       text,
-                               t_cref        ref,
-                               t_options_cref option) {
+  t_void build_arg(t_err err, r_text         text,
+                              t_cref         ref,
+                              t_options_cref option) {
     ERR_GUARD(err) {
       t_type type = ref.get_type();
       if (is_optional(type))
@@ -1005,7 +1016,9 @@ namespace build
     }
   }
 
-  t_void build_arg(t_err err, t_text& text, t_cref ref, t_lookup_cref) {
+  t_void build_arg(t_err err, r_text text,
+                              t_cref ref,
+                              t_lookup_cref) { // XXX
     ERR_GUARD(err) {
       t_type type = ref.get_type();
       if (is_optional(type))
@@ -1036,7 +1049,9 @@ namespace build
     }
   }
 
-  t_void build_arg(t_err err, t_text& text, t_cref ref, t_list_cref) {
+  t_void build_arg(t_err err, r_text text,
+                              t_cref ref,
+                              t_list_cref) { // XXX
     ERR_GUARD(err) {
       t_type type = ref.get_type();
       if (is_optional(type))
@@ -1077,7 +1092,9 @@ namespace build
   }
 
   template<typename P>
-  t_void build_args(t_err err, t_text& text, P parent, char delimit) {
+  t_void build_args(t_err err, r_text text,
+                               P      parent,
+                               t_char delimit) {
     ERR_GUARD(err) {
       if (!parent.is_empty()) {
         auto max = get(parent.get_size());
@@ -1134,10 +1151,10 @@ namespace merge
     return !err;
   }
 
-  t_bool found_and_swap_use(t_err err, t_list_ref use, // don't need references
-                                        t_ref         use_ref,
-                                        t_ix::t_value use_ix,
-                                        t_cref        def_ref) {
+  t_bool found_and_swap_use(t_err err, t_list_ref    use, // don't need references
+                                       t_ref         use_ref,
+                                       t_ix::t_value use_ix,
+                                       t_cref        def_ref) {
     ERR_GUARD(err) {
       if (use_ref.get_name() != def_ref.get_name()) {
         auto max = get(use.get_size());
@@ -1165,9 +1182,9 @@ namespace merge
   }
 
   t_bool insert_default_use(t_err err, t_list_ref&    use,
-                                        t_ix::t_value& use_ix,
-                                        t_list_cref    def,
-                                        t_cref         def_ref) {
+                                       t_ix::t_value& use_ix,
+                                       t_list_cref    def,
+                                       t_cref         def_ref) {
     ERR_GUARD(err) {
       const t_type def_type = def_ref.get_type();
       if (is_optional(def_type)) {
@@ -1246,7 +1263,8 @@ namespace merge
 
   t_void check_mandatory(t_err, t_list_ref, t_ref, t_cref);
 
-  t_bool merge_list(t_err err, t_list_ref use, t_list_cref def) {
+  t_bool merge_list(t_err err, t_list_ref  use,
+                               t_list_cref def) {
     ERR_GUARD(err) {
       auto def_max = get(def.get_size());
       auto use_max = get(use.get_size());
@@ -1288,8 +1306,9 @@ namespace merge
     return !err;
   }
 
-  t_void check_mandatory(t_err err, t_list_ref use, t_ref use_ref,
-                                    t_cref def_ref) {
+  t_void check_mandatory(t_err err, t_list_ref use,
+                                    t_ref      use_ref,
+                                    t_cref     def_ref) {
     ERR_GUARD(err) {
       const t_type def_type = def_ref.get_type();
       switch (def_type) {
@@ -1446,12 +1465,13 @@ namespace argn
   t_bool check_selection_values(t_err err, t_values& values) {
     ERR_GUARD(err) {
       if (check_values(err, values)) {
-        auto last = cend(values);
-        for (auto value : values)
-          if (std::find_if(cbegin(values), last,
-                           [&value](const auto& v) {
-                             return &value != &v && value == v;}) != last)
+        t_n_ segs = get(values.get_segs_num());
+        for (t_ix_ seg = 0; seg < segs; ++seg) {
+          auto name = values.get(t_seg_no{seg});
+          auto id   = values.find(name);
+          if (values.find_next(name, id) != base::string::segmented::BAD_ID)
             return false;
+        }
         return true;
       }
     }
@@ -1461,10 +1481,8 @@ namespace argn
   t_bool check_selection_value(t_err err, t_value& value,
                                const t_values& values) {
     ERR_GUARD(err) {
-      if (!check_empty(err, value)) {
-        auto end = std::cend(values);
-        return std::find(std::cbegin(values), end, value) != end;
-      }
+      if (!check_empty(err, value))
+        return values.find(value) != base::string::segmented::BAD_ID;
     }
     return false;
   }
@@ -1490,7 +1508,7 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
- t_void print(base::P_cstr_ prefix, const t_words& words) {
+ t_void print(base::P_cstr_ prefix, R_words words) {
     t_word word("[");
     auto itr = words.begin(), end = words.end();
     while (itr != end) {
@@ -1502,8 +1520,7 @@ namespace argn
     std::cout << prefix << get(word.get_cstr()) << std::endl;
   }
 
-  t_bool match(const argn::t_fullname& maybe, const argn::t_fullname& name,
-               unsigned n) {
+  t_bool match(argn::R_fullname maybe, argn::R_fullname name, unsigned n) {
     auto m = get(maybe.get_segs_num());
     if (m >= n) {
       for (decltype(m) ix = 0; ix < n; ++ix)
@@ -1514,15 +1531,14 @@ namespace argn
     return false;
   }
 
-  // not sure how to do this yet - efficiency
-  t_bool arg_compare::operator()(const t_fullname& lh,
-                                 const t_fullname& rh) const {
+  // not sure how to do this yet - efficiency - XXX
+  t_bool arg_compare::operator()(R_fullname lh, R_fullname rh) const {
     return lh < rh;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  t_ref::t_ref(t_err err, const t_ref& ref)
+  t_ref::t_ref(t_err err, R_ref ref)
     : argn_(ref.argn_), arg_(ref.arg_) {
     if (err)
       clear_();
@@ -1542,15 +1558,15 @@ namespace argn
     return TYPE_Q;
   }
 
-  const t_fullname& t_ref::get_fullname() const {
+  R_fullname t_ref::get_fullname() const {
     if (is_valid_())
       return get_().first;
     return EMPTY_FULLNAME;
   }
 
-  const t_name& t_ref::get_name() const {
+  R_name t_ref::get_name() const {
     if (is_valid_())
-      return get_().first.back();
+      return get_().first.back(); // XXX
     return EMPTY_NAME;
   }
 
@@ -1562,7 +1578,7 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  t_cref::t_cref(t_err err, const t_cref& ref)
+  t_cref::t_cref(t_err err, R_cref ref)
     : argn_(ref.argn_), arg_(ref.arg_) {
     if (err)
       clear_();
@@ -1582,13 +1598,13 @@ namespace argn
     return TYPE_Q;
   }
 
-  const t_fullname& t_cref::get_fullname() const {
+  R_fullname t_cref::get_fullname() const {
     if (is_valid_())
       return get_().first;
     return EMPTY_FULLNAME;
   }
 
-  const t_name& t_cref::get_name() const {
+  R_name t_cref::get_name() const {
     if (is_valid_())
       return get_().first.back();
     return EMPTY_NAME;
@@ -1616,7 +1632,7 @@ namespace argn
   }
 
   t_bool t_simple_ref::transform_to(t_err err, t_compound_ref& compound,
-                                                t_values values) {
+                                               t_values values) { // XXX
     ERR_GUARD(err) {
       if (is_valid_())
         compound = set_argn_().transform_(err, *this, base::x_cast(values));
@@ -1626,10 +1642,10 @@ namespace argn
     return !err;
   }
 
-  const t_value& t_simple_ref::get_value() const {
+  R_value t_simple_ref::get_value() const {
     if (is_valid_()) {
-      if (!get_().second.values_.empty())
-        return get_().second.values_.front();
+      if (!get_().second.values_.is_empty())
+        return get_().second.values_.front(); // XXX
     }
     return EMPTY_VALUE;
   }
@@ -1637,10 +1653,10 @@ namespace argn
   t_bool t_simple_ref::set_value(t_err err, t_value value) {
     if (check_value(err, value)) {
       if (is_valid_()) {
-        if (get_().second.values_.empty())
+        if (get_().second.values_.is_empty())
           set_().second.values_.push_back(base::x_cast(value));
         else
-          set_().second.values_[0] = base::x_cast(value);
+          set_().second.values_.change(t_seg_no{0}, base::x_cast(value));
       } else
         err = err::E_INVALID_REF;
     }
@@ -1663,9 +1679,9 @@ namespace argn
     }
   }
 
-  const t_value& t_simple_cref::get_value() const {
+  R_value t_simple_cref::get_value() const {
     if (is_valid_()) {
-      if (!get_().second.values_.empty())
+      if (!get_().second.values_.is_empty())
         return get_().second.values_.front();
     }
     return EMPTY_VALUE;
@@ -1695,7 +1711,7 @@ namespace argn
     ERR_GUARD(err) {
      if (is_valid_()) {
        if (state || get_type() == TYPE_MB)
-         set_().second.values_[0] = str(state);
+         set_().second.values_.change(t_seg_no{0}, state); //XXX
        else
         err = err::E_XXX;
       } else
@@ -1762,7 +1778,7 @@ namespace argn
     return false;
   }
 
-  const t_values& t_array_ref::get_values() const {
+  R_values t_array_ref::get_values() const {
     if (is_valid_())
       return get_().second.values_;
     return EMPTY_VALUES; // XXX
@@ -1805,7 +1821,7 @@ namespace argn
     return false;
   }
 
-  const t_values& t_array_cref::get_values() const {
+  R_values t_array_cref::get_values() const {
     if (is_valid_())
       return get_().second.values_;
     return EMPTY_VALUES;
@@ -1825,15 +1841,15 @@ namespace argn
     }
   }
 
-  t_bool t_compound_ref::add_missing_part_values(t_err err,
-                                                 const t_values& values) {
+  t_bool t_compound_ref::add_missing_part_values(t_err    err,
+                                                 R_values values) {
     ERR_GUARD(err) {
       if (is_valid_()) {
-        auto max = get_().second.values_.size();
-        auto nmax = values.size();
+        auto max  = get(get_().second.values_.get_size());
+        auto nmax = get(values.get_size());
         if (nmax > max) {
           for (auto ix = max; ix < nmax; ++ix)
-            set_().second.values_.push_back(values[ix]);
+            set_().second.values_.push_back(values[t_seg_no{ix}]);
         } else if (nmax < max)
           err = err::E_XXX;
       } else
@@ -1842,13 +1858,13 @@ namespace argn
     return false;
   }
 
-  const t_values& t_compound_ref::get_part_values() const {
+  R_values t_compound_ref::get_part_values() const {
     if (is_valid_())
       return get_().second.values_;
     return EMPTY_VALUES;
   }
 
-  const t_value& t_compound_ref::get_value() const {
+  R_value t_compound_ref::get_value() const {
     if (is_valid_())
       return get_().second.info_.ext_;
     return EMPTY_VALUE;
@@ -1878,13 +1894,13 @@ namespace argn
     }
   }
 
-  const t_values& t_compound_cref::get_part_values() const {
+  R_values t_compound_cref::get_part_values() const {
     if (is_valid_())
       return get_().second.values_;
     return EMPTY_VALUES;
   }
 
-  const t_value& t_compound_cref::get_value() const {
+  R_value t_compound_cref::get_value() const {
     if (is_valid_())
       return get_().second.info_.ext_;
     return EMPTY_VALUE;
@@ -1904,13 +1920,13 @@ namespace argn
     }
   }
 
-  const t_values& t_selection_ref::get_values() const {
+  R_values t_selection_ref::get_values() const {
     if (is_valid_())
       return get_().second.values_;
     return EMPTY_VALUES;
   }
 
-  const t_value& t_selection_ref::get_value() const {
+  R_value t_selection_ref::get_value() const {
     if (is_valid_())
       return get_().second.info_.ext_;
     return EMPTY_VALUE;
@@ -1928,9 +1944,8 @@ namespace argn
   t_bool t_selection_ref::test_value(t_err err, t_value value) const {
     if (check_value(err, value)) {
       if (is_valid_())
-        return std::find(std::cbegin(get_().second.values_),
-                         std::cend(get_().second.values_), value) !=
-               std::cend(get_().second.values_);
+        return get_().second.values_.find(value) !=
+               base::string::segmented::BAD_ID;
       else
         err = err::E_INVALID_REF;
     }
@@ -1951,13 +1966,13 @@ namespace argn
     }
   }
 
-  const t_values& t_selection_cref::get_values() const {
+  R_values t_selection_cref::get_values() const {
     if (is_valid_())
       return get_().second.values_;
     return EMPTY_VALUES;
   }
 
-  const t_value& t_selection_cref::get_value() const {
+  R_value t_selection_cref::get_value() const {
     if (is_valid_())
       return get_().second.info_.ext_;
     return EMPTY_VALUE;
@@ -1966,9 +1981,8 @@ namespace argn
   t_bool t_selection_cref::test_value(t_err err, t_value value) const {
     if (check_value(err, value)) {
       if (is_valid_())
-        return std::find(std::cbegin(get_().second.values_),
-                         std::cend(get_().second.values_), value) !=
-               std::cend(get_().second.values_);
+        return get_().second.values_.find(value) !=
+               base::string::segmented::BAD_ID;
       err = err::E_INVALID_REF;
     }
     return !err;
@@ -2168,8 +2182,8 @@ namespace argn
     return {};
   }
 
-  t_ref t_list_ref::add_simple(t_err err, t_name name,
-                                           const t_oparams& params) {
+  t_ref t_list_ref::add_simple(t_err err, t_name    name,
+                                          R_oparams params) {
     ERR_GUARD(err) {
       if (is_valid_())
         return set_argn_().add_simple_(err, *this, base::x_cast(name), params);
@@ -2178,8 +2192,9 @@ namespace argn
     return {};
   }
 
-  t_ref t_list_ref::add_simple(t_err err, t_name name, t_value value,
-                                           const t_oparams& params) {
+  t_ref t_list_ref::add_simple(t_err err, t_name    name,
+                                          t_value   value,
+                                          R_oparams params) {
     ERR_GUARD(err) {
       if (is_valid_())
         return set_argn_().add_simple_(err, *this, base::x_cast(name),
@@ -2189,8 +2204,9 @@ namespace argn
     return {};
   }
 
-  t_ref t_list_ref::add_boolean(t_err err, t_name name, t_bool state,
-                                            const t_oparams& params) {
+  t_ref t_list_ref::add_boolean(t_err err, t_name    name,
+                                           t_bool    state,
+                                           R_oparams params) {
     ERR_GUARD(err) {
       if (is_valid_())
         return set_argn_().add_boolean_(err, *this, base::x_cast(name),
@@ -2200,8 +2216,9 @@ namespace argn
     return {};
   }
 
-  t_ref t_list_ref::add_compound(t_err err, t_name name, t_values values,
-                                             const t_oparams& params) {
+  t_ref t_list_ref::add_compound(t_err err, t_name    name,
+                                            t_values  values,
+                                            R_oparams params) {
     ERR_GUARD(err) {
       if (is_valid_())
         return set_argn_().add_compound_(err, *this, base::x_cast(name),
@@ -2211,9 +2228,10 @@ namespace argn
     return {};
   }
 
-  t_ref t_list_ref::add_compound(t_err err, t_name name, t_values values,
-                                             t_value value,
-                                             const t_oparams& params) {
+  t_ref t_list_ref::add_compound(t_err err, t_name    name,
+                                            t_values  values,
+                                            t_value   value,
+                                            R_oparams params) {
     ERR_GUARD(err) {
       if (is_valid_())
         return set_argn_().add_compound_(err, *this, base::x_cast(name),
@@ -2224,8 +2242,9 @@ namespace argn
     return {};
   }
 
-  t_ref t_list_ref::add_array(t_err err, t_name name, t_bool init,
-                                          const t_params& params) {
+  t_ref t_list_ref::add_array(t_err err, t_name   name,
+                                         t_bool   init,
+                                         R_params params) {
     ERR_GUARD(err) {
       if (is_valid_())
         return set_argn_().add_array_(err, *this, base::x_cast(name), init,
@@ -2235,8 +2254,9 @@ namespace argn
     return {};
   }
 
-  t_ref t_list_ref::add_array(t_err err, t_name name, t_values values,
-                                          const t_params& params) {
+  t_ref t_list_ref::add_array(t_err err, t_name   name,
+                                         t_values values,
+                                         R_params params) {
     ERR_GUARD(err) {
       if (is_valid_())
         return set_argn_().add_array_(err, *this, base::x_cast(name),
@@ -2246,8 +2266,9 @@ namespace argn
     return {};
   }
 
-  t_ref t_list_ref::add_selection(t_err err, t_name name, t_values values,
-                                              const t_oparams& params) {
+  t_ref t_list_ref::add_selection(t_err err, t_name    name,
+                                             t_values  values,
+                                             R_oparams params) {
     ERR_GUARD(err) {
       if (is_valid_())
         return set_argn_().add_selection_(err, *this, base::x_cast(name),
@@ -2257,8 +2278,8 @@ namespace argn
     return {};
   }
 
-  t_ref t_list_ref::add_list(t_err err, t_name name,
-                                         const t_oparams& params) {
+  t_ref t_list_ref::add_list(t_err err, t_name    name,
+                                        R_oparams params) {
     ERR_GUARD(err) {
       if (is_valid_())
         return set_argn_().add_list_(err, *this, base::x_cast(name), params);
@@ -2267,8 +2288,8 @@ namespace argn
     return {};
   }
 
-  t_ref t_list_ref::add_openlist(t_err err, t_name name,
-                                             const t_oparams& params) {
+  t_ref t_list_ref::add_openlist(t_err err, t_name    name,
+                                            R_oparams params) {
     ERR_GUARD(err) {
       if (is_valid_())
         return set_argn_().add_openlist_(err, *this, base::x_cast(name),
@@ -2278,8 +2299,8 @@ namespace argn
     return {};
   }
 
-  t_ref t_list_ref::add_option(t_err err, t_name name,
-                                           const t_oparams& params) {
+  t_ref t_list_ref::add_option(t_err err, t_name    name,
+                                          R_oparams params) {
     ERR_GUARD(err) {
       if (is_valid_())
         return set_argn_().add_option_(err, *this, base::x_cast(name),
@@ -2289,8 +2310,8 @@ namespace argn
     return {};
   }
 
-  t_ref t_list_ref::add_lookup(t_err err, t_name name,
-                                           const t_params& params) {
+  t_ref t_list_ref::add_lookup(t_err err, t_name   name,
+                                          R_params params) {
     ERR_GUARD(err) {
       if (is_valid_())
          return set_argn_().add_lookup_(err, *this, base::x_cast(name),
@@ -2300,7 +2321,7 @@ namespace argn
     return {};
   }
 
-  t_bool t_list_ref::del(const t_name& name) {
+  t_bool t_list_ref::del(R_name name) {
     if (is_valid_())
       return set_argn_().del_(*this, name);
     return false;
@@ -2313,7 +2334,8 @@ namespace argn
       clear_();
   }
 
-  t_list_cref::t_list_cref(t_err err, t_cref ref) : t_collection_cref(err, ref) {
+  t_list_cref::t_list_cref(t_err err, t_cref ref)
+      : t_collection_cref(err, ref) {
     if (!err && get_base_type() != TYPE_L) {
       clear_();
       err = err::E_XXX;
@@ -2335,7 +2357,7 @@ namespace argn
     }
   }
 
-  const t_name& t_options_ref::get_extension() const {
+  R_name t_options_ref::get_extension() const {
     if (is_valid_())
       return get_().second.info_.ext_;
     return EMPTY_NAME;
@@ -2409,9 +2431,9 @@ namespace argn
     return {};
   }
 
-  t_ref t_options_ref::add_compound(t_err err, t_name name,
+  t_ref t_options_ref::add_compound(t_err err, t_name   name,
                                                t_values values,
-                                               t_value value) {
+                                               t_value  value) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
@@ -2424,8 +2446,9 @@ namespace argn
     return {};
   }
 
-  t_ref t_options_ref::add_array(t_err err, t_name name, t_bool init,
-                                            const t_rparams& rparams) {
+  t_ref t_options_ref::add_array(t_err err, t_name    name,
+                                            t_bool    init,
+                                            R_rparams rparams) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_params params{t_oparams{false}, rparams};
@@ -2437,8 +2460,9 @@ namespace argn
     return {};
   }
 
-  t_ref t_options_ref::add_array(t_err err, t_name name, t_values values,
-                                            const t_rparams& rparams) {
+  t_ref t_options_ref::add_array(t_err err, t_name    name,
+                                            t_values  values,
+                                            R_rparams rparams) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_params params{t_oparams{false}, rparams};
@@ -2486,8 +2510,8 @@ namespace argn
     return {};
   }
 
-  t_ref t_options_ref::add_lookup(t_err err, t_name name,
-                                             const t_rparams& rparams) {
+  t_ref t_options_ref::add_lookup(t_err err, t_name    name,
+                                             R_rparams rparams) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_params params{t_oparams{false}, rparams};
@@ -2498,7 +2522,7 @@ namespace argn
     return {};
   }
 
-  t_bool t_options_ref::del(const t_name& name) {
+  t_bool t_options_ref::del(R_name name) {
     if (is_valid_())
       return set_argn_().del_(*this, name);
     return false;
@@ -2519,7 +2543,7 @@ namespace argn
     }
   }
 
-  const t_name& t_options_cref::get_extension() const {
+  R_name t_options_cref::get_extension() const {
     if (is_valid_())
       return get_().second.info_.ext_;
     return EMPTY_NAME;
@@ -2570,8 +2594,8 @@ namespace argn
     return {};
   }
 
-  t_cref t_lookup_ref::add_compound(t_err err, t_name name,
-                                                t_values values) {
+  t_cref t_lookup_ref::add_compound(t_err err, t_name   name,
+                                               t_values values) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
@@ -2583,8 +2607,8 @@ namespace argn
     return {};
   }
 
-  t_cref t_lookup_ref::add_selection(t_err err, t_name name,
-                                                 t_values values) {
+  t_cref t_lookup_ref::add_selection(t_err err, t_name   name,
+                                                t_values values) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
@@ -2596,8 +2620,8 @@ namespace argn
     return {};
   }
 
-  t_cref t_lookup_ref::add_array(t_err err, t_name name,
-                                             const t_rparams& rparams) {
+  t_cref t_lookup_ref::add_array(t_err err, t_name    name,
+                                            R_rparams rparams) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_params params{t_oparams{false}, rparams};
@@ -2609,8 +2633,8 @@ namespace argn
     return {};
   }
 
-  t_ref t_lookup_ref::add_lookup(t_err err, t_name name,
-                                             const t_rparams& rparams) {
+  t_ref t_lookup_ref::add_lookup(t_err err, t_name    name,
+                                            R_rparams rparams) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_params params{t_oparams{false}, rparams};
@@ -2646,7 +2670,7 @@ namespace argn
     return {};
   }
 
-  t_bool t_lookup_ref::del_value(const t_name& name) {
+  t_bool t_lookup_ref::del_value(R_name name) {
     if (is_valid_())
       return set_argn_().del_lookup_value_(*this, name);
     return false;
@@ -2678,8 +2702,8 @@ namespace argn
   t_ref t_lookup_ref::begin_value() {
     if (get(size_value())) { // is_empty - XXX
       t_fullname endname(get_fullname());
-      endname.push_back(".");
-      endname.push_back("/");
+      endname.push_back("."_SL);
+      endname.push_back("/"_SL);
       t_itr itr = set_argn_().table_.upper_bound(endname);
       if (itr != std::end(get_argn_().table_))
         return make_ref_(&(*itr));
@@ -2697,12 +2721,12 @@ namespace argn
 
   t_ref t_lookup_ref::next_value(t_ref ref) {
     if (ref) {
-      const t_fullname& refname = ref.get_fullname();
+      R_fullname refname = ref.get_fullname();
       t_fullname endname(refname);
-      endname.push_back("/");
+      endname.push_back("/"_SL);
       t_itr itr = set_argn_().table_.upper_bound(endname);
       if (itr != std::cend(get_argn_().table_) &&
-          match(itr->first, refname, refname.size() - 1))
+          match(itr->first, refname, get(refname.get_size()) - 1)) // XXX
         return make_ref_(&(*itr));
     }
     return {};
@@ -2764,8 +2788,8 @@ namespace argn
   t_cref t_lookup_cref::cbegin_value() const {
     if (get(size_value())) { // is_empty - XXX
       t_fullname endname(get_fullname());
-      endname.push_back(".");
-      endname.push_back("/");
+      endname.push_back("."_SL);
+      endname.push_back("/"_SL);
       t_citr itr = get_argn_().table_.upper_bound(endname);
       if (itr != std::cend(get_argn_().table_))
         return make_ref_(&(*itr));
@@ -2779,12 +2803,12 @@ namespace argn
 
   t_cref t_lookup_cref::cnext_value(t_cref ref) const {
     if (ref) {
-      const t_fullname& refname = ref.get_fullname();
+      R_fullname refname = ref.get_fullname();
       t_fullname endname(refname);
-      endname.push_back("/");
+      endname.push_back("/"_SL);
       t_citr itr = get_argn_().table_.upper_bound(endname);
       if (itr != std::cend(get_argn_().table_) &&
-          match(itr->first, refname, refname.size() - 1))
+          match(itr->first, refname, get(refname.get_size()) - 1)) // XXX
         return make_ref_(&(*itr));
     }
     return {};
@@ -2823,7 +2847,7 @@ namespace argn
 
   t_argn::t_argn(t_err err) {
     ERR_GUARD(err) {
-      auto p = table_.insert({t_fullname{"</>"}, t_arginfo(TYPE_L)});
+      auto p = table_.insert({t_fullname{'#', "</>"_SL}, t_arginfo(TYPE_L)}); // XXX
       if (p.second)
         p.first->second.path_.push_back(str(TYPE_L));
       else
@@ -2839,13 +2863,13 @@ namespace argn
       t_type base = parent.get_base_type();
       t_type type = info.type_;
       if (base == TYPE_Z) {
-        fullname.back() = name;
-        if (!parent.get_().second.info_.ext_.is_empty()) {
-          fullname.back() = fullname.back().mk_range(t_ix{1});
+        // fullname.back() = name; // XXX
+        //if (!parent.get_().second.info_.ext_.is_empty()) {
+        //  fullname.back() = fullname.back().mk_range(t_ix{1});
           // XXX not sure
           //fullname.back().insert(0, parent.get_().second.info_.ext_.get_cstr(),
           //                       parent.get_().second.info_.ext_.length() -1);
-        }
+        //}
       } else if (base == TYPE_X) {
         t_word attr{"."};
         fullname.push_back(attr);
@@ -2864,9 +2888,9 @@ namespace argn
           t_argvalue& v = p.first->second;
           if (base != TYPE_Z)
             v.path_ = parent.get_().second.path_;
-          else
-            v.path_.assign(parent.get_().second.path_.begin(),
-                           parent.get_().second.path_.end() - 1);
+          //else XXX
+          //  v.path_.assign(parent.get_().second.path_.begin(),
+          //                 parent.get_().second.path_.end() - 1);
           v.path_.push_back(str(get_path_type(type)));
           parent.set_().second.values_.push_back(fullname.back()); // make a pointer?
           parent.set_().second.info_.mem_.push_back(&(*p.first));
@@ -2879,9 +2903,9 @@ namespace argn
   }
 
   t_ref t_argn::add_(r_err err, t_ref       parent,
-                                 t_name&&    name,
-                                 t_arginfo& info,
-                                 t_value&&   value) {
+                                t_name&&    name,
+                                t_arginfo& info,
+                                t_value&&   value) {
     t_ref ref = add_(err, parent, base::x_cast(name), info);
     if (ref)
       ref.set_().second.values_.push_back(base::x_cast(value));
@@ -2889,16 +2913,16 @@ namespace argn
   }
 
   t_ref t_argn::add_(r_err err, t_ref       parent,
-                                 t_name&&    name,
-                                 t_arginfo& info,
-                                 t_values&&  values) {
+                                t_name&&    name,
+                                t_arginfo& info,
+                                t_values&&  values) {
     t_ref ref = add_(err, parent, base::x_cast(name), info);
     if (ref)
       ref.set_().second.values_ = base::x_cast(values);
     return ref;
   }
 
-  t_bool t_argn::del_(r_ref ref, const t_name& name) {
+  t_bool t_argn::del_(r_ref ref, R_name name) {
     switch (ref.get_base_type()) {
       case TYPE_L:
       case TYPE_Z: {
@@ -2909,7 +2933,7 @@ namespace argn
           argname.push_back(name);
           t_itr first = table_.find(argname);
           if (first != std::end(table_)) {
-            argname.push_back("/");
+            argname.push_back("/"_SL);
             table_.erase(first, table_.upper_bound(argname));
             return true;
           }
@@ -2939,9 +2963,9 @@ namespace argn
         case TYPE_H:
         case TYPE_C:
         case TYPE_K: {
-          const t_fullname& refname = ref.get_fullname();
+          R_fullname refname = ref.get_fullname();
           t_fullname endname(refname);
-          endname.push_back("/");
+          endname.push_back("/"_SL);
           t_itr itr = table_.upper_bound(endname);
           if (itr != std::end(table_))
             return {this, &(*itr)};
@@ -2955,7 +2979,7 @@ namespace argn
         case TYPE_Z: {
           t_collection_ref collection(ref);
           if (collection && !collection.is_empty())
-            return collection[t_ix{0}];
+            return collection[0_ix];
         } break;
         default:
           break;
@@ -2976,7 +3000,7 @@ namespace argn
     if (!table_.empty()) {
       t_list_cref root(get_root());
       if (root && !root.is_empty())
-        return root[t_ix{0}];
+        return root[0_ix];
     }
     return {};
   }
@@ -2990,9 +3014,9 @@ namespace argn
         case TYPE_H:
         case TYPE_C:
         case TYPE_K: {
-          const t_fullname& refname = ref.get_fullname();
+          R_fullname refname = ref.get_fullname();
           t_fullname endname(refname);
-          endname.push_back("/");
+          endname.push_back("/"_SL);
           t_citr itr = table_.upper_bound(endname);
           if (itr != std::cend(table_))
             return {this, &(*itr)};
@@ -3006,7 +3030,7 @@ namespace argn
         case TYPE_Z: {
           t_collection_cref collection(ref);
           if (collection && !collection.is_empty())
-            return collection[t_ix{0}];
+            return collection[0_ix];
         } break;
         default:
           break;
@@ -3056,11 +3080,11 @@ namespace argn
                                       x_values values,
                                       R_params params) {
     if (check_name(err, name) && check_values(err, values) &&
-        check_range(err, params, t_n(values.size()))) { // narrowing
+        check_range(err, params, t_n(values.get_size()))) { // narrowing
       const t_type type = params.optional_ ? TYPE_OA : TYPE_A;
       t_arginfo info(type, get(params.range_max_), get(params.range_min_),
                      true);
-      info.range_.cnt_ = values.size();
+      info.range_.cnt_ = get(values.get_size()); // XXX
       return add_(err, parent, base::x_cast(name), info, base::x_cast(values));
     }
     return {};
@@ -3248,7 +3272,7 @@ namespace argn
       argname.push_back(name);
       t_itr first = table_.find(argname);
       if (first != std::end(table_)) {
-        argname.push_back("/");
+        argname.push_back("/"_SL);
         table_.erase(first, table_.upper_bound(argname));
         return true;
       }
@@ -3260,11 +3284,11 @@ namespace argn
     t_lookup_ref lookup(ref);
     if (lookup && !lookup.is_empty()) {
       t_fullname endname(lookup.get_fullname());
-      endname.push_back(".");
-      endname.push_back("/");
+      endname.push_back("."_SL);
+      endname.push_back("/"_SL);
       t_itr first = table_.upper_bound(endname);
       if (first != std::end(table_)) {
-        endname.erase(endname.end() - 2);
+        //endname.erase(endname.end() - 2); XXX
         table_.erase(first, table_.upper_bound(endname));
       }
       ref.set_().second.info_.range_.cnt_ = 0;
@@ -3299,14 +3323,14 @@ namespace argn
     return t_cref{};
   }
 
-  t_ref t_argn::operator[](const t_fullname& fullname) {
+  t_ref t_argn::operator[](R_fullname fullname) {
     auto itr = table_.find(fullname);
     if (itr != std::end(table_))
       return {this, &(*itr)};
     return {};
   }
 
-  t_cref t_argn::operator[](const t_fullname& fullname) const {
+  t_cref t_argn::operator[](R_fullname fullname) const {
     auto citr = table_.find(fullname);
     if (citr != std::cend(table_))
       return {this, &(*citr)};
@@ -3352,29 +3376,30 @@ namespace argn
       type << ']';
 
       t_word path("["_SL);
-      auto max_path = p.second.path_.size();
+      auto max_path = get(p.second.path_.get_size());
       for (decltype(max_path) i = 0; i < max_path; ++i) {
-        path << p.second.path_[i];
+        path << p.second.path_[t_seg_no{i}];
         if (i < max_path - 1)
           path << ',';
       }
       path << ']';
 
       t_word name("["_SL);
-      auto max_names = p.first.size();
+      auto max_names = get(p.first.get_size());
       for (decltype(max_names) i = 0; i < max_names; ++i) {
-        name << p.first[i];
+        name << p.first[t_seg_no{i}];
         if (i < max_names - 1)
           name << ',';
       }
       name << ']';
 
       t_word value("["_SL);
-      auto max_values = p.second.values_.size();
+      auto max_values = get(p.second.values_.get_size());
       if (max_values) {
         for (decltype(max_values) i = 0; i < max_values; ++i) {
-          if (!p.second.values_[i].is_empty()) {
-            value << p.second.values_[i];
+          t_string_crange range = p.second.values_[t_seg_no{i}];
+          if (range == VALID) {
+            value << range;
           } else
             value << "-";
           if (i < max_values - 1)
@@ -3401,8 +3426,9 @@ namespace argn
         value_max = get(value.get_length());
     }
 
-    unsigned entries = names.size();
+    unsigned entries = get(names.get_size());
     for (unsigned i = 0; i < entries; ++i) {
+      /* XXX
       std::cout << "  {" << std::left
                 << std::setw(name_max)  << get(names[i].get_cstr())  << ","
                 << std::setw(value_max) << get(values[i].get_cstr()) << ","
@@ -3410,6 +3436,7 @@ namespace argn
                 << std::setw(type_max)  << get(types[i].get_cstr())  << "}";
       if (i < entries - 1)
         std::cout << ",";
+      */
       std::cout << std::endl;
     }
 
@@ -3438,13 +3465,13 @@ namespace argn
     return t_ref{};
   }
 
-  t_bool operator==(const t_argn& lh, const t_argn& rh) {
+  t_bool operator==(R_argn lh, R_argn rh) {
     if (lh.get_size() == rh.get_size())
       return lh.get_root() == rh.get_root();
     return false;
   }
 
-  t_bool operator!=(const t_argn& lh, const t_argn& rh) {
+  t_bool operator!=(R_argn lh, R_argn rh) {
     return !(lh == rh);
   }
 
@@ -3586,7 +3613,7 @@ namespace argn
     ERR_GUARD(err) {
       argn::t_list_ref list(err, argn.get_root());
       notation::parse::parse_list(err, list,
-                                  notation::parse::strip_space(get(text.get_cstr())));
+                                  notation::parse::strip_spaces(get(text.get_cstr())));
     }
   }
 
