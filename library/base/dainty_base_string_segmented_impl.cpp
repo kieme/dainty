@@ -52,25 +52,6 @@ namespace segmented
     return end;
   }
 
-  P_char find_next(P_char buf, P_char end, t_crange range) noexcept {
-    t_n_ range_n = get(range.n);
-    P_char ptr = buf;
-    if (ptr < end) {
-      t_seg_hdr_ hdr{ptr[0], ptr[1]};
-      ptr += HDR_MAX_ + hdr.hdr.len;
-      while (ptr < end) {
-        t_seg_hdr_ hdr{ptr[0], ptr[1]};
-        t_n_ len = hdr.hdr.len;
-        t_n_ min = len < range_n ? len : range_n; // can improve
-        if (len == range_n &&
-            std::strncmp(ptr + HDR_MAX_, range.ptr, min) == 0)
-          return ptr;
-        ptr += HDR_MAX_ + len;
-      }
-    }
-    return end;
-  }
-
   inline
   p_char push_back_(p_char buf, t_user usr) noexcept {
     t_seg_hdr_ hdr{0, usr};

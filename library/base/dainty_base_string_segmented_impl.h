@@ -351,7 +351,6 @@ namespace segmented
 ///////////////////////////////////////////////////////////////////////////////
 
   P_char find_         (P_char, P_char, t_crange)                     noexcept;
-  P_char find_next_    (P_char, P_char, t_crange)                     noexcept;
   t_bool is_equal_     (t_n_,   P_char, P_char, t_n_, P_char, P_char) noexcept;
   t_bool is_less_      (P_char, P_char, P_char, P_char)               noexcept;
   t_bool is_less_equal_(P_char, P_char, P_char, P_char)               noexcept;
@@ -451,8 +450,9 @@ namespace segmented
   inline
   t_id t_segmented_impl_base_::find(t_buf_crange store,
                                     t_crange range) const noexcept {
-    P_char entry = find_(store.ptr, store.ptr + size_, range);
-    return entry ? t_id((entry - store.ptr) + 1) : BAD_ID;
+    P_char end   = store.ptr + size_;
+    P_char entry = find_(store.ptr, end, range);
+    return entry < end ? t_id((entry - store.ptr) + 1) : BAD_ID;
   }
 
   inline
@@ -461,10 +461,11 @@ namespace segmented
     t_id_ id = base::get(_id);
     if (id) {
       P_char ptr = store.ptr + id - 1, end = store.ptr + size_;
+      t_seg_hdr_ hdr{ptr[0], ptr[1]};
+      ptr += HDR_MAX_ + hdr.hdr.len;
       if (ptr < end) {
-        P_char entry = find_next_(ptr, end, range);
-        if (entry != end)
-          return t_id((entry - store.ptr) + 1);
+        P_char entry = find_(ptr, end, range);
+        return entry < end ? t_id((entry - store.ptr) + 1) : BAD_ID;
       }
     }
     return BAD_ID;
