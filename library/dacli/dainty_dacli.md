@@ -20,9 +20,9 @@ dacli does not attempt to support everything; like an exhaustive set of argument
 
   - Specify a defined user interface (notation and its processing)
     - which is readable
-    - which is type-able
+    - which is writeable
     - which is minimalistic
-    - which can be extensive
+    - which is extensive
     - which is consistent
     - which is easily convertible to other user formats (e.g. json/xml)
     - which is efficient in terms of
@@ -93,7 +93,7 @@ result passed to software:
 ### basic notation rules
 - rule1:  the syntax is written with ASCII characters and terminated with '\0'.
 - rule2: all input and output are encapsulated in dacli arguments.
-- rule3: the argument notation always start with an initial argument list. "</>".
+- rule3: the argument notation always start with an initial group argument. "</>".
 - rule4: an argument is always unique identify-able by a name, which can have an associated  value(s).
 - rule5: argument names and values are just strings.
 
@@ -121,7 +121,7 @@ use:        "(pattern=abc*)"
   - specify a list with a <pattern> name that have a value of <abc*>
 ```
 
-##### eg.3 an optional complex argument that require a value and can have two optional value parts
+##### eg.3 an optional compound argument that require a value and can have two optional value parts
 ``` sh
 definition: "(:person=:mantra:nickname)"
   - define a list with a name <person> which requires a value and have two addtional parts that are modifiedable.
@@ -169,10 +169,10 @@ use:        "(customer@n{name=,id=,address=,accounts@n=}=[(Tom,51243,'home addre
   - specify a list that has a <customer> structure array name with a single entry of values
 ```
 
-##### eg.9 an optional selection list argument with a prefix
+##### eg.9 an optional options argument with a prefix
 ``` sh
 definition: "(:print_(all|prefix=|postfix=|pattern=))"
-  - define a list with an optional selection list that is prefixed with 'print_' and has four different names to select from.
+  - define a list with an optional options that is prefixed with 'print_' and has four different names to select from.
 use:        "(print_all)"
   - specify a list that has a unchangable boolean name <print_all>.
 use:        "(print_pattern=*trala*)"
@@ -180,10 +180,10 @@ use:        "(print_pattern=*trala*)"
 '*trala*'.
 ```
 
-##### eg.10 a mandatory selection list argument without a prefix
+##### eg.10 a mandatory options argument without a prefix
 ``` sh
 definition: "((all|prefix=|postfix=|pattern=))"
-  - define a list with a mandatory selection list with four different names to select from.
+  - define a list with a mandatory options with four different names to select from.
 use:        "(all)"
   - specify a list that has a unchangable boolean name 'all' with is set to true.
 use:        "(pattern=*trala*)"
@@ -200,7 +200,7 @@ The dacli notation use certain ASCII characters for special purposes as demonstr
 | (         | mark the beginning of a (option) list                                |
 | )         | mark the ending of a (option) list                                   |
 | ,         | name or value separator                                              |
-| \|        | name separator for the option list and selection list                |
+| \|        | name separator for the options and selection                         |
 | :         | name or value is optional                                            |
 | [         | mark beginning of an array values                                    |
 | ]         | mark ending of an array values                                       |
@@ -216,11 +216,11 @@ An argument has a type that depends on its name description before '='. There is
 
 | base argument type | argument definition notation |
 | ------------------ | ---------------------------- |
-| 1. standard        | "(name=)"                    |
-| 2. complex         | "(name=:part1:part2)"        |
+| 1. simple          | "(name=)"                    |
+| 2. compound        | "(name=:part1:part2)"        |
 | 3. boolean         | "(name)", "(!name)"          |
 | 4. array           | "(name@2=)"                  |
-| 5. composite array | "(name@n{name1=, name2=}=)"  |
+| 5. lookup          | "(name@n{name1=, name2=}=)"  |
 | 6. list            | "(name=(...))"               |
 | 7. selection list  | "(name=name1\|name2"         |
 | 8. option list     | "(prefix-(name1\|name2=))"   |
@@ -263,7 +263,7 @@ Note over SW: use result:res2
 
 #### argument: `"argument@n{...}"`
 
-All the parsed arguments are available in the 'argument' unbounded composite array. Every name used in the definition notation or use notation must be represented as an `argument/n{...}` entry. The array is sorted on the size of the name array (less is better) and when the number of entries are the same, then sorting is based on alphabetical order of the names in the last entry.  Effectively it means the sort algorithm match the order of the arguments closely. Below is an example of a definition notation to result notation transformation.
+All the parsed arguments are available in the 'argument' unbounded lookup. Every name used in the definition notation or use notation must be represented as an `argument/n{...}` entry. The array is sorted on the size of the name array (less is better) and when the number of entries are the same, then sorting is based on alphabetical order of the names in the last entry.  Effectively it means the sort algorithm match the order of the arguments closely. Below is an example of a definition notation to result notation transformation.
 
 e.g definition notation transformed into result notation
 ```sh
@@ -282,7 +282,7 @@ Some of the values will not make sense at this point. In the following pages the
 
 | argument@n (compound) types | argument type   | meaning                     |
 | --------------------------- | --------------- | --------------------------- |
-| 1.   argument@n{1.1-1.4}=   | composite array | arguments sorted on name@n= |
+| 1.   argument@n{1.1-1.4}=   | lookup          | arguments sorted on name@n= |
 | 1.1. type@n=                | array           | specific type of argument   |
 | 1.2  name@n=                | array           | full argument name          |
 | 1.3. value@n=               | array           | value(s) of an argument     |
@@ -291,14 +291,14 @@ Some of the values will not make sense at this point. In the following pages the
 ##### 1.1. type=S|OS|C|OC|B|OB|MB|A|OA|X|OX|L|OL|Z|OZ|H|OH
 
 The type of an argument represent the base type and some of the properties of an argument. There are seven base argument types, namely;
-1. standard (S)
-2. complex (C)
-3. boolean (B)
-4. array (A)
-5. composite array (X)
-6. list (L)
-7. selection list (H)
-8. option list (Z)
+1. simple    (S)
+2. compound  (C)
+3. boolean   (B)
+4. array     (A)
+5. lookup    (X)
+6. list      (L)
+7. selection (H)
+8. options   (Z)
 
 The definition notation require an additional property to represent the optionality of an argument (type prefixed with 'O'). The boolean base argument type requires an additional property to indicate if it is a modifiable boolean value (MB). The type argument is required when the definition notation and use notation is compared and transformed into the result notation. Another use of the argument type is the path/n argument, which represents all the types of the argument's ancestor names. The path/n argument is required if the result notation should be transformed to a definition notation or use notation.
 
@@ -389,7 +389,8 @@ Here the 'reader' argument has a depth that is better than the 'newspaper' compo
 
 The value argument is used to store strings in an array that can represent any value/s. The different argument types either use one array element to store a value and others like the argument array or composite argument can store their different values within the value argument array.
 
-The difference between a standard argument and a complex argument is that a complex argument has parts. All the argument base types use the value argument for a specific associated purpose.
+The difference between a simple argument and a compound argument is that a
+compound argument has parts. All the argument base types use the value argument for a specific associated purpose.
 
 A value string will have the following format:
 ```sh
@@ -430,11 +431,13 @@ graph LR
 ```
 
 
-### standard argument : `(type=((S|OS)))`
+### simple argument : `(type=((S|OS)))`
 
-A standard argument has a name and use the assignment operator in the definition notation to indicate it requires a value with the use notation. There are four ways a standard argument can be used within the definition notation.
+A simple argument has a name and use the assignment operator in the definition
+notation to indicate it requires a value with the use notation. There are four
+ways a simple argument can be used within the definition notation.
 
-#### mandatory standard argument : `"(name=)"`
+#### mandatory simple argument : `"(name=)"`
 
 ```sh
 definition:        "(address=)"
@@ -445,7 +448,7 @@ valid uses:
   result1: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[S, [<address>], [<9 Upperstreet, Tweety Town, 2345>], []}])"
 ```
 
-#### optional standard argument : `"(:name=)"`
+#### optional simple argument : `"(:name=)"`
 
 ```sh
 definition:        "(:address=)"
@@ -459,7 +462,7 @@ valid uses:
   result2: "(argument@n{type=,name@n=,value@n=,path@n=}=[])"
 ```
 
-#### optional standard argument with default value : `"(:name=value)"`
+#### optional simple argument with default value : `"(:name=value)"`
 
 ```sh
 definition:        "(:address=<parker street 10, new york>)"
@@ -473,7 +476,7 @@ valid uses:
   result2: "(argument@n{type=,name@n=,value@n=,path@n=}=[{S, [<address>], [<parker street 10, new york>], []}])"
 ```
 
-#### mandatory standard argument with mandatory value : `"(name=value)"`
+#### mandatory simple argument with mandatory value : `"(name=value)"`
 
 When no default value is specified for a optional name, then the name does not exist in the use notation when it is not provided.
 
@@ -487,9 +490,9 @@ valid uses:
 
 ```
 
-### 2. complex argument :  `"(name=:part1:part2)"`
+### 2. compound argument :  `"(name=:part1:part2)"`
 
-#### mandatory complex argument : `"(name=:part1:part2)"`
+#### mandatory compound argument : `"(name=:part1:part2)"`
 
 ```sh
 definition:        "(book=:author:category)"
@@ -506,7 +509,7 @@ valid uses:
   result3: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the stand>,<steven king>,<fiction>], []}])"
 ```
 
-#### optional complex argument : `"(:name=:part1:part2)"`
+#### optional compound argument : `"(:name=:part1:part2)"`
 
 ```sh
 definition:        "(:book=:author:category)"
@@ -526,7 +529,7 @@ valid uses:
   result4: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the stand>,<steven king>,<fiction>], []}])"
 ```
 
-#### optional complex argument with default value : `"(:name=value:part1:part2)"`
+#### optional compound argument with default value : `"(:name=value:part1:part2)"`
 
 ```sh
 definition:        "(:book='the art of war':author:category)"
@@ -546,7 +549,7 @@ valid uses:
   result4: "(argument@n{type=,name@n=,value@n=,path@n=}=[{[C, [<address>], [<the stand>,<steven king>,<fiction>], []}])"
 ```
 
-#### mandatory complex argument with mandatory value : `"(name=value:part1:part2)"`
+#### mandatory compound argument with mandatory value : `"(name=value:part1:part2)"`
 
 When no default value is specified for a optional name, then the name does not exist in the use notation when it is not provided.
 
@@ -583,11 +586,11 @@ definition notation: "(book@2=[bible,koran])"
 use notation:        "(book@3=[bible,koran])"
 ```
 
-### 5. composite array argument : `"(name@n{name1=,name2=}=)"`
+### 5. lookup argument : `"(name@n{name1=,name2=}=)"`
 
 ### 6. list argument : `"(name=(name=))"`
 
-### 7. selection list argument : `"(prefix_(name1|name2=))"`
+### 7. options list argument : `"(prefix_(name1|name2=))"`
 
 ## dacli_notation_demo
 
@@ -663,3 +666,216 @@ general cli form: `">(name@n=[<config>], input=<A>)`
 "multicast createvlan (vlanid=,vlanidx=,:settings=(snoopmode_(discard|forward),version_(v1|v2|v3),txprio_(cos0,cos1,cos2,cos3,cos4,cos5,cos6,cos7),enable_all_groups_(on, off)))"
 
 ```
+
+
+
+
+
+
+Table summary
+
+
+1. simple argument:
+  definitions:       use:             merge:
+  -----------------------------------------------------------------------------
+  |
+  | 1.  name=      | 1.1 name=value | name=value
+  |                | 1.2 <none>     | error message, name is missing
+  |
+  | 2.  name=value | 2.1 name=value | name=value
+  |                | 2.2 <none>     | error message, name is missing
+  |                | 2.3 name=other | error message, not equal to value
+  |
+  | 3. :name=      | 3.1 name=value | name=value
+  |                | 3.2 <none>     |
+  |
+  | 4. :name=value | 4.1 name=value | name=value
+  |                | 4.2 <none>     | name=value
+  |                | 4.3 name=other | name=other
+  |
+  -----------------------------------------------------------------------------
+
+2. compound argument:
+  definitions:             use:                   result:
+  -----------------------------------------------------------------------------
+  |
+  | 1. name=::           | 1.1 name=value:p1:p2 | name=value:p1:p2
+  |                      | 1.2 name=:p1:p2      | error, must provide value
+  |                      | 1.3 name=value:p1    | error, must provide part 2
+  |                      | 1.4 <none>           | error, name is missing
+  |
+  | 2. name=:p1:         | 2.1 name=value:p1:p2 | name=value:p1:p2
+  |                      | 2.2 name=value:p3:p2 | error, value must be p1
+  |
+  | 3. name=value:p1:    | 3.1 name=value:p1:p2 | name=value:p1:p2
+  |                      | 3.2 name=value:p1:   | error, must provide part 2
+  |
+  | 4. :name=::          | 4.1 name=value:p1:p2 | name=value:p1:p2
+  |                      | 4.2 name=value       | error, must provide the parts
+  |                      | 4.3 <none>           |
+  |
+  | 5. :name=value:p1:p2 | 4.1 name=value:p1:p2 | name=value:p1:p2
+  |                      | 4.2 name=other:p4:p5 | name=value:p4:p5
+  |                      | 4.3 <none>           | name=value:p1:p2
+  |                      | 4.4 name=:p6:        | name=value:p6:p2
+  |
+  | (note: all values must be given when used - optional and mandatory)
+  |  exception when there is a default value that can be used - 4.4
+  |
+  -----------------------------------------------------------------------------
+
+3. boolean argument:
+  definitions:          use:                   result:
+  -----------------------------------------------------------------------------
+  |
+  | 1. ~name          | 1.1 name             | name
+  |                   | 1.2 !name            | !name
+  |                   | 1.3 <none>           | error, name is missing
+  |
+  | 2. name           | 2.1 name             | name
+  |                   | 2.2 !name            | error, must be equal to name
+  |
+  | 3. !name          | 3.1 !name            | !name
+  |                   | 3.2 name             | error, must be equal to !name
+  |
+  | 4. :~name         | 4.1 name             | name
+  |                   | 4.2 !name            | !name
+  |                   | 4.3 <none>           |
+  |
+  | 5. :name          | 5.1 name             | name
+  |                   | 5.2 !name            | !name
+  |                   | 5.3 <none>           | name
+  |
+  | 6. :!name         | 6.1 name             | name
+  |                   | 6.2 !name            | !name
+  |                   | 6.3 <none>           | !name
+  |
+  -----------------------------------------------------------------------------
+
+4. array argument:
+  definitions:          use:                   result:
+  -----------------------------------------------------------------------------
+  |
+  | 1. name@n=        | 1.1 name@n=[1]       | name@n=[1]
+  |                   | 1.2 name@n=[]        | name@n=[]
+  |                   | 1.3 name@n=[1,2,3]   | name@n=[1,2,3]
+  |                   | 1.4 <none>           | error, name is missing
+  |                   | 1.5 name@n=          | error, must initialize
+  |
+  | 2. name@n=[1,2]   | 2.1 name@n=[1,2]     | name@n=[1,2]
+  |                   | 2.2 name@n=[]        | error must have [1,2]
+  |
+  | 3. :name@n=       | 3.1 name@n=[1,2]     | name@n=[1,2]
+  |                   | 3.2 name@n=[]        | name@n=[]
+  |                   | 3.3 <none>           |
+  |
+  | 4. :name@n=[5,6]  | 4.1 name@n=[1,2]     | name@n=[1,2]
+  |                   | 4.2 name@n=[]        | name@n=[]
+  |                   | 4.3 <none>           | name@n=[5,6]
+  |
+  | note: @n can be static
+  |
+  | 5. name@2=        | 5.1 name@2=[1,2]     | name@2=[1,2]
+  |                   | 5.2.name@2=[1]       | error, range is 2.
+  |
+  | note: @n can be ranged
+  |
+  | 6. name@1-n=      | 6.1 name@1-n=[1]       | name@1-n=[1]
+  |                   | 6.2.name@1-n=[1,2,3]   | name@1-n=[1,2,3]
+  |
+  | 7. name@1-2=      | 7.1 name@1-2=[1]       | name@1-2=[1]
+  |                   | 7.2.name@1-2=[1,2,3]   | error outside range
+  |                   | 7.3.name@1-2=[]        | error outside range
+  |
+  | (note variants of 2.,3.,4. are also supported for 5., 6., 7.)
+  |
+  |  e.g variant 4. for 7.
+  |
+  |  :name@1-2=[5,6]  | name@1-2=[2]           | name@1-2=[2]
+  |                   | <none>                 | name@1-2=[5,6]
+  |
+  -----------------------------------------------------------------------------
+
+5. selection argument:
+  definitions:              use:               result:
+  -----------------------------------------------------------------------------
+  |
+  | 1. name=[[1|2|3|4]]    | 1.1 name=[[1]]   | name=[[1]]
+  |                        | 1.2 name=1       | error wrong notation
+  |                        | 1.3 name=[[]]    | error no selection
+  |                        | 1.4 name=[[8]]   | error no known selection
+  |                        | 1.5 name=[[1,2]] | error make one selection
+  |
+  | 2. :name=[[1|2|3|4]]   | 2.1 name=[[1]]   | name=[[1]]
+  |                        | 2.2 <none>       |
+  |
+  | 3. :name=[[1|2|>3<|4]] | 3.1 name=[[1]]   | name=[[1]]
+  |                        | 3.2 <none>       | name=[[3]]
+  |
+  |  (note it doesn't seem to make sense to support name=[[1|2|>3<]] for
+  |   mandatory arguments. why offer selections when only one may be selected)
+  |
+  -----------------------------------------------------------------------------
+
+6. group argument: (used to be known as the list argument)
+  definitions:                use:               result:
+  -----------------------------------------------------------------------------
+  |
+  | (note "name" will now be shorted to "n" and "value" to "v".)
+  |
+  | 1. n=(~n1, n2=)    | 1.1 n=(!n1,n2=v)    | n=(!n1,n2=v)
+  |                    | 1.2 n=()            | error missing names
+  |                    | 1.3 <none>          | error missing name
+  |                    | 1.4 n=(n1,n2=v, n3) | error unknown name n3
+  |
+  | (note: all argument names within a group must be unique)
+  | (note: arguments of the group argument use the specific rules.
+  |
+  |  when the group name is mandatory, then the arguments of the group are
+  |  evaluated according their own mandatory/optional rules.
+  |
+  | 2. :n=(~n1, n2=)  | 2.1 n=(n1, n2=v)     | n=(n1,n2=v)
+  |                   | 2.2 <none>           |
+  |
+  |  (if an optional group argument has any mandatory arguments (n2=),
+  |   and it is not given in the use notation, then nothing will be merged
+  |   into the result. (2.2 above)
+  |
+  | 3. :n=(:n1, :n2=v) | 3.1 n=(!n1, n2=h)    | n=(!n1,n2=h)
+  |                    | 3.2 <none>           | n=(n1,n2=v)
+  |
+  |   (because the optional group only has optional arguments with default
+  |    values, if the use does not provide it the group argument, then
+  |    the definition values will be merged into the result. (3.2 above)
+  |
+  |  This feature is powerful, in the sense that the definition can specific
+  |  optional group arguments with embedded optional arguments with
+  |  default values, that can define the default settings. Now the default
+  |  settings become visible and may be overriden for every individual
+  |  argument or not.
+  |
+  |  e.g. daily menu (ignore supper)
+  |
+  |  definition: ":menu=(:breakfast=(:drink=[[coffee|>tee< ]],
+  |                                  :cold =[[cereal|>buns<]],
+  |                                  :warm =[[bacon |>eggs<]]),
+  |                      :lunch=(:drink=[[>wine<|coffee ]],
+  |                              :cold =[[fruit |>bread<]],
+  |                              :warm =[[fish  |>Lamb< ]]));
+  |
+  |  use:    <none>
+  |  result: menu=(breakfast=(drink=[[tee]],cold=[[buns]],warm=[[eggs]]),
+  |                lunch=(drink=[[wine]], cold=[[bread]], warm=[[Lamb]]));
+  |
+  |  use:    menu=(breakfast=(drink=[[coffee]]))
+  |  result: menu=(breakfast=(drink=[[coffee]],cold=[[buns]],warm=[[eggs]]),
+  |                lunch=(drink=[[wine]], cold=[[bread]], warm=[[Lamb]]));
+  -----------------------------------------------------------------------------
+
+7. open_group
+
+8. options 
+
+9. lookup
+
+
