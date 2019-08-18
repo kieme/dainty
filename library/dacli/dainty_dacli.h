@@ -38,6 +38,13 @@
 #include "dainty_base_string_segmented.h"
 #include "dainty_dacli_err.h"
 
+// lookup should be called dictionary
+// set_as_initialized and is_initialized should be renamed
+// need to figure out how I want to return the content
+//   name is the last segment of the fullname
+//   fullname is not build until requested
+//   value and values are not the same type. value could return t_string_range
+
 /******************************************************************************/
 
 namespace dainty
@@ -70,45 +77,50 @@ namespace argn
 
   constexpr base::t_uint32 OPTIONAL = 0x10000000;
 
+  // types that can be compared
   enum t_type : base::t_uint32 {
-    TYPE_Q   = 0x00000000,  // 1.
-    TYPE_A   = 0x00000001,  // 1.
-    TYPE_X   = 0x00000002,  // 2.
-    TYPE_Z   = 0x00000004,  // 3.
-    TYPE_S   = 0x00000008,  // 4.
-    TYPE_C   = 0x00000010,  // 5.
-    TYPE_L   = 0x00000020,  // 6.
-    TYPE_MB  = 0x00000040,  // 7.
-    TYPE_B   = 0x00100040,
-    TYPE_H   = 0x00000080,  // 8.
-    TYPE_K   = 0x00000100,  // 9.
-    TYPE_XI  = 0x00000200,  // 10.
-    TYPE_OA  = OPTIONAL | TYPE_A,
+    TYPE_Q   = 0x00000000,  // 1. // INVALID TYPE     **
+    TYPE_L   = 0x00000001,  // 2. // LIST TYPE        ** name@n=[1,2,3,4]
+    TYPE_X   = 0x00000002,  // 3. // LOOKUP TYPE      ** name@2{a=, b=, ~c}=
+    TYPE_Z   = 0x00000004,  // 4. // OPTIONS TYPE     ** prefix_(~opt | value=)
+    TYPE_S   = 0x00000008,  // 5. // SIMPLE TYPE      ** name=value
+    TYPE_C   = 0x00000010,  // 6. // COMPOUND TYPE    ** name=main:p1:p2
+    TYPE_G   = 0x00000020,  // 7. // GROUP TYPE       ** name=()
+    TYPE_MB  = 0x00000040,  // 8. // BOOLEAN TYPE     ** ~name
+    TYPE_B   = 0x00100040,  // 9. // BOOLEAN TYPE     ** name, !name
+    TYPE_H   = 0x00000080,  // 9. // SELECTION TYPE   ** name=[1|2]
+    TYPE_K   = 0x00000100,  // 10. // OPEN_GROUP TYPE ** group=(*)
+    TYPE_XI  = 0x00000200,  // 11. // LOOKUP TYPE     ** name@n{..}=
+    TYPE_OL  = OPTIONAL | TYPE_L,
     TYPE_OX  = OPTIONAL | TYPE_X,
     TYPE_OZ  = OPTIONAL | TYPE_Z,
     TYPE_OS  = OPTIONAL | TYPE_S,
     TYPE_OC  = OPTIONAL | TYPE_C,
-    TYPE_OL  = OPTIONAL | TYPE_L,
-    TYPE_OB  = OPTIONAL | TYPE_MB, // looks wrong - XXX
+    TYPE_OG  = OPTIONAL | TYPE_G,
+    TYPE_OB  = OPTIONAL | TYPE_MB,
     TYPE_OH  = OPTIONAL | TYPE_H,
     TYPE_OK  = OPTIONAL | TYPE_K
   };
+  using T_type = base::t_prefix<t_type>::T_;
+  using r_type = base::t_prefix<t_type>::r_;
 
-  constexpr t_bool is_optional (t_type type) { return OPTIONAL & type; }
-  constexpr t_bool is_simple   (t_type type) { return TYPE_S   & type; }
-  constexpr t_bool is_array    (t_type type) { return TYPE_A   & type; }
-  constexpr t_bool is_lookup   (t_type type) { return TYPE_X   & type; }
-  constexpr t_bool is_compound (t_type type) { return TYPE_C   & type; }
-  constexpr t_bool is_option   (t_type type) { return TYPE_Z   & type; }
-  constexpr t_bool is_list     (t_type type) { return TYPE_L   & type; }
-  constexpr t_bool is_boolean  (t_type type) { return TYPE_MB  & type; }
-  constexpr t_bool is_selection(t_type type) { return TYPE_H   & type; }
+  constexpr t_bool is_optional  (t_type t) noexcept { return OPTIONAL & t; }
+  constexpr t_bool is_simple    (t_type t) noexcept { return TYPE_S   & t; }
+  constexpr t_bool is_list      (t_type t) noexcept { return TYPE_L   & t; }
+  constexpr t_bool is_lookup    (t_type t) noexcept { return TYPE_X   & t; }
+  constexpr t_bool is_compound  (t_type t) noexcept { return TYPE_C   & t; }
+  constexpr t_bool is_options   (t_type t) noexcept { return TYPE_Z   & t; }
+  constexpr t_bool is_group     (t_type t) noexcept { return TYPE_G   & t; }
+  constexpr t_bool is_open_group(t_type t) noexcept { return TYPE_G   & t; }
+  constexpr t_bool is_boolean   (t_type t) noexcept { return TYPE_MB  & t; }
+  constexpr t_bool is_selection (t_type t) noexcept { return TYPE_H   & t; }
 
-  constexpr t_type get_base_type(t_type type) {
+  constexpr t_type get_base_type(t_type type) noexcept {
     return (t_type)(0xFFFF & type);
   }
 
-  constexpr t_type get_path_type(t_type type) {
+  // XXX - validate if this is right
+  constexpr t_type get_path_type(t_type type) noexcept {
     switch (type) {
       case TYPE_H:
       case TYPE_OH:
@@ -121,9 +133,9 @@ namespace argn
       case TYPE_OB:
       case TYPE_MB:
         return TYPE_MB;
-      case TYPE_A:
-      case TYPE_OA:
-        return TYPE_A;
+      case TYPE_L:
+      case TYPE_OL:
+        return TYPE_L;
       case TYPE_X:
       case TYPE_OX:
         return TYPE_X;
@@ -134,20 +146,20 @@ namespace argn
         return TYPE_Z;
       case TYPE_K:
       case TYPE_OK:
-      case TYPE_L:
-      case TYPE_OL:
-        return TYPE_L;
+      case TYPE_G:
+      case TYPE_OG:
+        return TYPE_G;
       default:
         break; // assert
     }
-    return TYPE_S; // can you do better
+    return TYPE_S; // can do better - XXX
   }
 
-  constexpr t_string_crange str(t_type argype) {
+  constexpr t_string_crange str(t_type argype) noexcept {
     switch (argype) {
       case TYPE_Q:   return "Q"_SL;
-      case TYPE_A:   return "A"_SL;
-      case TYPE_OA:  return "OA"_SL;
+      case TYPE_L:   return "L"_SL;
+      case TYPE_OL:  return "OL"_SL;
       case TYPE_X:   return "X"_SL;
       case TYPE_OX:  return "OX"_SL;
       case TYPE_XI:  return "IX"_SL;
@@ -157,8 +169,8 @@ namespace argn
       case TYPE_OS:  return "OS"_SL;
       case TYPE_C:   return "C"_SL;
       case TYPE_OC:  return "OC"_SL;
-      case TYPE_L:   return "L"_SL;
-      case TYPE_OL:  return "OL"_SL;
+      case TYPE_G:   return "G"_SL;
+      case TYPE_OG:  return "OG"_SL;
       case TYPE_B:   return "B"_SL;
       case TYPE_OB:  return "OB"_SL;
       case TYPE_MB:  return "MB"_SL;
@@ -170,8 +182,8 @@ namespace argn
     return t_string_crange{};
   }
 
-  constexpr t_string_crange str(t_bool state) {
-    return state ? "<true>"_SL : "<false>"_SL;
+  constexpr t_string_crange str(t_bool state) noexcept {
+    return state ? "true"_SL : "false"_SL;
   }
 
 /******************************************************************************/
@@ -184,6 +196,8 @@ namespace argn
   enum  t_words_tag_ { };
   using t_words     = t_segmented<t_words_tag_, 32>;
   using R_words     = t_prefix<t_words>::R_;
+
+/******************************************************************************/
 
   using t_path      = t_words;
 
@@ -207,13 +221,41 @@ namespace argn
 
   t_void print(t_string_crange prefix, R_words);
 
-  struct t_arginfo {
-    t_arginfo(t_type type) : type_(type) {
-      list_.options_ = 0;
+/******************************************************************************/
+
+  struct t_arg_params_ {
+    t_arg_params_() noexcept = default;
+
+    t_arg_params_(t_type type, t_n::t_value max, t_n::t_value min = 0,
+                  t_bool init = false) noexcept
+        : type_(type) {
+      range_.max_  = max;
+      range_.min_  = min;
+      range_.cnt_  = 0;
+      range_.init_ = init;
     }
 
-    t_arginfo(t_type type, t_n::t_value max, t_n::t_value min = 0,
-              t_bool init = false) : type_(type) {
+    t_type type_ = TYPE_Q;
+    union {
+      struct {
+        t_n::t_value max_  = 0;
+        t_n::t_value min_  = 0;
+        t_n::t_value cnt_  = 0;
+        t_bool       init_ = false;
+      } range_;
+      struct {
+        base::t_uint16 options_ = 0;
+      } group_;
+    };
+  };
+
+  struct t_arg_info_ {
+    t_arg_info_(t_type type) noexcept : type_(type) {
+      group_.options_ = 0;
+    }
+
+    t_arg_info_(t_type type, t_n::t_value max, t_n::t_value min = 0,
+               t_bool init = false) noexcept : type_(type) {
       range_.max_  = max;
       range_.min_  = min;
       range_.cnt_  = 0;
@@ -230,43 +272,45 @@ namespace argn
       } range_;
       struct {
         base::t_uint16 options_ = 0;
-      } list_;
+      } group_;
     };
     t_name                     ext_;
     std::vector<base::p_void> mem_; // XXX - placeholder for a freelistid
   };
-  using r_arginfo = t_prefix<t_arginfo>::r_;
-  using R_arginfo = t_prefix<t_arginfo>::R_;
+  using r_arg_info_ = t_prefix<t_arg_info_>::r_;
+  using R_arg_info_ = t_prefix<t_arg_info_>::R_;
 
-  struct t_argvalue {
-    t_argvalue(R_arginfo info) : info_(info) {
+  struct t_arg_value_ {
+    t_arg_value_(R_arg_info_ info) noexcept : info_(info) {
     }
 
-    t_arginfo info_;
-    t_values  values_;
-    t_path    path_;
+    t_arg_info_ info_;
+    t_values    values_;
+    t_path      path_;
   };
+  using R_arg_value_ = base::t_prefix<t_arg_value_>::R_;
+  using r_arg_value_ = base::t_prefix<t_arg_value_>::r_;
 
-  struct arg_compare {
-    t_bool operator()(R_fullname lh, R_fullname rh) const;
+  struct t_arg_compare_ {
+    t_bool operator()(R_fullname lh, R_fullname rh) const noexcept;
   };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  using t_table = std::map<t_fullname, t_argvalue, arg_compare>;
-  using t_itr   = t_table::iterator;        // impl
-  using t_citr  = t_table::const_iterator;  // impl
-  using t_pair  = std::pair<t_itr, t_bool>; // impl
-  using t_arg   = t_table::value_type;
-  using r_arg   = t_prefix<t_arg>::r_;
-  using R_arg   = t_prefix<t_arg>::R_;
-  using p_arg   = t_prefix<t_arg>::p_;
-  using P_arg   = t_prefix<t_arg>::P_;
-  using x_arg   = t_prefix<t_arg>::x_;
+  using t_table_ = std::map<t_fullname, t_arg_value_, t_arg_compare_>;
+  using t_itr_   = t_table_::iterator;        // impl
+  using t_citr_  = t_table_::const_iterator;  // impl
+  using t_pair_  = std::pair<t_itr_, t_bool>; // impl
+  using t_arg_   = t_table_::value_type;
+  using r_arg_   = t_prefix<t_arg_>::r_;
+  using R_arg_   = t_prefix<t_arg_>::R_;
+  using p_arg_   = t_prefix<t_arg_>::p_;
+  using P_arg_   = t_prefix<t_arg_>::P_;
+  using x_arg_   = t_prefix<t_arg_>::x_;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  // XXX must be cleaned up
+  // XXX must be cleaned up - just use t_explicit or t_logical
   struct t_optional_params {
     t_bool optional_;
     constexpr t_optional_params(t_bool optional = false) noexcept
@@ -280,34 +324,37 @@ namespace argn
   constexpr t_oparams OPTIONAL_FALSE{false}; // XXX use explicit
 
   struct t_range_params {
-    t_n range_max_;
-    t_n range_min_;
-    constexpr t_range_params(t_n max = 0_n, t_n min = 0_n)
-      : range_max_(max), range_min_(min) { }
+    t_n range_max_ = 0_n;
+    t_n range_min_ = 0_n;
+
+    constexpr t_range_params() noexcept = default;
+    constexpr t_range_params(t_n max, t_n min = 0_n) noexcept
+      : range_max_(max), range_min_(min) {
+    }
   };
   using t_rparams = t_prefix<t_range_params>::t_;
   using r_rparams = t_prefix<t_rparams>::r_;
   using R_rparams = t_prefix<t_rparams>::R_;
 
   struct t_params : t_oparams, t_rparams {
-    t_params() = default;
-    t_params(R_oparams oparams, R_rparams rparams)
+    constexpr t_params() noexcept = default;
+    constexpr t_params(R_oparams oparams, R_rparams rparams) noexcept
       : t_oparams(oparams), t_rparams(rparams) {
     }
   };
   using r_params = t_prefix<t_params>::r_;
   using R_params = t_prefix<t_params>::R_;
 
-  // XXX - naming
-  static const t_params unbound_range{};
-  static const t_params optional_unbound_range{t_oparams{true}, t_rparams{}};
+  // XXX - naming - can loose the _RANGE
+  constexpr t_params UNBOUND_RANGE{};
+  constexpr t_params OPTIONAL_UNBOUND_RANGE{t_oparams{true}, t_rparams{}};
 
-  inline t_bool operator==(R_rparams lh, R_rparams rh) {
+  constexpr t_bool operator==(R_rparams lh, R_rparams rh) noexcept {
     return lh.range_max_ == rh.range_max_ &&
            lh.range_min_ == rh.range_min_;
   }
 
-  inline t_bool operator!=(R_rparams lh, R_rparams rh) {
+  constexpr t_bool operator!=(R_rparams lh, R_rparams rh) noexcept {
     return !(lh == rh);
   }
 
@@ -320,6 +367,8 @@ namespace argn
   using R_argn  = t_prefix<t_argn>::R_;
   using x_argn  = t_prefix<t_argn>::x_;
 
+////////////////////////////////////////////////////////////////////////////////
+
   class t_ref;
   using r_ref = t_prefix<t_ref>::r_;
   using R_ref = t_prefix<t_ref>::R_;
@@ -327,11 +376,13 @@ namespace argn
   class t_ref { // add maybe optional_params
     struct t_cid {
       P_argn argn_ = nullptr;
-      P_arg  arg_  = nullptr;
-      t_cid(P_argn argn, P_arg arg) : argn_(argn), arg_(arg) {}
+      P_arg_ arg_  = nullptr;
+      constexpr t_cid(P_argn argn, P_arg_ arg) noexcept
+        : argn_(argn), arg_(arg) {
+      }
     };
   public:
-    inline t_ref() = default;
+    inline t_ref()             = default;
     inline t_ref(       R_ref) = default;
     inline t_ref(t_err, R_ref);
 
@@ -344,26 +395,29 @@ namespace argn
     t_optional_params get_optional_params() const;
 
     inline operator t_bool() const                 { return is_valid_(); }
+    // operator t_validity() const { XXX
 
   protected:
-    inline t_ref(p_argn argn, p_arg arg)  : argn_(argn), arg_(arg)     { }
+    inline t_ref(p_argn argn, p_arg_ arg)  : argn_(argn), arg_(arg)    { }
 
     inline t_bool is_valid_() const              { return argn_ && arg_; }
     inline t_void clear_()            { argn_ = nullptr; arg_ = nullptr; }
-    inline r_arg  set_()                                { return *arg_;  }
-    inline R_arg  get_() const                          { return *arg_;  }
+    inline r_arg_ set_()                                { return *arg_;  }
+    inline R_arg_ get_() const                          { return *arg_;  }
     inline r_argn set_argn_()                           { return *argn_; }
     inline R_argn get_argn_() const                     { return *argn_; }
 
-    inline t_ref make_ref_(p_arg arg)             { return {argn_, arg}; }
-    inline t_cid make_id_ (P_arg arg) const       { return {argn_, arg}; }
+    inline t_ref make_ref_(p_arg_ arg)            { return {argn_, arg}; }
+    inline t_cid make_id_ (P_arg_ arg) const      { return {argn_, arg}; }
 
   private:
     friend class t_argn;
     friend class t_cref;
     p_argn argn_ = nullptr;
-    p_arg  arg_  = nullptr;
+    p_arg_ arg_  = nullptr;
   };
+
+////////////////////////////////////////////////////////////////////////////////
 
   class t_cref;
   using r_cref = t_prefix<t_cref>::r_;
@@ -385,21 +439,22 @@ namespace argn
     t_optional_params get_optional_params() const;
 
     inline operator t_bool() const                 { return is_valid_(); }
+    // operator t_validity() const { XXX
 
   protected:
-    inline t_cref(P_argn argn, P_arg arg) : argn_(argn), arg_(arg)     { }
+    inline t_cref(P_argn argn, P_arg_ arg) : argn_(argn), arg_(arg)     { }
 
     inline t_bool is_valid_() const              { return argn_ && arg_; }
     inline t_void clear_()            { argn_ = nullptr; arg_ = nullptr; }
-    inline R_arg  get_() const                          { return *arg_;  }
+    inline R_arg_ get_() const                          { return *arg_;  }
     inline R_argn get_argn_() const                     { return *argn_; }
 
-    inline t_cref make_ref_(P_arg arg) const      { return {argn_, arg}; }
+    inline t_cref make_ref_(P_arg_ arg) const     { return {argn_, arg}; }
 
   private:
     friend class t_argn;
     P_argn argn_ = nullptr;
-    P_arg  arg_  = nullptr;
+    P_arg_ arg_  = nullptr;
   };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -434,8 +489,9 @@ namespace argn
     t_boolean_ref(       t_ref);
     t_boolean_ref(t_err, t_ref);
 
+    // XXX not bool but a text. empty is then ~
     t_bool get_value() const;
-    t_bool set_value(t_err, bool); // if it is none modifyable?
+    t_bool set_value(t_err, t_bool); // if it is none modifyable?
   };
 
   class t_boolean_cref : public t_cref {
@@ -448,24 +504,24 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class t_array_ref : public t_ref {
+  class t_list_ref : public t_ref {
   public:
-    t_array_ref(       t_ref);
-    t_array_ref(t_err, t_ref);
+    t_list_ref(       t_ref);
+    t_list_ref(t_err, t_ref);
 
     t_range_params get_range_params() const;
 
-    t_bool set_as_initialized();
+    t_bool set_as_initialized(); // initial as empty XXX- read from arg_info
     t_bool is_initialized() const;
 
     R_values get_values() const;
     t_bool   set_values(t_err, t_values);
   };
 
-  class t_array_cref : public t_cref {
+  class t_list_cref : public t_cref {
   public:
-    t_array_cref(t_cref);
-    t_array_cref(t_err, t_cref);
+    t_list_cref(t_cref);
+    t_list_cref(t_err, t_cref);
 
     t_range_params get_range_params() const;
 
@@ -482,6 +538,7 @@ namespace argn
 
     t_bool add_missing_part_values(t_err, R_values);
 
+    // XXX only use segmented with seg_no=0 for main
     R_values get_part_values() const;
     R_value  get_value() const;
     t_bool   set_value(t_err, t_value);
@@ -521,16 +578,16 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class t_openlist_ref : public t_ref {
+  class t_open_group_ref : public t_ref {
   public:
-    t_openlist_ref(       t_ref);
-    t_openlist_ref(t_err, t_ref);
+    t_open_group_ref(       t_ref);
+    t_open_group_ref(t_err, t_ref);
   };
 
-  class t_openlist_cref : public t_cref {
+  class t_open_group_cref : public t_cref {
   public:
-    t_openlist_cref(       t_cref);
-    t_openlist_cref(t_err, t_cref);
+    t_open_group_cref(       t_cref);
+    t_open_group_cref(t_err, t_cref);
   };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -569,36 +626,36 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class t_list_ref : public t_collection_ref {
+  class t_group_ref : public t_collection_ref {
   public:
-    t_list_ref(       t_ref);
-    t_list_ref(t_err, t_ref);
+    t_group_ref(       t_ref);
+    t_group_ref(t_err, t_ref);
 
-    bool swap(t_err, t_ix, t_ix);
+    t_bool swap(t_err, t_ix, t_ix);
 
     t_ref add (t_err, t_string_crange);
     t_ref add (t_err, t_cref);
 
-    t_ref add_simple   (t_err, t_name,                    R_oparams);
-    t_ref add_simple   (t_err, t_name, t_value,           R_oparams);
-    t_ref add_boolean  (t_err, t_name, t_bool,            R_oparams);
-    t_ref add_compound (t_err, t_name, t_values,          R_oparams);
-    t_ref add_compound (t_err, t_name, t_values, t_value, R_oparams);
-    t_ref add_selection(t_err, t_name, t_values,          R_oparams);
-    t_ref add_list     (t_err, t_name,                    R_oparams);
-    t_ref add_openlist (t_err, t_name,                    R_oparams);
-    t_ref add_option   (t_err, t_name,                    R_oparams);
-    t_ref add_array    (t_err, t_name, t_bool,            R_params);
-    t_ref add_array    (t_err, t_name, t_values,          R_params);
-    t_ref add_lookup   (t_err, t_name,                    R_params);
+    t_ref add_simple    (t_err, t_name,                    R_oparams);
+    t_ref add_simple    (t_err, t_name, t_value,           R_oparams);
+    t_ref add_boolean   (t_err, t_name, t_bool,            R_oparams);
+    t_ref add_compound  (t_err, t_name, t_values,          R_oparams);
+    t_ref add_compound  (t_err, t_name, t_values, t_value, R_oparams);
+    t_ref add_selection (t_err, t_name, t_values,          R_oparams);
+    t_ref add_group     (t_err, t_name,                    R_oparams);
+    t_ref add_open_group(t_err, t_name,                    R_oparams);
+    t_ref add_options   (t_err, t_name,                    R_oparams);
+    t_ref add_list      (t_err, t_name, t_bool,            R_params);
+    t_ref add_list      (t_err, t_name, t_values,          R_params);
+    t_ref add_lookup    (t_err, t_name,                    R_params);
 
     t_bool del(R_name);
   };
 
-  class t_list_cref : public t_collection_cref {
+  class t_group_cref : public t_collection_cref {
   public:
-    t_list_cref(t_cref);
-    t_list_cref(t_err, t_cref);
+    t_group_cref(t_cref);
+    t_group_cref(t_err, t_cref);
   };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -613,17 +670,17 @@ namespace argn
     t_ref add (t_err, t_string_crange);
     t_ref add (t_err, t_cref);
 
-    t_ref add_simple   (t_err, t_name);
-    t_ref add_simple   (t_err, t_name, t_value);
-    t_ref add_boolean  (t_err, t_name, t_bool);
-    t_ref add_compound (t_err, t_name, t_values);
-    t_ref add_compound (t_err, t_name, t_values, t_value);
-    t_ref add_selection(t_err, t_name, t_values);
-    t_ref add_list     (t_err, t_name);
-    t_ref add_openlist (t_err, t_name);
-    t_ref add_array    (t_err, t_name, t_bool,   R_rparams);
-    t_ref add_array    (t_err, t_name, t_values, R_rparams);
-    t_ref add_lookup   (t_err, t_name,           R_rparams);
+    t_ref add_simple    (t_err, t_name);
+    t_ref add_simple    (t_err, t_name, t_value);
+    t_ref add_boolean   (t_err, t_name, t_bool);
+    t_ref add_compound  (t_err, t_name, t_values);
+    t_ref add_compound  (t_err, t_name, t_values, t_value);
+    t_ref add_selection (t_err, t_name, t_values);
+    t_ref add_group     (t_err, t_name);
+    t_ref add_open_group(t_err, t_name);
+    t_ref add_list      (t_err, t_name, t_bool,   R_rparams);
+    t_ref add_list      (t_err, t_name, t_values, R_rparams);
+    t_ref add_lookup    (t_err, t_name,           R_rparams);
 
     t_bool del(R_name);
   };
@@ -649,7 +706,7 @@ namespace argn
     t_cref add_boolean  (t_err, t_name);
     t_cref add_compound (t_err, t_name, t_values);
     t_cref add_selection(t_err, t_name, t_values);
-    t_cref add_array    (t_err, t_name, R_rparams);
+    t_cref add_list     (t_err, t_name, R_rparams);
      t_ref add_lookup   (t_err, t_name, R_rparams);
 
     t_bool set_as_initialized();
@@ -728,9 +785,9 @@ namespace argn
   public:
     t_argn(t_err);
 
-    t_list_ref   get_root();
-    t_list_cref  get_root() const;
-    t_list_cref cget_root() const;
+    t_group_ref   get_root();
+    t_group_cref  get_root() const;
+    t_group_cref cget_root() const;
 
     t_ref  operator[](R_fullname);
     t_cref operator[](R_fullname) const;
@@ -752,24 +809,24 @@ namespace argn
     friend class t_simple_ref;
     friend class t_lookup_ref;
     friend class t_lookup_cref;
-    friend class t_list_ref;
-    friend class t_list_cref;
+    friend class t_group_ref;
+    friend class t_group_cref;
     friend class t_options_ref;
     friend class t_options_cref;
 
-    t_ref  add_simple_   (r_err, t_ref, x_name, R_oparams);
-    t_ref  add_simple_   (r_err, t_ref, x_name, x_value, R_oparams);
-    t_ref  add_boolean_  (r_err, t_ref, x_name, t_bool, R_oparams);
-    t_ref  add_compound_ (r_err, t_ref, x_name, x_values, R_oparams);
-    t_ref  add_compound_ (r_err, t_ref, x_name, x_values, x_value, R_oparams);
-    t_ref  add_selection_(r_err, t_ref, x_name, x_values, R_oparams);
-    t_ref  add_list_     (r_err, t_ref, x_name, R_oparams);
-    t_ref  add_openlist_ (r_err, t_ref, x_name, R_oparams);
-    t_ref  add_option_   (r_err, t_ref, x_name, R_oparams);
-    t_ref  add_array_    (r_err, t_ref, x_name, t_bool, R_params);
-    t_ref  add_array_    (r_err, t_ref, x_name, x_values, R_params);
-    t_ref  add_lookup_   (r_err, t_ref, x_name, R_params);
-    t_bool del_          (r_ref, R_name);
+    t_ref  add_simple_    (r_err, t_ref, x_name, R_oparams);
+    t_ref  add_simple_    (r_err, t_ref, x_name, x_value, R_oparams);
+    t_ref  add_boolean_   (r_err, t_ref, x_name, t_bool, R_oparams);
+    t_ref  add_compound_  (r_err, t_ref, x_name, x_values, R_oparams);
+    t_ref  add_compound_  (r_err, t_ref, x_name, x_values, x_value, R_oparams);
+    t_ref  add_selection_ (r_err, t_ref, x_name, x_values, R_oparams);
+    t_ref  add_group_     (r_err, t_ref, x_name, R_oparams);
+    t_ref  add_open_group_(r_err, t_ref, x_name, R_oparams);
+    t_ref  add_options_   (r_err, t_ref, x_name, R_oparams);
+    t_ref  add_list_      (r_err, t_ref, x_name, t_bool, R_params);
+    t_ref  add_list_      (r_err, t_ref, x_name, x_values, R_params);
+    t_ref  add_lookup_    (r_err, t_ref, x_name, R_params);
+    t_bool del_           (r_ref, R_name);
 
     t_ref  add_lookup_value_(r_err, t_ref, x_name);
     t_bool del_lookup_value_(r_ref, R_name);
@@ -780,11 +837,11 @@ namespace argn
     t_compound_ref transform_(r_err, r_simple_ref, x_values);
 
    private:
-    t_ref add_(r_err, t_ref, x_name, r_arginfo);
-    t_ref add_(r_err, t_ref, x_name, r_arginfo, x_value);
-    t_ref add_(r_err, t_ref, x_name, r_arginfo, x_values);
+    t_ref add_(r_err, t_ref, x_name, r_arg_info_);
+    t_ref add_(r_err, t_ref, x_name, r_arg_info_, x_value);
+    t_ref add_(r_err, t_ref, x_name, r_arg_info_, x_values);
 
-    t_table table_;
+    t_table_ table_;
   };
   using r_argn = t_prefix<t_argn>::r_;
   using R_argn = t_prefix<t_argn>::R_;
@@ -798,7 +855,7 @@ namespace argn
   t_bool is_same_definition(t_cref, t_cref, t_bool ignore_optional = false);
   t_bool is_same(t_cref, t_cref);
 
-  t_bool append(t_err, t_list_ref, t_cref);
+  t_bool append(t_err, t_group_ref, t_cref);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -821,7 +878,7 @@ namespace argn
     // add help
     // add test
     // add config
-    // add list
+    // add group
     t_dacli(t_err);
 
     bool add_cli(t_err, argn::t_name cmd_name, argn::t_argn&& cmd_in_args,

@@ -67,25 +67,25 @@ void print_values(t_err& err, t_cref ref) {
         t_lookup_cref dict(ref);
         std::cout << "lookup argument : " << make_long(dict.get_fullname()) << std::endl;
       } break;
-      case TYPE_L: {
-        t_list_cref list(ref);
-        std::cout << "list argument : " << make_long(list.get_fullname()) << std::endl;
+      case TYPE_G: {
+        t_group_cref group(ref);
+        std::cout << "group argument : " << make_long(group.get_fullname()) << std::endl;
       } break;
       case TYPE_Z: {
-        t_options_cref option(ref);
-        std::cout << "option argument : " << make_long(option.get_fullname()) << std::endl;
+        t_options_cref options(ref);
+        std::cout << "option argument : " << make_long(options.get_fullname()) << std::endl;
       } break;
       case TYPE_K: {
-        t_openlist_cref openlist(ref);
-        std::cout << "openlist argument : " << make_long(openlist.get_fullname()) << std::endl;
+        t_open_group_cref open_group(ref);
+        std::cout << "open_group argument : " << make_long(open_group.get_fullname()) << std::endl;
       } break;
       case TYPE_S: {
         t_simple_cref simple(ref);
         std::cout << "simple argument : " << make_long(simple.get_fullname()) << std::endl;
       } break;
-      case TYPE_A: {
-        t_array_cref array(ref);
-        std::cout << "array argument : " << make_long(array.get_fullname()) << std::endl;
+      case TYPE_L: {
+        t_list_cref list(ref);
+        std::cout << "list argument : " << make_long(list.get_fullname()) << std::endl;
       } break;
       case TYPE_C: {
         t_compound_cref compound(ref);
@@ -125,18 +125,18 @@ void example1() {
                "(vlans@n{param1=,param2=}="
                "[vlan-1:{1,2},vlan-2:{2,3},vlan-3:{3,4}])"_SL);
   if (!err) {
-    t_fullname vlans_dict{'.', "</>.<vlans>"_SL};
+    t_fullname vlans_dict{'.', "/.vlans"_SL};
     t_lookup_ref       dict  (err, argn[vlans_dict]);
-    t_lookup_value_ref vlan_1(err, dict.get_value("<vlan-1>"_SL));
-    t_simple_ref         param1(err, vlan_1["<param1>"_SL]);
-    t_simple_ref         param2(err, vlan_1["<param2>"_SL]);
+    t_lookup_value_ref vlan_1(err, dict.get_value("vlan-1"_SL));
+    t_simple_ref         param1(err, vlan_1["param1"_SL]);
+    t_simple_ref         param2(err, vlan_1["param2"_SL]);
     if (!err) {
       std::cout << "param1 = " << param1.get_value() << std::endl;
-      param1.set_value(err, "<9>");
+      param1.set_value(err, "9");
       std::cout << "param1 = " << param1.get_value() << std::endl;
 
       std::cout << "param2 = " << param2.get_value() << std::endl;
-      param2.set_value(err, "<7>");
+      param2.set_value(err, "7");
       std::cout << "param2 = " << param2.get_value() << std::endl;
 
       argn.print();
@@ -178,32 +178,32 @@ void example3() {
   t_err err;
   t_argn argn(err);
 
-  t_lookup_ref vlans{t_list_ref{argn.get_root()}.
-                       add_lookup(err, "<vlans>"_SL, unbound_range)};
-  vlans.add_simple(err, "<param1>"_SL);
-  vlans.add_simple(err, "<param2>"_SL);
+  t_lookup_ref vlans{t_group_ref{argn.get_root()}.
+                       add_lookup(err, "vlans"_SL, UNBOUND_RANGE)};
+  vlans.add_simple(err, "param1"_SL);
+  vlans.add_simple(err, "param2"_SL);
   {
-    t_lookup_value_ref vlan{vlans.add_value(err, "<vlan-1>"_SL)};
-    t_simple_ref{vlan["<param1>"_SL]}.set_value(err, "1"_SL);
-    t_simple_ref{vlan["<param2>"_SL]}.set_value(err, "2"_SL);
+    t_lookup_value_ref vlan{vlans.add_value(err, "vlan-1"_SL)};
+    t_simple_ref{vlan["param1"_SL]}.set_value(err, "1"_SL);
+    t_simple_ref{vlan["param2"_SL]}.set_value(err, "2"_SL);
   }
 
   {
-    t_lookup_value_ref vlan(err, vlans.add_value(err, "<vlan-2>"_SL));
+    t_lookup_value_ref vlan(err, vlans.add_value(err, "vlan-2"_SL));
     if (!err) {
-      t_simple_ref param1(err, vlan["<param1>"_SL]);
+      t_simple_ref param1(err, vlan["param1"_SL]);
       param1.set_value(err, "2"_SL);
-      t_simple_ref param2(err, vlan["<param2>"_SL]);
+      t_simple_ref param2(err, vlan["param2"_SL]);
       param1.set_value(err, "3"_SL);
     }
   }
 
   {
-    t_lookup_value_ref vlan(err, vlans.add_value(err, "<vlan-3>"_SL));
+    t_lookup_value_ref vlan(err, vlans.add_value(err, "vlan-3"_SL));
     if (!err) {
-      t_simple_ref param1(err, vlan["<param1>"_SL]);
+      t_simple_ref param1(err, vlan["param1"_SL]);
       param1.set_value(err, "3"_SL);
-      t_simple_ref param2(err, vlan["<param2>"_SL]);
+      t_simple_ref param2(err, vlan["param2"_SL]);
       param1.set_value(err, "4"_SL);
     }
   }
@@ -220,32 +220,32 @@ void example4() {
   t_err err;
   t_argn argn(err);
 
-  t_list_ref root(argn.get_root());
+  t_group_ref root(argn.get_root());
 
-  t_lookup_ref vlans (root.add_lookup(err, "<vlans>"_SL, unbound_range));
-                      vlans. add_simple    (err, "<param1>"_SL);
-  t_lookup_ref groups(vlans.add_lookup(err, "<groups>"_SL, unbound_range));
-                      groups.add_selection (err, "<mode>"_SL,
-                                            {'.', "proxy.snoop"_SL});
+  t_lookup_ref vlans(root.add_lookup(err, "vlans"_SL, UNBOUND_RANGE));
+  vlans.add_simple(err, "param1"_SL);
+
+  t_lookup_ref groups(vlans.add_lookup(err, "groups"_SL, UNBOUND_RANGE));
+  groups.add_selection(err, "mode"_SL, {'.', "proxy.snoop"_SL});
 
   {
-    t_lookup_value_ref vlan(vlans.add_value(err, "<vlan-1>"_SL));
+    t_lookup_value_ref vlan(vlans.add_value(err, "vlan-1"_SL));
     t_simple_ref param1(err, vlan[0_ix]);
-    param1.set_value(err, "<1>"_SL);
+    param1.set_value(err, "1"_SL);
     t_lookup_ref groups(err, vlan[1_ix]);
   }
 
   {
-    t_lookup_value_ref vlan(vlans.add_value(err, "<vlan-2>"_SL));
+    t_lookup_value_ref vlan(vlans.add_value(err, "vlan-2"_SL));
     t_simple_ref param1(vlan[0_ix]);
-    param1.set_value(err, "<2>"_SL);
+    param1.set_value(err, "2"_SL);
     t_lookup_ref groups(vlan[1_ix]);
-    t_lookup_value_ref group1(groups.add_value(err, "<172.168.2.3>"_SL));
+    t_lookup_value_ref group1(groups.add_value(err, "172.168.2.3"_SL));
     t_selection_ref mode1(group1[0_ix]);
-    mode1.set_value(err, "<snoop>"_SL);
-    t_lookup_value_ref group2(groups.add_value(err, "<172.168.2.2>"_SL));
+    mode1.set_value(err, "snoop"_SL);
+    t_lookup_value_ref group2(groups.add_value(err, "172.168.2.2"_SL));
     t_selection_ref mode2(group2[0_ix]);
-    mode2.set_value(err, "<snoop>"_SL);
+    mode2.set_value(err, "snoop"_SL);
   }
 
   {
@@ -261,9 +261,9 @@ void example4() {
 void example5() {
   t_err err;
   t_argn table(err);
-  t_list_ref    cmd_ref(t_list_ref{table.get_root()}.add_list(err, "cmd"_SL,
-                        t_oparams{true}));
-  t_options_ref cmd_option_ref(cmd_ref.add_option(err, ""_SL, t_oparams{true}));
+  t_group_ref cmd_ref(t_group_ref{table.get_root()}.add_group(err, "cmd"_SL,
+                      t_oparams{true}));
+  t_options_ref cmd_option_ref(cmd_ref.add_options(err, ""_SL, t_oparams{true}));
 
   if (err)
     err.print();
@@ -277,8 +277,9 @@ void example5() {
 
   merge_notation(err, argn1, argn);
   if (!err) {
-    t_list_ref list = cmd_option_ref.add_list(err, "name"_SL);//make_name(t_array_cref{argn1["cmd"]}.get_values()),
-    append(err, list, argn1[t_fullname{' ', "args"_SL}]);
+    t_group_ref group = cmd_option_ref.add_group(err,
+"name"_SL);//make_name(t_list_cref{argn1["cmd"]}.get_values()),
+    append(err, group, argn1[t_fullname{' ', "args"_SL}]);
   }
 
   // incoming
@@ -299,7 +300,7 @@ t_value make_flat(const t_fullname& fullname) {
 void example5_1() {
   t_err err;
   t_argn table(err);
-  t_list_ref    cmd_ref = table.get_root().add_list(err, {"cmd"_SL}, OPTIONAL_TRUE);
+  t_group_ref   cmd_ref = table.get_root().add_group(err, {"cmd"_SL}, OPTIONAL_TRUE);
   t_options_ref cmd_option_ref{err, cmd_ref.add(err,
                          "([list]=(in_args(*),out_args=(*))|"
                          " [config]=(in_args(*),out_args=(*))|"
@@ -320,12 +321,12 @@ void example5_1() {
 
   merge_notation(err, argn1, argn);
   if (!err) {
-    t_list_cref root = argn1.cget_root();
-    t_array_cref cmd{root["<cmd>"_SL]};
-    t_list_ref list{cmd_option_ref.add_list(err, make_flat(cmd.get_values()))};
-      //make_name(t_array_cref{argn1["cmd"]}.get_values()),
-      //list.add(err, root["<in_args>"]);
-      //list.add(err, root["<out_args>"]);
+    t_group_cref root = argn1.cget_root();
+    t_list_cref cmd{root["<cmd>"_SL]};
+    t_group_ref group{cmd_option_ref.add_group(err, make_flat(cmd.get_values()))};
+      //make_name(t_list_cref{argn1["cmd"]}.get_values()),
+      //group.add(err, root["<in_args>"]);
+      //group.add(err, root["<out_args>"]);
 
     // incoming
     t_argn argn2(err);
