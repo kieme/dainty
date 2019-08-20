@@ -465,17 +465,18 @@ namespace base
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  constexpr auto x_cast(T&& in) -> typename t_remove_ref<T>::t_result&& {
-    return static_cast<typename t_remove_ref<T>::t_result&&>(in);
+  constexpr auto x_cast(T&& in)
+      -> typename traits::t_remove_ref<T>::t_result&& {
+    return static_cast<typename traits::t_remove_ref<T>::t_result&&>(in);
   }
 
   template<typename T>
-  constexpr T&& preserve(typename t_remove_ref<T>::t_result& in) {
+  constexpr T&& preserve(typename traits::t_remove_ref<T>::t_result& in) {
     return static_cast<T&&>(in);
   }
 
   template<typename T>
-  constexpr T&& preserve(typename t_remove_ref<T>::t_result&& in) {
+  constexpr T&& preserve(typename traits::t_remove_ref<T>::t_result&& in) {
     return x_cast(in);
   }
 

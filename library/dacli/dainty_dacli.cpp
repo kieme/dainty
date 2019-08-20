@@ -1540,39 +1540,39 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  t_ref::t_ref(t_err err, R_ref ref)
-    : argn_(ref.argn_), arg_(ref.arg_) {
+  t_ref::t_ref(t_err err, R_ref ref) noexcept
+      : argn_(ref.argn_), arg_(ref.arg_) {
     if (err)
       clear_();
     else if (!is_valid_())
       err = err::E_INVALID_REF;
   }
 
-  t_type t_ref::get_type() const {
+  t_type t_ref::get_type() const noexcept {
     if (is_valid_())
       return get_().second.info_.type_;
     return TYPE_Q;
   }
 
-  t_type t_ref::get_base_type() const {
+  t_type t_ref::get_base_type() const noexcept {
     if (is_valid_())
       return argn::get_base_type(get_().second.info_.type_);
     return TYPE_Q;
   }
 
-  R_fullname t_ref::get_fullname() const {
+  R_fullname t_ref::get_fullname() const noexcept {
     if (is_valid_())
       return get_().first;
     return EMPTY_FULLNAME;
   }
 
-  R_name t_ref::get_name() const {
+  R_name t_ref::get_name() const noexcept {
     if (is_valid_())
       return get_().first.back(); // XXX
     return EMPTY_NAME;
   }
 
-  t_oparams t_ref::get_optional_params() const {
+  t_oparams t_ref::get_optional_params() const noexcept {
     if (is_valid_())
       return {is_optional(get_().second.info_.type_)};
     return {false};
@@ -1580,39 +1580,39 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  t_cref::t_cref(t_err err, R_cref ref)
-    : argn_(ref.argn_), arg_(ref.arg_) {
+  t_cref::t_cref(t_err err, R_cref ref) noexcept
+      : argn_(ref.argn_), arg_(ref.arg_) {
     if (err)
       clear_();
     else if (!is_valid_())
       err = err::E_INVALID_REF;
   }
 
-  t_type t_cref::get_type() const {
+  t_type t_cref::get_type() const noexcept {
     if (is_valid_())
       return get_().second.info_.type_;
     return TYPE_Q;
   }
 
-  t_type t_cref::get_base_type() const {
+  t_type t_cref::get_base_type() const noexcept {
     if (is_valid_())
       return argn::get_base_type(get_().second.info_.type_);
     return TYPE_Q;
   }
 
-  R_fullname t_cref::get_fullname() const {
+  R_fullname t_cref::get_fullname() const noexcept {
     if (is_valid_())
       return get_().first;
     return EMPTY_FULLNAME;
   }
 
-  R_name t_cref::get_name() const {
+  R_name t_cref::get_name() const noexcept {
     if (is_valid_())
       return get_().first.back();
     return EMPTY_NAME;
   }
 
-  t_oparams t_cref::get_optional_params() const {
+  t_oparams t_cref::get_optional_params() const noexcept {
     if (is_valid_())
       return {is_optional(get_().second.info_.type_)};
     return {false};

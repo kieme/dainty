@@ -262,7 +262,7 @@ namespace string
 ////////////////////////////////////////////////////////////////////////////////
 
   template<typename T,
-           typename = typename base::t_is_unsigned<T>::t_result>
+           typename = typename traits::t_is_unsigned<T>::t_result>
   struct t_int_to_str_helper_ {
     constexpr
     t_int_to_str_helper_(const T& _value) noexcept : value{_value} {
@@ -277,7 +277,7 @@ namespace string
   };
 
   template<typename T>
-  struct t_int_to_str_helper_<T, base::t_false> {
+  struct t_int_to_str_helper_<T, traits::t_false> {
     constexpr
     t_int_to_str_helper_(const T& _value) noexcept : value{_value} {
     }

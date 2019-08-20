@@ -25,9 +25,12 @@
 ******************************************************************************/
 
 #include <iostream>
+#include "dainty_base_terminal.h"
 #include "dainty_dacli.h"
 
+using namespace dainty::base;
 using namespace dainty::dacli;
+using namespace dainty::base::terminal;
 using namespace dainty::dacli::argn;
 
 ///////////////////////////////////////////////////////////////////////////////

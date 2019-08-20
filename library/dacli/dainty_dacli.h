@@ -44,6 +44,7 @@
 //   name is the last segment of the fullname
 //   fullname is not build until requested
 //   value and values are not the same type. value could return t_string_range
+// inline must be changed to constexpr in many cases
 
 /******************************************************************************/
 
@@ -53,6 +54,9 @@ namespace dacli
 {
   using base::t_void;
   using base::t_bool;
+  using base::t_validity;
+  using base::VALID;
+  using base::INVALID;
   using base::t_prefix;
   using base::string::t_string;
   using base::string::segmented::t_segmented;
@@ -382,33 +386,33 @@ namespace argn
       }
     };
   public:
-    inline t_ref()             = default;
-    inline t_ref(       R_ref) = default;
-    inline t_ref(t_err, R_ref);
+    inline t_ref()             noexcept = default;
+    inline t_ref(       R_ref) noexcept = default;
+    inline t_ref(t_err, R_ref) noexcept;
 
-    inline r_ref operator=(R_ref) = default;
+    inline r_ref operator=(R_ref) noexcept = default;
 
-    t_type            get_type() const;
-    t_type            get_base_type() const;
-    R_name            get_name() const;
-    R_fullname        get_fullname() const;
-    t_optional_params get_optional_params() const;
+    t_type            get_type           () const noexcept;
+    t_type            get_base_type      () const noexcept;
+    R_name            get_name           () const noexcept;
+    R_fullname        get_fullname       () const noexcept;
+    t_optional_params get_optional_params() const noexcept;
 
-    inline operator t_bool() const                 { return is_valid_(); }
-    // operator t_validity() const { XXX
+    inline operator t_bool() const noexcept        { return is_valid_(); }
+    inline operator t_validity() const noexcept; // XXX
 
   protected:
-    inline t_ref(p_argn argn, p_arg_ arg)  : argn_(argn), arg_(arg)    { }
+    inline t_ref(p_argn argn, p_arg_ arg) noexcept : argn_(argn), arg_(arg) { }
 
-    inline t_bool is_valid_() const              { return argn_ && arg_; }
-    inline t_void clear_()            { argn_ = nullptr; arg_ = nullptr; }
-    inline r_arg_ set_()                                { return *arg_;  }
-    inline R_arg_ get_() const                          { return *arg_;  }
-    inline r_argn set_argn_()                           { return *argn_; }
-    inline R_argn get_argn_() const                     { return *argn_; }
+    inline t_bool is_valid_() const noexcept          { return argn_ && arg_; }
+    inline t_void clear_   ()       noexcept { argn_ = nullptr; arg_ = nullptr; }
+    inline r_arg_ set_     ()       noexcept                 { return *arg_;  }
+    inline R_arg_ get_     () const noexcept                 { return *arg_;  }
+    inline r_argn set_argn_()       noexcept                 { return *argn_; }
+    inline R_argn get_argn_() const noexcept                 { return *argn_; }
 
-    inline t_ref make_ref_(p_arg_ arg)            { return {argn_, arg}; }
-    inline t_cid make_id_ (P_arg_ arg) const      { return {argn_, arg}; }
+    inline t_ref make_ref_ (p_arg_ arg)       noexcept { return {argn_, arg}; }
+    inline t_cid make_id_  (P_arg_ arg) const noexcept { return {argn_, arg}; }
 
   private:
     friend class t_argn;
@@ -425,31 +429,31 @@ namespace argn
 
   class t_cref {
   public:
-    inline t_cref() = default;
-    inline t_cref(       R_cref) = default;
-    inline t_cref(t_err, R_cref);
-    inline t_cref(R_ref ref) : argn_(ref.argn_), arg_(ref.arg_)        { }
-    inline t_cref(t_ref::t_cid id)  : argn_(id.argn_), arg_(id.arg_)   { }
-    inline r_cref operator=(R_cref) = default;
+    inline t_cref()                 noexcept = default;
+    inline t_cref(       R_cref)    noexcept = default;
+    inline t_cref(t_err, R_cref)    noexcept ;
+    inline t_cref(R_ref ref)        noexcept : argn_(ref.argn_), arg_(ref.arg_) { }
+    inline t_cref(t_ref::t_cid id)  noexcept : argn_(id.argn_), arg_(id.arg_) { }
+    inline r_cref operator=(R_cref) noexcept = default;
 
-    t_type            get_type() const;
-    t_type            get_base_type() const;
-    R_name            get_name() const;
-    R_fullname        get_fullname() const;
-    t_optional_params get_optional_params() const;
+    t_type            get_type           () const noexcept;
+    t_type            get_base_type      () const noexcept;
+    R_name            get_name           () const noexcept;
+    R_fullname        get_fullname       () const noexcept;
+    t_optional_params get_optional_params() const noexcept;
 
-    inline operator t_bool() const                 { return is_valid_(); }
-    // operator t_validity() const { XXX
+    inline operator t_bool() const noexcept            { return is_valid_(); }
+    // operator t_validity() const   noexceptXXX
 
   protected:
-    inline t_cref(P_argn argn, P_arg_ arg) : argn_(argn), arg_(arg)     { }
+    inline t_cref(P_argn argn, P_arg_ arg) noexcept : argn_(argn), arg_(arg)     { }
 
-    inline t_bool is_valid_() const              { return argn_ && arg_; }
-    inline t_void clear_()            { argn_ = nullptr; arg_ = nullptr; }
-    inline R_arg_ get_() const                          { return *arg_;  }
-    inline R_argn get_argn_() const                     { return *argn_; }
+    inline t_bool is_valid_() const  noexcept { return argn_ && arg_; }
+    inline t_void clear_   ()        noexcept { argn_ = nullptr; arg_ = nullptr; }
+    inline R_arg_ get_     () const  noexcept                { return *arg_;  }
+    inline R_argn get_argn_() const  noexcept                { return *argn_; }
 
-    inline t_cref make_ref_(P_arg_ arg) const     { return {argn_, arg}; }
+    inline t_cref make_ref_(P_arg_ arg) const noexcept { return {argn_, arg}; }
 
   private:
     friend class t_argn;

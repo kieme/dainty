@@ -33,6 +33,8 @@ namespace dainty
 {
 namespace base
 {
+namespace traits
+{
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>      struct t_add_identity { using t_identity = T; };
@@ -1699,6 +1701,7 @@ struct t_is_precision : t_is_one_of<T, double, float, long double> { };
   };
 
 ///////////////////////////////////////////////////////////////////////////////
+}
 }
 }
 
