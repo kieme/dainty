@@ -35,10 +35,15 @@ namespace container
 {
 namespace ptr
 {
-  using base::t_void;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_void;
+
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
+///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   inline t_void default_deleter(T* t) {

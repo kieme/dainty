@@ -37,33 +37,45 @@ namespace mt
 {
 namespace condvar_timed_event
 {
-  using base::t_n;
-  using base::t_void;
-  using base::t_validity;
-  using base::t_errn;
-  using base::t_prefix;
-  using base::VALID;
-  using base::INVALID;
+///////////////////////////////////////////////////////////////////////////////
 
   using err::t_err;
+  using oops::t_oops;
+
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_uint64;
+
+  using base::specific::t_specific;
+  using base::specific::t_n;
+  using base::specific::t_validity;
+  using base::specific::t_errn;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
+  using base::ptr::t_ptr;
+  using base::ptr::t_no_deleter;
+  using base::ptr::t_deleter;
+
   using os::clock::t_time;
+
+///////////////////////////////////////////////////////////////////////////////
 
   enum  t_user_tag_ { };
   using t_user = base::t_user<t_user_tag_>;
 
   enum  t_cnt_tag_ {};
-  using t_cnt_ = base::t_uint64;
-  using t_cnt  = base::t_explicit<t_cnt_, t_cnt_tag_>;
+  using t_cnt_ = t_uint64;
+  using t_cnt  = t_specific<t_cnt_, t_cnt_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_impl_;
   enum  t_impl_user_tag_ { };
-  using t_impl_user_ = base::ptr::t_ptr<t_impl_, t_impl_user_tag_,
-                                         base::ptr::t_no_deleter>;
+  using t_impl_user_ = t_ptr<t_impl_, t_impl_user_tag_, t_no_deleter>;
+
   enum  t_impl_owner_tag_ { };
-  using t_impl_owner_ = base::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
-                                          base::ptr::t_deleter>;
+  using t_impl_owner_ = t_ptr<t_impl_, t_impl_owner_tag_, t_deleter>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -105,17 +117,17 @@ namespace condvar_timed_event
   public:
     class t_logic {
     public:
-      using t_err  = oops::t_oops<>;
+      using t_err  = t_oops<>;
       using t_cnt  = condvar_timed_event::t_cnt;
-      using t_time = base::t_prefix<condvar_timed_event::t_time>::t_;
-      using R_time = base::t_prefix<condvar_timed_event::t_time>::R_;
+      using t_time = t_prefix<condvar_timed_event::t_time>::t_;
+      using R_time = t_prefix<condvar_timed_event::t_time>::R_;
 
       virtual ~t_logic() { }
       virtual t_void async_process  (t_cnt)  noexcept = 0;
       virtual t_void timeout_process(R_time) noexcept = 0;
     };
 
-    using r_logic = base::t_prefix<t_logic>::r_;
+    using r_logic = t_prefix<t_logic>::r_;
     using R_time  = t_logic::R_time;
 
      t_processor(t_err)       noexcept;
@@ -142,7 +154,6 @@ namespace condvar_timed_event
   };
 
 ///////////////////////////////////////////////////////////////////////////////
-
 }
 }
 }

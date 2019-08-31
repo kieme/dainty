@@ -37,16 +37,22 @@ namespace mt
 {
 namespace detached_thread
 {
-  using base::t_void;
-  using base::p_void;
-  using base::t_bool;
-  using base::P_cstr;
-  using base::t_prefix;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
-  using container::ptr::t_passable_ptr;
+///////////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
+
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::p_void;
+  using base::types::t_bool;
+
+  using base::specific::P_cstr;
+  using base::specific::t_prefix;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
+  using container::ptr::t_passable_ptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 

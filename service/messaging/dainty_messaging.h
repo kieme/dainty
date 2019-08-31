@@ -34,20 +34,28 @@ namespace dainty
 {
 namespace messaging
 {
-  using base::t_bool;
-  using base::p_bool;
-  using base::t_void;
-  using base::t_n_;
-  using base::t_n;
-  using base::P_cstr;
-  using base::t_validity;
-  using base::string::t_string;
-  using base::t_prefix;
-  using base::VALID;
-  using base::INVALID;
+///////////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
+
+  using base::types::t_prefix;
+  using base::types::t_bool;
+  using base::types::p_bool;
+  using base::types::t_void;
+  using base::types::t_n_;
+
+  using base::specific::t_n;
+  using base::specific::P_cstr;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
+  using base::string::t_string;
+
   using messenger::t_multiple_of_100ms;
   using messenger::t_messenger;
+
+///////////////////////////////////////////////////////////////////////////////
 
   using x_message                = message::x_message;
   using t_messenger_params       = messenger::t_params;

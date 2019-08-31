@@ -40,25 +40,28 @@ namespace segmented
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  using string::t_string;
-  using string::operator""_SL;
-  using string::t_crange; // ranges should have types!
-  using string::t_overflow_grow;
-  using string::t_overflow_truncate;
-  using string::t_overflow_assert;
+  using types::t_uchar;
+  using types::P_char;
+  using types::p_char;
+  using types::t_ix_;
+  using types::t_uint16;
+
+  using specific::t_specific;
+
+///////////////////////////////////////////////////////////////////////////////
 
   using t_user = t_uchar; // only support values 1-63
+
+  enum t_seg_no_tag_ { };
+  using t_seg_no_ = t_ix_;
+  using t_seg_no  = t_specific<t_seg_no_, t_seg_no_tag_>;
 
   template<t_n_ N>
   using t_grow_buf = buf::t_buf<t_char, N, buf::t_size_dynamic>;
 
-  enum  t_seg_no_tag_ { };
-  using t_seg_no_ = base::t_n_;
-  using t_seg_no  = base::t_explicit<t_seg_no_, t_seq_no_tag_>;
-
   enum  t_id_tag_ { };
-  using t_id_ = base::t_ix_;
-  using t_id  = base::t_explicit<t_ix_, t_id_tag_>;
+  using t_id_ = t_ix_;
+  using t_id  = t_specific<t_ix_, t_id_tag_>;
 
   constexpr t_id     BAD_ID   {0};
   constexpr t_crange BAD_RANGE;
@@ -102,7 +105,8 @@ namespace segmented
 
   private:
     friend class t_segmented_impl_base_;
-    constexpr t_citr(P_char) noexcept;
+    constexpr
+    t_citr(P_char) noexcept;
 
     P_char buf_;
   };
@@ -185,7 +189,7 @@ namespace segmented
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_segmented_impl_base_;
-  using R_segmented_impl_base_ = base::t_prefix<t_segmented_impl_base_>::R_;
+  using R_segmented_impl_base_ = t_prefix<t_segmented_impl_base_>::R_;
 
   class t_segmented_impl_base_ {
   public:
@@ -381,7 +385,7 @@ namespace segmented
   inline
   t_seg_info_ t_segmented_impl_base_::get_seg(p_char store,
                                               t_seg_no _seg_no) noexcept {
-    t_n_ seg_no = base::get(_seg_no);
+    t_n_ seg_no = specific::get(_seg_no);
     p_char ptr  = store, end = store + size_;
     for (t_n_ cnt = 0; ptr < end; ++cnt) {
       t_seg_hdr_ hdr{ptr[0], ptr[1]};
@@ -395,7 +399,7 @@ namespace segmented
   inline
   t_seg_cinfo_ t_segmented_impl_base_::
       get_cseg(P_char store, t_seg_no _seg_no) const noexcept {
-    t_n_ seg_no = base::get(_seg_no);
+    t_n_ seg_no = specific::get(_seg_no);
     P_char ptr  = store, end = store + size_;
     for (t_n_ cnt = 0; ptr < end; ++cnt) {
       t_seg_hdr_ hdr{ptr[0], ptr[1]};
@@ -408,7 +412,7 @@ namespace segmented
 
   inline
   t_seg_info_ t_segmented_impl_base_::get_seg(p_char store, t_id id) noexcept {
-    p_char ptr = store + base::get(id) - 1;
+    p_char ptr = store + specific::get(id) - 1;
     t_seg_hdr_ hdr{ptr[0], ptr[1]};
     return t_seg_info_{ptr, hdr};
   }
@@ -416,7 +420,7 @@ namespace segmented
   inline
   t_seg_cinfo_ t_segmented_impl_base_::get_cseg(P_char store,
                                                 t_id id) const noexcept {
-    P_char ptr = store + base::get(id) - 1;
+    P_char ptr = store + specific::get(id) - 1;
     t_seg_hdr_ hdr{ptr[0], ptr[1]};
     return t_seg_cinfo_{ptr, hdr};
   }
@@ -458,7 +462,7 @@ namespace segmented
   inline
   t_id t_segmented_impl_base_::find_next(t_buf_crange store, t_crange range,
                                          t_id _id) const noexcept {
-    t_id_ id = base::get(_id);
+    t_id_ id = specific::get(_id);
     if (id) {
       P_char ptr = store.ptr + id - 1, end = store.ptr + size_;
       t_seg_hdr_ hdr{ptr[0], ptr[1]};
@@ -541,30 +545,30 @@ namespace segmented
   inline
   t_result t_segmented_impl_<t_overflow_assert>::
       push_back(t_buf_range store, t_user user) noexcept {
-    if (user && (size_ + HDR_MAX_ <= base::get(store.n)))
+    if (user && (size_ + HDR_MAX_ <= specific::get(store.n)))
       return t_segmented_impl_base_::push_back(store, user);
 
-    assert_now(FMT, "t_segmented: push_back failed");
+    assertion::assert_now(FMT, "t_segmented: push_back failed");
     return BAD_RESULT;
   }
 
   inline
   t_result t_segmented_impl_<t_overflow_assert>::
       push_back(t_buf_range store, t_crange range, t_user user) noexcept {
-    if (size_ + HDR_MAX_ + base::get(range.n) <= base::get(store.n))
+    if (size_ + HDR_MAX_ + specific::get(range.n) <= specific::get(store.n))
       return t_segmented_impl_base_::push_back(store, range, user);
 
-    assert_now(FMT, "t_segmented: push_back failed");
+    assertion::assert_now(FMT, "t_segmented: push_back failed");
     return BAD_RESULT;
   }
 
   inline
   t_id t_segmented_impl_<t_overflow_assert>::
       insert(t_buf_range store, t_seg_no seg_no, t_user user) noexcept {
-    if (size_ + HDR_MAX_ <= base::get(store.n))
+    if (size_ + HDR_MAX_ <= specific::get(store.n))
       return t_segmented_impl_base_::insert(store, seg_no, user);
 
-    assert_now(FMT, "t_segmented: insert failed");
+    assertion::assert_now(FMT, "t_segmented: insert failed");
     return BAD_ID;
   }
 
@@ -572,41 +576,41 @@ namespace segmented
   t_id t_segmented_impl_<t_overflow_assert>::
       insert(t_buf_range store, t_seg_no seg_no, t_crange range,
              t_user user) noexcept {
-    if (size_ + HDR_MAX_ + base::get(range.n) <= base::get(store.n))
+    if (size_ + HDR_MAX_ + specific::get(range.n) <= specific::get(store.n))
       return t_segmented_impl_base_::insert(store, seg_no, range, user);
 
-    assert_now(FMT, "t_segmented: insert failed");
+    assertion::assert_now(FMT, "t_segmented: insert failed");
     return BAD_ID;
   }
 
   inline
   t_id t_segmented_impl_<t_overflow_assert>::
       insert(t_buf_range store, t_id id, t_user user) noexcept {
-    if (size_ + HDR_MAX_ <= base::get(store.n))
+    if (size_ + HDR_MAX_ <= specific::get(store.n))
       return t_segmented_impl_base_::insert(store, id, user);
 
-    assert_now(FMT, "t_segmented: insert failed");
+    assertion::assert_now(FMT, "t_segmented: insert failed");
     return BAD_ID;
   }
 
   inline
   t_id t_segmented_impl_<t_overflow_assert>::
       insert(t_buf_range store, t_id id, t_crange range, t_user user) noexcept {
-    if (size_ + HDR_MAX_ + base::get(range.n) <= base::get(store.n))
+    if (size_ + HDR_MAX_ + specific::get(range.n) <= specific::get(store.n))
       return t_segmented_impl_base_::insert(store, id, range, user);
 
-    assert_now(FMT, "t_segmented: insert failed");
+    assertion::assert_now(FMT, "t_segmented: insert failed");
     return BAD_ID;
   }
 
   inline
   t_bool t_segmented_impl_<t_overflow_assert>::
       change(t_buf_range store, t_seg_no seg_no, t_user user) noexcept {
-    if (base::get(seg_no) < segs_) {
+    if (specific::get(seg_no) < segs_) {
       if (t_segmented_impl_base_::change(store, seg_no, user))
         return true;
 
-      assert_now(FMT, "t_segmented: change failed");
+      assertion::assert_now(FMT, "t_segmented: change failed");
     }
     return false;
   }
@@ -617,7 +621,7 @@ namespace segmented
     if (t_segmented_impl_base_::change(store, id, user))
       return true;
 
-    assert_now(FMT, "t_segmented: change failed");
+    assertion::assert_now(FMT, "t_segmented: change failed");
     return false;
   }
 
@@ -625,10 +629,10 @@ namespace segmented
   t_bool t_segmented_impl_<t_overflow_assert>::
       change(t_buf_range store, t_seg_no seg_no, t_crange range,
              t_user user) noexcept {
-    if (base::get(seg_no) < segs_) {
+    if (specific::get(seg_no) < segs_) {
       if (t_segmented_impl_base_::change(store, seg_no, range, user))
         return true;
-      assert_now(FMT, "t_segmented: change failed");
+      assertion::assert_now(FMT, "t_segmented: change failed");
     }
     return false;
   }
@@ -639,7 +643,7 @@ namespace segmented
     if (t_segmented_impl_base_::change(store, id, range, user))
       return true;
 
-    assert_now(FMT, "t_segmented: change failed");
+    assertion::assert_now(FMT, "t_segmented: change failed");
     return false;
   }
 
@@ -650,19 +654,19 @@ namespace segmented
     if (need <= store.n)
        return true;
 
-    assert_now(FMT, "t_segmented: assign failed");
+    assertion::assert_now(FMT, "t_segmented: assign failed");
     return false;
   }
 
   inline
   t_bool t_segmented_impl_<t_overflow_assert>::
       assign(t_buf_range store, t_citr begin, t_citr end) noexcept {
-    if (get_size(begin, end) <= base::get(store.n)) {
+    if (get_size(begin, end) <= specific::get(store.n)) {
        t_segmented_impl_base_::assign(store, begin, end);
        return true;
     }
 
-    assert_now(FMT, "t_segmented: assign failed");
+    assertion::assert_now(FMT, "t_segmented: assign failed");
     return false;
   }
 
@@ -671,7 +675,7 @@ namespace segmented
   inline
   t_result t_segmented_impl_<t_overflow_truncate>::
       push_back(t_buf_range store, t_user user) noexcept {
-    if (user && (size_ + HDR_MAX_ <= base::get(store.n)))
+    if (user && (size_ + HDR_MAX_ <= specific::get(store.n)))
       return t_segmented_impl_base_::push_back(store, user);
 
     return BAD_RESULT;
@@ -680,7 +684,7 @@ namespace segmented
   inline
   t_result t_segmented_impl_<t_overflow_truncate>::
       push_back(t_buf_range store, t_crange range, t_user user) noexcept {
-    if (size_ + HDR_MAX_ + base::get(range.n) <= base::get(store.n))
+    if (size_ + HDR_MAX_ + specific::get(range.n) <= specific::get(store.n))
       return t_segmented_impl_base_::push_back(store, range, user);
 
     return BAD_RESULT;
@@ -689,7 +693,7 @@ namespace segmented
   inline
   t_id t_segmented_impl_<t_overflow_truncate>::
       insert(t_buf_range store, t_seg_no seg_no, t_user user) noexcept {
-    if (size_ + HDR_MAX_ <= base::get(store.n))
+    if (size_ + HDR_MAX_ <= specific::get(store.n))
       return t_segmented_impl_base_::insert(store, seg_no, user);
 
     return BAD_ID;
@@ -699,7 +703,7 @@ namespace segmented
   t_id t_segmented_impl_<t_overflow_truncate>::
       insert(t_buf_range store, t_seg_no seg_no, t_crange range,
              t_user user) noexcept {
-    if (size_ + HDR_MAX_ + base::get(range.n) <= base::get(store.n))
+    if (size_ + HDR_MAX_ + specific::get(range.n) <= specific::get(store.n))
       return t_segmented_impl_base_::insert(store, seg_no, range, user);
 
     return BAD_ID;
@@ -708,7 +712,7 @@ namespace segmented
   inline
   t_id t_segmented_impl_<t_overflow_truncate>::
       insert(t_buf_range store, t_id id, t_user user) noexcept {
-    if (size_ + HDR_MAX_ <= base::get(store.n))
+    if (size_ + HDR_MAX_ <= specific::get(store.n))
       return t_segmented_impl_base_::insert(store, id, user);
 
     return BAD_ID;
@@ -718,7 +722,7 @@ namespace segmented
   t_id t_segmented_impl_<t_overflow_truncate>::
       insert(t_buf_range store, t_id id, t_crange range,
              t_user user) noexcept {
-    if (size_ + HDR_MAX_ + base::get(range.n) <= base::get(store.n))
+    if (size_ + HDR_MAX_ + specific::get(range.n) <= specific::get(store.n))
       return t_segmented_impl_base_::insert(store, id, range, user);
 
     return BAD_ID;
@@ -760,7 +764,7 @@ namespace segmented
   inline
   t_bool t_segmented_impl_<t_overflow_truncate>::
       assign(t_buf_range store, t_citr begin, t_citr end) noexcept {
-    if (get_size(begin, end) <= base::get(store.n)) {
+    if (get_size(begin, end) <= specific::get(store.n)) {
        t_segmented_impl_base_::assign(store, begin, end);
        return true;
     }
@@ -773,7 +777,7 @@ namespace segmented
   inline
   t_result t_segmented_impl_<t_overflow_grow>::
       push_back(t_grow_buf<N>& store, t_user user) noexcept {
-    if (user && (size_ + HDR_MAX_ <= base::get(store.get_capacity())))
+    if (user && (size_ + HDR_MAX_ <= specific::get(store.get_capacity())))
       return t_segmented_impl_base_::push_back(store, user);
 
     store.enlarge_by(t_n{HDR_MAX_});
@@ -784,11 +788,11 @@ namespace segmented
   inline
   t_result t_segmented_impl_<t_overflow_grow>::
       push_back(t_grow_buf<N>& store, t_crange range, t_user user) noexcept {
-    if (size_ + HDR_MAX_ + base::get(range.n) <=
-        base::get(store.get_capacity()))
+    if (size_ + HDR_MAX_ + specific::get(range.n) <=
+        specific::get(store.get_capacity()))
       return t_segmented_impl_base_::push_back(store, range, user);
 
-    store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)});
+    store.enlarge_by(t_n{HDR_MAX_ + specific::get(range.n)});
     return t_segmented_impl_base_::push_back(store, range, user);
   }
 
@@ -796,7 +800,7 @@ namespace segmented
   inline
   t_id t_segmented_impl_<t_overflow_grow>::
       insert(t_grow_buf<N>& store, t_seg_no seg_no, t_user user) noexcept {
-    if (size_ + HDR_MAX_ <= base::get(store.get_capacity()))
+    if (size_ + HDR_MAX_ <= specific::get(store.get_capacity()))
       return t_segmented_impl_base_::insert(store, seg_no, user);
 
     store.enlarge_by(t_n{HDR_MAX_});
@@ -808,11 +812,11 @@ namespace segmented
   t_id t_segmented_impl_<t_overflow_grow>::
       insert(t_grow_buf<N>& store, t_seg_no seg_no, t_crange range,
              t_user user) noexcept {
-    if (size_ + HDR_MAX_ + base::get(range.n) <=
-        base::get(store.get_capacity()))
+    if (size_ + HDR_MAX_ + specific::get(range.n) <=
+        specific::get(store.get_capacity()))
       return t_segmented_impl_base_::insert(store, seg_no, range, user);
 
-    store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)});
+    store.enlarge_by(t_n{HDR_MAX_ + specific::get(range.n)});
     return t_segmented_impl_base_::insert(store, seg_no, range, user);
   }
 
@@ -820,7 +824,7 @@ namespace segmented
   inline
   t_id t_segmented_impl_<t_overflow_grow>::
       insert(t_grow_buf<N>& store, t_id id, t_user user) noexcept {
-    if (size_ + HDR_MAX_ <= base::get(store.get_capacity()))
+    if (size_ + HDR_MAX_ <= specific::get(store.get_capacity()))
       return t_segmented_impl_base_::insert(store, id, user);
 
     store.enlarge_by(t_n{HDR_MAX_});
@@ -832,18 +836,18 @@ namespace segmented
   t_id t_segmented_impl_<t_overflow_grow>::
       insert(t_grow_buf<N>& store, t_id id, t_crange range,
              t_user user) noexcept {
-    if (size_ + HDR_MAX_ + base::get(range.n) <=
-        base::get(store.get_capacity()))
+    if (size_ + HDR_MAX_ + specific::get(range.n) <=
+        specific::get(store.get_capacity()))
       return t_segmented_impl_base_::insert(store, id, range, user);
 
-    store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)});
+    store.enlarge_by(t_n{HDR_MAX_ + specific::get(range.n)});
     return t_segmented_impl_base_::insert(store, id, range, user);
   }
 
   inline
   t_bool t_segmented_impl_<t_overflow_grow>::
       change(t_buf_range store, t_seg_no seg_no, t_user user) noexcept {
-    if (base::get(seg_no) < segs_)
+    if (specific::get(seg_no) < segs_)
       return t_segmented_impl_base_::change(store, seg_no, user);
     return false;
   }
@@ -859,11 +863,11 @@ namespace segmented
   t_bool t_segmented_impl_<t_overflow_grow>::
       change(t_grow_buf<N>& store, t_seg_no seg_no, t_crange range,
              t_user user) noexcept {
-    if (base::get(seg_no) < segs_) {
+    if (specific::get(seg_no) < segs_) {
       if (t_segmented_impl_base_::change(store, seg_no, range, user))
         return true;
 
-      store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)});
+      store.enlarge_by(t_n{HDR_MAX_ + specific::get(range.n)});
       return t_segmented_impl_base_::change(store, seg_no, range, user);
     }
     return false;
@@ -877,7 +881,7 @@ namespace segmented
     if (t_segmented_impl_base_::change(store, id, range, user))
       return true;
 
-    store.enlarge_by(t_n{HDR_MAX_ + base::get(range.n)});
+    store.enlarge_by(t_n{HDR_MAX_ + specific::get(range.n)});
     return t_segmented_impl_base_::change(store, id, range, user);
   }
 
@@ -899,7 +903,7 @@ namespace segmented
   t_bool t_segmented_impl_<t_overflow_grow>::
       assign(t_grow_buf<N>& store, t_citr begin, t_citr end) noexcept {
     t_n_ need = get_size(begin, end);
-    if (need <= base::get(store.get_capacity())) {
+    if (need <= specific::get(store.get_capacity())) {
        t_segmented_impl_base_::assign(store, begin, end);
        return true;
     }

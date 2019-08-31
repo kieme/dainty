@@ -40,8 +40,12 @@
 #include "dainty_sandbox.h"
 #include "dainty_messaging.h"
 
+///////////////////////////////////////////////////////////////////////////////
+
 using namespace dainty;
 using namespace dainty::base;
+using namespace dainty::base::types;
+using namespace dainty::base::specific;
 using namespace dainty::base::terminal;
 using namespace dainty::container;
 using namespace dainty::mt;
@@ -78,6 +82,8 @@ using message::t_messenger_state;
 using message::t_messenger_prio;
 using messaging::err::r_err;
 
+///////////////////////////////////////////////////////////////////////////////
+
 using t_ctxt_id                   = freelist::t_id;
 using t_cmd_err                   = command::t_processor::t_logic::t_err;
 using t_cmd_client                = command::t_client;
@@ -113,6 +119,8 @@ namespace dainty
 {
 namespace base
 {
+namespace specific
+{
   inline t_bool operator<(R_messenger_key lh, R_messenger_key rh) {
     return get(lh) < get(rh);
   }
@@ -120,6 +128,7 @@ namespace base
   inline t_bool operator<(t_messenger_prio lh, t_messenger_prio rh) {
     return get(lh) < get(rh);
   }
+}
 }
 
 namespace messaging
@@ -169,7 +178,7 @@ namespace messaging
 
     inline t_messenger_key_params() = default;
     inline t_messenger_key_params(t_bool _group, t_bool _local, t_ctxt_id _id,
-                                  t_uint16 _seq)
+                                  t_uint16 _seq) // XXX
       : group(_group), local(_local), id(_id), seq(_seq) {
     }
   };
@@ -366,7 +375,8 @@ namespace message
   t_message::t_message() {
   }
 
-  t_message::t_message(t_n n) : buf_{t_n{base::get(n) + sizeof(t_hdr_)}} {
+  t_message::t_message(t_n n)
+    : buf_{t_n{base::specific::get(n) + sizeof(t_hdr_)}} {
   }
 
   t_message::t_message(R_bytebuf buf) : buf_{buf} {

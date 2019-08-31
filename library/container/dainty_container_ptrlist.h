@@ -36,11 +36,13 @@ namespace container
 {
 namespace ptrlist
 {
-  using base::t_n;
-  using base::t_ix;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::specific::t_n;
+  using base::specific::t_ix;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -51,49 +53,49 @@ namespace ptrlist
     using p_value = typename t_impl_::p_value;
     using P_value = typename t_impl_::P_value;
 
-     t_ptrlist();
-    ~t_ptrlist();
+     t_ptrlist() noexcept;
+    ~t_ptrlist() noexcept;
 
     t_ptrlist(const t_ptrlist&)            = delete;
     t_ptrlist(t_ptrlist&&)                 = delete;
     t_ptrlist& operator=(const t_ptrlist&) = delete;
     t_ptrlist& operator=(t_ptrlist&&)      = delete;
 
-    operator t_validity() const;
+    operator t_validity() const noexcept;
 
-    t_bool push_back(       p_value);
-    t_bool push_back(t_err, p_value);
+    t_bool push_back(       p_value) noexcept;
+    t_bool push_back(t_err, p_value) noexcept;
 
-    t_bool insert(       t_ix, p_value);
-    t_bool insert(t_err, t_ix, p_value);
+    t_bool insert(       t_ix, p_value) noexcept;
+    t_bool insert(t_err, t_ix, p_value) noexcept;
 
-    t_bool pop_back();
-    t_bool pop_back(t_err);
+    t_bool pop_back()      noexcept;
+    t_bool pop_back(t_err) noexcept;
 
-    t_bool erase(       t_ix);
-    t_bool erase(t_err, t_ix);
+    t_bool erase(       t_ix) noexcept;
+    t_bool erase(t_err, t_ix) noexcept;
 
-    t_void clear();
-    t_void clear(t_err);
+    t_void clear()      noexcept;
+    t_void clear(t_err) noexcept;
 
-    t_bool is_full () const;
-    t_bool is_empty() const;
-    t_n    get_size() const;
-    t_n    get_capacity() const;
+    t_bool is_full     () const noexcept;
+    t_bool is_empty    () const noexcept;
+    t_n    get_size    () const noexcept;
+    t_n    get_capacity() const noexcept;
 
-    p_value  get(       t_ix);
-    p_value  get(t_err, t_ix);
-    P_value  get(       t_ix) const;
-    P_value  get(t_err, t_ix) const;
-    P_value cget(       t_ix) const;
-    P_value cget(t_err, t_ix) const;
+    p_value  get(       t_ix)       noexcept;
+    p_value  get(t_err, t_ix)       noexcept;
+    P_value  get(       t_ix) const noexcept;
+    P_value  get(t_err, t_ix) const noexcept;
+    P_value cget(       t_ix) const noexcept;
+    P_value cget(t_err, t_ix) const noexcept;
 
-    template<typename F> t_void  each(       F);
-    template<typename F> t_void  each(t_err, F);
-    template<typename F> t_void  each(       F) const;
-    template<typename F> t_void  each(t_err, F) const;
-    template<typename F> t_void ceach(       F) const;
-    template<typename F> t_void ceach(t_err, F) const;
+    template<typename F> t_void  each(       F)       noexcept;
+    template<typename F> t_void  each(t_err, F)       noexcept;
+    template<typename F> t_void  each(       F) const noexcept;
+    template<typename F> t_void  each(t_err, F) const noexcept;
+    template<typename F> t_void ceach(       F) const noexcept;
+    template<typename F> t_void ceach(t_err, F) const noexcept;
 
   private:
     typename t_impl_::t_entry store_[N];
@@ -109,8 +111,8 @@ namespace ptrlist
     using p_value = typename t_impl_::p_value;
     using P_value = typename t_impl_::P_value;
 
-     t_ptrlist(       t_n max);
-     t_ptrlist(t_err, t_n max);
+     t_ptrlist(       t_n max) noexcept;
+     t_ptrlist(t_err, t_n max) noexcept;
     ~t_ptrlist();
 
     t_ptrlist(const t_ptrlist&)            = delete;
@@ -118,41 +120,41 @@ namespace ptrlist
     t_ptrlist& operator=(const t_ptrlist&) = delete;
     t_ptrlist& operator=(t_ptrlist&&)      = delete;
 
-    operator t_validity() const;
+    operator t_validity() const noexcept;
 
-    t_bool push_back(       p_value);
-    t_bool push_back(t_err, p_value);
+    t_bool push_back(       p_value) noexcept;
+    t_bool push_back(t_err, p_value) noexcept;
 
-    t_bool insert(       t_ix, p_value);
-    t_bool insert(t_err, t_ix, p_value);
+    t_bool insert(       t_ix, p_value) noexcept;
+    t_bool insert(t_err, t_ix, p_value) noexcept;
 
-    t_bool pop_back();
-    t_bool pop_back(t_err);
+    t_bool pop_back()      noexcept;
+    t_bool pop_back(t_err) noexcept;
 
-    t_bool erase(       t_ix);
-    t_bool erase(t_err, t_ix);
+    t_bool erase(       t_ix) noexcept;
+    t_bool erase(t_err, t_ix) noexcept;
 
-    t_void clear();
-    t_void clear(t_err);
+    t_void clear()      noexcept;
+    t_void clear(t_err) noexcept;
 
-    t_bool is_full () const;
-    t_bool is_empty() const;
-    t_n    get_size() const;
-    t_n    get_capacity() const;
+    t_bool is_full     () const noexcept;
+    t_bool is_empty    () const noexcept;
+    t_n    get_size    () const noexcept;
+    t_n    get_capacity() const noexcept;
 
-    p_value  get(       t_ix);
-    p_value  get(t_err, t_ix);
-    P_value  get(       t_ix) const;
-    P_value  get(t_err, t_ix) const;
-    P_value cget(       t_ix) const;
-    P_value cget(t_err, t_ix) const;
+    p_value  get(       t_ix)       noexcept;
+    p_value  get(t_err, t_ix)       noexcept;
+    P_value  get(       t_ix) const noexcept;
+    P_value  get(t_err, t_ix) const noexcept;
+    P_value cget(       t_ix) const noexcept;
+    P_value cget(t_err, t_ix) const noexcept;
 
-    template<typename F> t_void  each(       F);
-    template<typename F> t_void  each(t_err, F);
-    template<typename F> t_void  each(       F) const;
-    template<typename F> t_void  each(t_err, F) const;
-    template<typename F> t_void ceach(       F) const;
-    template<typename F> t_void ceach(t_err, F) const;
+    template<typename F> t_void  each(       F)       noexcept;
+    template<typename F> t_void  each(t_err, F)       noexcept;
+    template<typename F> t_void  each(       F) const noexcept;
+    template<typename F> t_void  each(t_err, F) const noexcept;
+    template<typename F> t_void ceach(       F) const noexcept;
+    template<typename F> t_void ceach(t_err, F) const noexcept;
 
   private:
     t_n_                      max_;
@@ -169,180 +171,185 @@ namespace ptrlist
 
   template<typename T, t_n_ N>
   inline
-  t_ptrlist<T, N>::t_ptrlist() {
+  t_ptrlist<T, N>::t_ptrlist() noexcept {
   }
 
   template<typename T, t_n_ N>
   inline
-  t_ptrlist<T, N>::~t_ptrlist() {
+  t_ptrlist<T, N>::~t_ptrlist() noexcept {
     impl_.clear(store_);
   }
 
   template<typename T, t_n_ N>
   inline
-  t_ptrlist<T, N>::operator t_validity() const {
+  t_ptrlist<T, N>::operator t_validity() const noexcept {
     return VALID;
   }
 
   template<typename T, t_n_ N>
   inline
-  t_bool t_ptrlist<T, N>::push_back(p_value value) {
+  t_bool t_ptrlist<T, N>::push_back(p_value value) noexcept {
     return impl_.push_back(store_, N, value);
   }
 
   template<typename T, t_n_ N>
   inline
-  t_bool t_ptrlist<T, N>::push_back(t_err err, p_value value) {
+  t_bool t_ptrlist<T, N>::push_back(t_err err, p_value value) noexcept {
     return impl_.push_back(err, store_, N, value);
   }
 
   template<typename T, t_n_ N>
   inline
-  t_bool t_ptrlist<T, N>::insert(t_ix ix, p_value value) {
-    return impl_.insert(store_, N, base::get(ix), value);
+  t_bool t_ptrlist<T, N>::insert(t_ix ix, p_value value) noexcept {
+    return impl_.insert(store_, N, base::specific::get(ix), value);
   }
 
   template<typename T, t_n_ N>
   inline
-  t_bool t_ptrlist<T, N>::insert(t_err err, t_ix ix, p_value value) {
-    return impl_.insert(err, store_, N, base::get(ix), value);
+  t_bool t_ptrlist<T, N>::insert(t_err err, t_ix ix, p_value value) noexcept {
+    return impl_.insert(err, store_, N, base::specific::get(ix), value);
   }
 
   template<typename T, t_n_ N>
   inline
-  t_bool t_ptrlist<T, N>::pop_back() {
+  t_bool t_ptrlist<T, N>::pop_back() noexcept {
     return impl_.pop_back(store_);
   }
 
   template<typename T, t_n_ N>
   inline
-  t_bool t_ptrlist<T, N>::pop_back(t_err err) {
+  t_bool t_ptrlist<T, N>::pop_back(t_err err) noexcept {
     return impl_.pop_back(err, store_);
   }
 
   template<typename T, t_n_ N>
   inline
-  t_bool t_ptrlist<T, N>::erase(t_ix ix) {
-    return impl_.erase(store_, base::get(ix));
+  t_bool t_ptrlist<T, N>::erase(t_ix ix) noexcept {
+    return impl_.erase(store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
-  t_bool t_ptrlist<T, N>::erase(t_err err, t_ix ix) {
-    return impl_.erase(err, store_, base::get(ix));
+  t_bool t_ptrlist<T, N>::erase(t_err err, t_ix ix) noexcept {
+    return impl_.erase(err, store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
-  t_void t_ptrlist<T, N>::clear() {
+  t_void t_ptrlist<T, N>::clear() noexcept {
     impl_.clear(store_);
   }
 
   template<typename T, t_n_ N>
   inline
-  t_void t_ptrlist<T, N>::clear(t_err err) {
+  t_void t_ptrlist<T, N>::clear(t_err err) noexcept {
     impl_.clear(err, store_);
   }
 
   template<typename T, t_n_ N>
   inline
-  t_bool t_ptrlist<T, N>::is_full() const {
+  t_bool t_ptrlist<T, N>::is_full() const noexcept {
     return impl_.is_full(N);
   }
 
   template<typename T, t_n_ N>
   inline
-  t_bool t_ptrlist<T, N>::is_empty() const {
+  t_bool t_ptrlist<T, N>::is_empty() const noexcept {
     return impl_.is_empty();
   }
 
   template<typename T, t_n_ N>
   inline
-  t_n t_ptrlist<T, N>::get_size() const {
+  t_n t_ptrlist<T, N>::get_size() const noexcept {
     return t_n{impl_.get_size()};
   }
 
   template<typename T, t_n_ N>
   inline
-  t_n t_ptrlist<T, N>::get_capacity() const {
+  t_n t_ptrlist<T, N>::get_capacity() const noexcept {
     return t_n{N};
   }
 
   template<typename T, t_n_ N>
   inline
-  typename t_ptrlist<T, N>::p_value t_ptrlist<T, N>::get(t_ix ix) {
-    return impl_.get(store_, base::get(ix));
+  typename t_ptrlist<T, N>::p_value t_ptrlist<T, N>::get(t_ix ix) noexcept {
+    return impl_.get(store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
-  typename t_ptrlist<T, N>::p_value t_ptrlist<T, N>::get(t_err err, t_ix ix) {
-    return impl_.get(err, store_, base::get(ix));
+  typename t_ptrlist<T, N>::p_value
+      t_ptrlist<T, N>::get(t_err err, t_ix ix) noexcept {
+    return impl_.get(err, store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
-  typename t_ptrlist<T, N>::P_value t_ptrlist<T, N>::get(t_ix ix) const {
-    return impl_.get(store_, base::get(ix));
+  typename t_ptrlist<T, N>::P_value
+      t_ptrlist<T, N>::get(t_ix ix) const noexcept {
+    return impl_.get(store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
-  typename t_ptrlist<T, N>::P_value t_ptrlist<T, N>::get(t_err err, t_ix ix) const {
-    return impl_.get(err, store_, base::get(ix));
+  typename t_ptrlist<T, N>::P_value
+      t_ptrlist<T, N>::get(t_err err, t_ix ix) const noexcept {
+    return impl_.get(err, store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
-  typename t_ptrlist<T, N>::P_value t_ptrlist<T, N>::cget(t_ix ix) const {
-    return impl_.get(store_, base::get(ix));
+  typename t_ptrlist<T, N>::P_value
+      t_ptrlist<T, N>::cget(t_ix ix) const noexcept {
+    return impl_.get(store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
-  typename t_ptrlist<T, N>::P_value t_ptrlist<T, N>::cget(t_err err, t_ix ix) const {
-    return impl_.get(err, store_, base::get(ix));
+  typename t_ptrlist<T, N>::P_value
+      t_ptrlist<T, N>::cget(t_err err, t_ix ix) const noexcept {
+    return impl_.get(err, store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   template<typename F>
   inline
-  t_void t_ptrlist<T, N>::each(F f) {
+  t_void t_ptrlist<T, N>::each(F f) noexcept {
     impl_.each(store_, f);
   }
 
   template<typename T, t_n_ N>
   template<typename F>
   inline
-  t_void t_ptrlist<T, N>::each(t_err err, F f) {
+  t_void t_ptrlist<T, N>::each(t_err err, F f) noexcept {
     impl_.each(err, store_, f);
   }
 
   template<typename T, t_n_ N>
   template<typename F>
   inline
-  t_void t_ptrlist<T, N>::each(F f) const {
+  t_void t_ptrlist<T, N>::each(F f) const noexcept {
     impl_.each(store_, f);
   }
 
   template<typename T, t_n_ N>
   template<typename F>
   inline
-  t_void t_ptrlist<T, N>::each(t_err err, F f) const {
+  t_void t_ptrlist<T, N>::each(t_err err, F f) const noexcept {
     impl_.each(err, store_, f);
   }
 
   template<typename T, t_n_ N>
   template<typename F>
   inline
-  t_void t_ptrlist<T, N>::ceach(F f) const {
+  t_void t_ptrlist<T, N>::ceach(F f) const noexcept {
     impl_.each(store_, f);
   }
 
   template<typename T, t_n_ N>
   template<typename F>
   inline
-  t_void t_ptrlist<T, N>::ceach(t_err err, F f) const {
+  t_void t_ptrlist<T, N>::ceach(t_err err, F f) const noexcept {
     impl_.each(err, store_, f);
   }
 
@@ -350,15 +357,15 @@ namespace ptrlist
 
   template<typename T>
   inline
-  t_ptrlist<T, 0>::t_ptrlist(t_n max)
-    : max_  {base::get(max)},
+  t_ptrlist<T, 0>::t_ptrlist(t_n max) noexcept
+    : max_  {base::specific::get(max)},
       store_{new typename t_impl_::t_entry[max_]} {
   }
 
   template<typename T>
   inline
-  t_ptrlist<T, 0>::t_ptrlist(t_err err, t_n max)
-    : max_ {base::get(max)},
+  t_ptrlist<T, 0>::t_ptrlist(t_err err, t_n max) noexcept
+    : max_ {base::specific::get(max)},
      store_{!err ? new typename t_impl_::t_entry[max_] : nullptr} {
   }
 
@@ -373,169 +380,174 @@ namespace ptrlist
 
   template<typename T>
   inline
-  t_ptrlist<T, 0>::operator t_validity() const {
+  t_ptrlist<T, 0>::operator t_validity() const noexcept {
     return store_ ? VALID : INVALID;
   }
 
   template<typename T>
   inline
-  t_bool t_ptrlist<T, 0>::push_back(p_value value) {
+  t_bool t_ptrlist<T, 0>::push_back(p_value value) noexcept {
     return impl_.push_back(store_, max_, value);
   }
 
   template<typename T>
   inline
-  t_bool t_ptrlist<T, 0>::push_back(t_err err, p_value value) {
+  t_bool t_ptrlist<T, 0>::push_back(t_err err, p_value value) noexcept {
     return impl_.push_back(err, store_, max_, value);
   }
 
   template<typename T>
   inline
-  t_bool t_ptrlist<T, 0>::insert(t_ix ix, p_value value) {
-    return impl_.insert(store_, max_, base::get(ix), value);
+  t_bool t_ptrlist<T, 0>::insert(t_ix ix, p_value value) noexcept {
+    return impl_.insert(store_, max_, base::specific::get(ix), value);
   }
 
   template<typename T>
   inline
-  t_bool t_ptrlist<T, 0>::insert(t_err err, t_ix ix, p_value value) {
-    return impl_.insert(err, store_, max_, base::get(ix), value);
+  t_bool t_ptrlist<T, 0>::insert(t_err err, t_ix ix, p_value value) noexcept {
+    return impl_.insert(err, store_, max_, base::specific::get(ix), value);
   }
 
   template<typename T>
   inline
-  t_bool t_ptrlist<T, 0>::pop_back() {
+  t_bool t_ptrlist<T, 0>::pop_back() noexcept {
     return impl_.pop_back(store_);
   }
 
   template<typename T>
   inline
-  t_bool t_ptrlist<T, 0>::pop_back(t_err err) {
+  t_bool t_ptrlist<T, 0>::pop_back(t_err err) noexcept {
     return impl_.pop_back(err, store_);
   }
 
   template<typename T>
   inline
-  t_bool t_ptrlist<T, 0>::erase(t_ix ix) {
-    return impl_.erase(store_, base::get(ix));
+  t_bool t_ptrlist<T, 0>::erase(t_ix ix) noexcept {
+    return impl_.erase(store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
-  t_bool t_ptrlist<T, 0>::erase(t_err err, t_ix ix) {
-    return impl_.erase(err, store_, base::get(ix));
+  t_bool t_ptrlist<T, 0>::erase(t_err err, t_ix ix) noexcept {
+    return impl_.erase(err, store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
-  t_void t_ptrlist<T, 0>::clear() {
+  t_void t_ptrlist<T, 0>::clear() noexcept {
     impl_.clear(store_);
   }
 
   template<typename T>
   inline
-  t_void t_ptrlist<T, 0>::clear(t_err err) {
+  t_void t_ptrlist<T, 0>::clear(t_err err) noexcept {
     impl_.clear(err, store_);
   }
 
   template<typename T>
   inline
-  t_bool t_ptrlist<T, 0>::is_full() const {
+  t_bool t_ptrlist<T, 0>::is_full() const noexcept {
     return impl_.is_full(max_);
   }
 
   template<typename T>
   inline
-  t_bool t_ptrlist<T, 0>::is_empty() const {
+  t_bool t_ptrlist<T, 0>::is_empty() const noexcept {
     return impl_.is_empty();
   }
 
   template<typename T>
   inline
-  t_n t_ptrlist<T, 0>::get_size() const {
+  t_n t_ptrlist<T, 0>::get_size() const noexcept {
     return t_n{impl_.get_size()};
   }
 
   template<typename T>
   inline
-  t_n t_ptrlist<T, 0>::get_capacity() const {
+  t_n t_ptrlist<T, 0>::get_capacity() const noexcept {
     return t_n{max_};
   }
 
   template<typename T>
   inline
-  typename t_ptrlist<T, 0>::p_value t_ptrlist<T, 0>::get(t_ix ix) {
-    return impl_.get(store_, base::get(ix));
+  typename t_ptrlist<T, 0>::p_value t_ptrlist<T, 0>::get(t_ix ix) noexcept {
+    return impl_.get(store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
-  typename t_ptrlist<T, 0>::p_value t_ptrlist<T, 0>::get(t_err err, t_ix ix) {
-    return impl_.get(err, store_, base::get(ix));
+  typename t_ptrlist<T, 0>::p_value
+      t_ptrlist<T, 0>::get(t_err err, t_ix ix) noexcept {
+    return impl_.get(err, store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
-  typename t_ptrlist<T, 0>::P_value t_ptrlist<T, 0>::get(t_ix ix) const {
-    return impl_.get(store_, base::get(ix));
+  typename t_ptrlist<T, 0>::P_value
+      t_ptrlist<T, 0>::get(t_ix ix) const noexcept {
+    return impl_.get(store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
-  typename t_ptrlist<T, 0>::P_value t_ptrlist<T, 0>::get(t_err err, t_ix ix) const {
-    return impl_.get(err, store_, base::get(ix));
+  typename t_ptrlist<T, 0>::P_value
+      t_ptrlist<T, 0>::get(t_err err, t_ix ix) const noexcept {
+    return impl_.get(err, store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
-  typename t_ptrlist<T, 0>::P_value t_ptrlist<T, 0>::cget(t_ix ix) const {
-    return impl_.get(store_, base::get(ix));
+  typename t_ptrlist<T, 0>::P_value
+      t_ptrlist<T, 0>::cget(t_ix ix) const noexcept {
+    return impl_.get(store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
-  typename t_ptrlist<T, 0>::P_value t_ptrlist<T, 0>::cget(t_err err, t_ix ix) const {
-    return impl_.get(err, store_, base::get(ix));
+  typename t_ptrlist<T, 0>::P_value
+      t_ptrlist<T, 0>::cget(t_err err, t_ix ix) const noexcept {
+    return impl_.get(err, store_, base::specific::get(ix));
   }
 
   template<typename T>
   template<typename F>
   inline
-  t_void t_ptrlist<T, 0>::each(F f) {
+  t_void t_ptrlist<T, 0>::each(F f) noexcept {
     impl_.each(store_, f);
   }
 
   template<typename T>
   template<typename F>
   inline
-  t_void t_ptrlist<T, 0>::each(t_err err, F f) {
+  t_void t_ptrlist<T, 0>::each(t_err err, F f) noexcept {
     impl_.each(err, store_, f);
   }
 
   template<typename T>
   template<typename F>
   inline
-  t_void t_ptrlist<T, 0>::each(F f) const {
+  t_void t_ptrlist<T, 0>::each(F f) const noexcept {
     impl_.each(store_, f);
   }
 
   template<typename T>
   template<typename F>
   inline
-  t_void t_ptrlist<T, 0>::each(t_err err, F f) const {
+  t_void t_ptrlist<T, 0>::each(t_err err, F f) const noexcept {
     impl_.each(err, store_, f);
   }
 
   template<typename T>
   template<typename F>
   inline
-  t_void t_ptrlist<T, 0>::ceach(F f) const {
+  t_void t_ptrlist<T, 0>::ceach(F f) const noexcept {
     impl_.each(store_, f);
   }
 
   template<typename T>
   template<typename F>
   inline
-  t_void t_ptrlist<T, 0>::ceach(t_err err, F f) const {
+  t_void t_ptrlist<T, 0>::ceach(t_err err, F f) const noexcept {
     impl_.each(err, store_, f);
   }
 

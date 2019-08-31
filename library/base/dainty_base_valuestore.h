@@ -39,11 +39,25 @@ namespace valuestore
 {
 ///////////////////////////////////////////////////////////////////////////////
 
+  using types::t_prefix;
+  using types::t_int;
+  using types::t_void;
+  using types::p_void;
+  using types::t_n_;
+  using types::t_byte_;
+
+  using specific::t_n;
+
+  using traits::t_union;
+  using traits::t_is_one_of;
+
+///////////////////////////////////////////////////////////////////////////////
+
   using t_alignment = t_int;
 
   template<t_n_ N, t_alignment ALIGNMENT>
   struct t_store {
-    alignas(ALIGNMENT) base::t_byte_ bytes[N];
+    alignas(ALIGNMENT) t_byte_ bytes[N];
   };
 
   template<typename... Types>
@@ -182,14 +196,14 @@ namespace valuestore
   class t_valuestore {
   public:
     using t_store = valuestore::t_store<sizeof(T), alignof(T)>;
-    using r_store = typename base::t_prefix<t_store>::r_;
-    using R_store = typename base::t_prefix<t_store>::R_;
-    using t_value = typename base::t_prefix<T>::t_;
-    using r_value = typename base::t_prefix<T>::r_;
-    using R_value = typename base::t_prefix<T>::R_;
-    using p_value = typename base::t_prefix<T>::p_;
-    using P_value = typename base::t_prefix<T>::P_;
-    using x_value = typename base::t_prefix<T>::x_;
+    using r_store = typename t_prefix<t_store>::r_;
+    using R_store = typename t_prefix<t_store>::R_;
+    using t_value = typename t_prefix<T>::t_;
+    using r_value = typename t_prefix<T>::r_;
+    using R_value = typename t_prefix<T>::R_;
+    using p_value = typename t_prefix<T>::p_;
+    using P_value = typename t_prefix<T>::P_;
+    using x_value = typename t_prefix<T>::x_;
 
     constexpr static t_n get_size() noexcept {
       return t_n{sizeof(T)};

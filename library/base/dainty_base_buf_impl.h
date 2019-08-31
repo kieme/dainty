@@ -38,12 +38,30 @@ namespace base
 {
 namespace buf
 {
-  using base::ptr::t_ptr;
-  using base::range::mk_range;
-  using base::range::mk_crange;
-  using base::range::t_range;
-  using base::range::t_crange;
-  using base::valuestore::t_valuestore;
+////////////////////////////////////////////////////////////////////////////////
+
+  using types::t_prefix;
+  using types::t_bool;
+  using types::t_n_;
+  using types::t_n_;
+  using types::p_void;
+  using types::t_void;
+
+  using specific::t_n;
+  using specific::t_ix;
+  using specific::t_validity;
+  using specific::operator""_ix;
+  using specific::operator""_n;
+
+  using specific::VALID;
+  using specific::INVALID;
+
+  using ptr::t_ptr;
+  using range::mk_range;
+  using range::mk_crange;
+  using range::t_range;
+  using range::t_crange;
+  using valuestore::t_valuestore;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -36,25 +36,29 @@ namespace container
 {
 namespace ptrlist
 {
+///////////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
   using err::r_err;
 
-  using base::t_bool;
-  using base::t_void;
-  using base::t_n;
-  using base::t_n_;
-  using base::t_ix_;
+  using base::types::t_prefix;
+  using base::types::t_bool;
+  using base::types::t_void;
+  using base::types::t_n_;
+  using base::types::t_ix_;
+
+  using base::specific::t_n;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_ptrlist_impl_ {
   public:
-    using p_value = T*;
-    using P_value = const T*;
+    using p_value = typename t_prefix<T>::p_;
+    using P_value = typename t_prefix<T>::P_;
     using t_entry = p_value;
-    using p_store = t_entry*;
-    using P_store = const t_entry*;
+    using p_store = t_entry*;       // XXX
+    using P_store = const t_entry*; // XXX
 
     inline
     t_ptrlist_impl_() : next_(0) {

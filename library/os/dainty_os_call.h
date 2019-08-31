@@ -43,30 +43,40 @@ namespace dainty
 {
 namespace os
 {
-  using base::p_void;
-  using base::P_void;
-  using base::t_void;
-  using base::t_bool;
-  using base::t_int;
-  using base::t_msec;
-  using base::t_fd_;
-  using base::t_fd;
-  using base::t_errn;
-  using base::t_validity;
-  using base::t_n_;
-  using base::t_n;
-  using base::p_cstr;
-  using base::t_prefix;
-  using base::t_explicit;
-  using base::P_cstr;
+///////////////////////////////////////////////////////////////////////////////
+
+  using err::t_err;
+
   using base::t_void_size_ptr;
-  using base::NO_ERRN_;
-  using base::NO_ERRN;
-  using base::BAD_ERRN_;
-  using base::BAD_ERRN;
-  using base::VALID;
-  using base::INVALID;
-  using base::BAD_FD;
+  using base::t_verifiable;
+
+  using base::types::t_prefix;
+  using base::types::p_void;
+  using base::types::P_void;
+  using base::types::t_void;
+  using base::types::t_bool;
+  using base::types::t_int;
+  using base::types::t_fd_;
+  using base::types::t_n_;
+  using base::types::t_size_;
+  //using base::types::NO_ERRN_;
+  //using base::types::BAD_ERRN_;
+
+  using base::specific::t_specific;
+  using base::specific::P_cstr;
+  using base::specific::t_n;
+  using base::specific::p_cstr;
+  using base::specific::t_msec;
+  using base::specific::t_fd;
+  using base::specific::t_errn;
+  using base::specific::t_validity;
+
+  using base::specific::NO_ERRN;
+  using base::specific::BAD_ERRN;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+  using base::specific::BAD_FD;
+
   using base::range::t_range;
   using base::range::t_crange;
   using base::range::t_byte_range;
@@ -76,14 +86,14 @@ namespace os
   using base::range::R_byte_crange;
   using base::range::r_byte_crange;
 
-  using err::t_err;
+///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  using t_verify = base::t_verifiable<T>;
+  using t_verify = t_verifiable<T>;
 
   enum  t_flags_tag_ {};
-  using t_flags_ = base::t_int;
-  using t_flags  = base::t_explicit<t_flags_, t_flags_tag_>;
+  using t_flags_ = t_int;
+  using t_flags  = t_specific<t_flags_, t_flags_tag_>;
   constexpr t_flags NO_FLAGS{0};
 
   using t_pthread_mutexattr = t_prefix<::pthread_mutexattr_t>::t_;
@@ -125,12 +135,12 @@ namespace os
   using R_itimerspec        = t_prefix<::itimerspec>::R_;
 
   enum  t_pthread_attr_stacksize_tag {};
-  using t_pthread_attr_stacksize = t_explicit<::size_t,
-                                              t_pthread_attr_stacksize_tag>;
+  using t_pthread_attr_stacksize = t_specific<t_size_,
+                                     t_pthread_attr_stacksize_tag>;
 
   enum  t_pthread_attr_guardsize_tag {};
-  using t_pthread_attr_guardsize = t_explicit<::size_t,
-                                              t_pthread_attr_guardsize_tag>;
+  using t_pthread_attr_guardsize = t_specific<t_size_,
+                                     t_pthread_attr_guardsize_tag>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -151,41 +161,41 @@ namespace os
   using r_socket_msghdr_crange  = t_prefix<t_socket_msghdr_crange>::r_;
 
   enum  t_socket_domain_tag_ {};
-  using t_socket_domain_  = base::t_int;
-  using t_socket_domain   = t_explicit<t_socket_domain_, t_socket_domain_tag_>;
+  using t_socket_domain_  = t_int;
+  using t_socket_domain   = t_specific<t_socket_domain_, t_socket_domain_tag_>;
 
   enum  t_socket_type_tag_ {};
-  using t_socket_type_ = base::t_int;
-  using t_socket_type  = t_explicit<t_socket_type_, t_socket_type_tag_>;
+  using t_socket_type_ = t_int;
+  using t_socket_type  = t_specific<t_socket_type_, t_socket_type_tag_>;
 
   enum  t_socket_protocol_tag_ {};
-  using t_socket_protocol_ = base::t_int;
-  using t_socket_protocol  = t_explicit<t_socket_protocol_,
+  using t_socket_protocol_ = t_int;
+  using t_socket_protocol  = t_specific<t_socket_protocol_,
                                         t_socket_protocol_tag_>;
 
   enum  t_socket_backlog_tag_ {};
-  using t_socket_backlog_ = base::t_int;
-  using t_socket_backlog  = t_explicit<t_socket_backlog_,
+  using t_socket_backlog_ = t_int;
+  using t_socket_backlog  = t_specific<t_socket_backlog_,
                                        t_socket_backlog_tag_>;
 
   enum  t_socket_howto_tag_ {};
-  using t_socket_howto_ = base::t_int;
-  using t_socket_howto  = t_explicit<t_socket_howto_, t_socket_howto_tag_>;
+  using t_socket_howto_ = t_int;
+  using t_socket_howto  = t_specific<t_socket_howto_, t_socket_howto_tag_>;
 
   enum  t_socket_level_tag_ {};
-  using t_socket_level_ = base::t_int;
-  using t_socket_level  = t_explicit<t_socket_level_, t_socket_level_tag_>;
+  using t_socket_level_ = t_int;
+  using t_socket_level  = t_specific<t_socket_level_, t_socket_level_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_socket_option_name_tag_ {};
-  using t_socket_option_name_ = base::t_int;
-  using t_socket_option_name  = t_explicit<t_socket_option_name_,
+  using t_socket_option_name_ = t_int;
+  using t_socket_option_name  = t_specific<t_socket_option_name_,
                                            t_socket_option_name_tag_>;
 
   enum  t_socket_option_len_tag_ {};
-  using t_socket_option_len_ = ::socklen_t;
-  using t_socket_option_len  = t_explicit<t_socket_option_len_,
+  using t_socket_option_len_ = ::socklen_t; //XXX
+  using t_socket_option_len  = t_specific<t_socket_option_len_,
                                           t_socket_option_len_tag_>;
 
   class t_socket_option {
@@ -213,8 +223,8 @@ namespace os
   using P_sockaddr = t_prefix<t_sockaddr>::P_;
 
   enum  t_socket_address_len_tag_ {};
-  using t_socket_address_len_ = ::socklen_t;
-  using t_socket_address_len  = t_explicit<t_socket_address_len_,
+  using t_socket_address_len_ = ::socklen_t; // XXX
+  using t_socket_address_len  = t_specific<t_socket_address_len_,
                                            t_socket_address_len_tag_>;
 
   class t_socket_address {

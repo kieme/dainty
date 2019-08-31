@@ -33,21 +33,24 @@ namespace dainty
 {
 namespace oops
 {
-  using base::t_prefix;
-  using base::T_bool;
-  using base::t_bool;
-  using base::t_void;
-  using base::P_cstr;
-  using base::P_void;
-  using base::t_errn_;
-  using base::t_errn;
-  using base::t_validity;
-  using base::NO_ERRN_;
-  using base::NO_ERRN;
-  using base::BAD_ERRN_;
-  using base::BAD_ERRN;
-  using base::VALID;
-  using base::INVALID;
+////////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+  using base::types::T_bool;
+  using base::types::t_bool;
+  using base::types::t_void;
+  using base::types::P_void;
+  using base::types::t_errn_;
+  //using base::types::BAD_ERRN_;
+  //using base::types::NO_ERRN_;
+
+  using base::specific::P_cstr;
+  using base::specific::t_errn;
+  using base::specific::t_validity;
+  using base::specific::NO_ERRN;
+  using base::specific::BAD_ERRN;
+  using base::specific::VALID;
+  using base::specific::INVALID;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -61,11 +64,11 @@ namespace oops
   enum  t_user_tag_ { };
   using t_user = base::t_user<t_user_tag_>;
 
-  using t_tagid    = base::t_uint16;
-  using t_lineno   = base::t_uint16;
-  using t_id       = base::t_uint32;
-  using t_depth    = base::t_uint16;
-  using T_depth    = base::T_uint16;
+  using t_tagid    = base::types::t_uint16;
+  using t_lineno   = base::types::t_uint16;
+  using t_id       = base::types::t_uint32;
+  using t_depth    = base::types::t_uint16;
+  using T_depth    = base::types::T_uint16;
   using P_filename = P_cstr;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -159,10 +162,10 @@ namespace oops
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  using r_data1 = base::t_prefix<t_data1>::r_;
-  using R_data1 = base::t_prefix<t_data1>::R_;
-  using r_data2 = base::t_prefix<t_data2>::r_;
-  using R_data2 = base::t_prefix<t_data2>::R_;
+  using r_data1 = t_prefix<t_data1>::r_;
+  using R_data1 = t_prefix<t_data1>::R_;
+  using r_data2 = t_prefix<t_data2>::r_;
+  using R_data2 = t_prefix<t_data2>::R_;
 
 ////////////////////////////////////////////////////////////////////////////////
 

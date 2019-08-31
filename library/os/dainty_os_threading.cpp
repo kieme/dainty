@@ -33,6 +33,10 @@ namespace os
 {
 namespace threading
 {
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_void;
+
   using clock::to_;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -642,11 +646,11 @@ namespace threading
     return {nullptr};
   }
 
-  base::t_void t_monotonic_lock::enter_scope_(t_locked_scope*) noexcept {
+  t_void t_monotonic_lock::enter_scope_(t_locked_scope*) noexcept {
     // XXX debugging
   }
 
-  base::t_void t_monotonic_lock::leave_scope_(t_locked_scope* scope) noexcept {
+  t_void t_monotonic_lock::leave_scope_(t_locked_scope* scope) noexcept {
     if (*scope == VALID && *this == VALID) {
       ::pthread_t th = call_pthread_self();
       <% auto scope = mutex_.make_locked_scope();

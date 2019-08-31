@@ -37,10 +37,12 @@ namespace err
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
-  using base::t_errn;
+  using base::specific::t_errn;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+  using base::specific::BAD_ERRN;
+  using base::specific::NO_ERRN;
 
   template<typename T>
   using t_verify = base::t_verifiable<T>;

@@ -39,12 +39,19 @@ namespace dainty
 {
 namespace sandbox
 {
-  using base::t_n;
-  using base::t_ix;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+
+  using base::specific::t_n;
+  using base::specific::t_ix;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
   using container::ptr::t_passable_ptr;
+
+///////////////////////////////////////////////////////////////////////////////
 
   enum  t_thread_name_tag {};
   using t_thread_name    = t_string<t_thread_name_tag>;

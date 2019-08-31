@@ -36,6 +36,10 @@ namespace dainty
 {
 namespace base
 {
+namespace assertion
+{
+  using namespace types;
+  using namespace specific;
   using namespace terminal;
 
   t_void assert_now(P_cstr reason) noexcept {
@@ -74,6 +78,7 @@ namespace base
     assert_now(FMT_VA_IT, fmt, args);
     va_end(args);
   }
+}
 }
 }
 

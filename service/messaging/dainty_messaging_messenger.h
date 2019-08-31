@@ -41,20 +41,29 @@ namespace messaging
 {
 namespace messenger
 {
-  using base::t_bool;
-  using base::t_void;
-  using base::t_n;
-  using base::t_validity;
-  using base::t_prefix;
-  using base::string::t_string;
-  using base::VALID;
-  using base::INVALID;
-  using base::t_fd;
-  using container::maybe::t_maybe;
+///////////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
+
+  using base::types::t_prefix;
+  using base::types::t_bool;
+  using base::types::t_void;
+
+  using base::specific::t_n;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+  using base::specific::t_fd;
+
+  using base::string::t_string;
+
+  using container::maybe::t_maybe;
+
   using message::t_message;
   using message::x_message;
   using message::t_multiple_of_100ms;
+
+///////////////////////////////////////////////////////////////////////////////
 
   using t_user             = message::t_messenger_user;
   using p_user             = t_prefix<t_user>::p_;

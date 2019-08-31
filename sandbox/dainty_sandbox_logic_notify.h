@@ -37,9 +37,12 @@ namespace dainty
 {
 namespace sandbox
 {
+///////////////////////////////////////////////////////////////////////////////
+
   using t_err = err::t_err;
-  using base::t_msec;
-  using base::t_void;
+
+  using base::specific::t_msec;
+  using base::specific::t_void;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +51,7 @@ namespace sandbox
     virtual t_void notify_start  (t_err)   noexcept = 0;
     virtual t_void notify_cleanup()        noexcept = 0;
     virtual t_void notify_wakeup  (t_msec) noexcept = 0;
-    virtual t_void notify_complete()       noexcept = 0; // quit as return
+    virtual t_void notify_complete()       noexcept = 0; // quit as return XXX
   };
 
 ///////////////////////////////////////////////////////////////////////////////

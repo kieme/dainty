@@ -36,11 +36,13 @@ namespace container
 {
 namespace list
 {
-  using base::t_n;
-  using base::t_ix;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::specific::t_n;
+  using base::specific::t_ix;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -256,39 +258,41 @@ namespace list
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::insert(t_ix ix) {
-    return impl_.insert(store_, N, base::get(ix));
+    return impl_.insert(store_, N, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::insert(t_err err, t_ix ix) {
-    return impl_.insert(err, store_, N, base::get(ix));
+    return impl_.insert(err, store_, N, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::insert(t_ix ix, R_value value) {
-    return impl_.insert(store_, N, base::get(ix), value);
+    return impl_.insert(store_, N, base::specific::get(ix), value);
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::insert(t_err err, t_ix ix,
                                                       R_value value) {
-    return impl_.insert(err, store_, N, base::get(ix), value);
+    return impl_.insert(err, store_, N, base::specific::get(ix), value);
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::insert(t_ix ix, x_value value) {
-    return impl_.insert(store_, N, base::get(ix), base::x_cast(value));
+    return impl_.insert(store_, N, base::specific::get(ix),
+                        base::x_cast(value));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::insert(t_err err, t_ix ix,
                                                       x_value value) {
-    return impl_.insert(err, store_, N, base::get(ix), base::x_cast(value));
+    return impl_.insert(err, store_, N, base::specific::get(ix),
+                        base::x_cast(value));
   }
 
   template<typename T, t_n_ N>
@@ -306,13 +310,13 @@ namespace list
   template<typename T, t_n_ N>
   inline
   t_bool t_list<T, N>::erase(t_ix ix) {
-    return impl_.erase(store_, base::get(ix));
+    return impl_.erase(store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
   t_bool t_list<T, N>::erase(t_err err, t_ix ix) {
-    return impl_.erase(err, store_, base::get(ix));
+    return impl_.erase(err, store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
@@ -354,37 +358,37 @@ namespace list
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::get(t_ix ix) {
-    return impl_.get(store_, base::get(ix));
+    return impl_.get(store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::p_value t_list<T, N>::get(t_err err, t_ix ix) {
-    return impl_.get(err, store_, base::get(ix));
+    return impl_.get(err, store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::P_value t_list<T, N>::get(t_ix ix) const {
-    return impl_.get(store_, base::get(ix));
+    return impl_.get(store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::P_value t_list<T, N>::get(t_err err, t_ix ix) const {
-    return impl_.get(err, store_, base::get(ix));
+    return impl_.get(err, store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::P_value t_list<T, N>::cget(t_ix ix) const {
-    return impl_.get(store_, base::get(ix));
+    return impl_.get(store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_list<T, N>::P_value t_list<T, N>::cget(t_err err, t_ix ix) const {
-    return impl_.get(err, store_, base::get(ix));
+    return impl_.get(err, store_, base::specific::get(ix));
   }
 
   template<typename T, t_n_ N>
@@ -460,14 +464,14 @@ namespace list
   template<typename T>
   inline
   t_list<T, 0>::t_list(t_n max)
-    : max_  {base::get(max)},
+    : max_  {base::specific::get(max)},
       store_{new typename t_impl_::t_entry[max_]} {
   }
 
   template<typename T>
   inline
   t_list<T, 0>::t_list(t_err err, t_n max)
-    : max_ {base::get(max)},
+    : max_ {base::specific::get(max)},
      store_{!err ? new typename t_impl_::t_entry[max_] : nullptr} {
   }
 
@@ -535,39 +539,41 @@ namespace list
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_ix ix) {
-    return impl_.insert(store_, max_, base::get(ix));
+    return impl_.insert(store_, max_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_err err, t_ix ix) {
-    return impl_.insert(err, store_, max_, base::get(ix));
+    return impl_.insert(err, store_, max_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_ix ix, R_value value) {
-    return impl_.insert(store_, max_, base::get(ix), value);
+    return impl_.insert(store_, max_, base::specific::get(ix), value);
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_err err, t_ix ix,
                                                       R_value value) {
-    return impl_.insert(err, store_, max_, base::get(ix), value);
+    return impl_.insert(err, store_, max_, base::specific::get(ix), value);
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_ix ix, x_value value) {
-    return impl_.insert(store_, max_, base::get(ix), base::x_cast(value));
+    return impl_.insert(store_, max_, base::specific::get(ix),
+                        base::x_cast(value));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::insert(t_err err, t_ix ix,
                                                       x_value value) {
-    return impl_.insert(err, store_, max_, base::get(ix), base::x_cast(value));
+    return impl_.insert(err, store_, max_, base::specific::get(ix),
+                        base::x_cast(value));
   }
 
   template<typename T>
@@ -585,13 +591,13 @@ namespace list
   template<typename T>
   inline
   t_bool t_list<T, 0>::erase(t_ix ix) {
-    return impl_.erase(store_, base::get(ix));
+    return impl_.erase(store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
   t_bool t_list<T, 0>::erase(t_err err, t_ix ix) {
-    return impl_.erase(err, store_, base::get(ix));
+    return impl_.erase(err, store_, base::specific::get(ix));
   }
 
   template<typename T>
@@ -633,37 +639,37 @@ namespace list
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::get(t_ix ix) {
-    return impl_.get(store_, base::get(ix));
+    return impl_.get(store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::p_value t_list<T, 0>::get(t_err err, t_ix ix) {
-    return impl_.get(err, store_, base::get(ix));
+    return impl_.get(err, store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::P_value t_list<T, 0>::get(t_ix ix) const {
-    return impl_.get(store_, base::get(ix));
+    return impl_.get(store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::P_value t_list<T, 0>::get(t_err err, t_ix ix) const {
-    return impl_.get(err, store_, base::get(ix));
+    return impl_.get(err, store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::P_value t_list<T, 0>::cget(t_ix ix) const {
-    return impl_.get(store_, base::get(ix));
+    return impl_.get(store_, base::specific::get(ix));
   }
 
   template<typename T>
   inline
   typename t_list<T, 0>::P_value t_list<T, 0>::cget(t_err err, t_ix ix) const {
-    return impl_.get(err, store_, base::get(ix));
+    return impl_.get(err, store_, base::specific::get(ix));
   }
 
   template<typename T>

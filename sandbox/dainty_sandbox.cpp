@@ -34,13 +34,22 @@ namespace dainty
 {
 namespace sandbox
 {
-  using r_err          = t_prefix<t_err>::r_;
-  using t_thread_attr_ = os::t_pthread_attr;
-  using base::t_ix;
-  using base::t_ix_;
+///////////////////////////////////////////////////////////////////////////////
+
+  using r_err = t_prefix<t_err>::r_;
+
+  using base::types::t_ix_;
+
+  using base::specific::t_ix;
+  using base::specific::t_n;
 
   using base::terminal::t_out;
+
   using os::call_pthread_init;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  using t_thread_attr_ = os::t_pthread_attr;
 
 ///////////////////////////////////////////////////////////////////////////////
 

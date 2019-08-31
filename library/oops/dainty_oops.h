@@ -137,7 +137,7 @@ namespace dainty
 {
 namespace oops
 {
-  using base::assert_now;
+  using base::assertion::assert_now;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -34,9 +34,13 @@ namespace dainty
 {
 namespace sandbox
 {
-  using namespace dainty::base::terminal;
-  using base::t_ix;
-  using base::t_percentage;
+///////////////////////////////////////////////////////////////////////////////
+
+  using namespace base::terminal;
+
+  using base::specific::t_ix;
+  using base::specific::t_percentage;
+
   using mt::event_dispatcher::DONT_QUIT;
   using mt::event_dispatcher::QUIT;
   using mt::event_dispatcher::RD_EVENT;

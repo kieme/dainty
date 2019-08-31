@@ -56,9 +56,13 @@ namespace dacli
 ////////////////////////////////////////////////////////////////////////////////
 
   using namespace base;
+  using namespace base::types;
   using namespace base::range;
   using namespace base::string;
   using namespace argn;
+
+////////////////////////////////////////////////////////////////////////////////
+
   using err::r_err;
 
   using std::begin;
@@ -1509,7 +1513,7 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
- t_void print(base::P_cstr_ prefix, R_words words) {
+ t_void print(P_cstr_ prefix, R_words words) {
     t_word word("[");
     auto itr = words.begin(), end = words.end();
     while (itr != end) {
@@ -2159,7 +2163,7 @@ namespace argn
         auto max = get(to_ix(get_size()));
         decltype(max) one = get(first), two = get(second);
         if (one < max && two < max) {
-          base::p_void tmp = set_().second.info_.mem_[one];
+          p_void tmp = set_().second.info_.mem_[one];
           set_().second.info_.mem_[one] = set_().second.info_.mem_[two];
           set_().second.info_.mem_[two] = tmp;
         } else
@@ -2173,7 +2177,7 @@ namespace argn
   t_ref t_group_ref::add(t_err err, t_string_crange cstr) {
     ERR_GUARD(err) {
       if (is_valid_()) {
-        base::P_cstr_ p = cstr.ptr;
+        P_cstr_ p = cstr.ptr;
         p = notation::parse::parse_arg(err, *this, p);
         ERR_GUARD(err) { // XXX
           if (*p == '\0')
@@ -2371,7 +2375,7 @@ namespace argn
     ERR_GUARD(err) {
       if (is_valid_()) {
         if (is_empty()) { // looks wrong
-          base::P_cstr_ p = cstr.ptr;
+          P_cstr_ p = cstr.ptr;
           p = notation::parse::parse_options(err, *this, p);
           ERR_GUARD(err) {
             if (*p == '\0')

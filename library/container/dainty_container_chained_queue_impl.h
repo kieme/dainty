@@ -36,29 +36,33 @@ namespace container
 {
 namespace chained_queue
 {
+///////////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
   using err::r_err;
 
-  using base::t_void;
-  using base::t_bool;
-  using base::t_n_;
-  using base::t_n;
-  using freelist::t_id;
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_bool;
+  using base::types::t_n_;
 
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
+  using base::specific::t_n;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
+  using freelist::t_id;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_item final {
   public:
-    using t_value  = typename base::t_prefix<T>::t_;
-    using r_value  = typename base::t_prefix<T>::r_;
-    using R_value  = typename base::t_prefix<T>::R_;
-    using p_item   = typename base::t_prefix<t_item>::p_;
-    using P_item   = typename base::t_prefix<t_item>::P_;
+    using t_value  = typename t_prefix<T>::t_;
+    using r_value  = typename t_prefix<T>::r_;
+    using R_value  = typename t_prefix<T>::R_;
+    using p_item   = typename t_prefix<t_item>::p_;
+    using P_item   = typename t_prefix<t_item>::P_;
 
     t_item() = default;
 
@@ -88,8 +92,8 @@ namespace chained_queue
   class t_chain final {
   public:
     using t_n    = chained_queue::t_n;
-    using p_item = typename base::t_prefix<t_item<T> >::p_;
-    using P_item = typename base::t_prefix<t_item<T> >::P_;
+    using p_item = typename t_prefix<t_item<T> >::p_;
+    using P_item = typename t_prefix<t_item<T> >::P_;
 
     t_n    cnt   = t_n{0};
     p_item head  = nullptr;
@@ -109,12 +113,12 @@ namespace chained_queue
   class t_chained_queue_impl_ {
   public:
     using t_n     = chained_queue::t_n;
-    using t_store = typename base::t_prefix<S>::t_;
-    using r_store = typename base::t_prefix<S>::r_;
-    using R_store = typename base::t_prefix<S>::R_;
-    using p_item  = typename base::t_prefix<t_item<T> >::p_;
-    using t_chain = typename base::t_prefix<chained_queue::t_chain<T> >::t_;
-    using r_chain = typename base::t_prefix<chained_queue::t_chain<T> >::r_;
+    using t_store = typename t_prefix<S>::t_;
+    using r_store = typename t_prefix<S>::r_;
+    using R_store = typename t_prefix<S>::R_;
+    using p_item  = typename t_prefix<t_item<T> >::p_;
+    using t_chain = typename t_prefix<chained_queue::t_chain<T> >::t_;
+    using r_chain = typename t_prefix<chained_queue::t_chain<T> >::r_;
 
     t_chain acquire(r_store store, t_n n) {
       if (store == VALID) {

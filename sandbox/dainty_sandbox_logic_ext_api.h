@@ -36,15 +36,19 @@ namespace dainty
 {
 namespace sandbox
 {
-  using base::VALID;
-  using base::INVALID;
-  using base::t_void;
-  using base::t_bool;
-  using base::t_validity;
-  using base::t_prefix;
+  using t_err = err::t_err;
+
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_bool;
+
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
   using base::string::t_string;
 
-  using t_err = err::t_err;
+///////////////////////////////////////////////////////////////////////////////
 
   enum  t_extension_name_tag {};
   using t_extension_name = t_string<t_extension_name_tag>;

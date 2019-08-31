@@ -35,26 +35,31 @@ namespace container
 {
 namespace maybe
 {
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+  using base::types::t_bool;
+
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
   using base::t_emplace_it;
   using base::EMPLACE_IT;
-  using base::t_bool;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_maybe {
   public:
-    using t_value = typename base::t_prefix<T>::t_;
-    using r_value = typename base::t_prefix<T>::r_;
-    using R_value = typename base::t_prefix<T>::R_;
-    using x_value = typename base::t_prefix<T>::x_;
+    using t_value = typename t_prefix<T>::t_;
+    using r_value = typename t_prefix<T>::r_;
+    using R_value = typename t_prefix<T>::R_;
+    using x_value = typename t_prefix<T>::x_;
 
-    using r_maybe = typename base::t_prefix<t_maybe>::r_;
-    using R_maybe = typename base::t_prefix<t_maybe>::R_;
-    using x_maybe = typename base::t_prefix<t_maybe>::x_;
+    using r_maybe = typename t_prefix<t_maybe>::r_;
+    using R_maybe = typename t_prefix<t_maybe>::R_;
+    using x_maybe = typename t_prefix<t_maybe>::x_;
 
      t_maybe() noexcept;
      template<typename... Args>

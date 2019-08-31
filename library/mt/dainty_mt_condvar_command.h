@@ -36,21 +36,35 @@ namespace mt
 {
 namespace condvar_command
 {
-  using base::t_n;
-  using base::t_void;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
-  using base::t_errn;
-  using base::t_prefix;
+///////////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
+
+  using oops::t_oops;
+
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_uint;
+
+  using base::specific::t_errn;
+  using base::specific::t_validity;
+  using base::specific::t_n;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+  using base::specific::NO_ERRN;
+
+  using base::ptr::t_ptr;
+  using base::ptr::t_no_deleter;
+  using base::ptr::t_deleter;
+
+///////////////////////////////////////////////////////////////////////////////
 
   enum  t_user_tag_ { };
   using t_user = base::t_user<t_user_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_id = base::t_uint;
+  using t_id = t_uint;
 
   class t_command {
   public:
@@ -66,11 +80,10 @@ namespace condvar_command
 
   class t_impl_;
   enum  t_impl_user_tag_ { };
-  using t_impl_user_ = base::ptr::t_ptr<t_impl_, t_impl_user_tag_,
-                                         base::ptr::t_no_deleter>;
+  using t_impl_user_ = t_ptr<t_impl_, t_impl_user_tag_, t_no_deleter>;
+
   enum  t_impl_owner_tag_ { };
-  using t_impl_owner_ = base::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
-                                          base::ptr::t_deleter>;
+  using t_impl_owner_ = t_ptr<t_impl_, t_impl_owner_tag_, t_deleter>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -113,7 +126,7 @@ namespace condvar_command
   public:
     class t_logic {
     public:
-      using t_err     = oops::t_oops<>;
+      using t_err     = t_oops<>;
       using t_user    = condvar_command::t_user;
       using t_command = condvar_command::t_command;
       using p_command = condvar_command::p_command;
@@ -124,7 +137,7 @@ namespace condvar_command
       virtual t_void async_process(       t_user, p_command) noexcept = 0;
     };
 
-    using r_logic = base::t_prefix<t_logic>::r_;
+    using r_logic = t_prefix<t_logic>::r_;
 
      t_processor(t_err)       noexcept;
      t_processor(x_processor) noexcept;
@@ -146,7 +159,6 @@ namespace condvar_command
   };
 
 ///////////////////////////////////////////////////////////////////////////////
-
 }
 }
 }

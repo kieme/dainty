@@ -67,18 +67,20 @@ namespace string
 ////////////////////////////////////////////////////////////////////////////////
 
   enum t_hex_p_tag_ {};
-  template<typename T> using t_hex_p_ = t_explicit<T*, t_hex_p_tag_>;
+  template<typename T>
+  using t_hex_p_ = specific::t_specific<T*, t_hex_p_tag_>;
 
   enum t_int_p_tag_ {};
-  template<typename T> using t_int_p_ = t_explicit<T*, t_int_p_tag_>;
+  template<typename T>
+  using t_int_p_ = specific::t_specific<T*, t_int_p_tag_>;
 
   template<typename T>
-  constexpr t_hex_p_<T>  read_hex(T& value)  noexcept {
+  constexpr t_hex_p_<T> read_hex(T& value)  noexcept {
     return t_hex_p_<T>{&value};
   }
 
   template<typename T>
-  constexpr t_int_p_<T>  read_integer(T& value)  noexcept {
+  constexpr t_int_p_<T> read_integer(T& value)  noexcept {
     return t_int_p_<T>{&value};
   }
 
@@ -160,10 +162,10 @@ namespace string
   };
 
   enum  t_skip_n_v_tag_ {};
-  using t_skip_n_v_ = t_explicit<t_n_, t_skip_n_v_tag_>;
+  using t_skip_n_v_ = specific::t_specific<t_n_, t_skip_n_v_tag_>;
 
   enum  t_skip_all_v_tag_ {};
-  using t_skip_all_v_ = t_explicit<t_char, t_skip_all_v_tag_>;
+  using t_skip_all_v_ = specific::t_specific<t_char, t_skip_all_v_tag_>;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -212,7 +214,7 @@ namespace string
         ptr_ += add_n;
         n_   -= add_n;
       } else
-        assert_now(P_cstr{"move to far"});
+        assertion::assert_now(P_cstr{"move to far"});
       return *this;
     }
 

@@ -40,11 +40,20 @@ namespace dainty
 {
 namespace sandbox
 {
-  using base::t_fd;
-  using base::t_msec_;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+  using base::types::t_msec_;
+
+  using base::specific::t_fd;
+  using base::specific::t_errn;
+
   using container::list::t_list;
   using container::freelist::t_freelist;
+
   using mt::event_dispatcher::BAD_EVENT_ID;
+
+///////////////////////////////////////////////////////////////////////////////
 
   using t_freelist_id_value_ = container::freelist::t_id_;
   using t_thread_            = mt::detached_thread::t_thread;
@@ -70,7 +79,7 @@ namespace sandbox
     using base2_ = t_dispatcher_::t_logic;
     using base3_ = t_tmrs_::t_logic;
   public:
-    using t_errn = base::t_errn;
+    using t_errn = sandbox::t_errn;
 
     t_impl_(t_err, R_thread_name, R_thread_params, t_n max_logics) noexcept;
     virtual ~t_impl_();

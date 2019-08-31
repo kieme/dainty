@@ -39,20 +39,22 @@ namespace mt
 {
 namespace net_tipc
 {
+///////////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
 
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
-  using base::t_prefix;
-  using base::t_explicit;
-  using base::t_void;
-  using base::t_bool;
-  using base::t_n;
-  using base::t_fd;
-  using base::t_errn;
-  using base::NO_ERRN;
-  using base::BAD_ERRN;
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_bool;
+
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+  using base::specific::t_n;
+  using base::specific::t_fd;
+  using base::specific::t_errn;
+  using base::specific::NO_ERRN;
+  using base::specific::BAD_ERRN;
 
   using os::t_verify;
   using os::t_socket_address;

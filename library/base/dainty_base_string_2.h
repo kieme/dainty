@@ -41,8 +41,8 @@ namespace string
   class t_string<TAG, N, t_overflow_grow> {
     using t_impl_ = t_string_impl_<t_overflow_grow>;
   public:
-    using t_n         = base::t_n;
-    using t_cstr_cptr = base::t_cstr_cptr;
+    using t_n         = string::t_n;
+    using t_cstr_cptr = string::t_cstr_cptr;
     using R_crange    = t_prefix<t_crange>::R_;
     using r_string    = typename t_prefix<t_string>::r_;
     using R_string    = typename t_prefix<t_string>::R_;

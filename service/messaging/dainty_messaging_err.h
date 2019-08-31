@@ -35,14 +35,26 @@ namespace messaging
 {
 namespace err
 {
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+
+  using oops::t_oops;
+  using oops::t_def;
+  using oops::t_id;
+
+///////////////////////////////////////////////////////////////////////////////
+
   enum t_err_codes {
     E_XXX = 1
   };
 
-  oops::t_def err_what(oops::t_id);
+  t_def err_what(t_id);
 
-  using t_err = oops::t_oops<err_what, t_err_codes>;
-  using r_err = base::t_prefix<t_err>::r_;
+  using t_err = t_oops<err_what, t_err_codes>;
+  using r_err = t_prefix<t_err>::r_;
+
+///////////////////////////////////////////////////////////////////////////////
 }
 }
 }

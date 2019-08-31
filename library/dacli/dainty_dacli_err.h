@@ -37,9 +37,15 @@ namespace err
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
+  using base::types::t_prefix;
+
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
+  using oops::t_def;
+  using oops::t_id;
+  using oops::t_oops;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -61,10 +67,10 @@ namespace err
     E_XXX
   };
 
-  oops::t_def err_what(oops::t_id);
+  t_def err_what(t_id);
 
-  using t_err = oops::t_oops<err_what, t_err_codes>;
-  using r_err = base::t_prefix<t_err>::r_;
+  using t_err = t_oops<err_what, t_err_codes>;
+  using r_err = t_prefix<t_err>::r_;
 
 ///////////////////////////////////////////////////////////////////////////////
 }

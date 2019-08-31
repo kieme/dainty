@@ -38,6 +38,27 @@ namespace range
 {
 ///////////////////////////////////////////////////////////////////////////////
 
+  using types::t_prefix;
+  using types::t_bool;
+  using types::t_void;
+  using types::t_n_;
+  using types::t_ix_;
+  using types::t_byte_;
+  using types::t_char;
+  using types::P_void;
+
+  using specific::P_cstr;
+  using specific::t_n;
+  using specific::T_n;
+  using specific::t_ix;
+  using specific::t_validity;
+  using specific::VALID;
+  using specific::INVALID;
+
+  using assertion::assert_now;
+
+///////////////////////////////////////////////////////////////////////////////
+
   enum t_skip_ { SKIP_ };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -108,14 +129,14 @@ namespace range
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_byte_range_tag_ {};
-  using t_byte_range  = t_range<t_byte, t_byte_range_tag_>;
+  using t_byte_range  = t_range<t_byte_, t_byte_range_tag_>;
   using T_byte_range  = t_prefix<t_byte_range>::T_;
   using R_byte_range  = t_prefix<t_byte_range>::R_;
   using r_byte_range  = t_prefix<t_byte_range>::r_;
   using P_byte_range  = t_prefix<t_byte_range>::P_;
   using p_byte_range  = t_prefix<t_byte_range>::p_;
 
-  using t_byte_crange = t_crange<t_byte, t_byte_range_tag_>;
+  using t_byte_crange = t_crange<t_byte_, t_byte_range_tag_>;
   using T_byte_crange = t_prefix<t_byte_crange>::T_;
   using R_byte_crange = t_prefix<t_byte_crange>::R_;
   using r_byte_crange = t_prefix<t_byte_crange>::r_;
@@ -502,7 +523,7 @@ namespace range
   template<typename T, typename TAG>
   template<typename F>
   inline
-  t_void  t_range<T, TAG>::each(F f) {
+  t_void t_range<T, TAG>::each(F f) {
     for (auto&& i : *this)
       f(i);
   }
@@ -510,7 +531,7 @@ namespace range
   template<typename T, typename TAG>
   template<typename F>
   inline
-  t_void  t_range<T, TAG>::each(F f) const {
+  t_void t_range<T, TAG>::each(F f) const {
     for (auto&& i : *this)
       f(i);
   }

@@ -29,6 +29,7 @@
 
 #include "dainty_base.h"
 #include "dainty_base_range.h"
+#include "dainty_base_assert.h"
 #include "dainty_container_err.h"
 
 namespace dainty
@@ -39,41 +40,46 @@ namespace bytebuf
 {
 //////////////////////////////////////////////////////////////////////////////
 
-  using base::t_validity;
-  using base::t_void;
-  using base::t_bool;
-  using base::t_ix_;
-  using base::t_ix;
-  using base::t_n_;
-  using base::t_n;
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_bool;
+  using base::types::t_uchar;
+  using base::types::t_ix_;
+  using base::types::t_n_;
 
-  using base::INVALID;
-  using base::VALID;
+  using base::types::t_byte_;
+  using base::types::p_byte_;
+  using base::types::P_byte_;
+  using base::types::r_byte_;
 
-  using t_byte = base::t_uchar;
-  using p_byte = base::t_prefix<t_byte>::p_;
-  using P_byte = base::t_prefix<t_byte>::P_;
-  using r_byte = base::t_prefix<t_byte>::r_;
-  using R_byte = base::t_prefix<t_byte>::R_;
+  using base::specific::P_cstr;
+  using base::specific::t_ix;
+  using base::specific::t_n;
+  using base::specific::t_validity;
+  using base::specific::INVALID;
+  using base::specific::VALID;
 
-  enum  t_view_tag_ { };
-  using t_view  = base::range::t_range <t_byte, t_view_tag_>;
-  using t_cview = base::range::t_crange<t_byte, t_view_tag_>;
+  using base::assertion::assert_now;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  p_byte  alloc_   (t_n_);
-  t_void  dealloc_ (p_byte);
-  t_void  copy_    (p_byte, t_n_, P_byte, t_n_);
-  t_bool  is_equal_(P_byte, P_byte, t_n_);
+  using t_view  = base::range::t_byte_range;
+  using t_cview = base::range::t_byte_crange;
 
-  t_view  mk_view_ (p_byte, t_n_);
-  t_view  mk_view_ (p_byte, t_n_, t_ix_);
-  t_view  mk_view_ (p_byte, t_n_, t_ix_, t_ix_);
+///////////////////////////////////////////////////////////////////////////////
 
-  t_cview mk_cview_(P_byte, t_n_);
-  t_cview mk_cview_(P_byte, t_n_, t_ix_);
-  t_cview mk_cview_(P_byte, t_n_, t_ix_, t_ix_);
+  p_byte_ alloc_   (t_n_);
+  t_void  dealloc_ (p_byte_);
+  t_void  copy_    (p_byte_, t_n_, P_byte_, t_n_);
+  t_bool  is_equal_(P_byte_, P_byte_, t_n_);
+
+  t_view  mk_view_ (p_byte_, t_n_);
+  t_view  mk_view_ (p_byte_, t_n_, t_ix_);
+  t_view  mk_view_ (p_byte_, t_n_, t_ix_, t_ix_);
+
+  t_cview mk_cview_(P_byte_, t_n_);
+  t_cview mk_cview_(P_byte_, t_n_, t_ix_);
+  t_cview mk_cview_(P_byte_, t_n_, t_ix_, t_ix_);
 
 ///////////////////////////////////////////////////////////////////////////////
 

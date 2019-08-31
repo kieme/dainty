@@ -34,11 +34,17 @@ namespace mt
 {
 namespace waitable_chained_queue
 {
-  using err::r_err;
-  using base::t_n_;
-  using dainty::os::t_errn;
+///////////////////////////////////////////////////////////////////////////////
+
   using namespace dainty::os::threading;
   using namespace dainty::os::fdbased;
+
+  using err::r_err;
+
+  using base::specific::t_n_;
+  using base::specific::t_errn;
+
+///////////////////////////////////////////////////////////////////////////////
 
   using t_queue = container::chained_queue::t_chained_queue<t_entry>;
 

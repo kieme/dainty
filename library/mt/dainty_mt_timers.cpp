@@ -36,12 +36,21 @@ namespace mt
 {
 namespace timers
 {
-  using base::t_ix_;
-  using base::t_msec;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+  using base::types::t_ix_;
+
+  using base::specific::t_msec;
+
   using base::string::operator""_SL;
+
   using os::clock::monotonic_now;
+
   using container::freelist::t_freelist;
   using container::ptrlist::t_ptrlist;
+
+///////////////////////////////////////////////////////////////////////////////
 
   using t_tmr_          = os::clock::t_timer;
   using r_err           = t_prefix<t_err>::r_;

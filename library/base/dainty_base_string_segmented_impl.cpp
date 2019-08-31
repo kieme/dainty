@@ -38,6 +38,10 @@ namespace segmented
 {
 ///////////////////////////////////////////////////////////////////////////////
 
+  using types::T_n_;
+
+///////////////////////////////////////////////////////////////////////////////
+
   P_char find_(P_char buf, P_char end, t_crange range) noexcept {
     t_n_ range_n = get(range.n);
     P_char ptr = buf;
@@ -210,7 +214,7 @@ namespace segmented
 
   t_n t_segmented_impl_base_::assign(t_buf_range store, t_char delimit,
                                      t_crange range) noexcept {
-    t_n_ n = 0, max = base::get(store.n), range_n = base::get(range.n);
+    t_n_ n = 0, max = specific::get(store.n), range_n = specific::get(range.n);
     P_char last = range.ptr, end = range.ptr + range_n;
     size_ = 0;
     for (P_char ptr = last; ptr < end; ++ptr) {
@@ -318,8 +322,8 @@ namespace segmented
                                         t_crange range, t_user user) noexcept {
     auto info = get_seg(store.ptr, seg_no);
     if (info) {
-      t_n_ available = (base::get(store.n) - size_) + info.hdr.hdr.len;
-      if (available >= base::get(range.n))
+      t_n_ available = (specific::get(store.n) - size_) + info.hdr.hdr.len;
+      if (available >= specific::get(range.n))
         size_ = change_(info.ptr, store.ptr + size_, range, user) - store.ptr;
       return true;
     }
@@ -340,8 +344,8 @@ namespace segmented
                                         t_crange range, t_user user) noexcept {
     auto info = get_seg(store.ptr, id);
     if (info) {
-      t_n_ available = (base::get(store.n) - size_) + info.hdr.hdr.len;
-      if (available >= base::get(range.n))
+      t_n_ available = (specific::get(store.n) - size_) + info.hdr.hdr.len;
+      if (available >= specific::get(range.n))
         size_ = change_(info.ptr, store.ptr + size_, range, user) - store.ptr;
       return true;
     }
@@ -350,8 +354,8 @@ namespace segmented
 
   t_bool t_segmented_impl_base_::remove(t_buf_range store, t_seg_no seg_no,
                                         t_n _n) noexcept {
-    t_n_ n = base::get(_n);
-    if (base::get(seg_no) + n <= segs_) {
+    t_n_ n = specific::get(_n);
+    if (specific::get(seg_no) + n <= segs_) {
       auto info = get_seg(store.ptr, seg_no);
       size_ = remove_(info.ptr, store.ptr + size_, _n) - store.ptr;
       segs_ -= n;
@@ -367,7 +371,7 @@ namespace segmented
       p_char end = remove_(info.ptr, store.ptr + size_, n);
       if (end) {
         size_  = end - store.ptr;
-        segs_ -= base::get(n);
+        segs_ -= specific::get(n);
         return true;
       }
     }

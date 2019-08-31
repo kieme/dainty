@@ -59,20 +59,31 @@ namespace tracing
 {
 namespace tracer
 {
+///////////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
-  using base::string::t_string;
-  using base::t_void;
-  using base::t_bool;
-  using base::t_prefix;
-  using base::t_errn;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
+
+  using base::types::t_prefix;
+  using base::types::t_n_;
+  using base::types::t_seq_no_;
+  using base::types::t_void;
+  using base::types::t_bool;
+  using base::types::t_uint32;
+
+  using base::specific::t_errn;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+  using base::specific::BAD_ERRN;
+
   using base::string::FMT;
+  using base::string::t_string;
+
+  using base::t_id_pair;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_credit   = base::t_uint32;
+  using t_credit = t_uint32;
 
   enum  t_name_tag_ {};
   using t_name = t_string<t_name_tag_, 32>;
@@ -123,10 +134,8 @@ namespace tracer
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_id_tag_ { };
-  using t_id = base::t_id_pair<base::t_n_,
-                                t_id_tag_,
-                                container::freelist::BAD_ID_,
-                                base::t_seq_no_>;
+  using t_id = t_id_pair<t_n_, t_id_tag_, container::freelist::BAD_ID_,
+                         t_seq_no_>;
   using r_id = t_prefix<t_id>::r_;
   using R_id = t_prefix<t_id>::R_;
 
@@ -171,9 +180,9 @@ namespace tracer
 ////////////////////////////////////////////////////////////////////////////////
 
   class t_tracer;
-  using r_tracer = base::t_prefix<t_tracer>::r_;
-  using R_tracer = base::t_prefix<t_tracer>::R_;
-  using x_tracer = base::t_prefix<t_tracer>::x_;
+  using r_tracer = t_prefix<t_tracer>::r_;
+  using R_tracer = t_prefix<t_tracer>::R_;
+  using x_tracer = t_prefix<t_tracer>::x_;
 
   class t_tracer {
   public:

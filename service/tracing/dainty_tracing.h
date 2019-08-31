@@ -34,7 +34,13 @@ namespace dainty
 {
 namespace tracing
 {
-  using base::t_n;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+  using base::types::t_n_;
+
+  using base::specific::t_n;
+
   using tracer::t_err;
   using tracer::t_string;
   using tracer::t_void;
@@ -68,11 +74,11 @@ namespace tracing
 
   enum  t_wildcard_name_tag_ { };
   using t_wildcard_name = t_string<t_wildcard_name_tag_, 32>;
-  using R_wildcard_name = base::t_prefix<t_wildcard_name>::R_;
+  using R_wildcard_name = t_prefix<t_wildcard_name>::R_;
 
   enum  t_observer_name_tag_ { };
   using t_observer_name = t_string<t_observer_name_tag_, 32>;
-  using R_observer_name = base::t_prefix<t_observer_name>::R_;
+  using R_observer_name = t_prefix<t_observer_name>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -128,7 +134,6 @@ namespace tracing
     t_n total() const;
 
   private:
-    using t_n_ = base::t_n_;
     t_n_ used_[DEBUG + 1];
   };
 
@@ -149,15 +154,15 @@ namespace tracing
     }
   };
 
-  using r_observer_params = base::t_prefix<t_observer_params>::r_;
-  using R_observer_params = base::t_prefix<t_observer_params>::R_;
+  using r_observer_params = t_prefix<t_observer_params>::r_;
+  using R_observer_params = t_prefix<t_observer_params>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_tracer_names   = std::vector<t_tracer_name>;
-  using r_tracer_names   = base::t_prefix<t_tracer_names>::r_;
-  using t_observer_names = std::vector<t_observer_name>;
-  using r_observer_names = base::t_prefix<t_observer_names>::r_;
+  using t_tracer_names   = std::vector<t_tracer_name>; // XXX
+  using r_tracer_names   = t_prefix<t_tracer_names>::r_;
+  using t_observer_names = std::vector<t_observer_name>; // XXX
+  using r_observer_names = t_prefix<t_observer_names>::r_;
 
   class t_observer_info {
   public:
@@ -181,13 +186,13 @@ namespace tracing
     t_stats         stats;
   };
 
-  using r_tracer_info    = base::t_prefix<t_tracer_info>::r_;
-  using p_tracer_info    = base::t_prefix<t_tracer_info>::p_;
-  using r_observer_info  = base::t_prefix<t_observer_info>::r_;
-  using t_observer_infos = std::vector<t_observer_info>;
-  using r_observer_infos = base::t_prefix<t_observer_infos>::r_;
-  using t_tracer_infos   = std::vector<t_tracer_info>;
-  using r_tracer_infos   = base::t_prefix<t_tracer_infos>::r_;
+  using r_tracer_info    = t_prefix<t_tracer_info>::r_;
+  using p_tracer_info    = t_prefix<t_tracer_info>::p_;
+  using r_observer_info  = t_prefix<t_observer_info>::r_;
+  using t_observer_infos = std::vector<t_observer_info>; // XXX
+  using r_observer_infos = t_prefix<t_observer_infos>::r_;
+  using t_tracer_infos   = std::vector<t_tracer_info>; // XXX
+  using r_tracer_infos   = t_prefix<t_tracer_infos>::r_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -226,9 +231,9 @@ namespace tracing
         line_max    (_line_max) {
     }
   };
-  using P_params = base::t_prefix<t_params>::P_;
-  using r_params = base::t_prefix<t_params>::r_;
-  using R_params = base::t_prefix<t_params>::R_;
+  using P_params = t_prefix<t_params>::P_;
+  using r_params = t_prefix<t_params>::r_;
+  using R_params = t_prefix<t_params>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 

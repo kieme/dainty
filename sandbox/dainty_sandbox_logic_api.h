@@ -41,15 +41,22 @@ namespace dainty
 {
 namespace sandbox
 {
+///////////////////////////////////////////////////////////////////////////////
+
   using t_err = err::t_err;
-  using base::t_fd;
-  using base::t_msec;
-  using base::t_void;
-  using base::t_bool;
-  using base::t_prefix;
-  using base::t_explicit;
-  using base::t_validity;
+
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_bool;
+  using base::types::t_int;
+
+  using base::specific::t_specific;
+  using base::specific::t_fd;
+  using base::specific::t_msec;
+  using base::specific::t_validity;
+
   using base::string::t_string;
+
   using container::ptr::t_passable_ptr;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,8 +69,8 @@ namespace sandbox
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_spin_cnt_tag_ {};
-  using t_spin_cnt_ = base::t_int;
-  using t_spin_cnt  = base::t_explicit<t_spin_cnt_, t_spin_cnt_tag_>;
+  using t_spin_cnt_ = t_int;
+  using t_spin_cnt  = t_specific<t_spin_cnt_, t_spin_cnt_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 

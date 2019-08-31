@@ -36,8 +36,9 @@ namespace container
 {
 namespace bytebuf
 {
-  using base::t_prefix;
-  using base::P_cstr;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_uintptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -59,16 +60,16 @@ namespace bytebuf
 
     t_n get_capacity() const;
 
-    r_byte operator[](t_ix);
-    R_byte operator[](t_ix) const;
+    r_byte_ operator[](t_ix);
+    t_byte_ operator[](t_ix) const;
 
-    p_byte  ptr();
-    P_byte  ptr() const;
-    P_byte cptr() const;
+    p_byte_  ptr();
+    P_byte_  ptr() const;
+    P_byte_ cptr() const;
 
   private:
     template<typename, t_n_> friend class t_bytebuf;
-    t_byte store_[N];
+    t_byte_ store_[N];
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -96,28 +97,28 @@ namespace bytebuf
     operator t_validity() const;
     t_n    get_capacity() const;
 
-    r_byte operator[](t_ix);
-    R_byte operator[](t_ix) const;
+    r_byte_ operator[](t_ix);
+    t_byte_ operator[](t_ix) const;
 
-    p_byte  ptr();
-    P_byte  ptr() const;
-    P_byte cptr() const;
+    p_byte_  ptr();
+    P_byte_  ptr() const;
+    P_byte_ cptr() const;
 
     t_bool release();
 
   private:
     template<typename, t_n_> friend class t_bytebuf;
-    t_bytebuf& sized_copy_(P_byte, t_n_);
+    t_bytebuf& sized_copy_(P_byte_, t_n_);
 
-    t_n_   max_   = 0;
-    p_byte store_ = nullptr;
+    t_n_    max_   = 0;
+    p_byte_ store_ = nullptr;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T, typename P, typename U>
   inline P resolve_(U u, t_n n) {
-    if ((reinterpret_cast<base::t_uintptr>(u) % alignof(T)) ||
+    if ((reinterpret_cast<t_uintptr>(u) % alignof(T)) ||
         (sizeof(T) != get(n)))
       assert_now(P_cstr{"not aligned and/or size is wrong"});
     return reinterpret_cast<P>(u);
@@ -278,31 +279,31 @@ namespace bytebuf
 
   template<typename TAG, t_n_ N>
   inline
-  r_byte t_bytebuf<TAG, N>::operator[](t_ix ix) {
+  r_byte_ t_bytebuf<TAG, N>::operator[](t_ix ix) {
     return store_[get(ix)];
   }
 
   template<typename TAG, t_n_ N>
   inline
-  R_byte t_bytebuf<TAG, N>::operator[](t_ix ix) const {
+  t_byte_ t_bytebuf<TAG, N>::operator[](t_ix ix) const {
     return store_[get(ix)];
   }
 
   template<typename TAG, t_n_ N>
   inline
-  p_byte t_bytebuf<TAG, N>::ptr() {
+  p_byte_ t_bytebuf<TAG, N>::ptr() {
     return store_;
   }
 
   template<typename TAG, t_n_ N>
   inline
-  P_byte t_bytebuf<TAG, N>::ptr() const {
+  P_byte_ t_bytebuf<TAG, N>::ptr() const {
     return store_;
   }
 
   template<typename TAG, t_n_ N>
   inline
-  P_byte t_bytebuf<TAG, N>::cptr() const {
+  P_byte_ t_bytebuf<TAG, N>::cptr() const {
     return store_;
   }
 
@@ -359,7 +360,7 @@ namespace bytebuf
 
   template<typename TAG>
   inline
-  t_bytebuf<TAG, 0>& t_bytebuf<TAG, 0>::sized_copy_(P_byte byte, t_n_ max) {
+  t_bytebuf<TAG, 0>& t_bytebuf<TAG, 0>::sized_copy_(P_byte_ byte, t_n_ max) {
     t_n_ old = base::reset(max_, max);
     if (max_) {
       if (old < max_) {
@@ -401,31 +402,31 @@ namespace bytebuf
 
   template<typename TAG>
   inline
-  r_byte t_bytebuf<TAG, 0>::operator[](t_ix ix) {
+  r_byte_ t_bytebuf<TAG, 0>::operator[](t_ix ix) {
     return store_[get(ix)];
   }
 
   template<typename TAG>
   inline
-  R_byte t_bytebuf<TAG, 0>::operator[](t_ix ix) const {
+  t_byte_ t_bytebuf<TAG, 0>::operator[](t_ix ix) const {
     return store_[get(ix)];
   }
 
   template<typename TAG>
   inline
-  p_byte t_bytebuf<TAG, 0>::ptr() {
+  p_byte_ t_bytebuf<TAG, 0>::ptr() {
     return store_;
   }
 
   template<typename TAG>
   inline
-  P_byte t_bytebuf<TAG, 0>::ptr()  const {
+  P_byte_ t_bytebuf<TAG, 0>::ptr()  const {
     return store_;
   }
 
   template<typename TAG>
   inline
-  P_byte t_bytebuf<TAG, 0>::cptr() const {
+  P_byte_ t_bytebuf<TAG, 0>::cptr() const {
     return store_;
   }
 

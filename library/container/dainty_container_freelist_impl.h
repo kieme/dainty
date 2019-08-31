@@ -42,13 +42,19 @@ namespace freelist
   using err::t_err;
   using err::r_err;
 
-  using base::t_void;
-  using base::t_bool;
-  using base::t_n_;
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_bool;
+  using base::types::t_uint64;
+  using base::types::t_n_;
+
+  using base::specific::t_specific;
+
+///////////////////////////////////////////////////////////////////////////////
 
   enum  t_id_tag_ {};
-  using t_id_ = base::t_n_;
-  using t_id  = base::t_explicit<t_id_, t_id_tag_>;
+  using t_id_ = t_n_;
+  using t_id  = t_specific<t_id_, t_id_tag_>;
 
   constexpr t_id_ BAD_ID_{0};
   constexpr t_id  BAD_ID {BAD_ID_};
@@ -56,11 +62,11 @@ namespace freelist
   template<typename T>
   struct t_result {
     using t_id    = freelist::t_id;
-    using t_value = typename base::t_prefix<T>::t_;
-    using r_value = typename base::t_prefix<T>::r_;
-    using R_value = typename base::t_prefix<T>::R_;
-    using p_value = typename base::t_prefix<T>::p_;
-    using P_value = typename base::t_prefix<T>::P_;
+    using t_value = typename t_prefix<T>::t_;
+    using r_value = typename t_prefix<T>::r_;
+    using R_value = typename t_prefix<T>::R_;
+    using p_value = typename t_prefix<T>::p_;
+    using P_value = typename t_prefix<T>::P_;
 
     t_id    id;
     p_value ptr;
@@ -92,16 +98,16 @@ namespace freelist
     using t_id     = freelist::t_id;
     using t_result = typename freelist::t_result<T>;
     using t_entry  = typename freelist::t_entry<T>;
-    using p_entry  = typename base::t_prefix<t_entry>::p_;
-    using P_entry  = typename base::t_prefix<t_entry>::P_;
-    using r_entry  = typename base::t_prefix<t_entry>::r_;
-    using R_entry  = typename base::t_prefix<t_entry>::R_;
-    using t_value  = typename base::t_prefix<T>::t_;
-    using p_value  = typename base::t_prefix<T>::p_;
-    using P_value  = typename base::t_prefix<T>::P_;
-    using r_value  = typename base::t_prefix<T>::r_;
-    using R_value  = typename base::t_prefix<T>::R_;
-    using x_value  = typename base::t_prefix<T>::x_;
+    using p_entry  = typename t_prefix<t_entry>::p_;
+    using P_entry  = typename t_prefix<t_entry>::P_;
+    using r_entry  = typename t_prefix<t_entry>::r_;
+    using R_entry  = typename t_prefix<t_entry>::R_;
+    using t_value  = typename t_prefix<T>::t_;
+    using p_value  = typename t_prefix<T>::p_;
+    using P_value  = typename t_prefix<T>::P_;
+    using r_value  = typename t_prefix<T>::r_;
+    using R_value  = typename t_prefix<T>::R_;
+    using x_value  = typename t_prefix<T>::x_;
 
     inline
     t_freelist_impl_(p_entry _entry, t_n_ max) : size_{0}, free_{0} {
@@ -264,9 +270,9 @@ namespace freelist
 
     inline
     t_bool erase(p_entry entry, t_n_ max, P_value p) {
-      base::t_uint64 begin = (base::t_uint64)entry,
-                      end   = begin + (sizeof(t_entry)*max),
-                      pos   = (base::t_uint64)p;
+      t_uint64 begin = (t_uint64)entry,
+               end   = begin + (sizeof(t_entry)*max),
+               pos   = (t_uint64)p;
       if (pos >= begin && pos < end && !(pos % alignof(t_value)))
         return erase((pos - begin)/sizeof(t_entry));
       return false;
@@ -275,9 +281,9 @@ namespace freelist
     inline
     t_bool erase(r_err err, p_entry entry, t_n_ max, P_value p) {
       ERR_GUARD(err) {
-        base::t_uint64 begin = (base::t_uint64)entry,
-                        end   = begin + (sizeof(t_entry)*max),
-                        pos   = (base::t_uint64)p;
+        t_uint64 begin = (t_uint64)entry,
+                 end   = begin + (sizeof(t_entry)*max),
+                 pos   = (t_uint64)p;
         if (pos >= begin && pos < end && !(pos % alignof(t_value)))
           return erase((pos - begin)/sizeof(t_entry));
       }

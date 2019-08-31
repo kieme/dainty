@@ -31,7 +31,12 @@ namespace dainty
 {
 namespace os
 {
-  using base::BAD_ERRN;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::NO_ERRN_;
+
+  using base::specific::BAD_ERRN;
+  using base::specific::NO_ERRN;
 
   using err::get_pthread_mutexattr_init_err_code;
   using err::get_clock_gettime_err_code;

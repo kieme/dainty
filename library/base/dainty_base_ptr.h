@@ -35,10 +35,13 @@ namespace base
 {
 namespace ptr
 {
-  using base::t_ix;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
+  using types::t_prefix;
+  using types::t_void;
+
+  using specific::t_ix;
+  using specific::t_validity;
+  using specific::VALID;
+  using specific::INVALID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +49,7 @@ namespace ptr
   struct t_del_ {
     t_del_() = default;
     template<typename E>
-    t_del_(E&& _deleter) : deleter{base::preserve<E>(_deleter)} { }
+    t_del_(E&& _deleter) : deleter{preserve<E>(_deleter)} { }
     D deleter;
   };
 
@@ -200,7 +203,7 @@ namespace ptr
      t_cptr(P_value value) : ptr_{value}                   { }
      template<typename E>
      t_cptr(P_value value, E&& deleter)
-       : ptr_{value}, del_{base::preserve<E>(deleter)}  { }
+       : ptr_{value}, del_{preserve<E>(deleter)}  { }
      t_cptr(x_cptr);
      t_cptr(x_ptr);
     ~t_cptr();
@@ -209,7 +212,7 @@ namespace ptr
     r_cptr operator=(x_cptr);
     r_cptr operator=(x_ptr);
 
-    P_value release()           { return base::reset(ptr_); }
+    P_value release()           { return reset(ptr_); }
     t_void  clear();
 
     operator t_validity() const { return ptr_ ? VALID : INVALID; }
@@ -244,7 +247,7 @@ namespace ptr
     r_cptr operator=(P_value);
     r_cptr operator=(x_cptr);
 
-    P_value release()           { return base::reset(ptr_); }
+    P_value release()           { return reset(ptr_); }
     t_void  clear();
 
     operator t_validity() const { return ptr_ ? VALID : INVALID; }
@@ -291,8 +294,8 @@ namespace ptr
       return *this;
     }
 
-    P_value release()                   { return base::reset(ptr_); }
-    t_void  clear()                     { base::reset(ptr_); }
+    P_value release()                   { return reset(ptr_); }
+    t_void  clear()                     { reset(ptr_); }
 
     operator t_validity() const         { return ptr_ ? VALID : INVALID; }
 
@@ -322,14 +325,14 @@ namespace ptr
      t_ptr(p_value value) : ptr_{value}                    { }
      template<typename E>
      t_ptr(p_value value, E&& deleter)
-       : ptr_{value}, del_{base::preserve<E>(deleter)}  { }
+       : ptr_{value}, del_{preserve<E>(deleter)}  { }
      t_ptr(x_ptr);
     ~t_ptr();
 
     r_ptr operator=(p_value);
     r_ptr operator=(x_ptr);
 
-    p_value release()                 { return base::reset(ptr_); }
+    p_value release()                 { return reset(ptr_); }
     t_void  clear();
 
     operator t_validity() const       { return ptr_ ? VALID : INVALID; }
@@ -366,7 +369,7 @@ namespace ptr
     r_ptr operator=(p_value);
     r_ptr operator=(x_ptr);
 
-    p_value release()                 { return base::reset(ptr_); }
+    p_value release()                 { return reset(ptr_); }
     t_void  clear();
 
     operator t_validity() const       { return ptr_ ? VALID : INVALID; }
@@ -374,8 +377,8 @@ namespace ptr
     p_value get()                     { return  ptr_; }
     P_value get() const               { return  ptr_; }
 
-    r_value operator[](t_ix ix)       { return  ptr_[base::get(ix)]; }
-    R_value operator[](t_ix ix) const { return  ptr_[base::get(ix)]; }
+    r_value operator[](t_ix ix)       { return  ptr_[specific::get(ix)]; }
+    R_value operator[](t_ix ix) const { return  ptr_[specific::get(ix)]; }
 
   private:
     template<typename, typename, typename> friend class t_ptr;
@@ -409,16 +412,16 @@ namespace ptr
       return *this;
     }
 
-    p_value release()                 { return base::reset(ptr_); }
-    t_void  clear()                   { base::reset(ptr_); }
+    p_value release()                 { return reset(ptr_); }
+    t_void  clear()                   { reset(ptr_); }
 
     operator t_validity() const       { return ptr_ ? VALID : INVALID; }
 
     p_value get()                     { return  ptr_; }
     P_value get() const               { return  ptr_; }
 
-    r_value operator[](t_ix ix)       { return  ptr_[base::get(ix)]; }
-    R_value operator[](t_ix ix) const { return  ptr_[base::get(ix)]; }
+    r_value operator[](t_ix ix)       { return  ptr_[specific::get(ix)]; }
+    R_value operator[](t_ix ix) const { return  ptr_[specific::get(ix)]; }
 
   private:
     template<typename, typename, typename> friend class t_cptr;
@@ -441,7 +444,7 @@ namespace ptr
      t_cptr(P_value value) : ptr_{value}                    { }
      template<typename E>
      t_cptr(P_value value, E&& deleter)
-       : ptr_{value}, del_{base::preserve<E>(deleter)}   { }
+       : ptr_{value}, del_{preserve<E>(deleter)}   { }
      t_cptr(x_cptr);
      t_cptr(x_ptr);
     ~t_cptr();
@@ -450,14 +453,14 @@ namespace ptr
     r_cptr operator=(x_cptr);
     r_cptr operator=(x_ptr);
 
-    P_value release()                 { return base::reset(ptr_); }
+    P_value release()                 { return reset(ptr_); }
     t_void  clear();
 
     operator t_validity() const       { return ptr_ ? VALID : INVALID; }
 
     P_value get() const               { return  ptr_; }
 
-    R_value operator[](t_ix ix) const { return  ptr_[base::get(ix)]; }
+    R_value operator[](t_ix ix) const { return  ptr_[specific::get(ix)]; }
 
   private:
     template<typename, typename, typename> friend class t_cptr;
@@ -485,7 +488,7 @@ namespace ptr
     r_cptr operator=(x_cptr);
     r_cptr operator=(x_ptr);
 
-    P_value release()                 { return base::reset(ptr_); }
+    P_value release()                 { return reset(ptr_); }
     t_void  clear();
 
     operator t_validity() const       { return ptr_ ? VALID : INVALID; }
@@ -531,8 +534,8 @@ namespace ptr
       return *this;
     }
 
-    P_value release()                 { return base::reset(ptr_); }
-    t_void  clear()                   { base::reset(ptr_); }
+    P_value release()                 { return reset(ptr_); }
+    t_void  clear()                   { reset(ptr_); }
 
     operator t_validity() const       { return ptr_ ? VALID : INVALID; }
 
@@ -555,13 +558,13 @@ namespace ptr
   template<typename E>
   inline
   t_ptr<T, TAG, D>::t_ptr(p_value value, E&& deleter)
-    : ptr_{value}, del_{base::preserve<E>(deleter)} {
+    : ptr_{value}, del_{preserve<E>(deleter)} {
   }
 
   template<typename T, typename TAG, typename D>
   inline
   t_ptr<T, TAG, D>::t_ptr(x_ptr ptr)
-    : ptr_{ptr.release()}, del_{base::x_cast(ptr.del_)} {
+    : ptr_{ptr.release()}, del_{x_cast(ptr.del_)} {
   }
 
   template<typename T, typename TAG, typename D>
@@ -574,7 +577,7 @@ namespace ptr
   inline
   typename t_ptr<T, TAG, D>::r_ptr t_ptr<T, TAG, D>::operator=(p_value value) {
     if (ptr_)
-      del_.deleter(base::reset(ptr_, value));
+      del_.deleter(reset(ptr_, value));
     else
       ptr_ = value;
     return *this;
@@ -584,10 +587,10 @@ namespace ptr
   inline
   typename t_ptr<T, TAG, D>::r_ptr t_ptr<T, TAG, D>::operator=(x_ptr ptr) {
     if (ptr_)
-      del_.deleter(base::reset(ptr_, ptr.release()));
+      del_.deleter(reset(ptr_, ptr.release()));
     else
       ptr_ = ptr.release();
-    del_ = base::x_cast(ptr.del_);
+    del_ = x_cast(ptr.del_);
     return *this;
   }
 
@@ -600,14 +603,14 @@ namespace ptr
   template<typename T, typename TAG, typename D>
   inline
   typename t_ptr<T, TAG, D>::p_value t_ptr<T, TAG, D>::release() {
-    return base::reset(ptr_);
+    return reset(ptr_);
   }
 
   template<typename T, typename TAG, typename D>
   inline
   t_void t_ptr<T, TAG, D>::clear() {
     if (ptr_)
-      del_.deleter(base::reset(ptr_));
+      del_.deleter(reset(ptr_));
   }
 
   template<typename T, typename TAG, typename D>
@@ -669,7 +672,7 @@ namespace ptr
   typename t_ptr<T, TAG, t_deleter>::r_ptr
       t_ptr<T, TAG, t_deleter>::operator=(p_value value) {
     if (ptr_)
-      delete base::reset(ptr_, value);
+      delete reset(ptr_, value);
     else
       ptr_ = value;
     return *this;
@@ -680,7 +683,7 @@ namespace ptr
   typename t_ptr<T, TAG, t_deleter>::r_ptr
       t_ptr<T, TAG, t_deleter>::operator=(x_ptr ptr) {
     if (ptr_)
-      delete base::reset(ptr_, ptr.release());
+      delete reset(ptr_, ptr.release());
     else
       ptr_ = ptr.release();
     return *this;
@@ -696,14 +699,14 @@ namespace ptr
   inline
   typename t_ptr<T, TAG, t_deleter>::p_value
       t_ptr<T, TAG, t_deleter>::release() {
-    return base::reset(ptr_);
+    return reset(ptr_);
   }
 
   template<typename T, typename TAG>
   inline
   t_void t_ptr<T, TAG, t_deleter>::clear() {
     if (ptr_)
-      delete base::reset(ptr_);
+      delete reset(ptr_);
   }
 
   template<typename T, typename TAG>
@@ -796,13 +799,13 @@ namespace ptr
   inline
   typename t_ptr<T, TAG, t_no_deleter>::p_value
       t_ptr<T, TAG, t_no_deleter>::release() {
-    return base::reset(ptr_);
+    return reset(ptr_);
    }
 
   template<typename T, typename TAG>
   inline
   t_void t_ptr<T, TAG, t_no_deleter>::clear() {
-    base::reset(ptr_);
+    reset(ptr_);
   }
 
   template<typename T, typename TAG>
@@ -866,7 +869,7 @@ namespace ptr
   typename t_cptr<T, TAG, D>::r_cptr
       t_cptr<T, TAG, D>::operator=(P_value value) {
     if (ptr_)
-      del_.deleter(base::reset(ptr_, value));
+      del_.deleter(reset(ptr_, value));
     else
       ptr_ = value;
     return *this;
@@ -877,10 +880,10 @@ namespace ptr
   typename t_cptr<T, TAG, D>::r_cptr
       t_cptr<T, TAG, D>::operator=(x_cptr ptr) {
     if (ptr_)
-      del_.deleter(base::reset(ptr_, ptr.release()));
+      del_.deleter(reset(ptr_, ptr.release()));
     else
       ptr_ = ptr.release();
-    del_ = base::x_cast(ptr.del_);
+    del_ = x_cast(ptr.del_);
     return *this;
   }
 
@@ -888,7 +891,7 @@ namespace ptr
   inline
   t_void t_cptr<T, TAG, D>::clear() {
     if (ptr_)
-      del_.deleter(base::reset(ptr_));
+      del_.deleter(reset(ptr_));
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -904,7 +907,7 @@ namespace ptr
   typename t_cptr<T, TAG, t_deleter>::r_cptr
       t_cptr<T, TAG, t_deleter>::operator=(P_value value) {
     if (ptr_)
-      delete base::reset(ptr_, value);
+      delete reset(ptr_, value);
     else
       ptr_ = value;
     return *this;
@@ -915,7 +918,7 @@ namespace ptr
   typename t_cptr<T, TAG, t_deleter>::r_cptr
       t_cptr<T, TAG, t_deleter>::operator=(x_cptr ptr) {
     if (ptr_)
-      delete base::reset(ptr_, ptr.release());
+      delete reset(ptr_, ptr.release());
     else
       ptr_ = ptr.release();
     return *this;
@@ -925,7 +928,7 @@ namespace ptr
   inline
   t_void t_cptr<T, TAG, t_deleter>::clear() {
     if (ptr_)
-      delete base::reset(ptr_);
+      delete reset(ptr_);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -941,7 +944,7 @@ namespace ptr
   typename t_ptr<T[], TAG, D>::r_ptr
       t_ptr<T[], TAG, D>::operator=(p_value value) {
     if (ptr_)
-      del_.deleter(base::reset(ptr_, value));
+      del_.deleter(reset(ptr_, value));
     else
       ptr_ = value;
     return *this;
@@ -951,10 +954,10 @@ namespace ptr
   inline
   typename t_ptr<T[], TAG, D>::r_ptr t_ptr<T[], TAG, D>::operator=(x_ptr ptr) {
     if (ptr_)
-      del_.deleter(base::reset(ptr_, ptr.release()));
+      del_.deleter(reset(ptr_, ptr.release()));
     else
       ptr_ = ptr.release();
-    del_ =  base::x_cast(ptr.del_);
+    del_ =  x_cast(ptr.del_);
     return *this;
   }
 
@@ -962,7 +965,7 @@ namespace ptr
   inline
   t_void t_ptr<T[], TAG, D>::clear() {
     if (ptr_)
-      del_.deleter(base::reset(ptr_));
+      del_.deleter(reset(ptr_));
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -978,7 +981,7 @@ namespace ptr
   typename t_ptr<T[], TAG, t_deleter>::r_ptr
       t_ptr<T[], TAG, t_deleter>::operator=(p_value value) {
     if (ptr_)
-      delete [] base::reset(ptr_, value);
+      delete [] reset(ptr_, value);
     else
       ptr_ = value;
     return *this;
@@ -989,7 +992,7 @@ namespace ptr
   typename t_ptr<T[], TAG, t_deleter>::r_ptr
       t_ptr<T[], TAG, t_deleter>::operator=(x_ptr ptr) {
     if (ptr_)
-      delete [] base::reset(ptr_, ptr.release());
+      delete [] reset(ptr_, ptr.release());
     else
       ptr_ = ptr.release();
     return *this;
@@ -999,7 +1002,7 @@ namespace ptr
   inline
   t_void t_ptr<T[], TAG, t_deleter>::clear() {
     if (ptr_)
-      delete [] base::reset(ptr_);
+      delete [] reset(ptr_);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1015,7 +1018,7 @@ namespace ptr
   typename t_cptr<T[], TAG, D>::r_cptr
       t_cptr<T[], TAG, D>::operator=(P_value value) {
     if (ptr_)
-      del_.deleter(base::reset(ptr_, value));
+      del_.deleter(reset(ptr_, value));
     else
       ptr_ = value;
     return *this;
@@ -1026,10 +1029,10 @@ namespace ptr
   typename t_cptr<T[], TAG, D>::r_cptr
       t_cptr<T[], TAG, D>::operator=(x_cptr ptr) {
     if (ptr_)
-      del_.deleter(base::reset(ptr_, ptr.release()));
+      del_.deleter(reset(ptr_, ptr.release()));
     else
       ptr_ = ptr.release();
-    del_ = base::x_cast(ptr.del_);
+    del_ = x_cast(ptr.del_);
     return *this;
   }
 
@@ -1037,7 +1040,7 @@ namespace ptr
   inline
   t_void t_cptr<T[], TAG, D>::clear() {
     if (ptr_)
-      del_.deleter(base::reset(ptr_));
+      del_.deleter(reset(ptr_));
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1053,7 +1056,7 @@ namespace ptr
   typename t_cptr<T[], TAG, t_deleter>::r_cptr
       t_cptr<T[], TAG, t_deleter>::operator=(P_value value) {
     if (ptr_)
-      delete [] base::reset(ptr_, value);
+      delete [] reset(ptr_, value);
     else
       ptr_ = value;
     return *this;
@@ -1064,7 +1067,7 @@ namespace ptr
   typename t_cptr<T[], TAG, t_deleter>::r_cptr
       t_cptr<T[], TAG, t_deleter>::operator=(x_cptr ptr) {
     if (ptr_)
-      delete [] base::reset(ptr_, ptr.release());
+      delete [] reset(ptr_, ptr.release());
     else
       ptr_ = ptr.release();
     return *this;
@@ -1074,7 +1077,7 @@ namespace ptr
   inline
   t_void t_cptr<T[], TAG, t_deleter>::clear() {
     if (ptr_)
-      delete [] base::reset(ptr_);
+      delete [] reset(ptr_);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

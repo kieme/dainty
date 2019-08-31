@@ -35,6 +35,16 @@ namespace container
 {
 namespace err
 {
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+
+  using oops::t_oops;
+  using oops::t_def;
+  using oops::t_id;
+
+///////////////////////////////////////////////////////////////////////////////
+
   enum t_err_codes {
     E_INVALID_IX   = 1,
     E_NO_SPACE     = 2,
@@ -47,10 +57,12 @@ namespace err
     E_XXX          = 9
   };
 
-  oops::t_def err_what(oops::t_id);
+  t_def err_what(t_id);
 
-  using t_err = oops::t_oops<err_what, t_err_codes>;
-  using r_err = base::t_prefix<t_err>::r_;
+  using t_err = t_oops<err_what, t_err_codes>;
+  using r_err = t_prefix<t_err>::r_;
+
+///////////////////////////////////////////////////////////////////////////////
 }
 }
 }

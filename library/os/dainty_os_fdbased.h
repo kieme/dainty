@@ -38,14 +38,24 @@ namespace os
 {
 namespace fdbased
 {
-  using base::t_prefix;
-  using base::t_fd;
-  using base::t_void;
-  using base::t_n_;
-  using base::t_n;
-  using base::t_fd;
-  using base::BAD_FD;
+///////////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
+
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_n_;
+  using base::types::t_uint64;
+  using base::types::t_uint32;
+
+  using base::specific::t_n;
+  using base::specific::t_msec;
+  using base::specific::t_n;
+  using base::specific::t_fd;
+  using base::specific::t_validity;
+  using base::specific::BAD_FD;
+  using base::specific::VALID;
+  using base::specific::INVALID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +67,7 @@ namespace fdbased
   class t_eventfd final {
   public:
     using t_fd    = fdbased::t_fd;
-    using t_value = base::t_uint64;
+    using t_value = t_uint64;
     using r_value = t_prefix<t_value>::r_;
     using R_value = t_prefix<t_value>::R_;
 
@@ -98,11 +108,11 @@ namespace fdbased
 
   class t_epoll final {
   public:
-    using t_n          = base::t_n;
-    using t_msec       = base::t_msec;
+    using t_n          = fdbased::t_n;
+    using t_msec       = fdbased::t_msec;
     using t_fd         = fdbased::t_fd;
-    using t_event_mask = ::uint32_t;
-    using t_event_data = ::epoll_data;
+    using t_event_mask = t_uint32;
+    using t_event_data = ::epoll_data; // XXX
     using t_event      = t_prefix<::epoll_event>::t_;
     using p_event      = t_prefix<::epoll_event>::p_;
 
@@ -182,7 +192,7 @@ namespace fdbased
     using t_timerspec = t_prefix<::itimerspec>::t_;
     using r_timerspec = t_prefix<t_timerspec>::r_;
     using R_timerspec = t_prefix<t_timerspec>::R_;
-    using t_data      = base::t_uint64;
+    using t_data      = t_uint64;
     using r_data      = t_prefix<t_data>::r_;
 
     static t_timerspec mk_timerspec(t_time value, t_time interval);
@@ -221,7 +231,6 @@ namespace fdbased
   };
 
 ///////////////////////////////////////////////////////////////////////////////
-
 
   inline
   t_eventfd::operator t_validity() const noexcept {

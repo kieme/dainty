@@ -41,7 +41,12 @@ namespace sandbox
 {
 namespace logic_messenger_ext
 {
-  using base::t_n;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+
+  using base::specific::t_n;
+
   using container::maybe::t_maybe;
   using container::list::t_list;
   using container::freelist::t_freelist;

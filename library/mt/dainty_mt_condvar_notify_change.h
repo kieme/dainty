@@ -37,16 +37,27 @@ namespace mt
 {
 namespace condvar_notify_change
 {
-  using base::t_n;
-  using base::t_void;
-  using base::t_errn;
-  using base::t_prefix;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
+ ///////////////////////////////////////////////////////////////////////////////
 
   using err::t_err;
+
+  using base::types::t_prefix;
+  using base::types::t_void;
+
+  using base::specific::t_n;
+  using base::specific::t_errn;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+  using base::specific::NO_ERRN;
+
+  using base::ptr::t_ptr;
+  using base::ptr::t_no_deleter;
+  using base::ptr::t_deleter;
+
   using container::any::t_any;
+
+ ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_user_tag_ { };
   using t_user = base::t_user<t_user_tag_>;
@@ -55,11 +66,10 @@ namespace condvar_notify_change
 
    class t_impl_;
    enum  t_impl_user_tag_ { };
-   using t_impl_user_ = base::ptr::t_ptr<t_impl_, t_impl_user_tag_,
-                                          base::ptr::t_no_deleter>;
+   using t_impl_user_ = t_ptr<t_impl_, t_impl_user_tag_, t_no_deleter>;
+
    enum  t_impl_owner_tag_ { };
-   using t_impl_owner_ = base::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
-                                           base::ptr::t_deleter>;
+   using t_impl_owner_ = t_ptr<t_impl_, t_impl_owner_tag_, t_deleter>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -130,7 +140,6 @@ namespace condvar_notify_change
   };
 
 ///////////////////////////////////////////////////////////////////////////////
-
 }
 }
 }

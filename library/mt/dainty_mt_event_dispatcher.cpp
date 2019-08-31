@@ -35,32 +35,41 @@ namespace mt
 {
 namespace event_dispatcher
 {
-  using base::t_n_;
-  using base::t_ix_;
-  using base::string::operator""_SL;
-  using base::t_uint32;
-  using os::fdbased::t_epoll;
+///////////////////////////////////////////////////////////////////////////////
+
   using err::r_err;
 
-  using os::t_epoll_event;
-  using p_epoll_event = t_prefix<t_epoll_event>::p_;
+  using base::types::t_n_;
+  using base::types::t_ix_;
+  using base::types::t_uint32;
 
-  using t_id     = container::freelist::t_id;
-  using t_events = container::freelist::t_freelist<t_event_info>;
-  using r_events = t_prefix<t_events>::r_;
-  using r_logic  = t_dispatcher::r_logic;
+  using base::string::operator""_SL;
+
+  using os::fdbased::t_epoll;
+  using os::t_epoll_event;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  inline t_id to_(t_event_id id) {
+  using p_epoll_event = t_prefix<t_epoll_event>::p_;
+  using t_id          = container::freelist::t_id;
+  using t_events      = container::freelist::t_freelist<t_event_info>;
+  using r_events      = t_prefix<t_events>::r_;
+  using r_logic       = t_dispatcher::r_logic;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_id to_(t_event_id id) {
     return t_id(get(id));
   }
 
-  inline t_id to_(t_uint32 id) {
+  inline
+  t_id to_(t_uint32 id) {
     return t_id(id);
   }
 
-  inline t_event_id to_(t_id id) {
+  inline
+  t_event_id to_(t_id id) {
     return t_event_id(get(id));
   }
 

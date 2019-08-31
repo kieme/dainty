@@ -35,25 +35,30 @@ namespace container
 {
 namespace transfer
 {
-  using base::t_errn;
-  using base::t_validity;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+
+  using base::specific::t_errn;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+  using base::specific::NO_ERRN;
+  using base::specific::BAD_ERRN;
+
   using base::t_emplace_it;
   using base::EMPLACE_IT;
-  using base::VALID;
-  using base::INVALID;
-  using base::NO_ERRN;
-  using base::BAD_ERRN;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_transfer {
   public:
-    using t_value    = typename base::t_prefix<T>::t_;
-    using x_value    = typename base::t_prefix<T>::x_;
-    using r_transfer = typename base::t_prefix<t_transfer>::r_;
-    using R_transfer = typename base::t_prefix<t_transfer>::R_;
-    using x_transfer = typename base::t_prefix<t_transfer>::x_;
+    using t_value    = typename t_prefix<T>::t_;
+    using x_value    = typename t_prefix<T>::x_;
+    using r_transfer = typename t_prefix<t_transfer>::r_;
+    using R_transfer = typename t_prefix<t_transfer>::R_;
+    using x_transfer = typename t_prefix<t_transfer>::x_;
 
     t_transfer() = default;
     template<typename... Args>
@@ -94,11 +99,11 @@ namespace transfer
   template<typename T>
   class t_errn_transfer {
   public:
-    using t_value         = typename base::t_prefix<T>::t_;
-    using x_value         = typename base::t_prefix<T>::x_;
-    using r_errn_transfer = typename base::t_prefix<t_errn_transfer>::r_;
-    using R_errn_transfer = typename base::t_prefix<t_errn_transfer>::R_;
-    using x_errn_transfer = typename base::t_prefix<t_errn_transfer>::x_;
+    using t_value         = typename t_prefix<T>::t_;
+    using x_value         = typename t_prefix<T>::x_;
+    using r_errn_transfer = typename t_prefix<t_errn_transfer>::r_;
+    using R_errn_transfer = typename t_prefix<t_errn_transfer>::R_;
+    using x_errn_transfer = typename t_prefix<t_errn_transfer>::x_;
 
     template<typename... Args>
     t_errn_transfer(t_emplace_it, Args&&...);
@@ -186,7 +191,7 @@ namespace transfer
   inline
   t_errn_transfer<T>::t_errn_transfer(t_errn errn) noexcept : errn_{errn} {
     if (errn_ == NO_ERRN) {
-      // assert when zero!!!
+      // assert when zero!!! XXX
       errn_ = BAD_ERRN; // make sure this object is not mistaken
     }
   }

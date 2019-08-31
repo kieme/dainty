@@ -136,7 +136,7 @@ namespace string
 
   enum  t_indent_no_tag_ {};
   using t_indent_no_ = t_int;
-  using t_indent_no  = t_explicit<t_indent_no_, t_indent_no_tag_>;
+  using t_indent_no  = specific::t_specific<t_indent_no_, t_indent_no_tag_>;
 
   template<t_n_ INDENT_DEPTH = 2, t_char INDENT_CHAR = ' '>
   struct t_indent_v_ {
@@ -180,13 +180,16 @@ namespace string
 ////////////////////////////////////////////////////////////////////////////////
 
   enum t_hex_v_tag_ {};
-  template<typename T> using t_hex_v_ = t_explicit<T, t_hex_v_tag_>;
+  template<typename T>
+  using t_hex_v_ = specific::t_specific<T, t_hex_v_tag_>;
 
   enum t_int_v_tag_ {};
-  template<typename T> using t_int_v_ = t_explicit<T, t_int_v_tag_>;
+  template<typename T>
+  using t_int_v_ = specific::t_specific<T, t_int_v_tag_>;
 
   enum t_ptr_v_tag_ {};
-  template<typename T> using t_ptr_v_ = t_explicit<T, t_ptr_v_tag_>;
+  template<typename T>
+  using t_ptr_v_ = specific::t_specific<T, t_ptr_v_tag_>;
 
   template<typename T>
   constexpr t_hex_v_<T>  hex    (T value)  noexcept {
@@ -304,7 +307,7 @@ namespace string
 
   enum  t_width_tag_ {};
   using t_width_ = t_int;
-  using t_width  = t_explicit<t_width_, t_width_tag_>;
+  using t_width  = specific::t_specific<t_width_, t_width_tag_>;
 
   template<typename T, t_width_ WIDTH, t_align ALIGN = ALIGN_RIGHT>
   struct t_fmt_v_;

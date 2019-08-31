@@ -1,0 +1,12 @@
+- extension for ftrace marker in tracing service
+- extension for opening files - logic extensions
+- valuestore of base should be used instead of container::valuestore
+- search all the XXXs, I really have broken things
+- add noexcept
+- dainty_base_mem/buf - remove bytebuf - think dainty_base_buf does it already
+- using err::t_err instead of t_err = err::t_err;
+- some classes need xxx_impl.h
+- made implementations could be packed into impl_ namespace
+- cmake - must start using a build system
+- tipc - must do it to finish messaging
+- dacli will take awhile - do tipc at times

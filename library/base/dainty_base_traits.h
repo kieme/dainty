@@ -37,6 +37,14 @@ namespace traits
 {
 ///////////////////////////////////////////////////////////////////////////////
 
+  using types::t_bool;
+  using types::t_size_;
+  using types::t_n_;
+  using types::t_void;
+  using types::t_nullptr;
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<typename T>      struct t_add_identity { using t_identity = T; };
   template<typename T>      struct t_add_result   { using t_result   = T; };
   template<typename T>      struct t_add_value    { using t_value    = T; };
@@ -53,6 +61,7 @@ namespace traits
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  // XXX - t_add_result should be on t_bool_result
   struct t_true  : t_add_result<t_true>,  t_constant<t_bool, true>  { };
   struct t_false : t_add_result<t_false>, t_constant<t_bool, false> { };
 
@@ -67,7 +76,7 @@ namespace traits
 
   template<typename... Args>
   struct t_pack {
-    constexpr static const t_size_ N = sizeof...(Args);
+    constexpr static t_size_ N = sizeof...(Args);
 
     template<template<typename...> class D>
     using t_into = D<Args...>;
@@ -89,9 +98,6 @@ namespace traits
   template<typename I, typename T>
   struct t_if_then : t_if_then<typename I::t_result, T> { };
 
-  //template<typename T>
-  //struct t_if_then<t_false, T> { };
-
   template<typename T>
   struct t_if_then<t_true, T> : t_add_value<T> { };
 
@@ -102,7 +108,7 @@ namespace traits
 ///////////////////////////////////////////////////////////////////////////////
 
   template<t_bool> struct t_bool_result       : t_false { };
-  template<>       struct t_bool_result<true> : t_true  { };
+  template<>              struct t_bool_result<true> : t_true  { };
 
   using t_TRUE_  = t_bool_result<true>;  // shorthand
   using t_FALSE_ = t_bool_result<false>; // shorthand
@@ -384,7 +390,7 @@ namespace traits
 ///////////////////////////////////////////////////////////////////////////////
 
   // primary type categories
-  template<typename> struct t_is_bool         : t_FALSE_ { };
+  template<typename> struct t_is_bool                : t_FALSE_ { };
   template<>         struct t_is_bool<t_bool> : t_TRUE_  { };
 
   template<typename T> using t_is_not_bool = t_not<t_is_bool<T>>;
@@ -523,8 +529,8 @@ namespace traits
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename>              struct t_is_bounded_array       : t_FALSE_ { };
-  template<typename T, t_size_ N> struct t_is_bounded_array<T[N]> : t_TRUE_  { };
+  template<typename>           struct t_is_bounded_array       : t_FALSE_ { };
+  template<typename T, t_n_ N> struct t_is_bounded_array<T[N]> : t_TRUE_  { };
 
   template<typename T> using t_is_not_bounded_array = t_not<t_is_bounded_array<T>>;
   template<typename T> using t_if_bounded_array     = t_if<t_is_bounded_array<T>>;
@@ -1627,18 +1633,18 @@ struct t_is_precision : t_is_one_of<T, double, float, long double> { };
 ///////////////////////////////////////////////////////////////////////////////
 
   namespace impl_ {
-    template<t_size_, typename...> struct t_is_subset_of_;
+    template<t_n_, typename...> struct t_is_subset_of_;
 
-    template<t_size_ N, typename T, typename... Ts, typename... Us>
+    template<t_n_ N, typename T, typename... Ts, typename... Us>
     struct t_is_subset_of_<N, t_pack<T, Ts...>, t_pack<Us...>>
       : t_if_then_else<t_is_one_of<T, Us...>,
                        t_is_subset_of_<N, t_pack<Ts...>, t_pack<Us...>>,
                        t_FALSE_>::t_value { };
 
-    template<t_size_ N, typename... Us>
+    template<t_n_ N, typename... Us>
     struct t_is_subset_of_<N, t_pack<>, t_pack<Us...>> : t_TRUE_  { };
 
-    template<t_size_ N, typename... Ts>
+    template<t_n_ N, typename... Ts>
     struct t_is_subset_of_<N, t_pack<Ts...>, t_pack<>> : t_FALSE_ { };
 
     template<typename... Ts, typename... Us>

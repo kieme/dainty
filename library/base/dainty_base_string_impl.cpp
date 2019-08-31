@@ -39,6 +39,11 @@ namespace string
 {
 ////////////////////////////////////////////////////////////////////////////////
 
+  using types::T_bool;
+  using types::T_char;
+
+////////////////////////////////////////////////////////////////////////////////
+
   t_void display(t_fmt, P_cstr_ fmt, ...) noexcept {
     va_list args;
     va_start(args, fmt);
@@ -59,7 +64,7 @@ namespace string
   p_cstr_ alloc_(t_n_ n) noexcept {
     p_cstr_ str = (p_cstr_)std::malloc(n);
     if (!str)
-      assert_now(P_cstr("malloc failed to allocate"));
+      assertion::assert_now(P_cstr("malloc failed to allocate"));
     return str;
   }
 
@@ -71,7 +76,7 @@ namespace string
   p_cstr_ realloc_(p_cstr_ str, t_n_ n) noexcept {
     str = (p_cstr_)std::realloc(str, n);
     if (!str)
-      assert_now(P_cstr("realloc failed to allocate"));
+      assertion::assert_now(P_cstr("realloc failed to allocate"));
     return str;
   }
 
@@ -106,15 +111,16 @@ namespace string
   t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars,
               t_overflow_assert) noexcept {
     auto n = std::vsnprintf(dst, max, fmt, vars);
-    assert_if_false(n > 0 && (t_n_)n < max,
-                    P_cstr("failed to build, buffer might be too small"));
+    assertion::assert_when_false(n > 0 && (t_n_)n < max,
+      P_cstr("failed to build, buffer might be too small"));
     return n;
   }
 
   t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars,
               t_overflow_truncate) noexcept {
     auto n = std::vsnprintf(dst, max, fmt, vars);
-    assert_if_false(n > 0, P_cstr("failed to build, std::vsnprintf failed"));
+    assertion::assert_when_false(n > 0,
+      P_cstr("failed to build, std::vsnprintf failed"));
     if ((t_n_)n >= max)
       n = max - 1;
     return n;
@@ -126,7 +132,7 @@ namespace string
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
     if (src[cnt] && cnt != n)
-      assert_now(P_cstr("buffer not big enough"));
+      assertion::assert_now(P_cstr("buffer not big enough"));
     dst[cnt] = '\0';
     return cnt;
   }
@@ -146,7 +152,7 @@ namespace string
     for (; cnt < min && src[cnt]; ++cnt)
       dst[cnt] = src[cnt];
     if (src[cnt])
-      assert_now(P_cstr("buffer not big enough"));
+      assertion::assert_now(P_cstr("buffer not big enough"));
     dst[cnt] = '\0';
     return cnt;
   }
@@ -164,7 +170,7 @@ namespace string
              t_overflow_assert) noexcept {
     auto bmax = get(block.max);
     if (bmax > max - 1)
-      assert_now(P_cstr("buffer not big enough"));
+      assertion::assert_now(P_cstr("buffer not big enough"));
     for (t_n_ cnt = 0; cnt < bmax; ++cnt)
       dst[cnt] = block.c;
     dst[bmax] = '\0';
@@ -382,7 +388,7 @@ namespace string
   t_void scan_(P_cstr_ str, t_n_ n, P_cstr_ fmt, va_list args) noexcept {
     auto cnt = std::vsscanf(str, fmt, args);
     if (cnt != static_cast<t_int>(n))
-      assert_now(P_cstr("scanf could not find you value(s)"));
+      assertion::assert_now(P_cstr("scanf could not find you value(s)"));
   }
 
   t_void scan_fmt_(P_cstr_ str, t_n_ n, P_cstr_ fmt, ...) noexcept {
@@ -399,7 +405,7 @@ namespace string
     if (max >= 1 && range[t_ix{0}] == ch)
       return 1;
 
-    assert_now(P_cstr("can't skip charater"));
+    assertion::assert_now(P_cstr("can't skip charater"));
     return 0;
   }
 
@@ -408,7 +414,7 @@ namespace string
     if (n <= max)
       return n;
 
-    assert_now(P_cstr("buffer not big enough"));
+    assertion::assert_now(P_cstr("buffer not big enough"));
     return 0;
   }
 
@@ -418,7 +424,7 @@ namespace string
     if (tmp == src)
       return get(src.n);
 
-    assert_now(P_cstr("range not the same"));
+    assertion::assert_now(P_cstr("range not the same"));
     return 0;
   }
 
@@ -431,7 +437,7 @@ namespace string
         return n;
     }
 
-    assert_now(P_cstr("range not the same"));
+    assertion::assert_now(P_cstr("range not the same"));
     return 0;
   }
 
@@ -444,7 +450,7 @@ namespace string
         return ix + plus1;
     }
 
-    assert_now(P_cstr("dont find char"));
+    assertion::assert_now(P_cstr("dont find char"));
     return 0;
   }
 
@@ -458,7 +464,7 @@ namespace string
         return plus1 == PLUS1 ? ix : ix - value_max;
     }
 
-    assert_now(P_cstr("dont find substring"));
+    assertion::assert_now(P_cstr("dont find substring"));
     return 0;
   }
 
@@ -482,7 +488,7 @@ namespace string
       return max;
     }
 
-    assert_now(P_cstr("not large enough"));
+    assertion::assert_now(P_cstr("not large enough"));
     return 0;
   }
 
@@ -498,7 +504,7 @@ namespace string
       }
     }
 
-    assert_now(P_cstr("not found"));
+    assertion::assert_now(P_cstr("not found"));
     return 0;
   }
 
@@ -516,7 +522,7 @@ namespace string
       return max;
     }
 
-    assert_now(P_cstr("not found"));
+    assertion::assert_now(P_cstr("not found"));
     return 0;
   }
 

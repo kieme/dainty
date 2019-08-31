@@ -52,18 +52,28 @@ namespace dainty
 {
 namespace dacli
 {
-  using base::t_void;
-  using base::t_bool;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
-  using base::t_prefix;
+/******************************************************************************/
+
+  using err::t_err;
+  using err::r_err;
+
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_bool;
+  using base::types::t_uint32;
+  using base::types::t_uint16;
+  using base::types::p_void;
+
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
   using base::string::t_string;
   using base::string::segmented::t_segmented;
   using base::string::segmented::t_seg_no;
   using base::string::operator""_SL;
-  using err::t_err;
-  using err::r_err;
+
+/******************************************************************************/
 
   using t_string_crange = base::string::t_crange;
 
@@ -71,18 +81,18 @@ namespace dacli
 
 namespace argn
 {
-  using base::t_ix;
-  using base::t_n;
+  using base::specific::t_ix;
+  using base::specific::t_n;
 
-  using base::operator"" _ix;
-  using base::operator"" _bix;
-  using base::operator"" _eix;
-  using base::operator"" _n;
+  using base::specific::operator"" _ix;
+  using base::specific::operator"" _bix;
+  using base::specific::operator"" _eix;
+  using base::specific::operator"" _n;
 
-  constexpr base::t_uint32 OPTIONAL = 0x10000000;
+  constexpr t_uint32 OPTIONAL = 0x10000000;
 
   // types that can be compared
-  enum t_type : base::t_uint32 {
+  enum t_type : t_uint32 {
     TYPE_Q   = 0x00000000,  // 1. // INVALID TYPE     **
     TYPE_L   = 0x00000001,  // 2. // LIST TYPE        ** name@n=[1,2,3,4]
     TYPE_X   = 0x00000002,  // 3. // LOOKUP TYPE      ** name@2{a=, b=, ~c}=
@@ -105,8 +115,8 @@ namespace argn
     TYPE_OH  = OPTIONAL | TYPE_H,
     TYPE_OK  = OPTIONAL | TYPE_K
   };
-  using T_type = base::t_prefix<t_type>::T_;
-  using r_type = base::t_prefix<t_type>::r_;
+  using T_type = t_prefix<t_type>::T_;
+  using r_type = t_prefix<t_type>::r_;
 
   constexpr t_bool is_optional  (t_type t) noexcept { return OPTIONAL & t; }
   constexpr t_bool is_simple    (t_type t) noexcept { return TYPE_S   & t; }
@@ -248,7 +258,7 @@ namespace argn
         t_bool       init_ = false;
       } range_;
       struct {
-        base::t_uint16 options_ = 0;
+        t_uint16 options_ = 0;
       } group_;
     };
   };
@@ -275,11 +285,11 @@ namespace argn
         t_bool       init_ = false;
       } range_;
       struct {
-        base::t_uint16 options_ = 0;
+        t_uint16 options_ = 0;
       } group_;
     };
-    t_name                     ext_;
-    std::vector<base::p_void> mem_; // XXX - placeholder for a freelistid
+    t_name              ext_;
+    std::vector<p_void> mem_; // XXX - placeholder for a freelistid
   };
   using r_arg_info_ = t_prefix<t_arg_info_>::r_;
   using R_arg_info_ = t_prefix<t_arg_info_>::R_;
@@ -292,8 +302,8 @@ namespace argn
     t_values    values_;
     t_path      path_;
   };
-  using R_arg_value_ = base::t_prefix<t_arg_value_>::R_;
-  using r_arg_value_ = base::t_prefix<t_arg_value_>::r_;
+  using R_arg_value_ = t_prefix<t_arg_value_>::R_;
+  using r_arg_value_ = t_prefix<t_arg_value_>::r_;
 
   struct t_arg_compare_ {
     t_bool operator()(R_fullname lh, R_fullname rh) const noexcept;
@@ -314,7 +324,7 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  // XXX must be cleaned up - just use t_explicit or t_logical
+  // XXX must be cleaned up - just use t_specific or t_logical
   struct t_optional_params {
     t_bool optional_;
     constexpr t_optional_params(t_bool optional = false) noexcept

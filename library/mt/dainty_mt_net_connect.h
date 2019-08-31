@@ -44,19 +44,24 @@ namespace mt
 {
 namespace net_connect
 {
+///////////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
 
-  using base::t_prefix;
-  using base::t_explicit;
-  using base::t_fd;
-  using base::t_n;
-  using base::t_void;
-  using base::t_bool;
-  using base::BAD_FD;
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_bool;
+  using base::types::t_int;
+
+  using base::specific::t_specific;
+  using base::specific::t_validity;
+  using base::specific::t_fd;
+  using base::specific::t_n;
+  using base::specific::BAD_FD;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
   using base::t_user;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
 
   using container::list::t_list;
   using container::maybe::t_maybe;
@@ -73,8 +78,8 @@ namespace net_connect
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_connect_id_tag_ {};
-  using t_connect_id_ = base::t_int;
-  using t_connect_id  = t_explicit<t_connect_id_, t_connect_id_tag_>;
+  using t_connect_id_ = t_int;
+  using t_connect_id  = t_specific<t_connect_id_, t_connect_id_tag_>;
 
   constexpr t_connect_id BAD_CONNECT_ID{-1}; // BAD_ID - XXX
 

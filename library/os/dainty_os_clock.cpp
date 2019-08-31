@@ -26,6 +26,7 @@
 
 #include "dainty_base_assert.h"
 #include "dainty_os_clock.h"
+#include "dainty_os_threading.h"
 
 namespace dainty
 {
@@ -33,6 +34,16 @@ namespace os
 {
 namespace clock
 {
+///////////////////////////////////////////////////////////////////////////////
+
+  using namespace dainty::os::threading;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::assertion::assert_now;
+
+///////////////////////////////////////////////////////////////////////////////
+
   t_time monotonic_now() noexcept {
     t_time time;
     if (call_clock_gettime_monotonic(to_(time)) == VALID)

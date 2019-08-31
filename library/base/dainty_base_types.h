@@ -33,6 +33,8 @@ namespace dainty
 {
 namespace base
 {
+namespace types
+{
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
@@ -300,6 +302,28 @@ namespace base
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  enum  t_size_tag_       {};
+  enum  t_byte_tag_       {};
+  enum  t_fd_tag_         {};
+  enum  t_cnt_tag_        {};
+  enum  t_n_tag_          {};
+  enum  t_ix_tag_         {};
+  enum  t_bix_tag_        {};
+  enum  t_eix_tag_        {};
+  enum  t_validity_tag_   {};
+  enum  t_cstr_tag_       {};
+  enum  t_percentage_tag_ {};
+  enum  t_seq_no_tag_     {};
+  enum  t_nsec_tag_       {};
+  enum  t_usec_tag_       {};
+  enum  t_msec_tag_       {};
+  enum  t_sec_tag_        {};
+  enum  t_min_tag_        {};
+  enum  t_ticks_tag_      {};
+  enum  t_errn_tag_       {};
+
+///////////////////////////////////////////////////////////////////////////////
+
   using t_size_        = __SIZE_TYPE__;
   using T_size_        = t_prefix<t_size_>::T_;
   using r_size_        = t_prefix<t_size_>::r_;
@@ -401,6 +425,26 @@ namespace base
   using P_ticks_       = t_prefix<t_ticks_>::P_;
 
 ///////////////////////////////////////////////////////////////////////////////
+
+  using p_cstr_        = p_char;
+  using P_cstr_        = P_char;
+  using t_cstr_ptr_    = p_cstr_;
+  using t_cstr_cptr_   = P_cstr_;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  constexpr t_validity_    VALID_ = true;
+  constexpr t_validity_  INVALID_ = false;
+
+  constexpr t_cstr_ptr_  NO_CSTR_PTR_  = nullptr;
+  constexpr t_cstr_cptr_ NO_CSTR_CPTR_ = nullptr;
+
+  constexpr t_fd_        BAD_FD_   = -1;
+  constexpr t_errn_      NO_ERRN_  =  0;
+  constexpr t_errn_      BAD_ERRN_ = -1;
+
+///////////////////////////////////////////////////////////////////////////////
+}
 }
 }
 

@@ -39,18 +39,48 @@ namespace base
 {
 namespace string
 {
-  using base::t_bool;
-  using base::t_void;
-  using base::p_cstr_;
-  using base::P_cstr_;
-  using base::P_cstr;
-  using base::t_n_;
-  using base::t_n;
-  using base::t_ix_;
-  using base::t_ix;
-  using base::t_char;
-  using base::t_int;
-  using base::t_int;
+///////////////////////////////////////////////////////////////////////////////
+
+  using types::t_prefix;
+  using types::t_bool;
+  using types::t_void;
+  using types::t_char;
+  using types::r_char;
+  using types::t_uchar;
+  using types::r_uchar;
+  using types::t_schar;
+  using types::r_schar;
+  using types::t_short;
+  using types::r_short;
+  using types::t_ushort;
+  using types::r_ushort;
+  using types::t_int;
+  using types::r_int;
+  using types::t_uint;
+  using types::r_uint;
+  using types::t_long;
+  using types::r_long;
+  using types::t_ulong;
+  using types::r_ulong;
+  using types::t_llong;
+  using types::r_llong;
+  using types::t_ullong;
+  using types::r_ullong;
+  using types::t_uintptr;
+  using types::p_cstr_;
+  using types::P_cstr_;
+  using types::t_cstr_cptr_;
+  using types::t_n_;
+  using types::t_ix_;
+
+  using specific::P_cstr;
+  using specific::t_cstr_cptr;
+  using specific::t_n;
+  using specific::t_ix;
+  using specific::t_validity;
+  using specific::VALID;
+  using specific::INVALID;
+
   using base::FMT;
   using base::FMT_IT;
   using base::FMT_VA_IT;
@@ -89,7 +119,7 @@ namespace string
     constexpr t_block() = default;
     constexpr t_block(t_char _c, t_n _max) : c{_c}, max{_max} { }
   };
-  using R_block = base::t_prefix<t_block>::R_;
+  using R_block = t_prefix<t_block>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -246,7 +276,7 @@ namespace string
 
   class t_string_impl_base_ {
   public:
-    using t_char   = base::t_char;
+    using t_char  = string::t_char;
     using R_block = string::R_block;
 
     inline t_string_impl_base_() noexcept : len_{0} {
@@ -355,7 +385,7 @@ namespace string
       if (pos < len_)
         str[pos] = ch;
       else
-        assert_now(P_cstr{"not in range"});
+        assertion::assert_now(P_cstr{"not in range"});
     }
 
     inline t_void va_scan(p_cstr_ str, t_n_ n, P_cstr_ fmt,
@@ -438,7 +468,7 @@ namespace string
     inline t_void custom_assign(p_cstr_ str, t_n_ max, F& func) noexcept {
       auto n = func(str, max, OVERFLOW_ASSERT);
       if (n >= max)
-        assert_now(P_cstr{"buffer overflow"});
+        assertion::assert_now(P_cstr{"buffer overflow"});
       len_ = n;
     }
 
@@ -446,7 +476,7 @@ namespace string
     inline t_void custom_append(p_cstr_ str, t_n_ max, F& func) noexcept {
       auto n = func(str + len_, max - len_, OVERFLOW_ASSERT);
       if (n + len_ >= max)
-        assert_now(P_cstr{"buffer overflow"});
+        assertion::assert_now(P_cstr{"buffer overflow"});
       len_ += n;
     }
   };

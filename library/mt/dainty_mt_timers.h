@@ -40,30 +40,41 @@ namespace mt
 {
 namespace timers
 {
-  using base::t_fd;
-  using base::t_void;
-  using base::t_bool;
-  using base::t_ix;
-  using base::t_n;
-  using base::T_n;
-  using base::t_msec;
-  using base::t_errn;
-  using base::string::t_string;
-  using base::t_validity;
-  using base::t_prefix;
-  using base::t_percentage;
-  using base::T_percentage;
-  using base::t_explicit;
-  using base::VALID;
-  using base::INVALID;
-  using base::BAD_FD;
+///////////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
+
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_uchar;
+  using base::types::t_bool;
+  using base::types::t_int;
+
+  using base::specific::t_specific;
+  using base::specific::t_fd;
+  using base::specific::t_ix;
+  using base::specific::t_n;
+  using base::specific::T_n;
+  using base::specific::t_msec;
+  using base::specific::t_errn;
+  using base::specific::t_validity;
+  using base::specific::t_prefix;
+  using base::specific::t_percentage;
+  using base::specific::T_percentage;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+  using base::specific::BAD_FD;
+
+  using base::string::t_string;
+
+  using base::ptr::t_ptr;
+  using base::ptr::t_deleter;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_timer_id_tag_ {};
-  using t_timer_id_ = base::t_int;
-  using t_timer_id  = t_explicit<t_timer_id_, t_timer_id_tag_>;
+  using t_timer_id_ = t_int;
+  using t_timer_id  = t_specific<t_timer_id_, t_timer_id_tag_>;
   constexpr t_timer_id BAD_TIMER_ID{-1};
 
   using t_timer_ids = container::list::t_list<t_timer_id, 100>;
@@ -72,7 +83,7 @@ namespace timers
   enum  t_timer_user_tag_ {};
   using t_timer_user = base::t_user<t_timer_user_tag_>;
 
-  using t_timer_prio = base::t_uchar;
+  using t_timer_prio = t_uchar;
   using T_timer_prio = t_prefix<t_timer_prio>::T_;
 
   enum  t_service_name_tag_ {};
@@ -116,8 +127,7 @@ namespace timers
 
   class t_impl_;
   enum  t_impl_owner_tag_ { };
-  using t_impl_owner_ = base::ptr::t_ptr<t_impl_, t_impl_owner_tag_,
-                                          base::ptr::t_deleter>;
+  using t_impl_owner_ = t_ptr<t_impl_, t_impl_owner_tag_, t_deleter>;
 
 ///////////////////////////////////////////////////////////////////////////////
 

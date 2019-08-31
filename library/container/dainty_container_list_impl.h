@@ -36,29 +36,35 @@ namespace container
 {
 namespace list
 {
+///////////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
   using err::r_err;
 
-  using base::t_bool;
-  using base::t_void;
-  using base::t_n;
-  using base::t_n_;
-  using base::t_ix_;
+  using base::types::t_prefix;
+  using base::types::t_bool;
+  using base::types::t_void;
+  using base::types::t_n_;
+  using base::types::t_ix_;
+
+  using base::specific::t_n;
+
+  using container::valuestore::t_valuestore;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_list_impl_ {
   public:
-    using t_entry = typename base::t_prefix<valuestore::t_valuestore<T>>::t_;
-    using p_store = typename base::t_prefix<t_entry>::p_;
-    using P_store = typename base::t_prefix<t_entry>::P_;
-    using t_value = typename base::t_prefix<T>::t_;
-    using p_value = typename base::t_prefix<T>::p_;
-    using P_value = typename base::t_prefix<T>::P_;
-    using r_value = typename base::t_prefix<T>::r_;
-    using R_value = typename base::t_prefix<T>::R_;
-    using x_value = typename base::t_prefix<T>::x_;
+    using t_entry = typename t_prefix<t_valuestore<T>>::t_;
+    using p_store = typename t_prefix<t_entry>::p_;
+    using P_store = typename t_prefix<t_entry>::P_;
+    using t_value = typename t_prefix<T>::t_;
+    using p_value = typename t_prefix<T>::p_;
+    using P_value = typename t_prefix<T>::P_;
+    using r_value = typename t_prefix<T>::r_;
+    using R_value = typename t_prefix<T>::R_;
+    using x_value = typename t_prefix<T>::x_;
 
     inline
     t_list_impl_() : next_(0) {

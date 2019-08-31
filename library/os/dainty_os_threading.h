@@ -36,16 +36,22 @@ namespace os
 {
 namespace threading
 {
-  using base::p_void;
-  using base::t_void;
-  using base::t_bool;
-  using base::t_int;
-  using base::t_validity;
-  using base::t_n;
-  using base::p_cstr;
-  using base::P_cstr;
-  using base::VALID;
-  using base::INVALID;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+  using base::types::p_void;
+  using base::types::t_void;
+  using base::types::t_bool;
+  using base::types::t_int;
+  using base::types::t_uint;
+
+  using base::specific::t_n;
+  using base::specific::p_cstr;
+  using base::specific::P_cstr;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
   using clock::t_time;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,7 +73,7 @@ namespace threading
 
   private:
     friend L;
-    using p_lock = typename base::t_prefix<t_lock>::p_;
+    using p_lock = typename t_prefix<t_lock>::p_;
     t_locked_scope(p_lock) noexcept;
     p_lock swap_(p_lock)  noexcept;
 
@@ -270,8 +276,8 @@ namespace threading
     t_void enter_scope_(t_locked_scope*) noexcept;
     t_void leave_scope_(t_locked_scope*) noexcept;
 
-    base::t_uint        cnt_    = 0;
-    ::pthread_t          owner_;
+    t_uint               cnt_    = 0;
+    t_pthread            owner_;
     t_mutex_lock         mutex_;
     t_monotonic_cond_var cond_;
   };

@@ -27,6 +27,7 @@
 #ifndef _DAINTY_OS_CLOCK_H_
 #define _DAINTY_OS_CLOCK_H_
 
+#include "dainty_base_traits.h"
 #include "dainty_os_call.h"
 
 namespace dainty
@@ -37,28 +38,31 @@ namespace clock
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  using base::t_void;
-  using base::t_bool;
-  using base::t_nsec;
-  using base::r_nsec;
-  using base::t_usec;
-  using base::r_usec;
-  using base::t_msec;
-  using base::r_msec;
-  using base::t_sec;
-  using base::r_sec;
-  using base::t_min;
-  using base::r_min;
-  using base::t_ticks;
-  using base::r_ticks;
-  using base::t_prefix;
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_bool;
+  using base::types::t_long;
+  using base::types::t_uint64;
 
-  template<typename T> struct t_test_;
-  template<> struct t_test_<t_nsec> { using t_dummy_ = base::t_void; };
-  template<> struct t_test_<t_usec> { using t_dummy_ = base::t_void; };
-  template<> struct t_test_<t_msec> { using t_dummy_ = base::t_void; };
-  template<> struct t_test_<t_sec>  { using t_dummy_ = base::t_void; };
-  template<> struct t_test_<t_min>  { using t_dummy_ = base::t_void; };
+  using base::specific::t_nsec;
+  using base::specific::r_nsec;
+  using base::specific::t_usec;
+  using base::specific::r_usec;
+  using base::specific::t_msec;
+  using base::specific::r_msec;
+  using base::specific::t_sec;
+  using base::specific::r_sec;
+  using base::specific::t_min;
+  using base::specific::r_min;
+  using base::specific::t_ticks;
+  using base::specific::r_ticks;
+
+  using base::traits::t_if_one_of;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  struct t_test_ : t_if_one_of<T, t_nsec, t_usec, t_msec, t_sec, t_min> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -68,24 +72,26 @@ namespace clock
 
   class t_time {
   public:
-    constexpr t_time() noexcept;
+    constexpr t_time()       noexcept;
+    constexpr t_time(t_nsec) noexcept;
+    constexpr t_time(t_usec) noexcept;
+    constexpr t_time(t_msec) noexcept;
+    constexpr t_time(t_sec)  noexcept;
+    constexpr t_time(t_min)  noexcept;
 
-    template<typename T, typename = typename t_test_<T>::t_dummy_>
-    constexpr t_time(T) noexcept;
-
-    template<typename T, typename = typename t_test_<T>::t_dummy_>
+    template<typename T, typename = t_test_<T>>
     constexpr r_time operator+=(T) noexcept;
 
-    template<typename T, typename = typename t_test_<T>::t_dummy_>
+    template<typename T, typename = t_test_<T>>
     constexpr r_time operator-=(T) noexcept;
 
-    template<typename T, typename = typename t_test_<T>::t_dummy_>
+    template<typename T, typename = t_test_<T>>
     constexpr t_bool test_overflow(T) noexcept;
 
-    template<typename T, typename = typename t_test_<T>::t_dummy_>
+    template<typename T, typename = t_test_<T>>
     constexpr t_bool test_underflow(T) noexcept;
 
-    template<typename T, typename = typename t_test_<T>::t_dummy_>
+    template<typename T, typename = t_test_<T>>
     constexpr T to() const noexcept;
 
     constexpr r_time operator+=(R_time) noexcept;
@@ -94,8 +100,8 @@ namespace clock
     constexpr operator t_bool() const noexcept;
 
   private:
-    friend constexpr       ::timespec& to_(r_time) noexcept;
-    friend constexpr const ::timespec& to_(R_time) noexcept;
+    friend constexpr       ::timespec& to_(r_time) noexcept; // XXX
+    friend constexpr const ::timespec& to_(R_time) noexcept; // XXX
     ::timespec spec_;
   };
 
@@ -144,7 +150,7 @@ namespace clock
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<> struct t_test_<t_time> { using t_dummy_ = base::t_void;  };
+  template<> struct t_test_<t_time> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -171,7 +177,7 @@ namespace clock
 #elif (defined(__x86_64__))
     unsigned int a, d;
     asm volatile("rdtsc" : "=a" (a), "=d" (d));
-    tmp = (((base::t_uint64)d) << 32) | a;
+    tmp = (((t_uint64)d) << 32) | a;
 #elif (defined(__powerpc__) || defined(__ppc__))
     unsigned int tbl, tbu0, tbu1;
     do {
@@ -179,7 +185,7 @@ namespace clock
       __asm__ __volatile__("mftb %0"  : "=r"(tbl));
       __asm__ __volatile__("mftbu %0" : "=r"(tbu1));
      } while (tbu0 != tbu1);
-     tmp = (((base::t_uint64)tbu0) << 32) | tbl;
+     tmp = (((t_uint64)tbu0) << 32) | tbl;
 #endif
     return t_ticks{tmp};
   }
@@ -203,12 +209,12 @@ namespace clock
 
   constexpr ::timespec to_(t_nsec nsec) noexcept {
     return { ::time_t(get(nsec)/1000000000),
-             base::t_long(get(nsec)%1000000000)}; // narrow - XXX
+             t_long(get(nsec)%1000000000)}; // narrow - XXX
   }
 
   constexpr ::timespec to_(t_usec usec) noexcept {
     return { ::time_t(get(usec)/1000000),
-             base::t_long(get(usec)%1000000)}; // narrow - XXX
+             t_long(get(usec)%1000000)}; // narrow - XXX
   }
 
   constexpr ::timespec to_(t_msec msec) noexcept {
@@ -295,8 +301,19 @@ namespace clock
   constexpr t_time::t_time() noexcept : spec_{to_(t_nsec{0})} {
   }
 
-  template<typename T, typename>
-  constexpr t_time::t_time(T value) noexcept : spec_{to_(value)} {
+  constexpr t_time::t_time(t_nsec nsec) noexcept : spec_{to_(nsec)} {
+  }
+
+  constexpr t_time::t_time(t_usec usec) noexcept : spec_{to_(usec)} {
+  }
+
+  constexpr t_time::t_time(t_msec msec) noexcept : spec_{to_(msec)} {
+  }
+
+  constexpr t_time::t_time(t_sec sec) noexcept : spec_{to_(sec)} {
+  }
+
+  constexpr t_time::t_time(t_min min) noexcept : spec_{to_(min)} {
   }
 
   template<typename T, typename>
