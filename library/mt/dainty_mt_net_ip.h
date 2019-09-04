@@ -37,7 +37,19 @@ namespace mt
 {
 namespace net_ip
 {
-  using base::t_n_;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+  using base::types::t_n_;
+
+  using base::specific::t_fd;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
+  using os::t_socket_address;
+  using os::t_socket_address_len;
+  using os::networking::t_socket;
 
 ///////////////////////////////////////////////////////////////////////////////
 

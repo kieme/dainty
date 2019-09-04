@@ -36,12 +36,16 @@ namespace container
 {
 namespace bits
 {
-  using base::t_n;
-  using base::t_validity;
-  using base::t_bool;
-  using base::VALID;
-  using base::INVALID;
-  using container::err::t_err;
+///////////////////////////////////////////////////////////////////////////////
+
+  using err::t_err;
+
+  using base::types::t_bool;
+
+  using base::specific::t_n;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
 
 ///////////////////////////////////////////////////////////////////////////////
 

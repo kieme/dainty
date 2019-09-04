@@ -38,14 +38,18 @@ namespace container
 {
 namespace bits
 {
-  using base::t_n_;
-  using base::t_uint;
-  using base::t_validity;
-  using base::t_bool;
-  using base::t_void;
-  using base::t_logical;
-  using base::t_prefix;
-  using base::t_byte_;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+  using base::types::t_void;
+  using base::types::t_bool;
+  using base::types::t_uint;
+  using base::types::t_n_;
+  using base::types::t_byte_;
+
+  using base::specific::t_validity;
+  using base::logical::t_logical;
+
   using base::ptr::t_ptr;
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -36,14 +36,17 @@ namespace container
 {
 namespace tuple
 {
-  using base::t_n_;
-  using base::t_n;
-  using base::t_ix;
-  using base::t_prefix;
-  using base::t_validity;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+  using base::types::t_n_;
+
+  using base::specific::t_n;
+  using base::specific::t_ix;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
   using any::t_any;
   using any::t_user;
 

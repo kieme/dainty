@@ -36,18 +36,24 @@ namespace container
 {
 namespace holder
 {
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
+///////////////////////////////////////////////////////////////////////////////
+
+  using base::types::t_prefix;
+
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
+
+  using base::ptr::t_ptr;
+  using base::ptr::t_deleter;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   struct t_it_ {
     virtual ~t_it_() {}
   };
-  using p_it_ = t_prefix<t_it_>::p_;
-
-  using t_ptr_ = base::ptr::t_ptr<t_it_, t_it_, base::ptr::t_deleter>;
+  using p_it_  = t_prefix<t_it_>::p_;
+  using t_ptr_ = t_ptr<t_it_, t_it_, t_deleter>;
 
   template<class T>
   struct t_store_ final : t_it_ {
@@ -110,7 +116,7 @@ namespace holder
   template<typename T, typename... Args>
   inline
   t_holder t_holder::construct(Args&&... args) {
-    return {static_cast<p_it>(new t_store_<T>(base::preserve<Args>(args)...))};
+    return {static_cast<p_it_>(new t_store_<T>(base::preserve<Args>(args)...))};
   }
 
   inline
@@ -118,7 +124,7 @@ namespace holder
   }
 
   inline
-  t_holder::t_holder(x_holder holder) : store_{reset(holder.store_)} {
+  t_holder::t_holder(x_holder holder) : store_{holder.store_.release()} {
   }
 
   template<typename T>
@@ -135,7 +141,7 @@ namespace holder
 
   inline
   t_holder::operator t_validity () const {
-    return store_ ? VALID : INVALID;
+    return store_;
   }
 
   template<typename T, typename... Args>

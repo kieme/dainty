@@ -37,16 +37,19 @@ namespace container
 {
 namespace ix_map
 {
+  //////////////////////////////////////////////////////////////////////////
+
   using err::t_err;
   using err::r_err;
 
-  using base::t_bool;
-  using base::t_void;
-  using base::t_n;
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
-  using base::t_prefix;
+  using base::types::t_prefix;
+  using base::types::t_bool;
+  using base::types::t_void;
+
+  using base::specific::t_n;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
 
   using freelist::t_id;
 

@@ -42,10 +42,10 @@ void set_point(unsigned short x, unsigned short y) {
 // step1. create explicit types
 
 enum t_x_ {};
-using t_xaxis = base::t_explicit<base::t_ushort, t_x_>;
+using t_xaxis = base::specific::t_specific<base::t_ushort, t_x_>;
 
 enum t_y_ {};
-using t_yaxis = base::t_explicit<base::t_ushort, t_y_>;
+using t_yaxis = base::specific::t_specific<base::t_ushort, t_y_>;
 
 // step2. overload operators for new types
 constexpr t_xaxis operator "" _xaxis(unsigned long long int value) {
@@ -114,7 +114,7 @@ struct t_validate_vlanid_ {
     return value;
   }
 };
-using t_vlanid=base::t_explicit<t_vlanid_, t_vlanid_tag_, t_validate_vlanid_>;
+using t_vlanid=base::specific::t_specific<t_vlanid_, t_vlanid_tag_, t_validate_vlanid_>;
 
 constexpr t_vlanid operator"" _vlanid(base::t_ullong value) {
   return t_vlanid(value);

@@ -33,8 +33,8 @@
 //  not a complete API but only the things used by dainty.
 
 #include "dainty_base.h"
-#include "dainty_oops.h"
-#include "dainty_mt_threads.h"
+#include "dainty_mt_err.h"
+#include "dainty_mt_thread.h"
 //#include "dainty_os_threading.h"
 //#include "dainty_os_clock.h"
 //#include "dainty_os_networking.h"

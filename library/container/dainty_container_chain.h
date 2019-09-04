@@ -36,22 +36,26 @@ namespace container
 {
 namespace chain
 {
-  using err::t_err;
-  using base::t_void;
-  using base::t_n;
+///////////////////////////////////////////////////////////////////////////////
 
-  using base::t_validity;
-  using base::VALID;
-  using base::INVALID;
+  using err::t_err;
+
+  using base::types::t_prefix;
+  using base::types::t_void;
+
+  using base::specific::t_n;
+  using base::specific::t_validity;
+  using base::specific::VALID;
+  using base::specific::INVALID;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_item final {
   public:
-    using t_value = typename base::t_prefix<T>::t_;
-    using p_item  = typename base::t_prefix<t_item>::p_;
-    using P_item  = typename base::t_prefix<t_item>::P_;
+    using t_value = typename t_prefix<T>::t_;
+    using p_item  = typename t_prefix<t_item>::p_;
+    using P_item  = typename t_prefix<t_item>::P_;
 
     t_item() = default;
 
@@ -68,8 +72,8 @@ namespace chain
   class t_chain final {
   public:
     using t_n    = chain::t_n;
-    using p_item = typename base::t_prefix<t_item<T> >::p_;
-    using P_item = typename base::t_prefix<t_item<T> >::P_;
+    using p_item = typename t_prefix<t_item<T> >::p_;
+    using P_item = typename t_prefix<t_item<T> >::P_;
 
     operator t_validity() const;
 
@@ -137,7 +141,7 @@ namespace chain
       f(item->value);
   }
 
-  template<typename T, typename I>
+  template<typename T>
   template<typename F>
   inline
   t_void t_chain<T>::ceach(t_err err, F f) const {

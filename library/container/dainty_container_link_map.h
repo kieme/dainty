@@ -121,7 +121,7 @@ namespace link_map
   inline
   typename t_link_map<K, T, C>::t_itr
       t_link_map<K, T, C>::insert(K1&& key) {
-    return impl_.insert(preserve<K1>(key));
+    return impl_.insert(base::preserve<K1>(key));
   }
 
   template<typename K, typename T, typename C>
@@ -129,7 +129,7 @@ namespace link_map
   inline
   typename t_link_map<K, T, C>::t_itr
       t_link_map<K, T, C>::insert(t_err err, K1&& key) {
-    return impl_.insert(err, preserve<K1>(key));
+    return impl_.insert(err, base::preserve<K1>(key));
   }
 
   template<typename K, typename T, typename C>
@@ -137,7 +137,7 @@ namespace link_map
   inline
   typename t_link_map<K, T, C>::t_itr
       t_link_map<K, T, C>::insert(K1&& key, T1&& value) {
-    return impl_.insert(preserve<K1>(key), preserve<T1>(value));
+    return impl_.insert(base::preserve<K1>(key), base::preserve<T1>(value));
   }
 
   template<typename K, typename T, typename C>
@@ -145,7 +145,8 @@ namespace link_map
   inline
   typename t_link_map<K, T, C>::t_itr
       t_link_map<K, T, C>::insert(t_err err, K1&& key, T1&& value) {
-    return impl_.insert(err, preserve<K1>(key), preserve<T1>(value));
+    return impl_.insert(err, base::preserve<K1>(key),
+                             base::preserve<T1>(value));
   }
 
   template<typename K, typename T, typename C>
