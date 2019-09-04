@@ -36,6 +36,8 @@ namespace string
 {
 namespace segmented
 {
+namespace impl_
+{
 ///////////////////////////////////////////////////////////////////////////////
 
   using types::T_n_;
@@ -212,8 +214,8 @@ namespace segmented
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_n t_segmented_impl_base_::assign(t_buf_range store, t_char delimit,
-                                     t_crange range) noexcept {
+  t_n t_impl_base_::assign(t_buf_range store, t_char delimit,
+                           t_crange range) noexcept {
     t_n_ n = 0, max = specific::get(store.n), range_n = specific::get(range.n);
     P_char last = range.ptr, end = range.ptr + range_n;
     size_ = 0;
@@ -237,8 +239,8 @@ namespace segmented
     return t_n{n};
   }
 
-  t_void t_segmented_impl_base_::assign(t_buf_range store, t_citr begin,
-                                        t_citr end) noexcept {
+  t_void t_impl_base_::assign(t_buf_range store, t_citr begin,
+                              t_citr end) noexcept {
     size_ = 0;
     for (; begin != end; ++begin) {
       auto range = *begin;
@@ -250,22 +252,21 @@ namespace segmented
     }
   }
 
-  t_result t_segmented_impl_base_::push_back(t_buf_range store,
-                                             t_user user) noexcept {
+  t_result t_impl_base_::push_back(t_buf_range store, t_user user) noexcept {
     t_ix_ ix = size_;
     size_    = push_back_(store.ptr + size_, user) - store.ptr;
     return {t_id{ix + 1}, t_seg_no{segs_++}};
   }
 
-  t_result t_segmented_impl_base_::push_back(t_buf_range store, t_crange range,
-                                             t_user user) noexcept {
+  t_result t_impl_base_::push_back(t_buf_range store, t_crange range,
+                                   t_user user) noexcept {
     t_ix_ ix = size_;
     size_    = push_back_(store.ptr + size_, range, user) - store.ptr;
     return {t_id{ix + 1}, t_seg_no{segs_++}};
   }
 
-  t_id t_segmented_impl_base_::insert(t_buf_range store, t_seg_no seg_no,
-                                      t_user user) noexcept {
+  t_id t_impl_base_::insert(t_buf_range store, t_seg_no seg_no,
+                            t_user user) noexcept {
     auto info = get_seg(store.ptr, seg_no);
     if (info) {
       size_ = insert_(info.ptr, store.ptr + size_, user) - store.ptr;
@@ -275,8 +276,8 @@ namespace segmented
     return BAD_ID;
   }
 
-  t_id t_segmented_impl_base_::insert(t_buf_range store, t_seg_no seg_no,
-                                      t_crange range, t_user user) noexcept {
+  t_id t_impl_base_::insert(t_buf_range store, t_seg_no seg_no,
+                            t_crange range, t_user user) noexcept {
     auto info = get_seg(store.ptr, seg_no);
     if (info) {
       size_ = insert_(info.ptr, store.ptr + size_, range, user) - store.ptr;
@@ -286,8 +287,7 @@ namespace segmented
     return BAD_ID;
   }
 
-  t_id t_segmented_impl_base_::insert(t_buf_range store, t_id id,
-                                      t_user user) noexcept {
+  t_id t_impl_base_::insert(t_buf_range store, t_id id, t_user user) noexcept {
     auto info = get_seg(store.ptr, id);
     if (info) {
       size_ = insert_(info.ptr, store.ptr + size_, user) - store.ptr;
@@ -297,8 +297,8 @@ namespace segmented
     return BAD_ID;
   }
 
-  t_id t_segmented_impl_base_::insert(t_buf_range store, t_id id,
-                                      t_crange range, t_user user) noexcept {
+  t_id t_impl_base_::insert(t_buf_range store, t_id id, t_crange range,
+                            t_user user) noexcept {
     auto info = get_seg(store.ptr, id);
     if (info) {
       size_ = insert_(info.ptr, store.ptr + size_, range, user) - store.ptr;
@@ -308,8 +308,8 @@ namespace segmented
     return BAD_ID;
   }
 
-  t_bool t_segmented_impl_base_::change(t_buf_range store, t_seg_no seg_no,
-                                        t_user user) noexcept {
+  t_bool t_impl_base_::change(t_buf_range store, t_seg_no seg_no,
+                              t_user user) noexcept {
     auto info = get_seg(store.ptr, seg_no);
     if (info) {
       size_ = change_(info.ptr, store.ptr + size_, user) - store.ptr;
@@ -318,8 +318,8 @@ namespace segmented
     return false;
   }
 
-  t_bool t_segmented_impl_base_::change(t_buf_range store, t_seg_no seg_no,
-                                        t_crange range, t_user user) noexcept {
+  t_bool t_impl_base_::change(t_buf_range store, t_seg_no seg_no,
+                              t_crange range, t_user user) noexcept {
     auto info = get_seg(store.ptr, seg_no);
     if (info) {
       t_n_ available = (specific::get(store.n) - size_) + info.hdr.hdr.len;
@@ -330,8 +330,8 @@ namespace segmented
     return false;
   }
 
-  t_bool t_segmented_impl_base_::change(t_buf_range store, t_id id,
-                                        t_user user) noexcept {
+  t_bool t_impl_base_::change(t_buf_range store, t_id id,
+                              t_user user) noexcept {
     auto info = get_seg(store.ptr, id);
     if (info) {
       size_ = change_(info.ptr, store.ptr + size_, user) - store.ptr;
@@ -340,8 +340,8 @@ namespace segmented
     return false;
   }
 
-  t_bool t_segmented_impl_base_::change(t_buf_range store, t_id id,
-                                        t_crange range, t_user user) noexcept {
+  t_bool t_impl_base_::change(t_buf_range store, t_id id, t_crange range,
+                              t_user user) noexcept {
     auto info = get_seg(store.ptr, id);
     if (info) {
       t_n_ available = (specific::get(store.n) - size_) + info.hdr.hdr.len;
@@ -352,8 +352,8 @@ namespace segmented
     return false;
   }
 
-  t_bool t_segmented_impl_base_::remove(t_buf_range store, t_seg_no seg_no,
-                                        t_n _n) noexcept {
+  t_bool t_impl_base_::remove(t_buf_range store, t_seg_no seg_no,
+                              t_n _n) noexcept {
     t_n_ n = specific::get(_n);
     if (specific::get(seg_no) + n <= segs_) {
       auto info = get_seg(store.ptr, seg_no);
@@ -364,8 +364,7 @@ namespace segmented
     return false;
   }
 
-  t_bool t_segmented_impl_base_::remove(t_buf_range store, t_id id,
-                                        t_n n) noexcept {
+  t_bool t_impl_base_::remove(t_buf_range store, t_id id, t_n n) noexcept {
     auto info = get_seg(store.ptr, id);
     if (info) {
       p_char end = remove_(info.ptr, store.ptr + size_, n);
@@ -379,6 +378,7 @@ namespace segmented
   }
 
 ///////////////////////////////////////////////////////////////////////////////
+}
 }
 }
 }

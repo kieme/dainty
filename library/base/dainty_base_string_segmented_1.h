@@ -39,9 +39,28 @@ namespace segmented
 {
 ///////////////////////////////////////////////////////////////////////////////
 
+  using impl_::t_citr;
+  using impl_::t_result;
+  using impl_::t_user;
+  using impl_::t_n;
+  using impl_::t_bool;
+  using impl_::t_void;
+  using impl_::t_char;
+  using impl_::t_crange;
+  using impl_::t_seg_no;
+  using impl_::t_id;
+
+  using impl_::BAD_ID;
+  using impl_::BAD_RANGE;
+
+  using impl_::operator==;
+  using impl_::operator!=;
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<class TAG, t_n_ N, typename O>
   class t_segmented {
-    using t_impl_ = t_segmented_impl_<O>;
+    using t_impl_ = impl_::t_impl_<O>;
     using t_self_ = t_segmented<TAG, N, O>;
     using r_self_ = typename t_prefix<t_self_>::r_;
     using R_self_ = typename t_prefix<t_self_>::R_;
