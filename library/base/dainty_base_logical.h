@@ -56,8 +56,8 @@ namespace logical
   using traits::t_and;
   using traits::t_is_one_of;
 
-  using traits::t_FALSE_;
-  using traits::t_TRUE_;
+  using traits::t_result_false;
+  using traits::t_result_true;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -118,16 +118,16 @@ namespace logical
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<class> struct t_is_logical : t_FALSE_ { };
+  template<class> struct t_is_logical : t_result_false { };
 
   template<class T, class TAG, class... TAGS>
-  struct t_is_logical<t_logical<T, TAG, TAGS...>> : t_TRUE_ { };
+  struct t_is_logical<t_logical<T, TAG, TAGS...>> : t_result_true { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace impl_ {
   template<typename, typename>
-  struct t_is_allowed_ : t_FALSE_ { };
+  struct t_is_allowed_ : t_result_false { };
 
   template<class T,  class... TAGS, class T1, class... TAGS1>
   struct t_is_allowed_<t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>
@@ -140,7 +140,7 @@ namespace impl_ {
           typename t_logical<T,  TAGS...>::t_flatten>>> { };
 
   template<typename, typename, typename>
-  struct t_is_op_allowed_ : t_FALSE_ { };
+  struct t_is_op_allowed_ : t_result_false { };
 
   template<class C, class T,  class... TAGS, class T1, class... TAGS1>
   struct t_is_op_allowed_<C, t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>> {
