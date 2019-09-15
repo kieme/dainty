@@ -45,9 +45,9 @@ namespace traits
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T>      struct t_add_identity { using t_identity = T; };
-  template<typename T>      struct t_add_result   { using t_result   = T; };
-  template<typename T>      struct t_add_value    { using t_value    = T; };
+  template<typename T> struct t_add_identity { using t_identity = T; };
+  template<typename T> struct t_add_result   { using t_result   = T; };
+  template<typename T> struct t_add_value    { using t_value    = T; };
 
   template<typename T, T V> struct t_add_VALUE {
     constexpr static T VALUE = V;
@@ -82,39 +82,6 @@ namespace traits
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename... Args>
-  struct t_pack {
-    constexpr static t_size_ N = sizeof...(Args);
-
-    template<template<typename...> class D>
-    using t_into = D<Args...>;
-  };
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename I, typename T, typename U>
-  struct t_if_then_else : t_if_then_else<typename I::t_result, T, U> { };
-
-  template<typename T, typename U>
-  struct t_if_then_else<t_true,  T, U> : t_add_value<T> { };
-
-  template<typename T, typename U>
-  struct t_if_then_else<t_false, T, U> : t_add_value<U> { };
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename I, typename T>
-  struct t_if_then : t_if_then<typename I::t_result, T> { };
-
-  template<typename T>
-  struct t_if_then<t_true, T> : t_add_value<T> { };
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename I> using t_if = t_if_then<I, t_ok>; // enable_if
-
-///////////////////////////////////////////////////////////////////////////////
-
   namespace impl_ {
     template<template<typename> class Op, typename T, typename U, typename E>
     struct t_is_there_ : t_add_value<U>, t_result_false { };
@@ -141,6 +108,42 @@ namespace traits
 
   template<typename T> using t_identity     = typename T::t_identity;
   template<typename T> using t_has_identity = t_is_there<t_identity, T>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename... Args>
+  struct t_pack {
+    constexpr static t_size_ N = sizeof...(Args);
+
+    template<template<typename...> class D>
+    using t_into = D<Args...>;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename I, typename T, typename U>
+  struct t_if_then_else : t_if_then_else<typename I::t_result, T, U> { };
+
+  template<typename T, typename U>
+  struct t_if_then_else<t_true,  T, U> : t_add_value<T> { };
+
+  template<typename T, typename U>
+  struct t_if_then_else<t_false, T, U> : t_add_value<U> { };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename I, typename T>
+  struct t_if_then : t_if_then<typename I::t_result, T> { };
+
+  template<typename T>
+  struct t_if_then<t_false, T> { };
+
+  template<typename T>
+  struct t_if_then<t_true, T> : t_add_value<T> { };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename I> using t_if = t_if_then<I, t_ok>; // enable_if
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -291,13 +294,16 @@ namespace traits
   using t_is_not_prvalue = t_not<t_is_prvalue<T>>;
 
   template<typename T>
-  using t_if_lvalue  = typename t_if_then<t_is_lvalue<T>, t_lvalue_tag>::t_value;
+  using t_if_lvalue  = typename t_if_then<t_is_lvalue<T>,
+                                          t_lvalue_tag>::t_value;
 
   template<typename T>
-  using t_if_xvalue  = typename t_if_then<t_is_xvalue<T>, t_xvalue_tag>::t_value;
+  using t_if_xvalue  = typename t_if_then<t_is_xvalue<T>,
+                                          t_xvalue_tag>::t_value;
 
   template<typename T>
-  using t_if_prvalue = typename t_if_then<t_is_prvalue<T>, t_prvalue_tag>::t_value;
+  using t_if_prvalue = typename t_if_then<t_is_prvalue<T>,
+                                          t_prvalue_tag>::t_value;
 
   template<typename T>
   using t_if_not_lvalue  = typename t_if_then<t_is_not_lvalue<T>,
@@ -339,7 +345,7 @@ namespace traits
     struct t_is_true_<t_true, t_ok> : t_result_true { };
   }
 
-  template<typename T> struct t_is_true : impl_::t_is_true_ <T, t_ok> { };
+  template<typename T> struct t_is_true : impl_::t_is_true_<T, t_ok> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -362,9 +368,14 @@ namespace traits
   template<typename T>
   using t_is_bool_result = t_least_one_is_true<T, t_is_true, t_is_false>;
 
-  template<typename T> using t_is_not_bool_result = t_not<t_is_bool_result<T>>;
-  template<typename T> using t_if_bool_result     = t_if<t_is_bool_result<T>>;
-  template<typename T> using t_if_not_bool_result = t_if<t_is_not_bool_result<T>>;
+  template<typename T>
+  using t_is_not_bool_result = t_not<t_is_bool_result<T>>;
+
+  template<typename T>
+  using t_if_bool_result = t_if<t_is_bool_result<T>>;
+
+  template<typename T>
+  using t_if_not_bool_result = t_if<t_is_not_bool_result<T>>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1403,28 +1414,37 @@ using t_member_func = typename impl_::t_member_func_<T>::t_value;
 
   namespace impl_ {
     template<typename T, typename = typename t_is_ref_able<T>::t_result>
-    struct t_add_lvalue_ref_            { using t_result = T; };
+    struct t_add_lvalue_ref_ : t_add_result<T> { };
 
     template<typename T>
-    struct t_add_lvalue_ref_<T, t_true> { using t_result = T&; };
+    struct t_add_lvalue_ref_<T&, t_true> : t_add_result<T&> { };
+
+    template<typename T>
+    struct t_add_lvalue_ref_<T&&, t_true> : t_add_result<T&> { };
+
+    template<typename T>
+    struct t_add_lvalue_ref_<T, t_true> : t_add_result<T&> { };
 
     template<typename T, typename = typename t_is_ref_able<T>::t_result>
-    struct t_add_rvalue_ref_            { using t_result = T; };
+    struct t_add_rvalue_ref_ : t_add_result<T> { };
 
     template<typename T>
-    struct t_add_rvalue_ref_<T, t_true> { using t_result = T&&; };
+    struct t_add_rvalue_ref_<T&&, t_true> : t_add_result<T&&> { };
+
+    template<typename T>
+    struct t_add_rvalue_ref_<T&, t_true> : t_add_result<T&&> { };
+
+    template<typename T>
+    struct t_add_rvalue_ref_<T, t_true> : t_add_result<T&&> { };
   }
 
-  template<typename T>
-  using t_add_lvalue_ref = impl_::t_add_lvalue_ref_<T>;
-
-  template<typename T>
-  using t_add_rvalue_ref = impl_::t_add_rvalue_ref_<T>;
+  template<typename T> using t_add_lvalue_ref = impl_::t_add_lvalue_ref_<T>;
+  template<typename T> using t_add_rvalue_ref = impl_::t_add_rvalue_ref_<T>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  typename t_add_rvalue_ref<T>::t_result declval() noexcept;
+  typename t_add_rvalue_ref<T>::t_result uneval() noexcept; // declval
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1657,9 +1677,14 @@ struct t_is_precision : t_is_one_of<T, double, float, long double> { };
   struct t_is_subset_of<t_pack<Ts...>, t_pack<Us...>> :
     impl_::t_is_subset_of_<sizeof...(Ts), t_pack<Ts...>, t_pack<Us...>> { };
 
-  template<typename... Ts> using t_is_not_subset_of = t_not<t_is_subset_of<Ts...>>;
-  template<typename... Ts> using t_if_subset_of     = t_if<t_is_subset_of<Ts...>>;
-  template<typename... Ts> using t_if_not_subset_of = t_if<t_is_not_subset_of<Ts...>>;
+  template<typename... Ts>
+  using t_is_not_subset_of = t_not<t_is_subset_of<Ts...>>;
+
+  template<typename... Ts>
+  using t_if_subset_of = t_if<t_is_subset_of<Ts...>>;
+
+  template<typename... Ts>
+  using t_if_not_subset_of = t_if<t_is_not_subset_of<Ts...>>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
