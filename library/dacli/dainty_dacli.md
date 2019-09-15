@@ -220,7 +220,7 @@ An argument has a type that depends on its name description before '='. There is
 | 2. compound        | "(name=:part1:part2)"        |
 | 3. boolean         | "(name)", "(!name)"          |
 | 4. array           | "(name@2=)"                  |
-| 5. lookup          | "(name@n{name1=, name2=}=)"  |
+| 5. table          | "(name@n{name1=, name2=}=)"  |
 | 6. list            | "(name=(...))"               |
 | 7. selection list  | "(name=name1\|name2"         |
 | 8. option list     | "(prefix-(name1\|name2=))"   |
@@ -263,7 +263,7 @@ Note over SW: use result:res2
 
 #### argument: `"argument@n{...}"`
 
-All the parsed arguments are available in the 'argument' unbounded lookup. Every name used in the definition notation or use notation must be represented as an `argument/n{...}` entry. The array is sorted on the size of the name array (less is better) and when the number of entries are the same, then sorting is based on alphabetical order of the names in the last entry.  Effectively it means the sort algorithm match the order of the arguments closely. Below is an example of a definition notation to result notation transformation.
+All the parsed arguments are available in the 'argument' unbounded table. Every name used in the definition notation or use notation must be represented as an `argument/n{...}` entry. The array is sorted on the size of the name array (less is better) and when the number of entries are the same, then sorting is based on alphabetical order of the names in the last entry.  Effectively it means the sort algorithm match the order of the arguments closely. Below is an example of a definition notation to result notation transformation.
 
 e.g definition notation transformed into result notation
 ```sh
@@ -273,7 +273,7 @@ result:
   "(argument@n{type=, name@n=, value@n=, path@n=} =
      [{S,  [<name],       [],       []},
       {OS, [<age>],       [],       []},
-      {OZ, [-OZ1-],       [<male>], []},       /* special lookup */
+      {OZ, [-OZ1-],       [<male>], []},       /* special table */
       {B,  [<male>],      [],       [-OZ1-]},
       {B,  [<female>],    [],       [-OZ1-]},
       {S,  [<telephone>], [],       [L]} ])"
@@ -282,7 +282,7 @@ Some of the values will not make sense at this point. In the following pages the
 
 | argument@n (compound) types | argument type   | meaning                     |
 | --------------------------- | --------------- | --------------------------- |
-| 1.   argument@n{1.1-1.4}=   | lookup          | arguments sorted on name@n= |
+| 1.   argument@n{1.1-1.4}=   | table          | arguments sorted on name@n= |
 | 1.1. type@n=                | array           | specific type of argument   |
 | 1.2  name@n=                | array           | full argument name          |
 | 1.3. value@n=               | array           | value(s) of an argument     |
@@ -295,7 +295,7 @@ The type of an argument represent the base type and some of the properties of an
 2. compound  (C)
 3. boolean   (B)
 4. array     (A)
-5. lookup    (X)
+5. table    (X)
 6. list      (L)
 7. selection (H)
 8. options   (Z)
@@ -586,7 +586,7 @@ definition notation: "(book@2=[bible,koran])"
 use notation:        "(book@3=[bible,koran])"
 ```
 
-### 5. lookup argument : `"(name@n{name1=,name2=}=)"`
+### 5. table argument : `"(name@n{name1=,name2=}=)"`
 
 ### 6. list argument : `"(name=(name=))"`
 
@@ -876,6 +876,6 @@ Table summary
 
 8. options 
 
-9. lookup
+9. table
 
 

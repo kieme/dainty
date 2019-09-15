@@ -40,7 +40,7 @@
 // 3. error messages must be made more useful
 // 4. write test scrips
 // 5. make it look like dacli commands
-// 6. rules - e.g. lookup take no values in its definition, no list or select list
+// 6. rules - e.g. table take no values in its definition, no list or select list
 // 7. <>, '', or without?
 // 8. spaces or noz spaces between arguments
 //
@@ -59,7 +59,6 @@ namespace dacli
   using namespace base::types;
   using namespace base::range;
   using namespace base::string;
-  using namespace argn;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -191,8 +190,8 @@ namespace parse
     return p;
   }
 
-  P_cstr_ parse_name(r_err err, r_name name, r_type type, r_params params,
-                                P_cstr_ p) {
+  P_cstr_ parse_name_and_type(r_err err, r_name name, r_type type,
+                              r_params params, P_cstr_ p) {
     ERR_GUARD(err) {
       t_bool modify = false;
       if (*p == '!') {
@@ -247,7 +246,7 @@ namespace parse
           case ')':
           case '}':
           case ',': {
-            type = params.optional_ ? TYPE_OB : (modify ? TYPE_MB : TYPE_B);
+            type = params.optional_ ? TYPE_OB : B;
           } break;
           case '@': {
             P_cstr_ b = p;
@@ -257,7 +256,7 @@ namespace parse
                 case '=': type = params.optional_ ? TYPE_OL : TYPE_L;
                   p = strip_spaces(p+1);
                   break;
-                case '{': type = params.optional_ ? TYPE_OX : TYPE_X;
+                case '{': type = params.optional_ ? TYPE_OT : TYPE_T;
                   break;
                 default: err = err::E_PARSE;
                   break;
@@ -268,7 +267,7 @@ namespace parse
             break;
         }
         ERR_GUARD(err) {
-          if (!modify || (type == TYPE_MB))
+          if (!modify || (type == TYPE_B))
             name = base::x_cast(word);
           else
             err = err::E_PARSE;
@@ -385,7 +384,7 @@ namespace parse
     return p;
   }
 
-  P_cstr_ parse_lookup_values(t_err err, t_lookup_ref lookup, P_cstr_ p) {
+  P_cstr_ parse_table_values(t_err err, t_table_ref table, P_cstr_ p) {
     ERR_GUARD(err) {
       if (*p == '[') {
         p = strip_spaces(p+1);
@@ -396,7 +395,7 @@ namespace parse
             ERR_GUARD(err) {
               if (*p == ':') {
                 p = strip_spaces(p+1);
-                t_lookup_value_ref value(lookup.add_value(err,
+                t_table_value_ref value(table.add_value(err,
                                                           base::x_cast(word)));
                 if (value) {
                   if (*p == '{') {
@@ -411,7 +410,7 @@ namespace parse
                           p = parse_simple_value(err, value, p);
                           simple_ref.set_value(err, base::x_cast(value));
                         } break;
-                        case TYPE_MB: {
+                        case TYPE_B: {
                           t_boolean_ref bool_ref(ref);
                           t_word word;
                           p = parse_word(err, word, p);
@@ -449,9 +448,9 @@ namespace parse
                           p = parse_list_values(err, values, init, params, p);
                           list_ref.set_values(err, base::x_cast(values));
                         } break;
-                        case TYPE_X: {
-                          t_lookup_ref lookup_ref(ref);
-                          p = parse_lookup_values(err, lookup_ref, p);
+                        case TYPE_T: {
+                          t_table_ref table_ref(ref);
+                          p = parse_table_values(err, table_ref, p);
                         } break;
                         default: err = err::E_INVALID_ARG;
                           break;
@@ -483,7 +482,7 @@ namespace parse
           else
             err = err::E_PARSE;
         } else {
-          lookup.set_as_initialized();
+          table.set_as_initialized();
           p = strip_spaces(p+1);
         }
       } else
@@ -492,19 +491,19 @@ namespace parse
     return p;
   }
 
-  P_cstr_ parse_lookup(t_err err, t_lookup_ref lookup, P_cstr_ p) {
+  P_cstr_ parse_table(t_err err, t_table_ref table, P_cstr_ p) {
     ERR_GUARD(err) {
       if (*p == '{') {
         p = strip_spaces(p+1);
         if (*p != '}') {
-          p = parse_args(err, lookup, ',', p);
+          p = parse_args(err, table, ',', p);
           ERR_GUARD(err) {
             if (*p == '}') {
               p = strip_spaces(p+1);
               if (*p == '=') {
                 p = strip_spaces(p+1);
                 if (*p == '[')
-                  p = parse_lookup_values(err, lookup, p);
+                  p = parse_table_values(err, table, p);
               } else
                 err = err::E_PARSE;
             } else
@@ -568,7 +567,7 @@ namespace parse
             else
               group.add_simple(err, name, base::x_cast(value), params);
           } break;
-          case TYPE_MB: {
+          case TYPE_B: {
             group.add_boolean(err, name, type != TYPE_MB, params);
           } break;
           case TYPE_H: {
@@ -604,8 +603,8 @@ namespace parse
           case TYPE_Z: {
             p = parse_options(err, group.add_options(err, name, params), p);
           } break;
-          case TYPE_X: {
-            p = parse_lookup(err, group.add_lookup(err, name, params), p);
+          case TYPE_T: {
+            p = parse_table(err, group.add_table(err, name, params), p);
           } break;
           default: err = err::E_INVALID_ARG;
             break;
@@ -633,7 +632,6 @@ namespace parse
                 options.add_simple(err, name, base::x_cast(value));
             } break;
             case TYPE_B:
-            case TYPE_MB:
               options.add_boolean(err, name, type != TYPE_MB);
               break;
             case TYPE_H:{
@@ -666,8 +664,8 @@ namespace parse
             case TYPE_K:
               options.add_open_group(err, name);
               break;
-            case TYPE_X: {
-              p = parse_lookup(err, options.add_lookup(err, name, params), p);
+            case TYPE_T: {
+              p = parse_table(err, options.add_table(err, name, params), p);
             } break;
             default: err = err::E_INVALID_ARG;
               break;
@@ -679,7 +677,7 @@ namespace parse
     return p;
   }
 
-  P_cstr_ parse_arg(t_err err, t_lookup_ref lookup, P_cstr_ p) {
+  P_cstr_ parse_arg(t_err err, t_table_ref table, P_cstr_ p) {
     ERR_GUARD(err) {
       t_name name;
       t_type type;
@@ -692,24 +690,24 @@ namespace parse
               t_value value;
               p = parse_simple_value(err, value, p);
               if (value.is_empty())
-                lookup.add_simple(err, name);
+                table.add_simple(err, name);
               else
                 err = err::E_NOT_EMPTY;
             } break;
-            case TYPE_MB:
-              lookup.add_boolean(err, name);
+            case TYPE_B:
+              table.add_boolean(err, name);
               break;
             case TYPE_H: {
               t_values values;
               p = parse_selection_values(err, values, p);
-              lookup.add_selection(err, name, values);
+              table.add_selection(err, name, values);
             } break;
             case TYPE_C: {
               t_values values;
               t_value value;
               p = parse_compound_values(err, values, value, p);
               if (value.is_empty())
-                lookup.add_compound(err, name, values);
+                table.add_compound(err, name, values);
               else
                 err = err::E_NOT_EMPTY;
             } break;
@@ -719,13 +717,13 @@ namespace parse
               p = parse_list_values(err, values, init, params, p);
               ERR_GUARD(err) {
                 if (!init && values.is_empty())
-                  lookup.add_lookup(err, name, params);
+                  table.add_table(err, name, params);
                 else
                   err = err::E_NOT_EMPTY;
               }
             } break;
-            case TYPE_X: {
-              p = parse_lookup(err, lookup.add_lookup(err, name, params), p);
+            case TYPE_T: {
+              p = parse_table(err, table.add_table(err, name, params), p);
             } break;
             default: err = err::E_INVALID_ARG;
               break;
@@ -852,13 +850,13 @@ namespace build
     }
   }
 
-  t_void build_lookup_values(t_err err, r_text        text,
-                                        t_lookup_cref lookup) {
+  t_void build_table_values(t_err err, r_text        text,
+                                        t_table_cref table) {
     ERR_GUARD(err) {
-      if (lookup.is_initialized() || get(lookup.size_value())) { // not efficient
+      if (table.is_initialized() || get(table.size_value())) { // not efficient
         text << '[';
-        if (get(lookup.size_value())) { // empty -XXX
-          t_lookup_value_cref value{lookup.cbegin_value()};
+        if (get(table.size_value())) { // empty -XXX
+          t_table_value_cref value{table.cbegin_value()};
           do {
             text << value.get_name();
             text << ":{"_SL;
@@ -870,7 +868,7 @@ namespace build
                   t_simple_cref ref(arg);
                   text << ref.get_value();
                 } break;
-                case TYPE_MB: {
+                case TYPE_B: {
                   t_boolean_cref ref(arg);
                   if (!ref.get_value())
                     text << '!';
@@ -880,8 +878,8 @@ namespace build
                   t_selection_cref ref(arg);
                   text << ref.get_value();
                 } break;
-                case TYPE_X: {
-                  build_lookup_values(err, text, arg);
+                case TYPE_T: {
+                  build_table_values(err, text, arg);
                 } break;
                 default: err = err::E_UNKNOWN;
                   break;
@@ -893,7 +891,7 @@ namespace build
                 break;
             }
             text << '}';
-            value = lookup.cnext_value(value);
+            value = table.cnext_value(value);
             if (value)
               text << ',';
           } while (!err && value);
@@ -905,11 +903,11 @@ namespace build
 
   template<typename P> t_void build_args(t_err, r_text, const P, char);
 
-  t_void build_lookup(t_err err, r_text        text,
+  t_void build_table(t_err err, r_text        text,
                                  R_name        name,
-                                 t_lookup_cref lookup) {
+                                 t_table_cref table) {
     ERR_GUARD(err) {
-      t_rparams params(lookup.get_range_params());
+      t_rparams params(table.get_range_params());
       text << name;
       text << '@';
       if (get(params.range_min_)) {
@@ -922,10 +920,10 @@ namespace build
         text << integer(get(params.range_max_));
         text << '{';
       }
-      build_args(err, text, lookup, ',');
+      build_args(err, text, table, ',');
       ERR_GUARD(err) {
         text << "}="_SL;
-        build_lookup_values(err, text, lookup);
+        build_table_values(err, text, table);
       }
     }
   }
@@ -995,7 +993,7 @@ namespace build
         case TYPE_S:
           build_simple(err, text, name, ref);
           break;
-        case TYPE_MB:
+        case TYPE_B:
           build_boolean(err, text, name, ref);
           break;
         case TYPE_L:
@@ -1013,8 +1011,8 @@ namespace build
         case TYPE_G:
           build_group(err, text, name, ref);
           break;
-        case TYPE_X:
-          build_lookup(err, text, name, ref);
+        case TYPE_T:
+          build_table(err, text, name, ref);
           break;
         default: err = err::E_UNKNOWN;
           break;
@@ -1024,7 +1022,7 @@ namespace build
 
   t_void build_arg(t_err err, r_text text,
                               t_cref ref,
-                              t_lookup_cref) { // XXX
+                              t_table_cref) { // XXX
     ERR_GUARD(err) {
       t_type type = ref.get_type();
       if (is_optional(type))
@@ -1034,7 +1032,7 @@ namespace build
         case TYPE_S:
           build_simple(err, text, name, ref);
           break;
-        case TYPE_MB:
+        case TYPE_B:
           build_boolean(err, text, name, ref);
           break;
         case TYPE_L:
@@ -1046,8 +1044,8 @@ namespace build
         case TYPE_H:
           build_selection(err, text, name, ref);
           break;
-        case TYPE_X:
-          build_lookup(err, text, name, ref);
+        case TYPE_T:
+          build_table(err, text, name, ref);
           break;
         default: err = err::E_UNKNOWN;
           break;
@@ -1067,7 +1065,7 @@ namespace build
         case TYPE_S:
           build_simple(err, text, name, ref);
           break;
-        case TYPE_MB:
+        case TYPE_B:
           build_boolean(err, text, name, ref);
           break;
         case TYPE_L:
@@ -1088,8 +1086,8 @@ namespace build
         case TYPE_Z:
           build_options(err, text, name, ref);
           break;
-        case TYPE_X:
-          build_lookup(err, text, name, ref);
+        case TYPE_T:
+          build_table(err, text, name, ref);
           break;
         default: err = err::E_UNKNOWN;
           break;
@@ -1126,7 +1124,7 @@ namespace merge
           type != TYPE_K && type != TYPE_Z) {
         switch (use_ref.get_base_type()) {
           case TYPE_G:
-          case TYPE_MB:
+          case TYPE_B:
             break;
           case TYPE_S: {
             t_simple_cref simple(use_ref);
@@ -1143,9 +1141,9 @@ namespace merge
             if (list.get_values().is_empty())
               err = err::E_EMPTY;
           } break;
-          case TYPE_X: {
-            t_lookup_cref lookup(use_ref); /// XXX  - empty
-            if (!get(lookup.size_value()) && !lookup.is_initialized())
+          case TYPE_T: {
+            t_table_cref table(use_ref); /// XXX  - empty
+            if (!get(table.size_value()) && !table.is_initialized())
               err = err::E_XXX;
           } break;
           default: err = err::E_INTERNAL;
@@ -1248,11 +1246,11 @@ namespace merge
               ++use_ix;
             }
           } break;
-          case TYPE_OX: {
-            t_lookup_cref def_lookup(def_ref);
+          case TYPE_OT: {
+            t_table_cref def_table(def_ref);
             auto max = get(use.get_size());
-            if ((!def_lookup.is_empty() || def_lookup.is_initialized()) &&
-                append(err, use, def_lookup)) {
+            if ((!def_table.is_empty() || def_table.is_initialized()) &&
+                append(err, use, def_table)) {
               if (use_ix < max)
                 use.swap(err, t_ix{use_ix}, t_ix{max-1});
               ++use_ix;
@@ -1319,7 +1317,7 @@ namespace merge
       switch (def_type) {
         case TYPE_OK:
         case TYPE_K:
-        case TYPE_MB:
+        case TYPE_B:
           break;
         case TYPE_OB:
         case TYPE_B: {
@@ -1394,12 +1392,12 @@ namespace merge
           //check in use
           // type might need to know its an options
         } break;
-        case TYPE_OX:
-        case TYPE_X: {
-          t_lookup_cref def_lookup(def_ref), use_lookup(use_ref);
-          if (is_same_definition(def_lookup, use_lookup, true)) {
+        case TYPE_OT:
+        case TYPE_T: {
+          t_table_cref def_table(def_ref), use_table(use_ref);
+          if (is_same_definition(def_table, use_table, true)) {
             if (!is_optional(def_type) &&
-                !is_same(def_lookup, use_lookup))
+                !is_same(def_table, use_table))
               err = err::E_NO_MATCH;
           } else
             err = err::E_INVALID_ARG;
@@ -1414,8 +1412,6 @@ namespace merge
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace argn
-{
   t_bool check_empty(t_err err, t_string_crange word) {
     /* XXX
     ERR_GUARD(err) {
@@ -2028,7 +2024,7 @@ namespace argn
   t_collection_ref::t_collection_ref(t_ref ref) : t_ref(ref) {
     if (is_valid_()) {
       const t_type base = get_base_type();
-      if (base != TYPE_G && base != TYPE_X && base != TYPE_Z && base != TYPE_XI)
+      if (base != TYPE_G && base != TYPE_T && base != TYPE_Z && base != TYPE_TI)
         clear_();
     }
   }
@@ -2037,7 +2033,7 @@ namespace argn
       : t_ref(err, ref) {
     ERR_GUARD(err) {
       const t_type base = get_base_type();
-      if (base != TYPE_G && base != TYPE_X && base != TYPE_Z && base != TYPE_XI) {
+      if (base != TYPE_G && base != TYPE_T && base != TYPE_Z && base != TYPE_TI) {
         clear_();
         err = err::E_XXX;
       }
@@ -2097,7 +2093,7 @@ namespace argn
   t_collection_cref::t_collection_cref(t_cref ref) : t_cref(ref) {
     if (is_valid_()) {
       t_type base = get_base_type();
-      if (base != TYPE_G && base != TYPE_X && base != TYPE_Z && base != TYPE_XI)
+      if (base != TYPE_G && base != TYPE_T && base != TYPE_Z && base != TYPE_TI)
         clear_();
     }
   }
@@ -2105,7 +2101,7 @@ namespace argn
   t_collection_cref::t_collection_cref(t_err err, t_cref ref) : t_cref(err, ref) {
     ERR_GUARD(err) {
       t_type base = get_base_type();
-      if (base != TYPE_G && base != TYPE_X && base != TYPE_Z && base != TYPE_XI) {
+      if (base != TYPE_G && base != TYPE_T && base != TYPE_Z && base != TYPE_TI) {
         clear_();
         err = err::E_XXX;
       }
@@ -2252,7 +2248,7 @@ namespace argn
 
   t_ref t_group_ref::add_list(t_err err, t_name   name,
                                          t_bool   init,
-                                          R_params params) {
+                                         R_params params) {
     ERR_GUARD(err) {
       if (is_valid_())
         return set_argn_().add_list_(err, *this, base::x_cast(name), init,
@@ -2318,11 +2314,11 @@ namespace argn
     return {};
   }
 
-  t_ref t_group_ref::add_lookup(t_err err, t_name   name,
+  t_ref t_group_ref::add_table(t_err err, t_name   name,
                                            R_params params) {
     ERR_GUARD(err) {
       if (is_valid_())
-         return set_argn_().add_lookup_(err, *this, base::x_cast(name),
+         return set_argn_().add_table_(err, *this, base::x_cast(name),
                                         params);
       err = err::E_INVALID_REF;
     }
@@ -2518,12 +2514,12 @@ namespace argn
     return {};
   }
 
-  t_ref t_options_ref::add_lookup(t_err err, t_name    name,
+  t_ref t_options_ref::add_table(t_err err, t_name    name,
                                              R_rparams rparams) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_params params{t_oparams{false}, rparams};
-        return set_argn_().add_lookup_(err, *this, base::x_cast(name), params);
+        return set_argn_().add_table_(err, *this, base::x_cast(name), params);
       }
       err = err::E_INVALID_REF;
     }
@@ -2559,27 +2555,27 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  t_lookup_ref::t_lookup_ref(t_ref ref) : t_collection_ref(ref) {
-    if (is_valid_() && get_base_type() != TYPE_X)
+  t_table_ref::t_table_ref(t_ref ref) : t_collection_ref(ref) {
+    if (is_valid_() && get_base_type() != TYPE_T)
       clear_();
   }
 
-  t_lookup_ref::t_lookup_ref(t_err err, t_ref ref)
+  t_table_ref::t_table_ref(t_err err, t_ref ref)
     : t_collection_ref(err, ref) {
-    if (!err && get_base_type() != TYPE_X) {
+    if (!err && get_base_type() != TYPE_T) {
       clear_();
       err = err::E_XXX;
     }
   }
 
-  t_rparams t_lookup_ref::get_range_params() const {
+  t_rparams t_table_ref::get_range_params() const {
     if (is_valid_())
       return {t_n{get_().second.info_.range_.max_},
               t_n{get_().second.info_.range_.min_}};
     return {};
   }
 
-  t_cref t_lookup_ref::add_simple(t_err err, t_name name) {
+  t_cref t_table_ref::add_simple(t_err err, t_name name) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
@@ -2590,7 +2586,7 @@ namespace argn
     return {};
   }
 
-  t_cref t_lookup_ref::add_boolean(t_err err, t_name name) {
+  t_cref t_table_ref::add_boolean(t_err err, t_name name) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_oparams params{false};
@@ -2602,7 +2598,7 @@ namespace argn
     return {};
   }
 
-  t_cref t_lookup_ref::add_compound(t_err err, t_name   name,
+  t_cref t_table_ref::add_compound(t_err err, t_name   name,
                                                t_values values) {
     ERR_GUARD(err) {
       if (is_valid_()) {
@@ -2615,7 +2611,7 @@ namespace argn
     return {};
   }
 
-  t_cref t_lookup_ref::add_selection(t_err err, t_name   name,
+  t_cref t_table_ref::add_selection(t_err err, t_name   name,
                                                 t_values values) {
     ERR_GUARD(err) {
       if (is_valid_()) {
@@ -2628,7 +2624,7 @@ namespace argn
     return {};
   }
 
-  t_cref t_lookup_ref::add_list(t_err err, t_name    name,
+  t_cref t_table_ref::add_list(t_err err, t_name    name,
                                            R_rparams rparams) {
     ERR_GUARD(err) {
       if (is_valid_()) {
@@ -2641,19 +2637,19 @@ namespace argn
     return {};
   }
 
-  t_ref t_lookup_ref::add_lookup(t_err err, t_name    name,
+  t_ref t_table_ref::add_table(t_err err, t_name    name,
                                             R_rparams rparams) {
     ERR_GUARD(err) {
       if (is_valid_()) {
         const t_params params{t_oparams{false}, rparams};
-        return set_argn_().add_lookup_(err, *this, base::x_cast(name), params);
+        return set_argn_().add_table_(err, *this, base::x_cast(name), params);
       }
       err = err::E_INVALID_REF;
     }
     return {};
   }
 
-  t_bool t_lookup_ref::set_as_initialized() {
+  t_bool t_table_ref::set_as_initialized() {
     if (is_valid_()) {
       if (!get_().second.info_.range_.cnt_) {
         set_().second.info_.range_.init_ = true;
@@ -2663,51 +2659,51 @@ namespace argn
     return false;
   }
 
-  t_bool t_lookup_ref::is_initialized() const {
+  t_bool t_table_ref::is_initialized() const {
     if (is_valid_())
       return get_().second.info_.range_.init_;
     return false;
   }
 
-  t_ref t_lookup_ref::add_value(t_err err, t_name name) {
+  t_ref t_table_ref::add_value(t_err err, t_name name) {
     ERR_GUARD(err) {
       if (is_valid_())
-        return set_argn_().add_lookup_value_(err, *this, base::x_cast(name));
+        return set_argn_().add_table_value_(err, *this, base::x_cast(name));
       err = err::E_INVALID_REF;
     }
     return {};
   }
 
-  t_bool t_lookup_ref::del_value(R_name name) {
+  t_bool t_table_ref::del_value(R_name name) {
     if (is_valid_())
-      return set_argn_().del_lookup_value_(*this, name);
+      return set_argn_().del_table_value_(*this, name);
     return false;
   }
 
-  t_ref t_lookup_ref::get_value(t_string_crange name) {
+  t_ref t_table_ref::get_value(t_string_crange name) {
     if (is_valid_())
-      return set_argn_().get_lookup_value_(*this, name);
+      return set_argn_().get_table_value_(*this, name);
     return {};
   }
 
-  t_cref t_lookup_ref::get_value(t_string_crange name) const {
+  t_cref t_table_ref::get_value(t_string_crange name) const {
     if (is_valid_())
-      return get_argn_().get_lookup_value_(*this, name);
+      return get_argn_().get_table_value_(*this, name);
     return {};
   }
 
-  t_void t_lookup_ref::clear_value() {
+  t_void t_table_ref::clear_value() {
     if (is_valid_())
-      set_argn_().clr_lookup_value_(*this);
+      set_argn_().clr_table_value_(*this);
   }
 
-  t_n t_lookup_ref::size_value() const {
+  t_n t_table_ref::size_value() const {
     if (is_valid_())
       return t_n{get_().second.info_.range_.cnt_};
     return t_n{0};
   }
 
-  t_ref t_lookup_ref::begin_value() {
+  t_ref t_table_ref::begin_value() {
     if (get(size_value())) { // is_empty - XXX
       t_fullname endname(get_fullname());
       endname.push_back("."_SL);
@@ -2719,15 +2715,15 @@ namespace argn
     return {};
   }
 
-  t_cref t_lookup_ref::begin_value() const {
+  t_cref t_table_ref::begin_value() const {
     return cbegin_value();
   }
 
-  t_cref t_lookup_ref::cbegin_value() const {
-    return t_lookup_cref(*this).cbegin_value();
+  t_cref t_table_ref::cbegin_value() const {
+    return t_table_cref(*this).cbegin_value();
   }
 
-  t_ref t_lookup_ref::next_value(t_ref ref) {
+  t_ref t_table_ref::next_value(t_ref ref) {
     if (ref) {
       R_fullname refname = ref.get_fullname();
       t_fullname endname(refname);
@@ -2740,60 +2736,60 @@ namespace argn
     return {};
   }
 
-  t_cref t_lookup_ref::next_value(t_ref ref) const {
+  t_cref t_table_ref::next_value(t_ref ref) const {
     return cnext_value(ref);
   }
 
-  t_cref t_lookup_ref::cnext_value(t_cref ref) const {
-    return t_lookup_cref(*this).cnext_value(ref);
+  t_cref t_table_ref::cnext_value(t_cref ref) const {
+    return t_table_cref(*this).cnext_value(ref);
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  t_lookup_cref::t_lookup_cref(t_cref ref) : t_collection_cref(ref) {
-    if (is_valid_() && get_base_type() != TYPE_X)
+  t_table_cref::t_table_cref(t_cref ref) : t_collection_cref(ref) {
+    if (is_valid_() && get_base_type() != TYPE_T)
       clear_();
   }
 
-  t_lookup_cref::t_lookup_cref(t_err err, t_cref ref)
+  t_table_cref::t_table_cref(t_err err, t_cref ref)
     : t_collection_cref(err, ref) {
-    if (!err && get_base_type() != TYPE_X) {
+    if (!err && get_base_type() != TYPE_T) {
       clear_();
       err = err::E_XXX;
     }
   }
 
-  t_rparams t_lookup_cref::get_range_params() const {
+  t_rparams t_table_cref::get_range_params() const {
     if (is_valid_())
       return {t_n{get_().second.info_.range_.max_},
               t_n{get_().second.info_.range_.min_}};
     return {};
   }
 
-  t_bool t_lookup_cref::is_initialized() const {
+  t_bool t_table_cref::is_initialized() const {
     if (is_valid_())
       return get_().second.info_.range_.init_;
     return false;
   }
 
-  t_cref t_lookup_cref::get_value(t_string_crange name) const {
+  t_cref t_table_cref::get_value(t_string_crange name) const {
     if (is_valid_())
-      return get_argn_().get_lookup_value_(*this, name);
+      return get_argn_().get_table_value_(*this, name);
     return {};
   }
 
-  t_n t_lookup_cref::size_value() const {
+  t_n t_table_cref::size_value() const {
     if (is_valid_())
       return t_n{get_().second.info_.range_.cnt_};
     return t_n{0};
   }
 
 
-  t_cref t_lookup_cref::begin_value() const {
+  t_cref t_table_cref::begin_value() const {
     return cbegin_value();
   }
 
-  t_cref t_lookup_cref::cbegin_value() const {
+  t_cref t_table_cref::cbegin_value() const {
     if (get(size_value())) { // is_empty - XXX
       t_fullname endname(get_fullname());
       endname.push_back("."_SL);
@@ -2805,11 +2801,11 @@ namespace argn
     return {};
   }
 
-  t_cref t_lookup_cref::next_value(t_ref ref) const {
+  t_cref t_table_cref::next_value(t_ref ref) const {
     return cnext_value(ref);
   }
 
-  t_cref t_lookup_cref::cnext_value(t_cref ref) const {
+  t_cref t_table_cref::cnext_value(t_cref ref) const {
     if (ref) {
       R_fullname refname = ref.get_fullname();
       t_fullname endname(refname);
@@ -2824,28 +2820,28 @@ namespace argn
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  t_lookup_value_ref::t_lookup_value_ref(t_ref ref) : t_collection_ref(ref) {
-    if (is_valid_() && get_type() != TYPE_XI)
+  t_table_value_ref::t_table_value_ref(t_ref ref) : t_collection_ref(ref) {
+    if (is_valid_() && get_type() != TYPE_TI)
       clear_();
   }
 
-  t_lookup_value_ref::t_lookup_value_ref(t_err err, t_ref ref)
+  t_table_value_ref::t_table_value_ref(t_err err, t_ref ref)
     : t_collection_ref(err, ref) {
-    if (!err && get_type() != TYPE_XI) {
+    if (!err && get_type() != TYPE_TI) {
       clear_();
       err = err::E_XXX;
     }
   }
 
-  t_lookup_value_cref::t_lookup_value_cref(t_cref ref)
+  t_table_value_cref::t_table_value_cref(t_cref ref)
     : t_collection_cref(ref) {
-    if (is_valid_() && get_type() != TYPE_XI)
+    if (is_valid_() && get_type() != TYPE_TI)
       clear_();
   }
 
-  t_lookup_value_cref::t_lookup_value_cref(t_err err, t_cref ref)
+  t_table_value_cref::t_table_value_cref(t_err err, t_cref ref)
     : t_collection_cref(err, ref) {
-    if (!err && get_type() != TYPE_XI) {
+    if (!err && get_type() != TYPE_TI) {
       clear_();
       err = err::E_XXX;
     }
@@ -2879,7 +2875,7 @@ namespace argn
           //fullname.back().insert(0, parent.get_().second.info_.ext_.get_cstr(),
           //                       parent.get_().second.info_.ext_.length() -1);
         //}
-      } else if (base == TYPE_X) {
+      } else if (base == TYPE_T) {
         t_word attr{"."};
         fullname.push_back(attr);
         fullname.push_back(name);
@@ -2966,7 +2962,7 @@ namespace argn
   t_ref t_argn::next(t_ref ref) {
     if (ref) {
       switch (ref.get_base_type()) {
-        case TYPE_MB:
+        case TYPE_B:
         case TYPE_S:
         case TYPE_L:
         case TYPE_H:
@@ -2979,11 +2975,11 @@ namespace argn
           if (itr != std::end(table_))
             return {this, &(*itr)};
         } break;
-        case TYPE_X: {
-          t_lookup_ref lookup(ref);
-          return lookup.begin_value();
+        case TYPE_T: {
+          t_table_ref table(ref);
+          return table.begin_value();
         } break;
-        case TYPE_XI:
+        case TYPE_TI:
         case TYPE_G:
         case TYPE_Z: {
           t_collection_ref collection(ref);
@@ -3017,7 +3013,7 @@ namespace argn
   t_cref t_argn::cnext(t_cref ref) const {
     if (ref) {
       switch (ref.get_base_type()) {
-        case TYPE_MB:
+        case TYPE_B:
         case TYPE_S:
         case TYPE_L:
         case TYPE_H:
@@ -3030,11 +3026,11 @@ namespace argn
           if (itr != std::cend(table_))
             return {this, &(*itr)};
         } break;
-        case TYPE_X: {
-          t_lookup_cref lookup(ref);
-          return lookup.cbegin_value();
+        case TYPE_T: {
+          t_table_cref table(ref);
+          return table.cbegin_value();
         } break;
-        case TYPE_XI:
+        case TYPE_TI:
         case TYPE_G:
         case TYPE_Z: {
           t_collection_cref collection(ref);
@@ -3140,7 +3136,7 @@ namespace argn
                                         t_bool    state,
                                         R_oparams params) {
     if (check_name(err, name)) {
-      t_arg_info_ info(params.optional_ ? TYPE_OB : (state ? TYPE_B : TYPE_MB));
+      t_arg_info_ info(params.optional_ ? TYPE_OB : TYPE_B);
       t_name tmp{str(state)};
       return add_(err, parent, base::x_cast(name), info, base::x_cast(tmp));
     }
@@ -3178,11 +3174,11 @@ namespace argn
     return {};
   }
 
-  t_ref t_argn::add_lookup_(r_err err, t_ref    parent,
-                                       x_name   name,
-                                       R_params params) {
+  t_ref t_argn::add_table_(r_err err, t_ref    parent,
+                                      x_name   name,
+                                      R_params params) {
     if (check_name(err, name) && check_range(err, params)) {
-      T_type type = params.optional_ ? TYPE_OX : TYPE_X;
+      T_type type = params.optional_ ? TYPE_OT : TYPE_T;
       t_arg_info_ info(type, get(params.range_max_), get(params.range_min_));
       return add_(err, parent, base::x_cast(name), info);
     }
@@ -3213,17 +3209,17 @@ namespace argn
     return pair.first->second;
   }
 
-  t_ref t_argn::add_lookup_value_(r_err err, t_ref ref, x_name name) {
-    t_lookup_ref lookup(err, ref);
+  t_ref t_argn::add_table_value_(r_err err, t_ref ref, x_name name) {
+    t_table_ref table(err, ref);
     ERR_GUARD(err) {
       if (!name.is_empty()) {
-        auto fullname = lookup.get_fullname();
+        auto fullname = table.get_fullname();
         fullname.push_back(base::x_cast(name));
-        auto pair = table_.insert(t_arg_(fullname, t_arg_info_(TYPE_XI)));
+        auto pair = table_.insert(t_arg_(fullname, t_arg_info_(TYPE_TI)));
         if (pair.second) {
-          pair.first->second.info_.range_ = lookup.get_().second.info_.range_;
+          pair.first->second.info_.range_ = table.get_().second.info_.range_;
           pair.first->second.info_.range_.init_ = true;
-          for (auto member : lookup.set_().second.info_.mem_) {
+          for (auto member : table.set_().second.info_.mem_) {
             p_arg_ arg = (p_arg_)member;
             auto mem_name(fullname);
             mem_name.push_back(arg->first.back());
@@ -3234,7 +3230,7 @@ namespace argn
               switch (arg->second.info_.type_) {
                 case argn::TYPE_S:
                   break;
-                case argn::TYPE_MB:
+                case argn::TYPE_B:
                   mem_pair.first->second.values_.push_back(str(false));
                   break;
                 case argn::TYPE_H:
@@ -3247,7 +3243,7 @@ namespace argn
                 case argn::TYPE_L:
                   mem_pair.first->second.info_.range_ = arg->second.info_.range_;
                   break;
-                case argn::TYPE_X:
+                case argn::TYPE_T:
                   mem_pair.first->second.info_.range_ = arg->second.info_.range_;
                   mem_pair.first->second.info_.range_.init_ = true;
                   mem_pair.first->second.info_.mem_   = arg->second.info_.mem_;
@@ -3261,8 +3257,8 @@ namespace argn
               break;
           }
           ERR_GUARD(err) {
-              lookup.set_().second.info_.range_.init_ = true;
-            ++lookup.set_().second.info_.range_.cnt_;
+              table.set_().second.info_.range_.init_ = true;
+            ++table.set_().second.info_.range_.cnt_;
             return {this, &(*pair.first)};
           }
         } else if (pair.first != std::end(table_))
@@ -3275,7 +3271,7 @@ namespace argn
     return {};
   }
 
- t_bool t_argn::del_lookup_value_(r_ref ref,  R_name name) {
+ t_bool t_argn::del_table_value_(r_ref ref,  R_name name) {
     if (ref) {
       t_fullname argname(ref.get_fullname());
       argname.push_back(name);
@@ -3289,10 +3285,10 @@ namespace argn
     return false;
   }
 
-  t_void t_argn::clr_lookup_value_(r_ref ref) {
-    t_lookup_ref lookup(ref);
-    if (lookup && !lookup.is_empty()) {
-      t_fullname endname(lookup.get_fullname());
+  t_void t_argn::clr_table_value_(r_ref ref) {
+    t_table_ref table(ref);
+    if (table && !table.is_empty()) {
+      t_fullname endname(table.get_fullname());
       endname.push_back("."_SL);
       endname.push_back("/"_SL);
       t_itr_ first = table_.upper_bound(endname);
@@ -3304,13 +3300,13 @@ namespace argn
     }
   }
 
-  t_ref t_argn::get_lookup_value_(r_ref ref, t_string_crange name) {
+  t_ref t_argn::get_table_value_(r_ref ref, t_string_crange name) {
     t_fullname fullname(ref.get_fullname());
     fullname.push_back(name);
     return operator[](fullname);
   }
 
-  t_cref t_argn::get_lookup_value_(t_cref ref, t_string_crange name) const {
+  t_cref t_argn::get_table_value_(t_cref ref, t_string_crange name) const {
     t_fullname fullname(ref.get_fullname());
     fullname.push_back(name);
     return operator[](fullname);
@@ -3359,7 +3355,7 @@ namespace argn
       type << '>';
 
       t_type base = get_base_type(info.type_);
-      if (base == TYPE_X || base == TYPE_L) {
+      if (base == TYPE_T || base == TYPE_L) {
         type << '<';
         if (info.range_.max_)
            type << integer(info.range_.max_); // XXX
@@ -3373,7 +3369,7 @@ namespace argn
         type << (info.range_.init_ ? "init"_SL : "uninit"_SL);
         type << '>';
       }
-      if (base == TYPE_G || base == TYPE_Z || base == TYPE_X) {
+      if (base == TYPE_G || base == TYPE_Z || base == TYPE_T) {
         // number of options
         auto max = info.mem_.size();
         for (decltype(max) ix = 0; ix < max; ++ix) {
@@ -3500,7 +3496,7 @@ namespace argn
       switch (lh.get_base_type()) {
         case TYPE_S:
         case TYPE_K:
-        case TYPE_MB:
+        case TYPE_B:
           return true;
         case TYPE_C: {
           t_compound_cref lh_ref(lh), rh_ref(rh);
@@ -3514,8 +3510,8 @@ namespace argn
           t_list_cref lh_ref(lh), rh_ref(rh);
           return lh_ref.get_range_params() == rh_ref.get_range_params();
         }
-        case TYPE_X: {
-          t_lookup_cref lh_ref(lh), rh_ref(rh);
+        case TYPE_T: {
+          t_table_cref lh_ref(lh), rh_ref(rh);
           if (lh_ref.get_range_params() == rh_ref.get_range_params() &&
               get(lh_ref.get_size()) == get(rh_ref.get_size())) {
             auto max = get(lh_ref.get_size());
@@ -3525,8 +3521,8 @@ namespace argn
             return true;
           }
         } break;
-        case TYPE_XI: {
-          t_lookup_value_cref lh_ref(lh), rh_ref(rh);
+        case TYPE_TI: {
+          t_table_value_cref lh_ref(lh), rh_ref(rh);
           if (get(lh_ref.get_size()) == get(rh_ref.get_size())) {
             auto max = get(lh_ref.get_size());
             for (decltype(max) ix = 0; ix < max; ++ix)
@@ -3552,7 +3548,7 @@ namespace argn
           }
           case TYPE_K:
             return true;
-          case TYPE_MB: {
+          case TYPE_B: {
             t_boolean_cref lh_ref(lh), rh_ref(rh);
             return lh_ref.get_value() == rh_ref.get_value();
           }
@@ -3568,13 +3564,13 @@ namespace argn
             t_list_cref lh_ref(lh), rh_ref(rh);
             return lh_ref.get_values() == rh_ref.get_values();
           }
-          case TYPE_X: {
-            t_lookup_cref lh_ref(lh), rh_ref(rh);
+          case TYPE_T: {
+            t_table_cref lh_ref(lh), rh_ref(rh);
             if (get(lh_ref.size_value()) == get(rh_ref.size_value())) {
               if (!get(lh_ref.size_value())) // is_empty - XXX
                 return true;
               else {
-                t_lookup_value_cref lh_value_ref(lh_ref.cbegin_value()),
+                t_table_value_cref lh_value_ref(lh_ref.cbegin_value()),
                                     rh_value_ref(rh_ref.cbegin_value());
                 do {
                   if (!is_same(lh_value_ref, rh_value_ref))
@@ -3586,8 +3582,8 @@ namespace argn
               }
             }
           } break;
-          case TYPE_XI: {
-            t_lookup_value_cref lh_ref(lh), rh_ref(rh);
+          case TYPE_TI: {
+            t_table_value_cref lh_ref(lh), rh_ref(rh);
             if (get(lh_ref.get_size()) == get(rh_ref.get_size())) {
               auto max = get(lh_ref.get_size());
               for (decltype(max) ix = 0; ix < max; ++ix)
@@ -3616,27 +3612,26 @@ namespace argn
     }
     return false;
   }
-}
 
-  t_void parse_notation(t_err err, argn::r_argn argn, R_text text) {
+  t_void parse_notation(t_err err, r_argn argn, R_text text) {
     ERR_GUARD(err) {
-      argn::t_group_ref group(err, argn.get_root());
+      t_group_ref group(err, argn.get_root());
       notation::parse::parse_group(err, group,
                                    notation::parse::strip_spaces(get(text.get_cstr())));
     }
   }
 
-  t_void build_notation(t_err err, r_text text, argn::R_argn argn) {
+  t_void build_notation(t_err err, r_text text, R_argn argn) {
     ERR_GUARD(err) {
-      argn::t_group_cref group(err, argn.get_root());
+      t_group_cref group(err, argn.get_root());
       notation::build::build_group(err, text, group);
     }
   }
 
-  t_void merge_notation(t_err err, argn::r_argn use, argn::R_argn def) {
+  t_void merge_notation(t_err err, r_argn use, R_argn def) {
     ERR_GUARD(err) {
-      argn::t_group_ref  use_group(err, use.get_root());
-      argn::t_group_cref def_group(err, def.get_root());
+      t_group_ref  use_group(err, use.get_root());
+      t_group_cref def_group(err, def.get_root());
       notation::merge::merge_group(err, use_group, def_group);
     }
   }
