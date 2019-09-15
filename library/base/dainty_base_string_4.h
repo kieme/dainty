@@ -37,9 +37,24 @@ namespace string
 {
 ////////////////////////////////////////////////////////////////////////////////
 
+  using impl_::t_prefix;
+  using impl_::t_bool;
+  using impl_::t_n;
+  using impl_::t_ix;
+  using impl_::t_cstr_cptr;
+  using impl_::t_crange;
+  using impl_::R_crange;
+  using impl_::t_block;
+  using impl_::R_block;
+  using impl_::t_fmt;
+  using impl_::FMT_IT;
+  using impl_::t_char;
+
+////////////////////////////////////////////////////////////////////////////////
+
   template<class TAG>
   class t_string<TAG, 0, t_overflow_grow> {
-    using t_impl_ = t_string_impl_<t_overflow_grow>;
+    using t_impl_ = impl_::t_impl_<t_overflow_grow>;
   public:
     using t_n         = string::t_n;
     using t_cstr_cptr = string::t_cstr_cptr;
@@ -168,10 +183,10 @@ namespace string
     t_bool assign_size_(t_n_) noexcept;
     t_bool append_size_(t_n_) noexcept;
 
-    t_n_    blks_ = 0;
-    t_n_    max_  = 0;
-    t_ptr_  store_;
-    t_impl_ impl_;
+    using t_store_ = buf::t_buf<t_char, 0, buf::t_size_dynamic>;
+
+    t_store_ store_;
+    t_impl_  impl_;
   };
 
 ///////////////////////////////////////////////////////////////////////////////

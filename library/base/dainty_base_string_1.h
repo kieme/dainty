@@ -37,9 +37,56 @@ namespace string
 {
 ////////////////////////////////////////////////////////////////////////////////
 
+  // to do : replace P_cstr_ with t_crange
+  // to_integer and to_hexidecimal
+
+  using impl_::t_prefix;
+  using impl_::t_bool;
+  using impl_::t_n;
+  using impl_::t_ix;
+  using impl_::t_cstr_cptr;
+  using impl_::t_crange;
+  using impl_::R_crange;
+  using impl_::t_block;
+  using impl_::R_block;
+  using impl_::t_fmt;
+  using impl_::FMT;
+  using impl_::FMT_IT;
+  using impl_::FMT_VA_IT;
+  using impl_::t_char;
+  using impl_::t_validity;
+  using impl_::VALID;
+  using impl_::INVALID;
+  using impl_::t_range;
+  using impl_::R_range;
+  using impl_::t_crange;
+  using impl_::R_crange;
+  using impl_::t_char_select;
+  using impl_::r_char_select; // XXX
+  using impl_::p_char_select; // XXX
+  using impl_::NO_RANGE;
+  using impl_::t_snippet;
+  using impl_::r_snippet;
+  using impl_::p_snippet;
+  using impl_::mk_range;
+
+  using impl_::NOT_PLUS1;
+  using impl_::PLUS1;
+  using impl_::NOT_INCL_CHAR;
+  using impl_::INCL_CHAR;
+  using impl_::NOT_EOL_OK;
+  using impl_::EOL_OK;
+  using impl_::EOL;
+
+  using impl_::t_overflow_assert;
+  using impl_::t_overflow_truncate;
+  using impl_::t_overflow_grow;
+
+////////////////////////////////////////////////////////////////////////////////
+
   template<class TAG, t_n_ N = 0, typename O = t_overflow_grow>
   class t_string {
-    using t_impl_ = t_string_impl_<O>;
+    using t_impl_ = impl_::t_impl_<O>;
   public:
     using t_n         = string::t_n;
     using t_cstr_cptr = string::t_cstr_cptr;
@@ -143,11 +190,14 @@ namespace string
     }
 
   private:
-    constexpr static t_n_ MAX_ = N+1;
-
     template<typename, t_n_, typename> friend class t_string;
-    t_char  store_[MAX_];
-    t_impl_ impl_;
+
+    constexpr static t_n_ MAX_ = N + 1;
+
+    using t_store_ = buf::t_buf<t_char, MAX_, buf::t_size_static>;
+
+    t_store_ store_;
+    t_impl_  impl_;
   };
 
 ////////////////////////////////////////////////////////////////////////////////
