@@ -42,9 +42,12 @@ namespace string
 
   using impl_::t_prefix;
   using impl_::t_bool;
+  using impl_::t_void;
   using impl_::t_n;
+  using impl_::t_n_;
   using impl_::t_ix;
-  using impl_::t_cstr_cptr;
+  using impl_::t_cstr_cptr_; // XXX
+  using impl_::t_cstr_cptr;  // XXX
   using impl_::t_crange;
   using impl_::R_crange;
   using impl_::t_block;
