@@ -76,6 +76,8 @@ namespace impl_
   using types::t_n_;
   using types::t_ix_;
 
+  using specific::operator""_ix;
+  using specific::operator""_n;
   using specific::P_cstr;      //XXX
   using specific::t_cstr_cptr; // XXX
   using specific::t_n;
@@ -89,6 +91,11 @@ namespace impl_
   using base::FMT;
   using base::FMT_IT;
   using base::FMT_VA_IT;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<t_n_ N>
+  using t_grow_buf = buf::t_buf<t_char, N, buf::t_size_dynamic>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -288,10 +295,10 @@ namespace impl_
     t_impl_base_(t_n_)        noexcept;
     t_impl_base_(t_buf_range) noexcept;
 
-    t_void display           (t_buf_crange, R_crange, R_crange) const noexcept;
-    t_void display_then_clear(t_buf_range,  R_crange, R_crange)       noexcept;
+    t_void display           (t_buf_crange, t_crange, t_crange) const noexcept;
+    t_void display_then_clear(t_buf_range,  t_crange, t_crange)       noexcept;
 
-    t_bool   is_match  (t_buf_crange, t_buf_crange pattern) const noexcept;
+    t_bool   is_match  (t_buf_crange, t_buf_crange) const noexcept;
 
     t_bool   is_empty  ()                       const noexcept;
     P_cstr_  get_cstr  (t_buf_crange)           const noexcept;
@@ -328,11 +335,10 @@ namespace impl_
   class t_impl_<t_overflow_assert> : public t_impl_base_ {
   public:
     using base_ = t_impl_base_;
-
     using base_::base_;
 
-    t_impl_(t_buf_range, t_crange) noexcept
-    t_impl_(t_buf_range, t_block)  noexcept
+    t_impl_(t_buf_range, t_crange) noexcept;
+    t_impl_(t_buf_range, t_block)  noexcept;
 
     t_void assign(t_buf_range, t_crange) noexcept;
     t_void assign(t_buf_range, t_block)  noexcept;
@@ -344,13 +350,418 @@ namespace impl_
 
     template<typename F>
     t_void custom_assign(t_buf_range, F&&) noexcept;
-
     template<typename F>
     t_void custom_append(t_buf_range, F&&) noexcept;
   };
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template<>
+  class t_impl_<t_overflow_truncate> : public t_impl_base_ {
+  public:
+    using base_ = t_impl_base_;
+    using base_::base_;
+
+    t_impl_(t_buf_range, t_crange) noexcept;
+    t_impl_(t_buf_range, t_block)  noexcept;
+
+    t_void assign(t_buf_range, t_crange) noexcept;
+    t_void assign(t_buf_range, t_block)  noexcept;
+    t_void assign(t_buf_range, t_fmt_va, t_crange, va_list) noexcept;
+
+    t_void append(t_buf_range, t_crange) noexcept;
+    t_void append(t_buf_range, t_block)  noexcept;
+    t_void append(t_buf_range, t_fmt_va, t_crange, va_list) noexcept;
+
+    template<typename F>
+    t_void custom_assign(t_buf_range, F&&) noexcept;
+    template<typename F>
+    t_void custom_append(t_buf_range, F&&) noexcept;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<>
+  class t_impl_<t_overflow_grow> : public t_impl_base_ {
+  public:
+    using base_ = t_impl_base_;
+    using base_::base_;
+
+    template<t_n_ N>
+    t_impl_(t_grow_buf<N>&, t_crange) noexcept;
+    template<t_n_ N>
+    t_impl_(t_grow_buf<N>&, t_block)  noexcept;
+
+    template<t_n_ N>
+    t_void assign(t_grow_buf<N>&, t_crange) noexcept;
+    template<t_n_ N>
+    t_void assign(t_grow_buf<N>&, t_block)  noexcept;
+    template<t_n_ N>
+    t_void assign(t_grow_buf<N>&, t_fmt_va, t_crange, va_list) noexcept;
+
+    template<t_n_ N>
+    t_void append(t_grow_buf<N>&, t_crange) noexcept;
+    template<t_n_ N>
+    t_void append(t_grow_buf<N>&, t_block)  noexcept;
+    template<t_n_ N>
+    t_void append(t_grow_buf<N>&, t_fmt_va, t_crange, va_list) noexcept;
+
+    template<t_n_ N, typename F>
+    t_void custom_assign(t_grow_buf<N>&, F&&) noexcept;
+    template<t_n_ N, typename F>
+    t_void custom_append(t_grow_buf<N>&, F&&) noexcept;
+  };
+
+///////////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_impl_base_::t_impl_base_() noexcept : len_{0} {
+  }
+
+  inline
+  t_impl_base_::t_impl_base_(t_n_ len) noexcept : len_{len} {
+  }
+
+  inline
+  t_impl_base_::t_impl_base_(t_buf_range store) noexcept : len_{0} {
+    if (store == VALID)
+      store[0_ix] = '\0';
+  }
+
+  inline
+  t_void t_impl_base_::clear(t_buf_range store) noexcept {
+    if (store == VALID)
+      store[0_ix] = '\0';
+    len_ = 0;
+  }
+
+  inline
+  t_bool t_impl_base_::remove(t_buf_range store, t_ix_ begin,
+                              t_ix_ end) noexcept {
+    if (begin < end && end <= len_) {
+      t_n_ remove_n = end - begin;
+      while (end != len_)
+        store[t_ix(begin++)] = store[t_ix(end++)];
+      store[t_ix{begin}] = '\0';
+      len_ -= remove_n;
+      return true;
+    }
+    return false;
+  }
+
+  inline
+  t_void t_impl_base_::display(t_buf_crange store, t_crange prefix,
+                               t_crange postfix) const noexcept {
+    if (len_)
+      display_(t_crange{store.ptr, t_n{len_}}, prefix, postfix);
+  }
+
+  inline
+  t_void t_impl_base_::display_then_clear(t_buf_range store, t_crange prefix,
+                                          t_crange postfix) noexcept {
+    if (len_)
+      display_(t_crange{store.ptr, t_n{len_}}, prefix, postfix);
+    clear(store);
+  }
+
+  inline
+  t_bool t_impl_base_::is_match(t_buf_crange store,
+                                t_buf_crange pattern) const noexcept {
+    return match_(store, pattern);
+  }
+
+  inline
+  t_bool t_impl_base_::is_empty() const noexcept {
+    return len_ == 0;
+  }
+
+  inline
+  t_n_ t_impl_base_::get_length() const noexcept {
+    return len_;
+  }
+
+  inline
+  P_cstr_ t_impl_base_::get_cstr(t_buf_crange store) const noexcept {
+    return store.ptr;
+  }
+
+  inline
+  t_n_ t_impl_base_::reset(t_n_ len) noexcept {
+    return base::reset(len_, len);
+  }
+
+  inline
+  t_n_ t_impl_base_::get_count(t_buf_crange store, t_char ch) const noexcept {
+    return count_(store, ch);
+  }
+
+  inline
+  t_char t_impl_base_::get_front(t_buf_crange store) const noexcept {
+    return len_ ? store[0_ix] : '\0';
+  }
+
+  inline
+  t_char t_impl_base_::get_back(t_buf_crange store) const noexcept {
+    return len_ ? store[t_ix{len_ - 1}] : '\0';
+  }
+
+  inline
+  t_crange t_impl_base_::mk_range(t_buf_crange store) const noexcept {
+    return t_crange{store.ptr, t_n{len_}};
+  }
+
+  inline
+  t_crange t_impl_base_::mk_range(t_buf_crange store,
+                                  t_ix begin) const noexcept {
+    return impl_::mk_range(t_crange{store.ptr, t_n{len_}}, begin, t_ix{len_});
+  }
+
+  inline
+  t_crange t_impl_base_::mk_range(t_buf_crange store, t_ix begin,
+                                  t_ix end) const noexcept {
+    return impl_::mk_range(t_crange{store.ptr, t_n{len_}}, begin, end);
+  }
+
+  inline
+  t_void t_impl_base_::mod_(t_buf_range store, t_ix_ pos, t_char ch) noexcept {
+    if (pos < len_)
+      store[t_ix{pos}] = ch;
+    else
+      assertion::assert_now(P_cstr{"not in range"});
+  }
+
+  inline
+  t_void t_impl_base_::va_scan(t_buf_crange store, t_buf_crange fmt,
+                               va_list vars) noexcept {
+    scan_(str, n, fmt, vars);
+  }
+
+  template<class F>
+  inline t_void t_impl_base_::each(t_buf_crange store, F&& func) noexcept {
+    for (t_n_ n = 0; n < len_; ++n)
+      f(str[n]);
+  }
+
+  template<class F>
+  inline t_void t_impl_base_::each(t:buf_crange store,
+                                   F&& func) const noexcept {
+    for (t_n_ n = 0; n < len_; ++n)
+      f(str[n]);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_impl_<t_overflow_assert>::t_impl_(t_buf_range store,
+                                      t_crange range) noexcept {
+  }
+
+  inline
+  t_impl_<t_overflow_assert>::t_impl_(t_buf_range store,
+                                      t_block block) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,
+                                            t_crange range) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,
+                                            t_block block) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store, t_fmt_va,
+                                            t_crange range,
+                                            va_list vars) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::append(t_buf_range store,
+                                            t_crange range) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::append(t_buf_range store,
+                                            t_block block) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::append(t_buf_range store, t_fmt_va,
+                                            t_crange range,
+                                            va_list vars) noexcept {
+  }
+
+  template<typename F>
+  inline
+  t_void t_impl_<t_overflow_assert>::custom_assign(t_buf_range store,
+                                                   F&& func) noexcept {
+  }
+
+  template<typename F>
+  inline
+  t_void t_impl_<t_overflow_assert>::custom_append(t_buf_range store,
+                                                   F&& func) noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  /*
+  inline
+  t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max,
+                                      P_cstr_ src) noexcept
+    : base_{copy_(str, max, src, length_(src), OVERFLOW_ASSERT)} {
+  }
+
+  inline
+  t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max, P_cstr_ src, t_n_ len) noexcept
+    : base_{copy_(str, max, src, len, OVERFLOW_ASSERT)} {
+  }
+
+  inline
+  t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max, R_crange range) noexcept
+    : base_{copy_(str, max, range.ptr, get(range.n), OVERFLOW_ASSERT)} {
+  }
+
+  inline
+  t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max, R_block block) noexcept
+    : base_{fill_(str, max, block, OVERFLOW_ASSERT)} {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::assign(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept {
+    len_ = copy_(str, max, src, length_(src), OVERFLOW_ASSERT);
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::assign(p_cstr_ str, t_n_ max, P_cstr_ src,
+                       t_n_ len) noexcept {
+    len_ = copy_(str, max, src, len, OVERFLOW_ASSERT);
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::assign(p_cstr_ str, t_n_ max, R_crange range) noexcept {
+    len_ = copy_(str, max, range.ptr, get(range.n), OVERFLOW_ASSERT);
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::assign(p_cstr_ str, t_n_ max, R_block block) noexcept {
+    len_ = fill_(str, max, block, OVERFLOW_ASSERT);
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::append(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept {
+    len_ += copy_(str + len_, max - len_, src, length_(src), OVERFLOW_ASSERT);
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::append(p_cstr_ str, t_n_ max, P_cstr_ src,
+                       t_n_ len) noexcept {
+    len_ += copy_(str + len_, max - len_, src, len, OVERFLOW_ASSERT);
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::append(p_cstr_ str, t_n_ max, R_crange range) noexcept {
+    len_ += copy_(str + len_, max - len_, range.ptr, get(range.n),
+                  OVERFLOW_ASSERT);
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::append(p_cstr_ str, t_n_ max, R_block block) noexcept {
+    len_ += fill_(str + len_, max - len_, block, OVERFLOW_ASSERT);
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::assign(t_fmt_va, p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                       va_list vars) noexcept {
+    len_ = build_(str, max, fmt, vars, OVERFLOW_ASSERT);
+  }
+
+  inline
+  t_void t_impl_<t_overflow_assert>::append(t_fmt_va, p_cstr_ str, t_n_ max, P_cstr_ fmt,
+                          va_list vars) noexcept {
+    len_ += build_(str + len_, max - len_, fmt, vars, OVERFLOW_ASSERT);
+  }
+
+  template<typename F>
+  inline
+  t_void t_impl_<t_overflow_assert>::custom_assign(p_cstr_ str, t_n_ max, F& func) noexcept {
+    auto n = func(str, max, OVERFLOW_ASSERT);
+    if (n >= max)
+      assertion::assert_now(P_cstr{"buffer overflow"});
+    len_ = n;
+  }
+
+  template<typename F>
+  inline
+  t_void t_impl_<t_overflow_assert>::custom_append(p_cstr_ str, t_n_ max, F& func) noexcept {
+    auto n = func(str + len_, max - len_, OVERFLOW_ASSERT);
+    if (n + len_ >= max)
+      assertion::assert_now(P_cstr{"buffer overflow"});
+    len_ += n;
+  }
+  */
+
+///////////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_impl_<t_overflow_truncate>::t_impl_(t_buf_range store,
+                                        t_crange range) noexcept {
+  }
+
+  inline
+  t_impl_<t_overflow_truncate>::t_impl_(t_buf_range store,
+                                        t_block block) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
+                                              t_crange range) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
+                                              t_block block) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store, t_fmt_va,
+                                              t_crange range,
+                                              va_list vars) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,
+                                              t_crange range) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,
+                                              t_block block) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_truncate>::append(t_buf_range store, t_fmt_va,
+                                              t_crange range,
+                                              va_list vars) noexcept {
+  }
+
+  template<typename F>
+  inline
+  t_void t_impl_<t_overflow_truncate>::custom_assign(t_buf_range store,
+                                                     F&& func) noexcept {
+  }
+
+  template<typename F>
+  inline
+  t_void t_impl_<t_overflow_truncate>::custom_append(t_buf_range store,
+                                                     F&& func) noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  /*
   template<>
   class t_impl_<t_overflow_truncate> : public t_impl_base_ {
   public:
@@ -442,9 +853,67 @@ namespace impl_
       }
     }
   };
+  */
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  inline
+  t_impl_<t_overflow_grow>::t_impl_(t_buf_range store,
+                                    t_crange range) noexcept {
+  }
+
+  inline
+  t_impl_<t_overflow_grow>::t_impl_(t_buf_range store,
+                                    t_block block) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_grow>::assign(t_buf_range store,
+                                          t_crange range) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_grow>::assign(t_buf_range store,
+                                          t_block block) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_grow>::assign(t_buf_range store, t_fmt_va,
+                                          t_crange range,
+                                          va_list vars) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_grow>::append(t_buf_range store,
+                                          t_crange range) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_grow>::append(t_buf_range store,
+                                          t_block block) noexcept {
+  }
+
+  inline
+  t_void t_impl_<t_overflow_grow>::append(t_buf_range store, t_fmt_va,
+                                            t_crange range,
+                                            va_list vars) noexcept {
+  }
+
+  template<typename F>
+  inline
+  t_void t_impl_<t_overflow_grow>::custom_assign(t_buf_range store,
+                                                 F&& func) noexcept {
+  }
+
+  template<typename F>
+  inline
+  t_void t_impl_<t_overflow_grow>::custom_append(t_buf_range store,
+                                                 F&& func) noexcept {
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  /*
   template<>
   class t_impl_<t_overflow_grow> : public t_impl_base_ {
   public:
@@ -551,239 +1020,7 @@ namespace impl_
       return len;
     }
   };
-
-///////////////////////////////////////////////////////////////////////////////
-
-  inline
-  t_impl_base_::t_impl_base_() noexcept : len_{0} {
-  }
-
-  inline
-  t_impl_base_::t_impl_base_(t_n_ len) noexcept : len_{len} {
-  }
-
-  inline
-  t_impl_base_::t_impl_base_(p_cstr_ str) noexcept : len_{0} {
-    str[0] = '\0';
-  }
-
-  inline
-  t_void t_impl_base_::clear(p_cstr_ str) noexcept {
-    str[0] = '\0';
-    len_ = 0;
-  }
-
-  inline
-  t_bool t_impl_base_::remove(p_cstr_ str, t_ix_ begin, t_ix_ end) noexcept {
-    if (begin < end && end <= len_) {
-      t_n_ remove_n = end - begin;
-      while (end != len_)
-        str[begin++] = str[end++];
-      str[begin] = '\0';
-      len_ -= remove_n;
-      return true;
-    }
-    return false;
-  }
-
-  inline
-  t_void t_impl_base_::display(P_cstr_ str, R_crange prefix,
-                               R_crange postfix) const noexcept {
-    if (prefix == INVALID && postfix == INVALID) {
-      if (len_)
-        display_(str, len_);
-    } else
-      display_(t_crange{str, t_n{len_}}, prefix, postfix);
-  }
-
-  inline
-  t_void t_impl_base_::display_then_clear(p_cstr_ str, R_crange prefix,
-                                          R_crange postfix) noexcept {
-    if (prefix == INVALID && postfix == INVALID) {
-      if (len_)
-        display_(str, len_);
-    } else
-      display_(t_crange{str, t_n{len_}}, prefix, postfix);
-    clear(str);
-  }
-
-  inline
-  t_bool t_impl_base_::is_match(P_cstr_ str, P_cstr_ pattern) const noexcept {
-    return match_(str, pattern);
-  }
-
-  inline
-  t_bool t_impl_base_::is_empty() const noexcept {
-    return len_ == 0;
-  }
-
-  inline
-  P_cstr_ t_impl_base_::get_cstr(P_cstr_ str) const noexcept {
-    return str;
-  }
-
-  inline
-  t_n_ t_impl_base_::reset(t_n_ len) noexcept {
-    return base::reset(len_, len);
-  }
-
-  inline
-  t_n_ t_impl_base_::get_length() const noexcept {
-    return len_;
-  }
-
-  inline
-  t_n_ t_impl_base_::get_count(P_cstr_ str, t_char c) const noexcept {
-    return count_(c, str);
-  }
-
-  inline
-  t_char t_impl_base_::get_front(P_cstr_ str) const noexcept {
-    return len_ ? str[0] : '\0';
-  }
-
-  inline
-  t_char t_impl_base_::get_back(P_cstr_ str) const noexcept {
-    return len_ ? str[len_ - 1] : '\0';
-  }
-
-  inline t_crange t_impl_base_::mk_range(P_cstr_ str) const noexcept {
-    return t_crange{str, t_n{len_}};
-  }
-
-  inline
-  t_crange t_impl_base_::mk_range(P_cstr_ str, t_ix begin) const noexcept {
-    return impl_::mk_range(t_crange{str, t_n{len_}}, begin, t_ix{len_});
-  }
-
-  inline
-  t_crange t_impl_base_::mk_range(P_cstr_ str, t_ix begin,
-                                  t_ix end) const noexcept {
-    return impl_::mk_range(t_crange{str, t_n{len_}}, begin, end);
-  }
-
-  template<class F>
-  inline t_void t_impl_base_::each(P_cstr_ str, F f) noexcept {
-    for (t_n_ n = 0; n < len_; ++n)
-      f(str[n]);
-  }
-
-  template<class F>
-  inline t_void t_impl_base_::each(P_cstr_ str, F f) const noexcept {
-    for (t_n_ n = 0; n < len_; ++n)
-      f(str[n]);
-  }
-
-  inline
-  t_void t_impl_base_::mod_(p_cstr_ str, t_ix_ pos, t_char ch) noexcept {
-    if (pos < len_)
-      str[pos] = ch;
-    else
-      assertion::assert_now(P_cstr{"not in range"});
-  }
-
-  inline
-  t_void t_impl_base_::va_scan(p_cstr_ str, t_n_ n, P_cstr_ fmt,
-                               va_list vars) noexcept {
-    scan_(str, n, fmt, vars);
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
-  inline
-  t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept
-    : base_{copy_(str, max, src, length_(src), OVERFLOW_ASSERT)} {
-  }
-
-  inline
-  t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max, P_cstr_ src, t_n_ len) noexcept
-    : base_{copy_(str, max, src, len, OVERFLOW_ASSERT)} {
-  }
-
-  inline
-  t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max, R_crange range) noexcept
-    : base_{copy_(str, max, range.ptr, get(range.n), OVERFLOW_ASSERT)} {
-  }
-
-  inline
-  t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max, R_block block) noexcept
-    : base_{fill_(str, max, block, OVERFLOW_ASSERT)} {
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::assign(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept {
-    len_ = copy_(str, max, src, length_(src), OVERFLOW_ASSERT);
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::assign(p_cstr_ str, t_n_ max, P_cstr_ src,
-                       t_n_ len) noexcept {
-    len_ = copy_(str, max, src, len, OVERFLOW_ASSERT);
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::assign(p_cstr_ str, t_n_ max, R_crange range) noexcept {
-    len_ = copy_(str, max, range.ptr, get(range.n), OVERFLOW_ASSERT);
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::assign(p_cstr_ str, t_n_ max, R_block block) noexcept {
-    len_ = fill_(str, max, block, OVERFLOW_ASSERT);
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::append(p_cstr_ str, t_n_ max, P_cstr_ src) noexcept {
-    len_ += copy_(str + len_, max - len_, src, length_(src), OVERFLOW_ASSERT);
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::append(p_cstr_ str, t_n_ max, P_cstr_ src,
-                       t_n_ len) noexcept {
-    len_ += copy_(str + len_, max - len_, src, len, OVERFLOW_ASSERT);
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::append(p_cstr_ str, t_n_ max, R_crange range) noexcept {
-    len_ += copy_(str + len_, max - len_, range.ptr, get(range.n),
-                  OVERFLOW_ASSERT);
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::append(p_cstr_ str, t_n_ max, R_block block) noexcept {
-    len_ += fill_(str + len_, max - len_, block, OVERFLOW_ASSERT);
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::assign(t_fmt_va, p_cstr_ str, t_n_ max, P_cstr_ fmt,
-                       va_list vars) noexcept {
-    len_ = build_(str, max, fmt, vars, OVERFLOW_ASSERT);
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::append(t_fmt_va, p_cstr_ str, t_n_ max, P_cstr_ fmt,
-                          va_list vars) noexcept {
-    len_ += build_(str + len_, max - len_, fmt, vars, OVERFLOW_ASSERT);
-  }
-
-  template<typename F>
-  inline
-  t_void t_impl_<t_overflow_assert>::custom_assign(p_cstr_ str, t_n_ max, F& func) noexcept {
-    auto n = func(str, max, OVERFLOW_ASSERT);
-    if (n >= max)
-      assertion::assert_now(P_cstr{"buffer overflow"});
-    len_ = n;
-  }
-
-  template<typename F>
-  inline
-  t_void t_impl_<t_overflow_assert>::custom_append(p_cstr_ str, t_n_ max, F& func) noexcept {
-    auto n = func(str + len_, max - len_, OVERFLOW_ASSERT);
-    if (n + len_ >= max)
-      assertion::assert_now(P_cstr{"buffer overflow"});
-    len_ += n;
-  }
-
-///////////////////////////////////////////////////////////////////////////////
+  */
 
 ///////////////////////////////////////////////////////////////////////////////
 
