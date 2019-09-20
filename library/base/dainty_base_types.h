@@ -303,13 +303,17 @@ namespace types
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_size_tag_       {};
+  enum  t_min_size_tag_   {};
+  enum  t_max_size_tag_   {};
   enum  t_byte_tag_       {};
   enum  t_fd_tag_         {};
   enum  t_cnt_tag_        {};
   enum  t_n_tag_          {};
+  enum  t_min_n_tag_      {};
+  enum  t_max_n_tag_      {};
   enum  t_ix_tag_         {};
-  enum  t_bix_tag_        {};
-  enum  t_eix_tag_        {};
+  enum  t_begin_ix_tag_   {};
+  enum  t_end_ix_tag_     {};
   enum  t_validity_tag_   {};
   enum  t_cstr_tag_       {};
   enum  t_percentage_tag_ {};

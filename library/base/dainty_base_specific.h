@@ -64,12 +64,14 @@ namespace specific
   using types::t_cnt_tag_;
   using types::t_n_;
   using types::t_n_tag_;
+  using types::t_min_n_tag_;
+  using types::t_max_n_tag_;
   using types::t_ix_;
   using types::t_ix_tag_;
   using types::t_ix_;
-  using types::t_bix_tag_;
+  using types::t_begin_ix_tag_;
   using types::t_ix_;
-  using types::t_eix_tag_;
+  using types::t_end_ix_tag_;
   using types::t_validity_;
   using types::t_validity_tag_;
   using types::t_errn_;
@@ -322,6 +324,20 @@ namespace specific
   using p_n  = t_prefix<t_n>::p_;
   using P_n  = t_prefix<t_n>::P_;
 
+  using t_min_n  = t_specific<t_n_, t_min_n_tag_>;
+  using T_min_n  = t_prefix<t_min_n>::T_;
+  using r_min_n  = t_prefix<t_min_n>::r_;
+  using R_min_n  = t_prefix<t_min_n>::R_;
+  using p_min_n  = t_prefix<t_min_n>::p_;
+  using P_min_n  = t_prefix<t_min_n>::P_;
+
+  using t_max_n  = t_specific<t_n_, t_max_n_tag_>;
+  using T_max_n  = t_prefix<t_max_n>::T_;
+  using r_max_n  = t_prefix<t_max_n>::r_;
+  using R_max_n  = t_prefix<t_max_n>::R_;
+  using p_max_n  = t_prefix<t_max_n>::p_;
+  using P_max_n  = t_prefix<t_max_n>::P_;
+
   using t_ix  = t_specific<t_ix_, t_ix_tag_>;
   using T_ix  = t_prefix<t_ix>::T_;
   using r_ix  = t_prefix<t_ix>::r_;
@@ -329,19 +345,19 @@ namespace specific
   using p_ix  = t_prefix<t_ix>::p_;
   using P_ix  = t_prefix<t_ix>::P_;
 
-  using t_bix = t_specific<t_ix_, t_bix_tag_>;
-  using T_bix = t_prefix<t_bix>::T_;
-  using r_bix = t_prefix<t_bix>::r_;
-  using R_bix = t_prefix<t_bix>::R_;
-  using p_bix = t_prefix<t_bix>::p_;
-  using P_bix = t_prefix<t_bix>::P_;
+  using t_begin_ix = t_specific<t_ix_, t_begin_ix_tag_>;
+  using T_begin_ix = t_prefix<t_begin_ix>::T_;
+  using r_begin_ix = t_prefix<t_begin_ix>::r_;
+  using R_begin_ix = t_prefix<t_begin_ix>::R_;
+  using p_begin_ix = t_prefix<t_begin_ix>::p_;
+  using P_begin_ix = t_prefix<t_begin_ix>::P_;
 
-  using t_eix = t_specific<t_ix_, t_eix_tag_>;
-  using T_eix = t_prefix<t_eix>::T_;
-  using r_eix = t_prefix<t_eix>::r_;
-  using R_eix = t_prefix<t_eix>::R_;
-  using p_eix = t_prefix<t_eix>::p_;
-  using P_eix = t_prefix<t_eix>::P_;
+  using t_end_ix = t_specific<t_ix_, t_end_ix_tag_>;
+  using T_end_ix = t_prefix<t_end_ix>::T_;
+  using r_end_ix = t_prefix<t_end_ix>::r_;
+  using R_end_ix = t_prefix<t_end_ix>::R_;
+  using p_end_ix = t_prefix<t_end_ix>::p_;
+  using P_end_ix = t_prefix<t_end_ix>::P_;
 
   using t_validity  = t_specific<t_validity_, t_validity_tag_>;
   using T_validity  = t_prefix<t_validity>::T_;
@@ -521,17 +537,29 @@ namespace specific
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_n   to_n  (t_ix ix)  noexcept  { return transform<t_n>  (ix); }
-  constexpr t_bix to_bix(t_ix ix)  noexcept  { return transform<t_bix>(ix); }
-  constexpr t_eix to_eix(t_ix ix)  noexcept  { return transform<t_eix>(ix); }
-  constexpr t_ix  to_ix (t_n  n)   noexcept  { return transform<t_ix> (n);  }
-  constexpr t_ix  to_ix (t_bix ix) noexcept  { return transform<t_ix> (ix); }
-  constexpr t_ix  to_ix (t_eix ix) noexcept  { return transform<t_ix> (ix); }
+  constexpr t_n operator"" _n(t_ullong n) noexcept {
+    return t_n(n);
+  }
 
-  constexpr t_ix  operator"" _ix (t_ullong ix) noexcept { return t_ix(ix);  }
-  constexpr t_bix operator"" _bix(t_ullong ix) noexcept { return t_bix(ix); }
-  constexpr t_eix operator"" _eix(t_ullong ix) noexcept { return t_eix(ix); }
-  constexpr t_n   operator"" _n  (t_ullong n)  noexcept { return t_n(n);    }
+  constexpr t_max_n operator"" _max_n(t_ullong n) noexcept {
+    return t_max_n(n);
+  }
+
+  constexpr t_min_n operator"" _min_n(t_ullong n) noexcept {
+    return t_min_n(n);
+  }
+
+  constexpr t_ix operator"" _ix(t_ullong ix) noexcept {
+    return t_ix(ix);
+  }
+
+  constexpr t_begin_ix operator"" _begin_ix(t_ullong ix) noexcept {
+    return t_begin_ix(ix);
+  }
+
+  constexpr t_end_ix operator"" _end_ix(t_ullong ix) noexcept {
+    return t_end_ix(ix);
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 
