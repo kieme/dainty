@@ -167,7 +167,7 @@ namespace base
       types::P_void  cptr;
       types::t_char  buf[sizeof(types::t_int64)]; // 8 bytes
     };
-    constexpr t_user()             noexcept : id  {0L}    { }
+    constexpr t_user()                    noexcept : id  {0L}    { }
     constexpr t_user(types::t_int64  _id) noexcept : id  {_id}   { }
     constexpr t_user(types::p_void  _ptr) noexcept : ptr {_ptr}  { }
     constexpr t_user(types::P_void _cptr) noexcept : cptr{_cptr} { }
@@ -186,6 +186,21 @@ namespace base
                            const t_user<TAG>& rh) noexcept {
     return lh.id != rh.id;
   }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename TAG>
+  struct t_block {
+    using t_value = T;
+
+    t_value       value;
+    specific::t_n n = specific::t_n{0};
+
+    constexpr t_block() noexcept = default;
+    constexpr t_block(t_value _value, specific::t_n _n) noexcept
+      : value{_value}, n{_n} {
+    }
+  };
 
 ///////////////////////////////////////////////////////////////////////////////
 

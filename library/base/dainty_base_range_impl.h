@@ -65,6 +65,11 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template<typename TAG>
+  using t_block = base::t_block<t_char, TAG>;
+
+///////////////////////////////////////////////////////////////////////////////
+
   constexpr
   t_void check_valid_(P_void item, t_n_ n) noexcept {
     if (!item)
@@ -92,7 +97,16 @@ namespace impl_
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  t_n_ copy_(t_n _dst_max, T* dst_ptr, t_n _src_max, const T* src_ptr) {
+  constexpr
+  T* access_(t_n _n, T* ptr, t_ix _ix) noexcept {
+    auto n = get(_n), ix = get(_ix);
+    check_range_(n, ix);
+    return ptr + ix;
+  }
+
+  template<typename T>
+  t_n_ copy_(t_n _dst_max, T* dst_ptr,
+             t_n _src_max, const T* src_ptr) noexcept {
     if (dst_ptr != src_ptr) { // can determine overlap - XXX
       auto dst_max = get(_dst_max), src_max = get(_src_max);
       auto max = dst_max < src_max ? dst_max : src_max;
@@ -104,7 +118,18 @@ namespace impl_
   }
 
   template<typename T>
-  t_bool is_equal_(t_n _a1_max, T* a1_ptr, t_n _a2_max, const T* a2_ptr) {
+  t_void copy_block_(t_n _dst_max, T* dst_ptr, t_n _src_max,
+                     T value) noexcept {
+    auto dst_max = get(_dst_max), src_max = get(_src_max);
+    auto max = dst_max < src_max ? dst_max : src_max;
+    check_range_(dst_max, src_max);
+    for (t_ix_ ix = 0; ix < max; ++ix)
+     dst_ptr[ix] = value;
+  }
+
+  template<typename T>
+  t_bool is_equal_(t_n _a1_max, const T* a1_ptr, t_n _a2_max,
+                   const T* a2_ptr) noexcept {
     auto a1_max = get(_a1_max), a2_max = get(_a2_max);
     if (a1_max == a2_max) {
       if (a1_ptr != a2_ptr) {
@@ -116,8 +141,6 @@ namespace impl_
     }
     return false;
   }
-
-// specialize copy for all the buildin types
 
 ///////////////////////////////////////////////////////////////////////////////
 }
