@@ -53,9 +53,13 @@ namespace impl_
   using specific::t_n;
   using specific::T_n;
   using specific::t_ix;
+  using specific::t_begin_ix;
+  using specific::t_end_ix;
   using specific::t_validity;
   using specific::VALID;
   using specific::INVALID;
+  using specific::operator""_begin_ix;
+  using specific::operator""_end_ix;
 
   using assertion::assert_now;
 
