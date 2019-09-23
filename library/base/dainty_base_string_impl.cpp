@@ -44,7 +44,11 @@ namespace impl_
   using types::T_bool;
   using types::T_char;
 
+  using assertion::assert_now;
+
 ////////////////////////////////////////////////////////////////////////////////
+
+  // consider when max is zero
 
   t_void display(t_fmt, P_cstr_ fmt, ...) noexcept {
     va_list args;
@@ -53,232 +57,221 @@ namespace impl_
     va_end(args);
   }
 
-  inline t_n_ multiple_of_64_(t_n_ n) noexcept {
-    if (n%64)
-      n = (n - n%64) + 64;
-    return n;
-  }
-
-  t_n_ calc_n_(t_n_ chars, t_n_ blks) noexcept {
-    return blks*64 + multiple_of_64_(chars + 1);
-  }
-
-  p_cstr_ alloc_(t_n_ n) noexcept {
-    p_cstr_ str = (p_cstr_)std::malloc(n);
-    if (!str)
-      assertion::assert_now(P_cstr("malloc failed to allocate"));
-    return str;
-  }
-
-  t_void dealloc_(p_cstr_ str) noexcept {
-    if (str)
-      std::free(str);
-  }
-
-  p_cstr_ realloc_(p_cstr_ str, t_n_ n) noexcept {
-    str = (p_cstr_)std::realloc(str, n);
-    if (!str)
-      assertion::assert_now(P_cstr("realloc failed to allocate"));
-    return str;
-  }
-
-  p_cstr_ sso_alloc_(p_cstr_ sso, t_n_ sso_max, t_n_& max) noexcept {
-    if (max > sso_max)
-      return alloc_(max);
-    max = sso_max;
-    return sso;
-  }
-
-  p_cstr_ sso_alloc_(p_cstr_ sso, t_n_ sso_max, p_cstr_ curr,
-                     t_n_ max) noexcept {
-    if (max > sso_max) {
-      if (curr != sso)
-        return realloc_(curr, max);
-      p_cstr_ tmp = alloc_(max);
-      memcpy(tmp, curr, max);
-      return tmp;
-    }
-    return curr;
-  }
-
-  t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars,
-              t_overflow_grow) noexcept {
-    va_list args;
-    va_copy(args, vars);
-    t_n_ n = std::vsnprintf(dst, max, fmt, args);
-    va_end(args);
-    return n;
-  }
-
-  t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars,
-              t_overflow_assert) noexcept {
-    auto n = std::vsnprintf(dst, max, fmt, vars);
-    assertion::assert_when_false(n > 0 && (t_n_)n < max,
-      P_cstr("failed to build, buffer might be too small"));
-    return n;
-  }
-
-  t_n_ build_(p_cstr_ dst, t_n_ max, P_cstr_ fmt, va_list vars,
-              t_overflow_truncate) noexcept {
-    auto n = std::vsnprintf(dst, max, fmt, vars);
-    assertion::assert_when_false(n > 0,
-      P_cstr("failed to build, std::vsnprintf failed"));
-    if ((t_n_)n >= max)
-      n = max - 1;
-    return n;
-  }
-
-  t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n,
-             t_overflow_assert) noexcept {
-    t_n_ cnt = 0, min = max - 1 < n ? max - 1 : n;
-    for (; cnt < min && src[cnt]; ++cnt)
-      dst[cnt] = src[cnt];
-    if (src[cnt] && cnt != n)
-      assertion::assert_now(P_cstr("buffer not big enough"));
-    dst[cnt] = '\0';
-    return cnt;
-  }
-
-  t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src, t_n_ n,
-             t_overflow_truncate) noexcept {
-    t_n_ cnt = 0, min = max - 1 < n ? max - 1 : n;
-    for (; cnt < min && src[cnt]; ++cnt)
-      dst[cnt] = src[cnt];
-    dst[cnt] = '\0';
-    return cnt;
-  }
-
-  t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src,
-             t_overflow_assert) noexcept {
-    t_n_ cnt = 0, min = max - 1;
-    for (; cnt < min && src[cnt]; ++cnt)
-      dst[cnt] = src[cnt];
-    if (src[cnt])
-      assertion::assert_now(P_cstr("buffer not big enough"));
-    dst[cnt] = '\0';
-    return cnt;
-  }
-
-  t_n_ copy_(p_cstr_ dst, t_n_ max, P_cstr_ src,
-             t_overflow_truncate) noexcept {
-    t_n_ cnt = 0, min = max - 1;
-    for (; cnt < min && src[cnt]; ++cnt)
-      dst[cnt] = src[cnt];
-    dst[cnt] = '\0';
-    return cnt;
-  }
-
-  t_n_ fill_(p_cstr_ dst, t_n_ max, R_block block,
-             t_overflow_assert) noexcept {
-    auto bmax = get(block.max);
-    if (bmax > max - 1)
-      assertion::assert_now(P_cstr("buffer not big enough"));
-    for (t_n_ cnt = 0; cnt < bmax; ++cnt)
-      dst[cnt] = block.c;
-    dst[bmax] = '\0';
-    return bmax;
-  }
-
-  t_n_ fill_(p_cstr_ dst, t_n_ max, R_block block,
-             t_overflow_truncate) noexcept {
-    auto bmax = get(block.max);
-    t_n_ min = max - 1 < bmax ? max - 1 : bmax;
-    for (t_n_ cnt = 0; cnt < min; ++cnt)
-      dst[cnt] = block.c;
-    dst[min] = '\0';
-    return min;
-  }
-
-  t_void display_(R_crange range, R_crange prefix, R_crange postfix) noexcept {
+  t_void display_(t_crange range, t_crange prefix, t_crange postfix) noexcept {
     terminal::t_out out;
     out << prefix << range << postfix;
   }
 
-  t_void display_(P_cstr_ str, t_n_ len) noexcept {
-    if (len && str[len - 1] == '\n')
-      std::printf("%s", str);
-    else
-      std::printf("%s\n", str);
+  t_void display_(t_crange range) noexcept {
+    if (range == VALID) {
+      auto max = get(range.n);
+      if (range[t_ix{max - 1}] == '\n')
+        display(".*%s", max, range.ptr);
+      else
+        display("%.*s\n", max, range.ptr);
+    }
   }
 
-  t_void display_n_(P_cstr_ str, t_n_ max) noexcept {
-    if (max && str[max-1] == '\n')
-      std::printf("%.*s", static_cast<t_int>(max), str);
-    else
-      std::printf("%.*s\n", static_cast<t_int>(max), str);
+  t_n build(t_buf_range store, t_crange fmt, va_list vars,
+            t_overflow_grow) noexcept {
+    if (fmt == VALID) {
+      auto max = get(store.n);
+      va_list args;
+      va_copy(args, vars);
+      t_n_ n = std::vsnprintf(store.ptr, max, fmt.ptr, args);
+      va_end(args);
+      return t_n{n};
+    }
+    return 0_n;
   }
 
-  t_bool equal_(R_crange lh, R_crange rh) noexcept {
-    auto len1 = get(lh.n), len2 = get(rh.n);
+  t_n build_(t_buf_range store, t_crange fmt, va_list vars,
+             t_overflow_assert) noexcept {
+    if (fmt == VALID) {
+      if (store == VALID) {
+        auto max = get(store.n);
+        auto n = std::vsnprintf(store.ptr, max, fmt.ptr, vars);
+        if (n > 0 && (t_n_)n < max)
+          return t_n{n};
+      }
+      assert_now(P_cstr("failed to build, buffer might be too small"));
+    }
+    return 0_n;
+  }
+
+  t_n build_(t_buf_range store, t_crange fmt, va_list vars,
+             t_overflow_truncate) noexcept {
+    if (fmt == VALID) {
+      if (store == VALID) {
+        auto max = get(store.n);
+        auto n = std::vsnprintf(store.ptr, max, fmt.ptr, vars);
+        if (n > 0) {
+          if ((t_n_)n >= max)
+            n = max - 1;
+          return t_n{n};
+        }
+        assert_now(P_cstr("failed to build, std::vsnprintf failed"));
+      }
+    }
+    return 0_n;
+  }
+
+  t_n copy_(t_buf_range store, t_crange range, t_overflow_assert) noexcept {
+    if (range == VALID) {
+      if (store == VALID) {
+        auto len = get(range.n), max = get(store.n);
+        if (len < max) {
+          store.copy(range);
+          store[t_ix{len}] = '\0';
+          return t_n{len};
+        }
+      }
+      assert_now(P_cstr("buffer not big enough"));
+    }
+    return 0_n;
+  }
+
+  t_n copy_(t_buf_range store, t_crange range, t_overflow_truncate) noexcept {
+    if (range == VALID) {
+      if (store == VALID) {
+        auto len = get(range.n), max = get(store.n);
+        if (len < max)
+          store.copy(range);
+        else {
+          len = max - 1;
+          store.copy(range, t_n{len});
+        }
+        store[t_ix{len}] = '\0';
+        return t_n{len};
+      }
+    }
+    return 0_n;
+  }
+
+  t_n fill_(t_buf_range store, t_block block, t_overflow_assert) noexcept {
+    auto len = get(block.n);
+    if (len) {
+      if (store == VALID) {
+        auto max = get(store.n);
+        if (len < max) {
+          store.copy(block);
+          store[t_ix{len}] = '\0';
+          return t_n{len};
+        }
+      }
+      assert_now(P_cstr("buffer not big enough"));
+    }
+    return 0_n;
+  }
+
+  t_n fill_(t_buf_range store, t_block block, t_overflow_truncate) noexcept {
+    auto len = get(block.n);
+    if (len) {
+      if (store == VALID) {
+        auto max = get(store.n);
+        if (len < max)
+          store.copy(block);
+        else {
+          len = max - 1;
+          store.copy(t_block{block.value, t_n{len}});
+        }
+        store[t_ix{len}] = '\0';
+        return t_n{len};
+      }
+    }
+    return 0_n;
+  }
+
+  t_bool equal_(t_crange lh, t_crange rh) noexcept {
+    auto len1 = get(lh.n), len2 = get(rh.n); // XXX
     if (len1 == len2)
       return lh.ptr != rh.ptr ? (std::strncmp(lh.ptr, rh.ptr, len1) == 0)
                               : true;
     return false;
   }
 
-  t_bool less_(R_crange lh, R_crange rh) noexcept {
+  t_bool less_(t_crange lh, t_crange rh) noexcept {
     auto len1 = get(lh.n), len2 = get(rh.n);
     if (lh.ptr != rh.ptr) {
       auto ret = std::strncmp(lh.ptr, rh.ptr, len1 < len2 ? len1 : len2);
-      if (ret == 0)
-        return len1 < len2;
-      return ret < 0;
+      return !ret ? len1 < len2 : ret < 0;
     }
     return false;
   }
 
-  t_bool less_equal_(R_crange lh, R_crange rh) noexcept {
+  t_bool less_equal_(t_crange lh, t_crange rh) noexcept {
     auto len1 = get(lh.n), len2 = get(rh.n);
     if (lh.ptr != rh.ptr) {
       auto ret = std::strncmp(lh.ptr, rh.ptr, len1 < len2 ? len1 : len2);
-      if (ret == 0)
-        return len1 <= len2;
-      return ret < 0;
+      return !ret ? len1 <= len2 : ret < 0; // XXX - ok?
     }
     return true;
   }
 
-  t_n_ length_(P_cstr_ str) noexcept {
-    return std::strlen(str);
+  t_n length_(P_cstr_ str) noexcept {
+    return t_n{std::strlen(str)};
   }
 
-  t_n_ length_(P_cstr_ fmt, va_list vars) noexcept {
-    va_list args;
-    va_copy(args, vars);
-    t_n_ require = std::vsnprintf(NULL, 0, fmt, args);
-    va_end(args);
-    return require;
-  }
-
-  t_bool match_(P_cstr_ str, P_cstr_ pattern) noexcept {
-    P_cstr_ l = nullptr; // XXX not fully correct
-    while (*pattern && *str) {
-             if (*pattern == *str)    ++pattern;
-        else if (*pattern == '*') l = ++pattern;
-        else if (*pattern == '?') {   ++pattern;
-      } else if (l) {
-        if (pattern != l) {
-          pattern = l;
-          continue;
-        }
-      } else
-        return false;
-      ++str;
+  t_n length_(t_crange fmt, va_list vars) noexcept {
+    if (fmt == VALID) {
+      va_list args;
+      va_copy(args, vars);
+      t_n_ require = std::vsnprintf(NULL, 0, fmt.ptr, args);
+      va_end(args);
+      return t_n{require};
     }
-    return *str ? (t_bool)l : !*pattern;
+    return 0_n;
   }
 
-  t_n_ count_(t_char c,  P_cstr_ str) noexcept {
+  t_bool match_(t_crange str, t_crange pattern) noexcept {
+    if (str == VALID && pattern == VALID) {
+      P_cstr_ l = nullptr, s = str.ptr, p = pattern.ptr; // XXX not fully correct
+      while (*p && *s) {
+               if (*p == *s)      ++p;
+          else if (*p == '*') l = ++p;
+          else if (*p == '?') {   ++p;
+        } else if (l) {
+          if (p != l) {
+            p = l;
+            continue;
+          }
+        } else
+          return false;
+        ++s;
+      }
+      return *s ? (t_bool)l : !*p;
+    }
+    return false;
+  }
+
+  t_n count_(t_crange range, t_char ch) noexcept {
     t_n_ cnt = 0;
-    for (; *str; ++str)
-      if (*str == c)
+    for (auto c : range)
+      if (c == ch)
         ++cnt;
-    return cnt;
+    return t_n{cnt};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_ullong to_uint_(t_n_& use, t_char first, t_char last, t_n_ max_n,
+  t_bool t_impl_base_::remove(t_buf_range store, t_begin_ix _begin,
+                              t_end_ix _end) noexcept {
+    auto begin = get(_begin), end = get(_end);
+    if (begin < end && end <= len_) {
+      t_n_ remove_n = end - begin;
+      while (end != len_)
+        store[t_ix(begin++)] = store[t_ix(end++)];
+      store[t_ix{begin}] = '\0';
+      len_ -= remove_n;
+      return true;
+    }
+    return false;
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  // XXX
+  t_ullong to_uint_(r_n_ use, t_char first, t_char last, t_n_ max_n,
                     P_cstr_ str) noexcept {
     t_ullong value = 0;
     P_cstr_ p = str, max_p = str + max_n;
@@ -294,7 +287,7 @@ namespace impl_
     return value;
   }
 
-  t_llong to_sint_(t_n_& use, t_char first, t_char last_min,
+  t_llong to_sint_(r_n_ use, t_char first, t_char last_min,
                    t_char last_max, t_n_ max_n, P_cstr_ str) noexcept {
     const t_bool neg   = *str == '-';
     const t_char last  = neg ? last_min : last_max;
@@ -304,7 +297,7 @@ namespace impl_
            * (neg ? -1 : 1);
   }
 
-  t_ullong hex_to_uint_(t_n_& use, t_n_ max_n, P_cstr_ str) noexcept {
+  t_ullong hex_to_uint_(r_n_ use, t_n_ max_n, P_cstr_ str) noexcept {
     t_ullong value = 0;
     P_cstr_ p = str, max_p = str + max_n;
     for (; p < max_p &&
@@ -328,9 +321,11 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_n_ uint_to_str_(p_cstr_ dst, t_n_ max, t_ullong value) noexcept {
+  t_n uint_to_str_(t_buf_range range, t_ullong value) noexcept {
+    auto max = get(range.n);
     t_n_ req = 0;
     if (max) {
+      p_cstr_ dst = range.ptr;
       if (!value) {
         if (max > 1)
           *dst++ = '0';
@@ -348,10 +343,10 @@ namespace impl_
         dst[ix] = '\0';
       }
     }
-    return req;
+    return t_n{req};
   }
 
-  t_n_ int_to_str_(p_cstr_ dst, t_n_ max, t_llong value) noexcept {
+  t_n int_to_str_(p_cstr_ dst, t_n_ max, t_llong value) noexcept {
     T_bool neg = value < 0;
     if (neg) {
       if (max > 2)
@@ -360,7 +355,7 @@ namespace impl_
     return uint_to_str_(dst, max - neg, neg ? -value : value) + neg;
   }
 
-  t_n_ hex_to_str_(p_cstr_ dst, t_n_ max, t_ullong value) noexcept {
+  t_n hex_to_str_(p_cstr_ dst, t_n_ max, t_ullong value) noexcept {
     t_n_ req = 0;
     if (max) {
       if (!value) {
@@ -382,27 +377,33 @@ namespace impl_
         dst[ix] = '\0';
       }
     }
-    return req;
+    return t_n{req};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_void scan_(P_cstr_ str, t_n_ n, P_cstr_ fmt, va_list args) noexcept {
-    auto cnt = std::vsscanf(str, fmt, args);
-    if (cnt != static_cast<t_int>(n))
-      assertion::assert_now(P_cstr("scanf could not find you value(s)"));
+  t_n scan_(t_crange str, t_n n, t_crange fmt, va_list args) noexcept {
+    if (str == VALID && fmt == VALID) {
+      auto found = std::vsscanf(str.ptr, fmt.ptr, args);
+      auto n = get(_n);
+      if (n && static_cast<t_int>(n) != found)
+        assert_now(P_cstr("scanf could not find you value(s)"));
+      return t_n{found};
+    }
+    return 0_n;
   }
 
-  t_void scan_fmt_(P_cstr_ str, t_n_ n, P_cstr_ fmt, ...) noexcept {
+  t_void scan_fmt_(t_crange str, t_n n, t_crange fmt, ...) noexcept {
     va_list args;
     va_start(args, fmt);
-    scan_(str, n, fmt, args);
+    auto found = scan_(str, n, fmt, args);
     va_end(args);
+    return found;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_n_ skip_(R_crange range, t_char ch) noexcept {
+  t_n_ skip_(t_crange range, t_char ch) noexcept {
     t_n_ max = get(range.n);
     if (max >= 1 && range[t_ix{0}] == ch)
       return 1;
@@ -411,7 +412,7 @@ namespace impl_
     return 0;
   }
 
-  t_n_ skip_(R_crange range, t_n_ n) noexcept {
+  t_n_ skip_(t_crange range, t_n_ n) noexcept {
     t_n_ max = get(range.n);
     if (n <= max)
       return n;
@@ -420,7 +421,7 @@ namespace impl_
     return 0;
   }
 
-  t_n_ skip_(R_crange range, R_crange src) noexcept {
+  t_n_ skip_(t_crange range, t_crange src) noexcept {
     auto ix_begin = t_ix{0}, ix_end = t_ix{get(src.n)};
     auto tmp = mk_range(range, ix_begin, ix_end);
     if (tmp == src)
@@ -430,7 +431,7 @@ namespace impl_
     return 0;
   }
 
-  t_n_ skip_(R_crange range, R_block block) noexcept {
+  t_n_ skip_(t_crange range, R_block block) noexcept {
     auto max = get(range.n), n = get(block.max);
     if (n <= max) {
       t_ix_ ix = 0;
@@ -443,7 +444,7 @@ namespace impl_
     return 0;
   }
 
-  t_n_ skip_until_(R_crange range, t_char ch, t_plus1_ plus1) noexcept {
+  t_n_ skip_until_(t_crange range, t_char ch, t_plus1_ plus1) noexcept {
     auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
@@ -456,7 +457,7 @@ namespace impl_
     return 0;
   }
 
-  t_n_ skip_until_(R_crange range, R_crange value, t_plus1_ plus1) noexcept {
+  t_n_ skip_until_(t_crange range, t_crange value, t_plus1_ plus1) noexcept {
     auto max = get(range.n), value_max = get(value.n);
     if (max && max > value_max) {
       t_ix_ ix = 0, k = 0;
@@ -470,7 +471,7 @@ namespace impl_
     return 0;
   }
 
-  t_n_ skip_all_(R_crange range, t_char ch) noexcept {
+  t_n_ skip_all_(t_crange range, t_char ch) noexcept {
     auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
@@ -483,7 +484,7 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_n_ snip_n_(R_crange range, p_snippet snip, t_n_ n) noexcept {
+  t_n_ snip_n_(t_crange range, p_snippet snip, t_n_ n) noexcept {
     auto max = get(range.n);
     if (max && max > n) {
       *snip = range;
@@ -494,7 +495,7 @@ namespace impl_
     return 0;
   }
 
-  t_n_ snip_char_(R_crange range, p_snippet snip, t_char ch,
+  t_n_ snip_char_(t_crange range, p_snippet snip, t_char ch,
                   t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
     auto max = get(range.n);
     if (max) {
@@ -510,7 +511,7 @@ namespace impl_
     return 0;
   }
 
-  t_n_ snip_char_eol_(R_crange range, p_snippet snip, t_char ch,
+  t_n_ snip_char_eol_(t_crange range, p_snippet snip, t_char ch,
                       t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
     auto max = get(range.n);
     if (max) {
@@ -528,7 +529,7 @@ namespace impl_
     return 0;
   }
 
-  t_n_ snip_char_(R_crange range, p_snippet snip, p_char_select select,
+  t_n_ snip_char_(t_crange range, p_snippet snip, p_char_select select,
                   t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
     auto max = get(range.n);
     if (max) {
@@ -548,7 +549,7 @@ namespace impl_
     return 0;
   }
 
-  t_n_ snip_char_eol_(R_crange range, p_snippet snip, p_char_select select,
+  t_n_ snip_char_eol_(t_crange range, p_snippet snip, p_char_select select,
                       t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
     auto max = get(range.n);
     if (max) {

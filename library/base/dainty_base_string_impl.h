@@ -72,16 +72,18 @@ namespace impl_
   using types::p_cstr_;      // XXX
   using types::P_cstr_;      // XXX
   using types::t_cstr_cptr_; // XXX
-  using types::r_n_;
   using types::t_n_;
   using types::t_ix_;
 
   using specific::operator""_ix;
   using specific::operator""_n;
-  using specific::P_cstr;      //XXX
+  using specific::P_cstr;      // XXX
   using specific::t_cstr_cptr; // XXX
   using specific::t_n;
+  using specific::r_n;
   using specific::t_ix;
+  using specific::t_begin_ix;
+  using specific::t_end_ix;
   using specific::t_validity;
   using specific::VALID;
   using specific::INVALID;
@@ -95,7 +97,9 @@ namespace impl_
 ///////////////////////////////////////////////////////////////////////////////
 
   template<t_n_ N>
-  using t_grow_buf = buf::t_buf<t_char, N, buf::t_size_dynamic>;
+  using t_grow_buf   = buf::t_buf<t_char, N, buf::t_size_dynamic>;
+  using t_buf_range  = buf::t_buf_range<t_char>;
+  using t_buf_crange = buf::t_buf_range<t_char>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -115,23 +119,23 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_range  = range::t_cstr_range;
-  using R_range  = range::R_cstr_range;
-  using t_crange = range::t_cstr_crange;
-  using R_crange = range::R_cstr_crange;
+  using t_range_tag_ = range::t_cstr_range_tag_;
+  using t_range      = range::t_cstr_range;
+  using R_range      = range::R_cstr_range;
+  using t_crange     = range::t_cstr_crange;
+  using R_crange     = range::R_cstr_crange;
 
   constexpr t_crange NO_RANGE;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  struct t_block {
-    t_char c   = EOL;
-    t_n    max = t_n{0};
+  enum  t_block_tag_ { };
+  using t_block_ = base::t_block<t_char, t_block_tag_>;
 
-    constexpr t_block() = default;
-    constexpr t_block(t_char _c, t_n _max) : c{_c}, max{_max} { }
+  struct t_block : t_block_ {
+    constexpr t_block()                 noexcept : t_block_(EOL, 0_n) { }
+    constexpr t_block(t_char ch, t_n n) noexcept : t_block_{ch, n}    { }
   };
-  using R_block = t_prefix<t_block>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -189,141 +193,119 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_n_ build_(p_cstr_, t_n_, P_cstr_, va_list, t_overflow_grow)     noexcept;
-  t_n_ build_(p_cstr_, t_n_, P_cstr_, va_list, t_overflow_assert)   noexcept;
-  t_n_ build_(p_cstr_, t_n_, P_cstr_, va_list, t_overflow_truncate) noexcept;
+  t_void display_(t_crange)                     noexcept;
+  t_void display_(t_crange, t_crange, t_crange) noexcept;
 
-  t_n_ copy_(p_cstr_, t_n_, P_cstr_, t_n_, t_overflow_assert)   noexcept;
-  t_n_ copy_(p_cstr_, t_n_, P_cstr_, t_n_, t_overflow_truncate) noexcept;
+  t_n build_(t_buf_range, t_crange, va_list, t_overflow_grow)     noexcept;
+  t_n build_(t_buf_range, t_crange, va_list, t_overflow_assert)   noexcept;
+  t_n build_(t_buf_range, t_crange, va_list, t_overflow_truncate) noexcept;
 
-  t_n_ fill_ (p_cstr_, t_n_, R_block, t_overflow_assert)   noexcept;
-  t_n_ fill_ (p_cstr_, t_n_, R_block, t_overflow_truncate) noexcept;
+  t_n copy_(t_buf_range, t_crange, t_overflow_assert)   noexcept;
+  t_n copy_(t_buf_range, t_crange, t_overflow_truncate) noexcept;
 
-  t_n_     calc_n_     (t_n_, t_n_)                   noexcept;
-  p_cstr_  alloc_      (t_n_)                         noexcept;
-  p_cstr_  sso_alloc_  (p_cstr_, t_n_, r_n_)          noexcept;
-  p_cstr_  sso_alloc_  (p_cstr_, t_n_, p_cstr_, t_n_) noexcept;
-  t_void   dealloc_    (p_cstr_)                      noexcept;
-  p_cstr_  realloc_    (p_cstr_, t_n_)                noexcept;
+  t_n fill_(t_buf_range, t_block, t_overflow_assert)   noexcept;
+  t_n fill_(t_buf_range, t_block, t_overflow_truncate) noexcept;
 
-  t_void   display_    (P_cstr_, t_n_)                noexcept;
-  t_void   display_n_  (P_cstr_, t_n_)                noexcept;
-  t_void   display_    (R_crange, R_crange, R_crange) noexcept;
+  t_bool match_     (t_crange, t_crange) noexcept;
+  t_n    count_     (t_crange, t_char)   noexcept;
+  t_n    length_    (P_cstr)             noexcept;
+  t_n    length_    (P_cstr,   va_list)  noexcept;
 
-  t_bool   match_      (P_cstr_, P_cstr_ pattern) noexcept;
-  t_n_     count_      (t_char,  P_cstr_)         noexcept;
-  t_n_     length_     (P_cstr_)                  noexcept;
-  t_n_     length_     (P_cstr_, va_list)         noexcept;
+  t_bool equal_     (t_crange, t_crange)       noexcept;
+  t_bool less_      (t_crange, t_crange)       noexcept;
+  t_bool less_equal_(t_crange, t_crange)       noexcept;
 
-  t_bool   equal_      (R_crange, R_crange)       noexcept;
-  t_bool   less_       (R_crange, R_crange)       noexcept;
-  t_bool   less_equal_ (R_crange, R_crange)       noexcept;
+  t_n shift_left_  (t_buf_range, t_n, t_n) noexcept;
+  t_n shift_right_ (t_buf_range, t_n, t_n) noexcept;
+  t_n shift_centre_(t_buf_range, t_n, t_n) noexcept;
 
-  t_n_     shift_left_  (p_cstr_, t_n_, t_n_, t_n_) noexcept;
-  t_n_     shift_right_ (p_cstr_, t_n_, t_n_, t_n_) noexcept;
-  t_n_     shift_centre_(p_cstr_, t_n_, t_n_, t_n_) noexcept;
+  //XXX
+  t_ullong to_uint_    (r_n, t_char, t_char,         t_n, P_cstr) noexcept;
+  t_llong  to_sint_    (r_n, t_char, t_char, t_char, t_n, P_cstr) noexcept;
+  t_ullong hex_to_uint_(r_n,                         t_n, P_cstr) noexcept;
 
-  t_ullong to_uint_    (r_n_, t_char, t_char,         t_n_, P_cstr_) noexcept;
-  t_llong  to_sint_    (r_n_, t_char, t_char, t_char, t_n_, P_cstr_) noexcept;
-  t_ullong hex_to_uint_(r_n_,                         t_n_, P_cstr_) noexcept;
+  t_n uint_to_str_(t_buf_range, t_ullong) noexcept;
+  t_n int_to_str_ (t_buf_range, t_llong)  noexcept;
+  t_n hex_to_str_ (t_buf_range, t_ullong) noexcept;
 
-  t_n_     uint_to_str_(p_cstr_, t_n_, t_ullong) noexcept;
-  t_n_     int_to_str_ (p_cstr_, t_n_, t_llong)  noexcept;
-  t_n_     hex_to_str_ (p_cstr_, t_n_, t_ullong) noexcept;
+  t_n  scan_     (t_crange, t_n, t_crange, va_list) noexcept;
+  t_n  scan_fmt_ (t_crange, t_n, t_crange, ...)     noexcept;
 
-  t_void   scan_       (P_cstr_, t_n_, P_cstr_, va_list) noexcept;
-  t_void   scan_fmt_   (P_cstr_, t_n_, P_cstr_, ...)     noexcept;
+  t_n skip_       (t_crange, t_char)             noexcept;
+  t_n skip_       (t_crange, t_n)                noexcept;
+  t_n skip_       (t_crange, t_crange)           noexcept;
+  t_n skip_       (t_crange, t_block)            noexcept;
+  t_n skip_until_ (t_crange, t_char,   t_plus1_) noexcept;
+  t_n skip_until_ (t_crange, t_crange, t_plus1_) noexcept;
+  t_n skip_all_   (t_crange, t_char)             noexcept;
 
-  t_n_     skip_       (R_crange, t_char)             noexcept;
-  t_n_     skip_       (R_crange, t_n_)               noexcept;
-  t_n_     skip_       (R_crange, R_crange)           noexcept;
-  t_n_     skip_       (R_crange, R_block)            noexcept;
-  t_n_     skip_until_ (R_crange, t_char,   t_plus1_) noexcept;
-  t_n_     skip_until_ (R_crange, R_crange, t_plus1_) noexcept;
-  t_n_     skip_all_   (R_crange, t_char)             noexcept;
-
-  t_n_     snip_n_       (R_crange, p_snippet, t_n_) noexcept;
-  t_n_     snip_char_    (R_crange, p_snippet, t_char, t_plus1_,
-                          t_incl_char_)              noexcept;
-  t_n_     snip_char_eol_(R_crange, p_snippet, t_char, t_plus1_,
-                          t_incl_char_)              noexcept;
-  t_n_     snip_char_    (R_crange, p_snippet, p_char_select, t_plus1_,
-                          t_incl_char_)              noexcept;
-  t_n_     snip_char_eol_(R_crange, p_snippet, p_char_select, t_plus1_,
-                          t_incl_char_)              noexcept;
+  t_n snip_n_       (t_crange, p_snippet, t_n)  noexcept;
+  t_n snip_char_    (t_crange, p_snippet, t_char, t_plus1_,
+                     t_incl_char_)              noexcept;
+  t_n snip_char_eol_(t_crange, p_snippet, t_char, t_plus1_,
+                     t_incl_char_)              noexcept;
+  t_n snip_char_    (t_crange, p_snippet, p_char_select, t_plus1_,
+                     t_incl_char_)              noexcept;
+  t_n snip_char_eol_(t_crange, p_snippet, p_char_select, t_plus1_,
+                     t_incl_char_)              noexcept;
 
 ////////////////////////////////////////////////////////////////////////////////
 
   inline t_crange mk_range(P_cstr str) noexcept { //XXX
-    return t_crange{get(str), t_n{length_(get(str))}, range::SKIP_};
+    return t_crange{get(str), length_(str), range::SKIP_};
   }
 
   inline t_crange mk_range(t_cstr_cptr_ str) noexcept { // XXX
-    return t_crange{str, t_n{length_(str)}, range::SKIP_};
+    return t_crange{str, length_(P_cstr(str)), range::SKIP_};
   }
 
   template<t_n_ N>
   constexpr t_crange mk_range(const t_char (&str)[N]) noexcept {
-    return t_crange{str, t_n{N-1}, range::SKIP_};
+    return range::mk_crange<t_range_tag_>(str);
   }
 
-  constexpr t_crange mk_range(R_crange range, t_ix begin) noexcept {
-    return range::mk_crange<range::t_cstr_range_tag_>(range, begin);
+  constexpr t_crange mk_range(R_crange range, t_begin_ix begin) noexcept {
+    return range::mk_crange<t_range_tag_>(range, begin);
   }
 
-  constexpr t_crange mk_range(R_crange range, t_ix begin, t_ix end) noexcept {
-    return range::mk_crange<range::t_cstr_range_tag_>(range, begin, end);
+  constexpr t_crange mk_range(R_crange range, t_begin_ix begin,
+                                              t_end_ix   end) noexcept {
+    return range::mk_crange<t_range_tag_>(range, begin, end);
   }
-
-////////////////////////////////////////////////////////////////////////////////
-
-  struct t_del_ {
-    inline t_void operator()(p_cstr_ cstr) noexcept {
-      dealloc_(cstr);
-    }
-  };
-  using t_ptr_ = ptr::t_ptr<t_char, p_cstr_, t_del_>;
 
 ////////////////////////////////////////////////////////////////////////////////
 
   class t_impl_base_ {
   public:
-    using t_buf_range  = buf::t_buf_range<t_char>;
-    using t_buf_crange = buf::t_buf_crange<t_char>;
-
     t_impl_base_()            noexcept;
-    t_impl_base_(t_n_)        noexcept;
+    t_impl_base_(t_n)         noexcept;
     t_impl_base_(t_buf_range) noexcept;
 
     t_void display           (t_buf_crange, t_crange, t_crange) const noexcept;
     t_void display_then_clear(t_buf_range,  t_crange, t_crange)       noexcept;
 
-    t_bool   is_match  (t_buf_crange, t_buf_crange) const noexcept;
-
+    t_bool   is_match  (t_buf_crange, t_crange) const noexcept;
     t_bool   is_empty  ()                       const noexcept;
     P_cstr_  get_cstr  (t_buf_crange)           const noexcept;
-    t_n_     get_length()                       const noexcept;
-    t_n_     get_count (t_buf_crange, t_char c) const noexcept;
+    t_n      get_length()                       const noexcept;
+    t_n      get_count (t_buf_crange, t_char c) const noexcept;
 
     t_char   get_front (t_buf_crange) const noexcept;
     t_char   get_back  (t_buf_crange) const noexcept;
 
     t_crange mk_range  (t_buf_crange)                       const noexcept;
-    t_crange mk_range  (t_buf_crange, t_ix begin)           const noexcept;
-    t_crange mk_range  (t_buf_crange, t_ix begin, t_ix end) const noexcept;
+    t_crange mk_range  (t_buf_crange, t_begin_ix)           const noexcept;
+    t_crange mk_range  (t_buf_crange, t_begin_ix, t_end_ix) const noexcept;
 
-    t_bool   remove    (t_buf_range, t_ix_ begin, t_ix_ end) noexcept;
-    t_void   mod_      (t_buf_range, t_ix_ pos,   t_char ch) noexcept;
-    t_n_     reset     (t_n_ len = 0) noexcept; // XXX
-    t_void   clear     (t_buf_range)  noexcept;
+    t_bool   remove    (t_buf_range, t_begin_ix, t_end_ix) noexcept;
+    t_void   mod_      (t_buf_range, t_ix,       t_char)   noexcept;
+    t_n      reset     (t_n len = 0_n) noexcept;
+    t_void   clear     (t_buf_range)   noexcept;
 
-    t_void   va_scan   (t_buf_crange, t_buf_crange, va_list) noexcept;
-
-    template<class F>
-    t_void each(t_buf_range, F)       noexcept;
+    t_n      va_scan   (t_buf_crange, t_n, t_crange, va_list) noexcept;
 
     template<class F>
-    t_void each(t_buf_range, F) const noexcept;
+    t_void each(t_buf_crange, F&&) const noexcept;
 
   protected:
     t_n_ len_ = 0;
@@ -419,7 +401,7 @@ namespace impl_
   }
 
   inline
-  t_impl_base_::t_impl_base_(t_n_ len) noexcept : len_{len} {
+  t_impl_base_::t_impl_base_(t_n len) noexcept : len_{get(len)} {
   }
 
   inline
@@ -436,38 +418,24 @@ namespace impl_
   }
 
   inline
-  t_bool t_impl_base_::remove(t_buf_range store, t_ix_ begin,
-                              t_ix_ end) noexcept {
-    if (begin < end && end <= len_) {
-      t_n_ remove_n = end - begin;
-      while (end != len_)
-        store[t_ix(begin++)] = store[t_ix(end++)];
-      store[t_ix{begin}] = '\0';
-      len_ -= remove_n;
-      return true;
-    }
-    return false;
-  }
-
-  inline
   t_void t_impl_base_::display(t_buf_crange store, t_crange prefix,
                                t_crange postfix) const noexcept {
     if (len_)
-      display_(t_crange{store.ptr, t_n{len_}}, prefix, postfix);
+      display_(mk_range(store), prefix, postfix);
   }
 
   inline
   t_void t_impl_base_::display_then_clear(t_buf_range store, t_crange prefix,
                                           t_crange postfix) noexcept {
     if (len_)
-      display_(t_crange{store.ptr, t_n{len_}}, prefix, postfix);
+      display_(mk_range(store), prefix, postfix);
     clear(store);
   }
 
   inline
   t_bool t_impl_base_::is_match(t_buf_crange store,
-                                t_buf_crange pattern) const noexcept {
-    return match_(store, pattern);
+                                t_crange     pattern) const noexcept {
+    return match_(mk_range(store), pattern);
   }
 
   inline
@@ -476,8 +444,8 @@ namespace impl_
   }
 
   inline
-  t_n_ t_impl_base_::get_length() const noexcept {
-    return len_;
+  t_n t_impl_base_::get_length() const noexcept {
+    return t_n{len_};
   }
 
   inline
@@ -486,13 +454,13 @@ namespace impl_
   }
 
   inline
-  t_n_ t_impl_base_::reset(t_n_ len) noexcept {
-    return base::reset(len_, len);
+  t_n t_impl_base_::reset(t_n len) noexcept {
+    return t_n{base::reset(len_, get(len))};
   }
 
   inline
-  t_n_ t_impl_base_::get_count(t_buf_crange store, t_char ch) const noexcept {
-    return count_(store, ch);
+  t_n t_impl_base_::get_count(t_buf_crange store, t_char ch) const noexcept {
+    return count_(mk_range(store), ch);
   }
 
   inline
@@ -507,46 +475,42 @@ namespace impl_
 
   inline
   t_crange t_impl_base_::mk_range(t_buf_crange store) const noexcept {
-    return t_crange{store.ptr, t_n{len_}};
+    return store.mk_crange<t_range_tag_>(t_n{len_});
   }
 
   inline
   t_crange t_impl_base_::mk_range(t_buf_crange store,
-                                  t_ix begin) const noexcept {
-    return impl_::mk_range(t_crange{store.ptr, t_n{len_}}, begin, t_ix{len_});
+                                  t_begin_ix begin) const noexcept {
+    return mk_range(store).mk_crange(begin);
   }
 
   inline
-  t_crange t_impl_base_::mk_range(t_buf_crange store, t_ix begin,
-                                  t_ix end) const noexcept {
-    return impl_::mk_range(t_crange{store.ptr, t_n{len_}}, begin, end);
+  t_crange t_impl_base_::mk_range(t_buf_crange store, t_begin_ix begin,
+                                  t_end_ix end) const noexcept {
+    return mk_range(store).mk_crange(begin, end);
   }
 
   inline
-  t_void t_impl_base_::mod_(t_buf_range store, t_ix_ pos, t_char ch) noexcept {
+  t_void t_impl_base_::mod_(t_buf_range store, t_ix _pos, t_char ch) noexcept {
+    auto pos = get(_pos);
     if (pos < len_)
-      store[t_ix{pos}] = ch;
+      store[_pos] = ch;
     else
       assertion::assert_now(P_cstr{"not in range"});
   }
 
   inline
-  t_void t_impl_base_::va_scan(t_buf_crange store, t_buf_crange fmt,
-                               va_list vars) noexcept {
-    scan_(str, n, fmt, vars);
+  t_n t_impl_base_::va_scan(t_buf_crange store, t_n n, t_crange fmt,
+                            va_list vars) noexcept {
+    return scan_(mk_range(store), n, fmt, vars);
   }
 
   template<class F>
-  inline t_void t_impl_base_::each(t_buf_crange store, F&& func) noexcept {
-    for (t_n_ n = 0; n < len_; ++n)
-      f(str[n]);
-  }
-
-  template<class F>
-  inline t_void t_impl_base_::each(t:buf_crange store,
-                                   F&& func) const noexcept {
-    for (t_n_ n = 0; n < len_; ++n)
-      f(str[n]);
+  inline
+  t_void t_impl_base_::each(t_buf_crange store, F&& func) const noexcept {
+    auto range = mk_range(store);
+    for (auto ch : range)
+      func(ch);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

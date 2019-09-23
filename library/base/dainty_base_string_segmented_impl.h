@@ -59,14 +59,18 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template<t_n_ N>
+  using t_grow_buf   = buf::t_buf<t_char, N, buf::t_size_dynamic>;
+  using t_buf_range  = buf::t_buf_range<t_char>;
+  using t_buf_crange = buf::t_buf_range<t_char>;
+
+///////////////////////////////////////////////////////////////////////////////
+
   using t_user = t_uchar; // only support values 1-63
 
   enum t_seg_no_tag_ { };
   using t_seg_no_ = t_ix_;
   using t_seg_no  = t_specific<t_seg_no_, t_seg_no_tag_>;
-
-  template<t_n_ N>
-  using t_grow_buf = buf::t_buf<t_char, N, buf::t_size_dynamic>;
 
   enum  t_id_tag_ { };
   using t_id_ = t_ix_;
@@ -202,9 +206,6 @@ namespace impl_
 
   class t_impl_base_ {
   public:
-    using t_buf_range  = buf::t_buf_range<t_char>;
-    using t_buf_crange = buf::t_buf_crange<t_char>;
-
     t_n      get_segs_num () const noexcept;
     t_n      get_size     () const noexcept;
     t_bool   is_empty     () const noexcept;
