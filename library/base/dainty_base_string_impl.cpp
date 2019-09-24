@@ -271,8 +271,8 @@ namespace impl_
 ///////////////////////////////////////////////////////////////////////////////
 
   // XXX
-  t_ullong to_uint_(r_n_ use, t_char first, t_char last, t_n_ max_n,
-                    P_cstr_ str) noexcept {
+  t_ullong to_uint_(r_n use, t_char first, t_char last, t_n max_n,
+                    P_cstr str) noexcept {
     t_ullong value = 0;
     P_cstr_ p = str, max_p = str + max_n;
     for (; p < max_p && *p <= '9' && *p >= '0'; ++p);
@@ -287,8 +287,8 @@ namespace impl_
     return value;
   }
 
-  t_llong to_sint_(r_n_ use, t_char first, t_char last_min,
-                   t_char last_max, t_n_ max_n, P_cstr_ str) noexcept {
+  t_llong to_sint_(r_n use, t_char first, t_char last_min,
+                   t_char last_max, t_n max_n, P_cstr str) noexcept {
     const t_bool neg   = *str == '-';
     const t_char last  = neg ? last_min : last_max;
     P_cstr_      begin = str + (neg || *str == '+');
@@ -297,7 +297,7 @@ namespace impl_
            * (neg ? -1 : 1);
   }
 
-  t_ullong hex_to_uint_(r_n_ use, t_n_ max_n, P_cstr_ str) noexcept {
+  t_ullong hex_to_uint_(r_n use, t_n max_n, P_cstr str) noexcept {
     t_ullong value = 0;
     P_cstr_ p = str, max_p = str + max_n;
     for (; p < max_p &&
@@ -346,6 +346,7 @@ namespace impl_
     return t_n{req};
   }
 
+  // XXX
   t_n int_to_str_(p_cstr_ dst, t_n_ max, t_llong value) noexcept {
     T_bool neg = value < 0;
     if (neg) {

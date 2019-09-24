@@ -30,7 +30,7 @@
 #include <stdarg.h>
 #include "dainty_base.h"
 #include "dainty_base_range.h"
-#include "dainty_base_ptr.h"
+#include "dainty_base_buf.h"
 #include "dainty_base_assert.h"
 
 namespace dainty
@@ -88,7 +88,6 @@ namespace impl_
   using specific::VALID;
   using specific::INVALID;
 
-  using base::t_fmt;
   using base::t_fmt_va;
   using base::FMT;
   using base::FMT_IT;
@@ -200,11 +199,11 @@ namespace impl_
   t_n build_(t_buf_range, t_crange, va_list, t_overflow_assert)   noexcept;
   t_n build_(t_buf_range, t_crange, va_list, t_overflow_truncate) noexcept;
 
-  t_n copy_(t_buf_range, t_crange, t_overflow_assert)   noexcept;
-  t_n copy_(t_buf_range, t_crange, t_overflow_truncate) noexcept;
+  t_n copy_         (t_buf_range, t_crange, t_overflow_assert)   noexcept;
+  t_n copy_         (t_buf_range, t_crange, t_overflow_truncate) noexcept;
 
-  t_n fill_(t_buf_range, t_block, t_overflow_assert)   noexcept;
-  t_n fill_(t_buf_range, t_block, t_overflow_truncate) noexcept;
+  t_n fill_         (t_buf_range, t_block, t_overflow_assert)   noexcept;
+  t_n fill_         (t_buf_range, t_block, t_overflow_truncate) noexcept;
 
   t_bool match_     (t_crange, t_crange) noexcept;
   t_n    count_     (t_crange, t_char)   noexcept;
@@ -215,29 +214,29 @@ namespace impl_
   t_bool less_      (t_crange, t_crange)       noexcept;
   t_bool less_equal_(t_crange, t_crange)       noexcept;
 
-  t_n shift_left_  (t_buf_range, t_n, t_n) noexcept;
-  t_n shift_right_ (t_buf_range, t_n, t_n) noexcept;
-  t_n shift_centre_(t_buf_range, t_n, t_n) noexcept;
+  t_n shift_left_   (t_buf_range, t_n, t_n) noexcept;
+  t_n shift_right_  (t_buf_range, t_n, t_n) noexcept;
+  t_n shift_centre_ (t_buf_range, t_n, t_n) noexcept;
 
   //XXX
   t_ullong to_uint_    (r_n, t_char, t_char,         t_n, P_cstr) noexcept;
   t_llong  to_sint_    (r_n, t_char, t_char, t_char, t_n, P_cstr) noexcept;
   t_ullong hex_to_uint_(r_n,                         t_n, P_cstr) noexcept;
 
-  t_n uint_to_str_(t_buf_range, t_ullong) noexcept;
-  t_n int_to_str_ (t_buf_range, t_llong)  noexcept;
-  t_n hex_to_str_ (t_buf_range, t_ullong) noexcept;
+  t_n uint_to_str_  (t_buf_range, t_ullong) noexcept;
+  t_n int_to_str_   (t_buf_range, t_llong)  noexcept;
+  t_n hex_to_str_   (t_buf_range, t_ullong) noexcept;
 
-  t_n  scan_     (t_crange, t_n, t_crange, va_list) noexcept;
-  t_n  scan_fmt_ (t_crange, t_n, t_crange, ...)     noexcept;
+  t_n  scan_va_     (t_crange, t_n, t_crange, va_list) noexcept;
+  t_n  scan_        (t_crange, t_n, t_crange, ...)     noexcept;
 
-  t_n skip_       (t_crange, t_char)             noexcept;
-  t_n skip_       (t_crange, t_n)                noexcept;
-  t_n skip_       (t_crange, t_crange)           noexcept;
-  t_n skip_       (t_crange, t_block)            noexcept;
-  t_n skip_until_ (t_crange, t_char,   t_plus1_) noexcept;
-  t_n skip_until_ (t_crange, t_crange, t_plus1_) noexcept;
-  t_n skip_all_   (t_crange, t_char)             noexcept;
+  t_n skip_         (t_crange, t_char)             noexcept;
+  t_n skip_         (t_crange, t_n)                noexcept;
+  t_n skip_         (t_crange, t_crange)           noexcept;
+  t_n skip_         (t_crange, t_block)            noexcept;
+  t_n skip_until_   (t_crange, t_char,   t_plus1_) noexcept;
+  t_n skip_until_   (t_crange, t_crange, t_plus1_) noexcept;
+  t_n skip_all_     (t_crange, t_char)             noexcept;
 
   t_n snip_n_       (t_crange, p_snippet, t_n)  noexcept;
   t_n snip_char_    (t_crange, p_snippet, t_char, t_plus1_,
@@ -302,7 +301,7 @@ namespace impl_
     t_n      reset     (t_n len = 0_n) noexcept;
     t_void   clear     (t_buf_range)   noexcept;
 
-    t_n      va_scan   (t_buf_crange, t_n, t_crange, va_list) noexcept;
+    t_n      scan_va   (t_buf_crange, t_n, t_crange, va_list) noexcept;
 
     template<class F>
     t_void each(t_buf_crange, F&&) const noexcept;
@@ -322,13 +321,13 @@ namespace impl_
     t_impl_(t_buf_range, t_crange) noexcept;
     t_impl_(t_buf_range, t_block)  noexcept;
 
-    t_void assign(t_buf_range, t_crange) noexcept;
-    t_void assign(t_buf_range, t_block)  noexcept;
-    t_void assign(t_buf_range, t_fmt_va, t_crange, va_list) noexcept;
+    t_void assign(t_buf_range, t_crange)          noexcept;
+    t_void assign(t_buf_range, t_block)           noexcept;
+    t_void assign(t_buf_range, t_crange, va_list) noexcept;
 
-    t_void append(t_buf_range, t_crange) noexcept;
-    t_void append(t_buf_range, t_block)  noexcept;
-    t_void append(t_buf_range, t_fmt_va, t_crange, va_list) noexcept;
+    t_void append(t_buf_range, t_crange)          noexcept;
+    t_void append(t_buf_range, t_block)           noexcept;
+    t_void append(t_buf_range, t_crange, va_list) noexcept;
 
     template<typename F>
     t_void custom_assign(t_buf_range, F&&) noexcept;
@@ -347,13 +346,13 @@ namespace impl_
     t_impl_(t_buf_range, t_crange) noexcept;
     t_impl_(t_buf_range, t_block)  noexcept;
 
-    t_void assign(t_buf_range, t_crange) noexcept;
-    t_void assign(t_buf_range, t_block)  noexcept;
-    t_void assign(t_buf_range, t_fmt_va, t_crange, va_list) noexcept;
+    t_void assign(t_buf_range, t_crange)          noexcept;
+    t_void assign(t_buf_range, t_block)           noexcept;
+    t_void assign(t_buf_range, t_crange, va_list) noexcept;
 
-    t_void append(t_buf_range, t_crange) noexcept;
-    t_void append(t_buf_range, t_block)  noexcept;
-    t_void append(t_buf_range, t_fmt_va, t_crange, va_list) noexcept;
+    t_void append(t_buf_range, t_crange)          noexcept;
+    t_void append(t_buf_range, t_block)           noexcept;
+    t_void append(t_buf_range, t_crange, va_list) noexcept;
 
     template<typename F>
     t_void custom_assign(t_buf_range, F&&) noexcept;
@@ -375,18 +374,18 @@ namespace impl_
     t_impl_(t_grow_buf<N>&, t_block)  noexcept;
 
     template<t_n_ N>
-    t_void assign(t_grow_buf<N>&, t_crange) noexcept;
+    t_void assign(t_grow_buf<N>&, t_crange)          noexcept;
     template<t_n_ N>
-    t_void assign(t_grow_buf<N>&, t_block)  noexcept;
+    t_void assign(t_grow_buf<N>&, t_block)           noexcept;
     template<t_n_ N>
-    t_void assign(t_grow_buf<N>&, t_fmt_va, t_crange, va_list) noexcept;
+    t_void assign(t_grow_buf<N>&, t_crange, va_list) noexcept;
 
     template<t_n_ N>
-    t_void append(t_grow_buf<N>&, t_crange) noexcept;
+    t_void append(t_grow_buf<N>&, t_crange)          noexcept;
     template<t_n_ N>
-    t_void append(t_grow_buf<N>&, t_block)  noexcept;
+    t_void append(t_grow_buf<N>&, t_block)           noexcept;
     template<t_n_ N>
-    t_void append(t_grow_buf<N>&, t_fmt_va, t_crange, va_list) noexcept;
+    t_void append(t_grow_buf<N>&, t_crange, va_list) noexcept;
 
     template<t_n_ N, typename F>
     t_void custom_assign(t_grow_buf<N>&, F&&) noexcept;
@@ -500,9 +499,9 @@ namespace impl_
   }
 
   inline
-  t_n t_impl_base_::va_scan(t_buf_crange store, t_n n, t_crange fmt,
+  t_n t_impl_base_::scan_va(t_buf_crange store, t_n n, t_crange fmt,
                             va_list vars) noexcept {
-    return scan_(mk_range(store), n, fmt, vars);
+    return scan_va_(mk_range(store), n, fmt, vars);
   }
 
   template<class F>
@@ -536,8 +535,7 @@ namespace impl_
   }
 
   inline
-  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store, t_fmt_va,
-                                            t_crange range,
+  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store, t_crange range,
                                             va_list vars) noexcept {
   }
 
@@ -552,8 +550,7 @@ namespace impl_
   }
 
   inline
-  t_void t_impl_<t_overflow_assert>::append(t_buf_range store, t_fmt_va,
-                                            t_crange range,
+  t_void t_impl_<t_overflow_assert>::append(t_buf_range store, t_crange range,
                                             va_list vars) noexcept {
   }
 
@@ -690,7 +687,7 @@ namespace impl_
   }
 
   inline
-  t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store, t_fmt_va,
+  t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
                                               t_crange range,
                                               va_list vars) noexcept {
   }
@@ -706,7 +703,7 @@ namespace impl_
   }
 
   inline
-  t_void t_impl_<t_overflow_truncate>::append(t_buf_range store, t_fmt_va,
+  t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,
                                               t_crange range,
                                               va_list vars) noexcept {
   }
@@ -821,58 +818,54 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  template<t_n_ N>
   inline
-  t_impl_<t_overflow_grow>::t_impl_(t_buf_range store,
-                                    t_crange range) noexcept {
+  t_impl_<t_overflow_grow>::t_impl_(t_grow_buf<N>&, t_crange) noexcept {
   }
 
+  template<t_n_ N>
   inline
-  t_impl_<t_overflow_grow>::t_impl_(t_buf_range store,
-                                    t_block block) noexcept {
+  t_impl_<t_overflow_grow>::t_impl_(t_grow_buf<N>&, t_block)  noexcept {
   }
 
+  template<t_n_ N>
   inline
-  t_void t_impl_<t_overflow_grow>::assign(t_buf_range store,
-                                          t_crange range) noexcept {
+  t_void t_impl_<t_overflow_grow>::assign(t_grow_buf<N>&, t_crange) noexcept {
   }
 
+  template<t_n_ N>
   inline
-  t_void t_impl_<t_overflow_grow>::assign(t_buf_range store,
-                                          t_block block) noexcept {
+  t_void t_impl_<t_overflow_grow>::assign(t_grow_buf<N>&, t_block)  noexcept {
   }
 
+  template<t_n_ N>
   inline
-  t_void t_impl_<t_overflow_grow>::assign(t_buf_range store, t_fmt_va,
-                                          t_crange range,
-                                          va_list vars) noexcept {
+  t_void t_impl_<t_overflow_grow>::assign(t_grow_buf<N>&, t_crange, va_list) noexcept {
   }
 
+  template<t_n_ N>
   inline
-  t_void t_impl_<t_overflow_grow>::append(t_buf_range store,
-                                          t_crange range) noexcept {
+  t_void t_impl_<t_overflow_grow>::append(t_grow_buf<N>&, t_crange) noexcept {
   }
 
+  template<t_n_ N>
   inline
-  t_void t_impl_<t_overflow_grow>::append(t_buf_range store,
-                                          t_block block) noexcept {
+  t_void t_impl_<t_overflow_grow>::append(t_grow_buf<N>&, t_block)  noexcept {
   }
 
+  template<t_n_ N>
   inline
-  t_void t_impl_<t_overflow_grow>::append(t_buf_range store, t_fmt_va,
-                                            t_crange range,
-                                            va_list vars) noexcept {
+  t_void t_impl_<t_overflow_grow>::append(t_grow_buf<N>&, t_crange, va_list) noexcept {
   }
 
-  template<typename F>
+  template<t_n_ N, typename F>
   inline
-  t_void t_impl_<t_overflow_grow>::custom_assign(t_buf_range store,
-                                                 F&& func) noexcept {
+  t_void t_impl_<t_overflow_grow>::custom_assign(t_grow_buf<N>&, F&&) noexcept {
   }
 
-  template<typename F>
+  template<t_n_ N, typename F>
   inline
-  t_void t_impl_<t_overflow_grow>::custom_append(t_buf_range store,
-                                                 F&& func) noexcept {
+  t_void t_impl_<t_overflow_grow>::custom_append(t_grow_buf<N>&, F&&) noexcept {
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -988,169 +981,169 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  inline t_n_ to_integer_(r_char value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_char>(to_sint_(use, '1', '8', '7', 4, str));
+  inline t_n to_integer_(r_char value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_char>(to_sint_(use, '1', '8', '7', 4_n, str));
     return use;
   }
 
-  inline t_n_ to_integer_(r_schar value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_schar>(to_sint_(use, '1', '8', '7', 4, str));
+  inline t_n to_integer_(r_schar value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_schar>(to_sint_(use, '1', '8', '7', 4_n, str));
     return use;
   }
 
-  inline t_n_ to_integer_(r_uchar value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_uchar>(to_uint_(use, '2', '5', 3, str));
+  inline t_n to_integer_(r_uchar value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_uchar>(to_uint_(use, '2', '5', 3_n, str));
     return use;
   }
 
-  inline t_n_ to_integer_(r_short value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_short>(to_sint_(use, '3', '8', '7', 6, str));
+  inline t_n to_integer_(r_short value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_short>(to_sint_(use, '3', '8', '7', 6_n, str));
     return use;
   }
 
-  inline t_n_ to_integer_(r_ushort value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_ushort>(to_uint_(use, '6', '5', 5, str));
+  inline t_n to_integer_(r_ushort value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_ushort>(to_uint_(use, '6', '5', 5_n, str));
     return use;
   }
 
-  inline t_n_ to_integer_(r_int value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_int>(to_sint_(use, '9', '8', '7', 20, str));
+  inline t_n to_integer_(r_int value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_int>(to_sint_(use, '9', '8', '7', 20_n, str));
     return use;
   }
 
-  inline t_n_ to_integer_(r_uint value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_uint>(to_uint_(use, '1', '5', 20, str));
+  inline t_n to_integer_(r_uint value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_uint>(to_uint_(use, '1', '5', 20_n, str));
     return use;
   }
 
 #if __LONG_WIDTH__ == 32 || __SIZEOF_LONG__ == 4
-  inline t_n_ to_integer_(r_long value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_long>(to_sint_(use, '9', '8', '7', 20, str));
+  inline t_n to_integer_(r_long value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_long>(to_sint_(use, '9', '8', '7', 20_n, str));
     return use;
   }
 
-  inline t_n_ to_integer_(r_ulong value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_ulong>(to_uint_(use, '1', '5', 20, str));
+  inline t_n to_integer_(r_ulong value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_ulong>(to_uint_(use, '1', '5', 20_n, str));
     return use;
   }
 #elif __LONG_WIDTH__ == 64 || __SIZEOF_LONG__ == 8
-  inline t_n_ to_integer_(r_long value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_long>(to_sint_(use, '9', '8', '7', 20, str));
+  inline t_n to_integer_(r_long value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_long>(to_sint_(use, '9', '8', '7', 20_n, str));
     return use;
   }
 
-  inline t_n_ to_integer_(r_ulong value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_ulong>(to_uint_(use, '1', '5', 20, str));
+  inline t_n to_integer_(r_ulong value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_ulong>(to_uint_(use, '1', '5', 20_n, str));
     return use;
   }
 #else
 #error  compiler
 #endif
 
-  inline t_n_ to_integer_(r_llong value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = to_sint_(use, '9', '8', '7', 20, str);
+  inline t_n to_integer_(r_llong value, P_cstr str) {
+    t_n use = 0_n;
+    value = to_sint_(use, '9', '8', '7', 20_n, str);
     return use;
   }
 
-  inline t_n_ to_integer_(r_ullong value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = to_uint_(use, '1', '5', 20, str);
+  inline t_n to_integer_(r_ullong value, P_cstr str) {
+    t_n use = 0_n;
+    value = to_uint_(use, '1', '5', 20_n, str);
     return use;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  inline t_n_ to_hexidecimal_(r_char value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_char>(hex_to_uint_(use, 2, str));
+  inline t_n to_hexidecimal_(r_char value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_char>(hex_to_uint_(use, 2_n, str));
     return use;
   }
 
-  inline t_n_ to_hexidecimal_(r_schar value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_schar>(hex_to_uint_(use, 2, str));
+  inline t_n to_hexidecimal_(r_schar value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_schar>(hex_to_uint_(use, 2_n, str));
     return use;
   }
 
-  inline t_n_ to_hexidecimal_(r_uchar value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_uchar>(hex_to_uint_(use, 2, str));
+  inline t_n to_hexidecimal_(r_uchar value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_uchar>(hex_to_uint_(use, 2_n, str));
     return use;
   }
 
-  inline t_n_ to_hexidecimal_(r_short value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_short>(hex_to_uint_(use, 4, str));
+  inline t_n to_hexidecimal_(r_short value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_short>(hex_to_uint_(use, 4_n, str));
     return use;
   }
 
-  inline t_n_ to_hexidecimal_(r_ushort value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_ushort>(hex_to_uint_(use, 4, str));
+  inline t_n to_hexidecimal_(r_ushort value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_ushort>(hex_to_uint_(use, 4_n, str));
     return use;
   }
 
-  inline t_n_ to_hexidecimal_(r_int value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_int>(hex_to_uint_(use, 8, str));
+  inline t_n to_hexidecimal_(r_int value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_int>(hex_to_uint_(use, 8_n, str));
     return use;
   }
 
-  inline t_n_ to_hexidecimal_(r_uint value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_uint>(hex_to_uint_(use, 8, str));
+  inline t_n to_hexidecimal_(r_uint value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_uint>(hex_to_uint_(use, 8_n, str));
     return use;
   }
 
 #if __LONG_WIDTH__ == 32 || __SIZEOF_LONG__ == 4
-  inline t_n_ to_hexidecimal_(r_long value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_long>(hex_to_uint_(use, 8, str));
+  inline t_n to_hexidecimal_(r_long value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_long>(hex_to_uint_(use, 8_n, str));
     return use;
   }
 
-  inline t_n_ to_hexidecimal_(r_ulong value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_ulong>(hex_to_uint_(use, 8, str));
+  inline t_n to_hexidecimal_(r_ulong value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_ulong>(hex_to_uint_(use, 8_n, str));
     return use;
   }
 #elif __LONG_WIDTH__ == 64 || __SIZEOF_LONG__ == 8
-  inline t_n_ to_hexidecimal_(r_long value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_long>(hex_to_uint_(use, 16, str));
+  inline t_n to_hexidecimal_(r_long value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_long>(hex_to_uint_(use, 16_n, str));
     return use;
   }
 
-  inline t_n_ to_hexidecimal_(r_ulong value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = static_cast<t_ulong>(hex_to_uint_(use, 16, str));
+  inline t_n to_hexidecimal_(r_ulong value, P_cstr str) {
+    t_n use = 0_n;
+    value = static_cast<t_ulong>(hex_to_uint_(use, 16_n, str));
     return use;
   }
 #else
 #error unknown compiler
 #endif
 
-  inline t_n_ to_hexidecimal_(r_llong value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = hex_to_uint_(use, 16, str);
+  inline t_n to_hexidecimal_(r_llong value, P_cstr str) {
+    t_n use = 0_n;
+    value = hex_to_uint_(use, 16_n, str);
     return use;
   }
 
-  inline t_n_ to_hexidecimal_(r_ullong value, P_cstr_ str) {
-    t_n_ use = 0;
-    value = hex_to_uint_(use, 16, str);
+  inline t_n to_hexidecimal_(r_ullong value, P_cstr str) {
+    t_n use = 0_n;
+    value = hex_to_uint_(use, 16_n, str);
     return use;
   }
 
@@ -1158,14 +1151,14 @@ namespace impl_
 
   template<typename T>
   inline t_n to_integer(T& value, P_cstr str) {
-    return t_n{to_integer_(value, get(str))};
+    return to_integer_(value, str);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   inline t_n to_hexidecimal(T& value, P_cstr str) {
-    return t_n{to_hexidecimal_(value, get(str))};
+    return to_hexidecimal_(value, str);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
