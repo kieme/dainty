@@ -111,12 +111,12 @@ namespace string
     template<t_n_ N1, typename O1>
     r_string operator=(const t_string<TAG, N1, O1>&) noexcept;
 
-    operator t_crange() const noexcept;
-
     template<class TAG1, t_n_ N1, typename O1>
     r_string assign(const t_string<TAG1, N1, O1>&) noexcept;
+    r_string assign(t_crange)                      noexcept; // XXX
     r_string assign(t_cstr_cptr_, ...)      noexcept
       __attribute__((format(printf, 2, 3)));
+    r_string assign_va(t_crange fmt, va_list vars) noexcept; // XXX
 
     r_string append(t_block)           noexcept;
     r_string append(t_crange)          noexcept;
@@ -125,9 +125,7 @@ namespace string
 
     template<class TAG1, t_n_ N1, typename O1>
     r_string append(const t_string<TAG1, N1, O1>&) noexcept;
-
-    r_string assign_va(t_cstr_cptr_ fmt, va_list vars) noexcept;
-    r_string append_va(t_cstr_cptr_ fmt, va_list vars) noexcept;
+    r_string append_va(t_crange fmt, va_list vars) noexcept;
 
     t_void clear() noexcept;
     t_bool remove(t_begin_ix, t_end_ix) noexcept;
@@ -156,29 +154,31 @@ namespace string
     t_crange mk_range(t_begin_ix)           const noexcept;
     t_crange mk_range(t_begin_ix, t_end_ix) const noexcept;
 
-    template<class F> void  each(F)       noexcept;
-    template<class F> void  each(F) const noexcept;
-    template<class F> void ceach(F) const noexcept;
+    template<class F> void  each(F&&)       noexcept;
+    template<class F> void  each(F&&) const noexcept;
+    template<class F> void ceach(F&&) const noexcept;
 
     t_void mod_(t_ix pos, t_char) noexcept;
 
   public: // custom interface - your responsibility
-    template<typename F> r_string custom_assign_(F& func) noexcept {
-      impl_.custom_assign(store_, MAX_, func);
+    template<typename F>
+    inline
+    r_string custom_assign_(F&& func) noexcept {
+      impl_.custom_assign(store_, base::preserve<F>(func));
       return *this;
     }
 
-    template<typename F> r_string custom_append_(F& func) noexcept {
-      impl_.custom_append(store_, MAX_, func);
+    template<typename F>
+    inline
+    r_string custom_append_(F&& func) noexcept {
+      impl_.custom_append(store_, base::preserve<F>(func));
       return *this;
     }
 
   private:
     template<typename, t_n_, typename> friend class t_string;
 
-    constexpr static t_n_ MAX_ = N + 1;
-
-    using t_store_ = buf::t_buf<t_char, MAX_, buf::t_size_static>;
+    using t_store_ = buf::t_buf<t_char, N + 1, buf::t_size_static>;
 
     t_store_ store_;
     t_impl_  impl_;
@@ -317,7 +317,7 @@ namespace string
   template<class TAG, t_n_ N, typename O>
   inline
   typename t_string<TAG, N, O>::r_string t_string<TAG, N, O>
-      ::assign_va(t_cstr_cptr_ fmt, va_list vars) noexcept {
+      ::assign_va(t_crange fmt, va_list vars) noexcept {
     impl_.assign(store_, fmt, vars);
     return *this;
   }
@@ -325,7 +325,7 @@ namespace string
   template<class TAG, t_n_ N, typename O>
   inline
   typename t_string<TAG, N, O>::r_string t_string<TAG, N, O>
-      ::append_va(t_cstr_cptr_ fmt, va_list vars) noexcept {
+      ::append_va(t_crange fmt, va_list vars) noexcept {
     impl_.append(store_, fmt, vars);
     return *this;
   }
@@ -435,22 +435,22 @@ namespace string
   template<class TAG, t_n_ N, typename O>
   template<class F>
   inline
-  t_void t_string<TAG, N, O>::each(F f) noexcept {
-    impl_.each(store_, f);
+  t_void t_string<TAG, N, O>::each(F&& func) noexcept {
+    impl_.each(store_, base::preserve<F>(func));
   }
 
   template<class TAG, t_n_ N, typename O>
   template<class F>
   inline
-  t_void t_string<TAG, N, O>::each(F f) const noexcept {
-    impl_.each(store_, f);
+  t_void t_string<TAG, N, O>::each(F&& func) const noexcept {
+    impl_.each(store_, base::preserve<F>(func));
   }
 
   template<class TAG, t_n_ N, typename O>
   template<class F>
   inline
-  t_void t_string<TAG, N, O>::ceach(F f) const noexcept {
-    impl_.each(store_, f);
+  t_void t_string<TAG, N, O>::ceach(F&& func) const noexcept {
+    impl_.each(store_, base::preserve<F>(func));
   }
 
   template<class TAG, t_n_ N, typename O>
