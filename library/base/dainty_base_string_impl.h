@@ -276,7 +276,6 @@ namespace impl_
 
   class t_impl_base_ {
   public:
-    t_impl_base_()            noexcept;
     t_impl_base_(t_n)         noexcept;
     t_impl_base_(t_buf_range) noexcept;
 
@@ -301,7 +300,7 @@ namespace impl_
     t_n      reset     (t_n len = 0_n) noexcept;
     t_void   clear     (t_buf_range)   noexcept;
 
-    t_n      scan_va   (t_buf_crange, t_n, t_crange, va_list) noexcept;
+    t_n      scan      (t_buf_crange, t_n, t_crange, va_list) noexcept;
 
     template<class F>
     t_void each(t_buf_crange, F&&) const noexcept;
@@ -394,10 +393,6 @@ namespace impl_
   };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-  inline
-  t_impl_base_::t_impl_base_() noexcept : len_{0} {
-  }
 
   inline
   t_impl_base_::t_impl_base_(t_n len) noexcept : len_{get(len)} {
@@ -499,8 +494,8 @@ namespace impl_
   }
 
   inline
-  t_n t_impl_base_::scan_va(t_buf_crange store, t_n n, t_crange fmt,
-                            va_list vars) noexcept {
+  t_n t_impl_base_::scan(t_buf_crange store, t_n n, t_crange fmt,
+                         va_list vars) noexcept {
     return scan_va_(mk_range(store), n, fmt, vars);
   }
 
@@ -516,12 +511,16 @@ namespace impl_
 
   inline
   t_impl_<t_overflow_assert>::t_impl_(t_buf_range store,
-                                      t_crange range) noexcept {
+                                      t_crange range) noexcept
+      : t_impl_base_{store} {
+    assign(store, range);
   }
 
   inline
   t_impl_<t_overflow_assert>::t_impl_(t_buf_range store,
-                                      t_block block) noexcept {
+                                      t_block block) noexcept
+      : t_impl_base_{store} {
+    assign(store, block);
   }
 
   inline
@@ -668,12 +667,16 @@ namespace impl_
 
   inline
   t_impl_<t_overflow_truncate>::t_impl_(t_buf_range store,
-                                        t_crange range) noexcept {
+                                        t_crange range) noexcept
+      : t_impl_base_{store} {
+    assign(store, range);
   }
 
   inline
   t_impl_<t_overflow_truncate>::t_impl_(t_buf_range store,
-                                        t_block block) noexcept {
+                                        t_block block) noexcept
+      : t_impl_base_{store} {
+    assign(store, block);
   }
 
   inline
@@ -820,12 +823,18 @@ namespace impl_
 
   template<t_n_ N>
   inline
-  t_impl_<t_overflow_grow>::t_impl_(t_grow_buf<N>&, t_crange) noexcept {
+  t_impl_<t_overflow_grow>::t_impl_(t_grow_buf<N>& store,
+                                    t_crange range) noexcept
+      : t_impl_base_{store} {
+    assign(store, range);
   }
 
   template<t_n_ N>
   inline
-  t_impl_<t_overflow_grow>::t_impl_(t_grow_buf<N>&, t_block)  noexcept {
+  t_impl_<t_overflow_grow>::t_impl_(t_grow_buf<N>& store,
+                                    t_block block) noexcept
+      : t_impl_base_{store} {
+    assign(store, block);
   }
 
   template<t_n_ N>

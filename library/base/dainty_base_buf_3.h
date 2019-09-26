@@ -57,6 +57,7 @@ namespace buf
     t_buf& operator=(const t_buf&) = delete;
 
     t_bool   use_heap    () const noexcept;
+    constexpr
     t_n      get_capacity() const noexcept;
 
     operator t_validity  () const noexcept;
@@ -125,7 +126,7 @@ namespace buf
   }
 
   template<typename T, t_n_ N>
-  inline
+  constexpr
   t_n t_buf<T, N, t_size_static>::get_capacity() const noexcept {
     return t_n{N};
   }
