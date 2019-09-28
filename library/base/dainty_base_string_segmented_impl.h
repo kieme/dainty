@@ -62,7 +62,7 @@ namespace impl_
   template<t_n_ N>
   using t_grow_buf   = buf::t_buf<t_char, N, buf::t_size_dynamic>;
   using t_buf_range  = buf::t_buf_range<t_char>;
-  using t_buf_crange = buf::t_buf_range<t_char>;
+  using t_buf_crange = buf::t_buf_crange<t_char>;
 
 ///////////////////////////////////////////////////////////////////////////////
 

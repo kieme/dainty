@@ -32,10 +32,10 @@ namespace base
 {
 namespace terminal
 {
-  t_out::t_out(t_fmt, P_cstr_ fmt, ...) noexcept {
+  t_out::t_out(P_cstr_ fmt, ...) noexcept {
     va_list vars;
     va_start(vars, fmt);
-    assign(FMT_VA_IT, fmt, vars);
+    assign(string::mk_range(fmt), vars);
     va_end(vars);
   }
 

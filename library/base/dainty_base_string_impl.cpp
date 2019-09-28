@@ -50,7 +50,7 @@ namespace impl_
 
   // consider when max is zero
 
-  t_void display(t_fmt, P_cstr_ fmt, ...) noexcept {
+  t_void display(P_cstr_ fmt, ...) noexcept {
     va_list args;
     va_start(args, fmt);
     std::vprintf(fmt, args);
@@ -66,7 +66,7 @@ namespace impl_
     if (range == VALID) {
       auto max = get(range.n);
       if (range[t_ix{max - 1}] == '\n')
-        display(".*%s", max, range.ptr);
+        display("%.*s", max, range.ptr);
       else
         display("%.*s\n", max, range.ptr);
     }
@@ -92,7 +92,7 @@ namespace impl_
         auto max = get(store.n);
         auto n = std::vsnprintf(store.ptr, max, fmt.ptr, vars);
         if (n > 0 && (t_n_)n < max)
-          return t_n{n};
+          return t_n(n); // type can be bigger than t_n
       }
       assert_now(P_cstr("failed to build, buffer might be too small"));
     }
@@ -108,7 +108,7 @@ namespace impl_
         if (n > 0) {
           if ((t_n_)n >= max)
             n = max - 1;
-          return t_n{n};
+          return t_n(n); // type can be bigger than t_n
         }
         assert_now(P_cstr("failed to build, std::vsnprintf failed"));
       }
@@ -121,7 +121,7 @@ namespace impl_
       if (store == VALID) {
         auto len = get(range.n), max = get(store.n);
         if (len < max) {
-          store.copy(range);
+          store.copy(range.mk_crange<t_buf_range::t_tag>());
           store[t_ix{len}] = '\0';
           return t_n{len};
         }
@@ -136,10 +136,10 @@ namespace impl_
       if (store == VALID) {
         auto len = get(range.n), max = get(store.n);
         if (len < max)
-          store.copy(range);
+          store.copy(range.mk_crange<t_buf_range::t_tag>());
         else {
           len = max - 1;
-          store.copy(range, t_n{len});
+          store.copy(range.mk_crange<t_buf_range::t_tag>(), t_n{len});
         }
         store[t_ix{len}] = '\0';
         return t_n{len};
@@ -270,36 +270,36 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  // XXX
   t_ullong to_uint_(r_n use, t_char first, t_char last, t_n max_n,
-                    P_cstr str) noexcept {
+                    t_crange range) noexcept {
     t_ullong value = 0;
-    P_cstr_ p = str, max_p = str + max_n;
+    P_cstr_ str = range.ptr, p = str, max_p = str + get(max_n);
     for (; p < max_p && *p <= '9' && *p >= '0'; ++p);
     if (p != str) {
       if (p == max_p && (*str > first || (*str == first && p[-1] > last)))
         --p;
-      use = p-- - str;
+      use = t_n{p-- - str};
       for (t_ullong i = 1; p >= str; i *= 10)
         value += (*p-- - '0') * i;
     } else
-      use = 0;
+      use = 0_n;
     return value;
   }
 
   t_llong to_sint_(r_n use, t_char first, t_char last_min,
-                   t_char last_max, t_n max_n, P_cstr str) noexcept {
+                   t_char last_max, t_n max_n, t_crange range) noexcept {
+    P_cstr_      str   = range.ptr;
     const t_bool neg   = *str == '-';
     const t_char last  = neg ? last_min : last_max;
     P_cstr_      begin = str + (neg || *str == '+');
     return static_cast<t_llong>(
-             to_uint_(use, first, last, max_n - (begin == str), begin))
-           * (neg ? -1 : 1);
+             to_uint_(use, first, last, t_n{get(max_n) - (begin == str)},
+                      begin)) * (neg ? -1 : 1);
   }
 
-  t_ullong hex_to_uint_(r_n use, t_n max_n, P_cstr str) noexcept {
+  t_ullong hex_to_uint_(r_n use, t_n max_n, t_crange range) noexcept {
     t_ullong value = 0;
-    P_cstr_ p = str, max_p = str + max_n;
+    P_cstr_ str = range.ptr, p = str, max_p = str + get(max_n);
     for (; p < max_p &&
          ((*p <= '9' && *p >= '0') ||
           (*p <= 'f' && *p >= 'a') ||

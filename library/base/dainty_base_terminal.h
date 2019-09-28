@@ -51,10 +51,9 @@ namespace terminal
   public:
     using t_out_string::t_out_string;
     using t_out_string::operator=;
-    using t_out_string::operator t_crange;
 
-    t_out(t_fmt, P_cstr_ fmt, ...) noexcept
-      __attribute__((format(printf, 3, 4)));
+    t_out(P_cstr_ fmt, ...) noexcept
+      __attribute__((format(printf, 2, 3)));
 
     ~t_out();
   };

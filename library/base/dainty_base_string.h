@@ -70,48 +70,103 @@ namespace string
 ///////////////////////////////////////////////////////////////////////////////
 
   template<t_n_ N>
-  constexpr t_crange string_literal(const t_char (&value)[N]) noexcept {
+  constexpr
+  t_crange string_literal(const t_char (&value)[N]) noexcept {
     return mk_range(value);
   }
 
-  constexpr t_crange operator""_SL (P_cstr_ cstr, t_n_ len) {
+  constexpr
+  t_crange operator""_SL (P_cstr_ cstr, t_n_ len) {
     return {cstr, t_n{len}};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_void display(t_fmt, t_cstr_cptr_, ...) noexcept
-      __attribute__((format(printf, 2, 3)));
+  t_void display(t_cstr_cptr_, ...) noexcept
+      __attribute__((format(printf, 1, 2)));
 
-  inline t_void display(R_crange range, R_crange prefix   = NO_RANGE,
-                                        R_crange postfix = NO_RANGE) noexcept {
-    display_(range, prefix, postfix);
+  t_void display(t_crange, va_list) noexcept;
+
+  inline
+  t_void display(t_crange range, t_crange prefix  = NO_RANGE,
+                                 t_crange postfix = NO_RANGE) noexcept {
+    impl_::display_(range, prefix, postfix);
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  inline t_bool operator==(R_crange lh, R_crange rh) {
-    return equal_(lh, rh);
+  inline
+  t_bool operator==(t_crange lh, t_crange rh) noexcept {
+    return impl_::equal_(lh, rh);
   }
 
-  inline t_bool operator!=(R_crange lh, R_crange rh) {
-    return !equal_(lh, rh);
+  inline
+  t_bool operator!=(t_crange lh, t_crange rh) noexcept {
+    return !impl_::equal_(lh, rh);
   }
 
-  inline t_bool operator<(R_crange lh, R_crange rh) {
-    return less_(lh, rh);
+  inline
+  t_bool operator<(t_crange lh, t_crange rh) noexcept {
+    return impl_::less_(lh, rh);
   }
 
-  inline t_bool operator<=(R_crange lh, R_crange rh) {
-    return less_equal_(lh, rh);
+  inline
+  t_bool operator<=(t_crange lh, t_crange rh) noexcept {
+    return impl_::less_equal_(lh, rh);
   }
 
-  inline t_bool operator>(R_crange lh, R_crange rh) {
-    return less_(rh, lh);
+  inline
+  t_bool operator>(t_crange lh, t_crange rh) noexcept {
+    return impl_::less_(rh, lh);
   }
 
-  inline t_bool operator>=(R_crange lh, R_crange rh) {
-    return less_equal_(rh, lh);
+  inline
+  t_bool operator>=(t_crange lh, t_crange rh) noexcept {
+    return impl_::less_equal_(rh, lh);
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<class TAG, t_n_ N, typename O, t_n_ N1, typename O1>
+  inline
+  t_bool operator==(const t_string<TAG, N,  O>&  lh,
+                    const t_string<TAG, N1, O1>& rh) noexcept {
+    return impl_::equal_(lh.mk_range(), rh.mk_range());
+  }
+
+  template<class TAG, t_n_ N, typename O, t_n_ N1, typename O1>
+  inline
+  t_bool operator!=(const t_string<TAG, N,  O>&  lh,
+                    const t_string<TAG, N1, O1>& rh) noexcept {
+    return !impl_::equal_(lh.mk_range(), rh.mk_range());
+  }
+
+  template<class TAG, t_n_ N, typename O, t_n_ N1, typename O1>
+  inline
+  t_bool operator<(const t_string<TAG, N,  O>&  lh,
+                   const t_string<TAG, N1, O1>& rh) noexcept {
+    return impl_::less_(lh.mk_range(), rh.mk_range());
+  }
+
+  template<class TAG, t_n_ N, typename O, t_n_ N1, typename O1>
+  inline
+  t_bool operator<=(const t_string<TAG, N,  O>&  lh,
+                    const t_string<TAG, N1, O1>& rh) noexcept {
+    return impl_::less_equal_(lh.mk_range(), rh.mk_range());
+  }
+
+  template<class TAG, t_n_ N, typename O, t_n_ N1, typename O1>
+  inline
+  t_bool operator>(const t_string<TAG, N,  O>&  lh,
+                   const t_string<TAG, N1, O1>& rh) noexcept {
+    return impl_::less_(rh.mk_range(), lh.mk_range());
+  }
+
+  template<class TAG, t_n_ N, typename O, t_n_ N1, typename O1>
+  inline
+  t_bool operator>=(const t_string<TAG, N,  O>&  lh,
+                    const t_string<TAG, N1, O1>& rh) noexcept {
+    return impl_::less_equal_(rh.mk_range(), lh.mk_range());
   }
 
 ///////////////////////////////////////////////////////////////////////////////

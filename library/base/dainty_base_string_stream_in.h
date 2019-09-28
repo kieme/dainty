@@ -35,6 +35,22 @@ namespace base
 {
 namespace string
 {
+  using impl_::t_plus1_;
+  using impl_::NOT_PLUS1;
+  using impl_::PLUS1;
+
+  using impl_::t_incl_char_;
+  using impl_::NOT_INCL_CHAR;
+  using impl_::INCL_CHAR;
+
+  using impl_::t_eol_;
+  using impl_::NOT_EOL_OK;
+  using impl_::EOL_OK;
+  using impl_::EOL;
+
+  using impl_::P_cstr_;
+  using impl_::P_cstr;
+
   // 1. t_hex_p_ - store a pointer to a hex value
   // -----------
   // 1.1 read_hex(lvalue) use template dedecution to determine which type of hex.
@@ -88,12 +104,12 @@ namespace string
 
   struct t_snip_n_p_ {
     constexpr
-    t_snip_n_p_(p_snippet _value, t_n_ _n) noexcept
+    t_snip_n_p_(p_snippet _value, t_n _n) noexcept
       : value{_value}, n{_n} {
     }
 
     p_snippet value;
-    t_n_      n;
+    t_n       n;
   };
 
   template<t_plus1_     = PLUS1,
@@ -124,7 +140,7 @@ namespace string
 
   constexpr
   t_snip_n_p_ read_snippet_upto(r_snippet snip, t_n n) noexcept {
-    return t_snip_n_p_{&snip, get(n)};
+    return t_snip_n_p_{&snip, n};
   }
 
   template<t_plus1_     PLUS1_ = PLUS1,

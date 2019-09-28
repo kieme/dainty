@@ -88,17 +88,14 @@ namespace impl_
   using specific::VALID;
   using specific::INVALID;
 
-  using base::t_fmt_va;
-  using base::FMT;
-  using base::FMT_IT;
-  using base::FMT_VA_IT;
+  using assertion::assert_now;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<t_n_ N>
   using t_grow_buf   = buf::t_buf<t_char, N, buf::t_size_dynamic>;
   using t_buf_range  = buf::t_buf_range<t_char>;
-  using t_buf_crange = buf::t_buf_range<t_char>;
+  using t_buf_crange = buf::t_buf_crange<t_char>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -219,9 +216,9 @@ namespace impl_
   t_n shift_centre_ (t_buf_range, t_n, t_n) noexcept;
 
   //XXX
-  t_ullong to_uint_    (r_n, t_char, t_char,         t_n, P_cstr) noexcept;
-  t_llong  to_sint_    (r_n, t_char, t_char, t_char, t_n, P_cstr) noexcept;
-  t_ullong hex_to_uint_(r_n,                         t_n, P_cstr) noexcept;
+  t_ullong to_uint_    (r_n, t_char, t_char,         t_n, t_crange) noexcept;
+  t_llong  to_sint_    (r_n, t_char, t_char, t_char, t_n, t_crange) noexcept;
+  t_ullong hex_to_uint_(r_n,                         t_n, t_crange) noexcept;
 
   t_n uint_to_str_  (t_buf_range, t_ullong) noexcept;
   t_n int_to_str_   (t_buf_range, t_llong)  noexcept;
@@ -990,68 +987,68 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  inline t_n to_integer_(r_char value, P_cstr str) {
+  inline t_n to_integer_(r_char value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_char>(to_sint_(use, '1', '8', '7', 4_n, str));
     return use;
   }
 
-  inline t_n to_integer_(r_schar value, P_cstr str) {
+  inline t_n to_integer_(r_schar value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_schar>(to_sint_(use, '1', '8', '7', 4_n, str));
     return use;
   }
 
-  inline t_n to_integer_(r_uchar value, P_cstr str) {
+  inline t_n to_integer_(r_uchar value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_uchar>(to_uint_(use, '2', '5', 3_n, str));
     return use;
   }
 
-  inline t_n to_integer_(r_short value, P_cstr str) {
+  inline t_n to_integer_(r_short value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_short>(to_sint_(use, '3', '8', '7', 6_n, str));
     return use;
   }
 
-  inline t_n to_integer_(r_ushort value, P_cstr str) {
+  inline t_n to_integer_(r_ushort value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_ushort>(to_uint_(use, '6', '5', 5_n, str));
     return use;
   }
 
-  inline t_n to_integer_(r_int value, P_cstr str) {
+  inline t_n to_integer_(r_int value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_int>(to_sint_(use, '9', '8', '7', 20_n, str));
     return use;
   }
 
-  inline t_n to_integer_(r_uint value, P_cstr str) {
+  inline t_n to_integer_(r_uint value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_uint>(to_uint_(use, '1', '5', 20_n, str));
     return use;
   }
 
 #if __LONG_WIDTH__ == 32 || __SIZEOF_LONG__ == 4
-  inline t_n to_integer_(r_long value, P_cstr str) {
+  inline t_n to_integer_(r_long value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_long>(to_sint_(use, '9', '8', '7', 20_n, str));
     return use;
   }
 
-  inline t_n to_integer_(r_ulong value, P_cstr str) {
+  inline t_n to_integer_(r_ulong value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_ulong>(to_uint_(use, '1', '5', 20_n, str));
     return use;
   }
 #elif __LONG_WIDTH__ == 64 || __SIZEOF_LONG__ == 8
-  inline t_n to_integer_(r_long value, P_cstr str) {
+  inline t_n to_integer_(r_long value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_long>(to_sint_(use, '9', '8', '7', 20_n, str));
     return use;
   }
 
-  inline t_n to_integer_(r_ulong value, P_cstr str) {
+  inline t_n to_integer_(r_ulong value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_ulong>(to_uint_(use, '1', '5', 20_n, str));
     return use;
@@ -1060,13 +1057,13 @@ namespace impl_
 #error  compiler
 #endif
 
-  inline t_n to_integer_(r_llong value, P_cstr str) {
+  inline t_n to_integer_(r_llong value, t_crange str) {
     t_n use = 0_n;
     value = to_sint_(use, '9', '8', '7', 20_n, str);
     return use;
   }
 
-  inline t_n to_integer_(r_ullong value, P_cstr str) {
+  inline t_n to_integer_(r_ullong value, t_crange str) {
     t_n use = 0_n;
     value = to_uint_(use, '1', '5', 20_n, str);
     return use;
@@ -1074,68 +1071,68 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  inline t_n to_hexidecimal_(r_char value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_char value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_char>(hex_to_uint_(use, 2_n, str));
     return use;
   }
 
-  inline t_n to_hexidecimal_(r_schar value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_schar value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_schar>(hex_to_uint_(use, 2_n, str));
     return use;
   }
 
-  inline t_n to_hexidecimal_(r_uchar value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_uchar value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_uchar>(hex_to_uint_(use, 2_n, str));
     return use;
   }
 
-  inline t_n to_hexidecimal_(r_short value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_short value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_short>(hex_to_uint_(use, 4_n, str));
     return use;
   }
 
-  inline t_n to_hexidecimal_(r_ushort value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_ushort value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_ushort>(hex_to_uint_(use, 4_n, str));
     return use;
   }
 
-  inline t_n to_hexidecimal_(r_int value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_int value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_int>(hex_to_uint_(use, 8_n, str));
     return use;
   }
 
-  inline t_n to_hexidecimal_(r_uint value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_uint value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_uint>(hex_to_uint_(use, 8_n, str));
     return use;
   }
 
 #if __LONG_WIDTH__ == 32 || __SIZEOF_LONG__ == 4
-  inline t_n to_hexidecimal_(r_long value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_long value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_long>(hex_to_uint_(use, 8_n, str));
     return use;
   }
 
-  inline t_n to_hexidecimal_(r_ulong value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_ulong value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_ulong>(hex_to_uint_(use, 8_n, str));
     return use;
   }
 #elif __LONG_WIDTH__ == 64 || __SIZEOF_LONG__ == 8
-  inline t_n to_hexidecimal_(r_long value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_long value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_long>(hex_to_uint_(use, 16_n, str));
     return use;
   }
 
-  inline t_n to_hexidecimal_(r_ulong value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_ulong value, t_crange str) {
     t_n use = 0_n;
     value = static_cast<t_ulong>(hex_to_uint_(use, 16_n, str));
     return use;
@@ -1144,13 +1141,13 @@ namespace impl_
 #error unknown compiler
 #endif
 
-  inline t_n to_hexidecimal_(r_llong value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_llong value, t_crange str) {
     t_n use = 0_n;
     value = hex_to_uint_(use, 16_n, str);
     return use;
   }
 
-  inline t_n to_hexidecimal_(r_ullong value, P_cstr str) {
+  inline t_n to_hexidecimal_(r_ullong value, t_crange str) {
     t_n use = 0_n;
     value = hex_to_uint_(use, 16_n, str);
     return use;
@@ -1159,14 +1156,14 @@ namespace impl_
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  inline t_n to_integer(T& value, P_cstr str) {
+  inline t_n to_integer(T& value, t_crange str) {
     return to_integer_(value, str);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  inline t_n to_hexidecimal(T& value, P_cstr str) {
+  inline t_n to_hexidecimal(T& value, t_crange str) {
     return to_hexidecimal_(value, str);
   }
 

@@ -325,24 +325,56 @@ namespace range
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename TAG1, typename TAG, typename T>
-  constexpr t_range<T, TAG1> mk_range(t_range<T, TAG> range) noexcept {
+  template<typename TAG1, typename T, typename TAG>
+  constexpr
+  t_range<T, TAG1> mk_range(t_range<T, TAG> range) noexcept {
     return {range.ptr, range.n, SKIP_};
   }
 
-  template<typename TAG1, typename TAG, typename T>
-  constexpr t_crange<T, TAG1> mk_range(t_crange<T, TAG> range) noexcept {
+  template<typename TAG1, typename T, typename TAG>
+  constexpr
+  t_crange<T, TAG1> mk_range(t_crange<T, TAG> range) noexcept {
     return {range.ptr, range.n, SKIP_};
   }
 
-  template<typename TAG1, typename TAG, typename T>
-  constexpr t_crange<T, TAG1> mk_crange(t_crange<T, TAG> range) noexcept {
+  template<typename TAG1, typename T, typename TAG>
+  constexpr
+  t_crange<T, TAG1> mk_crange(t_crange<T, TAG> range) noexcept {
     return {range.ptr, range.n, SKIP_};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename TAG1, typename TAG, typename T>
+  template<typename T, typename TAG>
+  constexpr
+  t_range<T, TAG> mk_range(t_range<T, TAG> range, t_begin_ix _begin,
+                           t_end_ix _end) noexcept {
+    auto begin = get(_begin), end = get(_end), n = get(range.n);
+    impl_::check_range_(n, begin, end);
+    return {range.ptr + begin, t_n{end - begin}, SKIP_};
+  }
+
+  template<typename T, typename TAG>
+  constexpr
+  t_crange<T, TAG> mk_range(t_crange<T, TAG> range, t_begin_ix _begin,
+                            t_end_ix _end) noexcept {
+    auto begin = get(_begin), end = get(_end), n = get(range.n);
+    impl_::check_range_(n, begin, end);
+    return {range.ptr + begin, t_n{end - begin}, SKIP_};
+  }
+
+  template<typename T, typename TAG>
+  constexpr
+  t_crange<T, TAG> mk_crange(t_crange<T, TAG> range, t_begin_ix _begin,
+                             t_end_ix _end) noexcept {
+    auto begin = get(_begin), end = get(_end), n = get(range.n);
+    impl_::check_range_(n, begin, end);
+    return {range.ptr + begin, t_n{end - begin}, SKIP_};
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename TAG1, typename T, typename TAG>
   constexpr
   t_range<T, TAG1> mk_range(t_range<T, TAG> range, t_begin_ix _begin,
                             t_end_ix _end) noexcept {
@@ -351,7 +383,7 @@ namespace range
     return {range.ptr + begin, t_n{end - begin}, SKIP_};
   }
 
-  template<typename TAG1, typename TAG, typename T>
+  template<typename TAG1, typename T, typename TAG>
   constexpr
   t_crange<T, TAG1> mk_range(t_crange<T, TAG> range, t_begin_ix _begin,
                              t_end_ix _end) noexcept {
@@ -360,7 +392,7 @@ namespace range
     return {range.ptr + begin, t_n{end - begin}, SKIP_};
   }
 
-  template<typename TAG1, typename TAG, typename T>
+  template<typename TAG1, typename T, typename TAG>
   constexpr
   t_crange<T, TAG1> mk_crange(t_crange<T, TAG> range, t_begin_ix _begin,
                               t_end_ix _end) noexcept {
@@ -371,21 +403,43 @@ namespace range
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename TAG1, typename TAG, typename T>
+  template<typename T, typename TAG>
+  constexpr
+  t_range<T, TAG> mk_range(t_range<T, TAG> range, t_begin_ix _begin) noexcept {
+    return mk_range(range, begin, t_end_ix{get(range.n)});
+  }
+
+  template<typename T, typename TAG>
+  constexpr
+  t_crange<T, TAG> mk_range(t_crange<T, TAG> range,
+                            t_begin_ix begin) noexcept {
+    return mk_crange(range, begin, t_end_ix{get(range.n)});
+  }
+
+  template<typename T, typename TAG>
+  constexpr
+  t_crange<T, TAG> mk_crange(t_crange<T, TAG> range,
+                             t_begin_ix begin) noexcept {
+    return mk_crange(range, begin, t_end_ix{get(range.n)});
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename TAG1, typename T, typename TAG>
   constexpr
   t_range<T, TAG1> mk_range(t_range<T, TAG> range,
                             t_begin_ix _begin) noexcept {
     return mk_range<TAG1>(range, begin, t_end_ix{get(range.n)});
   }
 
-  template<typename TAG1, typename TAG, typename T>
+  template<typename TAG1, typename T, typename TAG>
   constexpr
   t_crange<T, TAG1> mk_range(t_crange<T, TAG> range,
                              t_begin_ix begin) noexcept {
     return mk_crange<TAG1>(range, begin, t_end_ix{get(range.n)});
   }
 
-  template<typename TAG1, typename TAG, typename T>
+  template<typename TAG1, typename T, typename TAG>
   constexpr
   t_crange<T, TAG1> mk_crange(t_crange<T, TAG> range,
                               t_begin_ix begin) noexcept {
@@ -394,19 +448,39 @@ namespace range
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename TAG1, typename TAG, typename T>
+  template<typename T, typename TAG>
+  constexpr
+  t_range<T, TAG> mk_range(t_range<T, TAG> range, t_n n) noexcept {
+    return mk_range(range, 0_begin_ix, t_end_ix(get(n)));
+  }
+
+  template<typename T, typename TAG>
+  constexpr
+  t_crange<T, TAG> mk_range(t_crange<T, TAG> range, t_n n) noexcept {
+    return mk_crange(range, 0_begin_ix, t_end_ix(get(n)));
+  }
+
+  template<typename T, typename TAG>
+  constexpr
+  t_crange<T, TAG> mk_crange(t_crange<T, TAG> range, t_n n) noexcept {
+    return mk_crange(range, 0_begin_ix, t_end_ix(get(n)));
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename TAG1, typename T, typename TAG>
   constexpr
   t_range<T, TAG1> mk_range(t_range<T, TAG> range, t_n n) noexcept {
     return mk_range<TAG1>(range, 0_begin_ix, t_end_ix(get(n)));
   }
 
-  template<typename TAG1, typename TAG, typename T>
+  template<typename TAG1, typename T, typename TAG>
   constexpr
   t_crange<T, TAG1> mk_range(t_crange<T, TAG> range, t_n n) noexcept {
     return mk_crange<TAG1>(range, 0_begin_ix, t_end_ix(get(n)));
   }
 
-  template<typename TAG1, typename TAG, typename T>
+  template<typename TAG1, typename T, typename TAG>
   constexpr
   t_crange<T, TAG1> mk_crange(t_crange<T, TAG> range, t_n n) noexcept {
     return mk_crange<TAG1>(range, 0_begin_ix, t_end_ix(get(n)));
@@ -414,21 +488,44 @@ namespace range
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename TAG1, typename TAG, typename T>
+  template<typename T, typename TAG>
+  constexpr
+  t_range<T, TAG> mk_range(t_range<T, TAG> range, t_begin_ix begin,
+                           t_n n) noexcept {
+    return mk_range(range, begin, t_end_ix(get(begin) + get(n)));
+  }
+
+  template<typename T, typename TAG>
+  constexpr
+  t_crange<T, TAG> mk_range(t_crange<T, TAG> range, t_begin_ix begin,
+                            t_n n) noexcept {
+    return mk_crange(range, begin, t_end_ix(get(begin) + get(n)));
+  }
+
+  template<typename T, typename TAG>
+  constexpr
+  t_crange<T, TAG> mk_crange(t_crange<T, TAG> range, t_begin_ix begin,
+                             t_n n) noexcept {
+    return mk_crange(range, begin, t_end_ix(get(begin) + get(n)));
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename TAG1, typename T, typename TAG>
   constexpr
   t_range<T, TAG1> mk_range(t_range<T, TAG> range, t_begin_ix begin,
                             t_n n) noexcept {
     return mk_range<TAG1>(range, begin, t_end_ix(get(begin) + get(n)));
   }
 
-  template<typename TAG1, typename TAG, typename T>
+  template<typename TAG1, typename T, typename TAG>
   constexpr
   t_crange<T, TAG1> mk_range(t_crange<T, TAG> range, t_begin_ix begin,
                              t_n n) noexcept {
     return mk_crange<TAG1>(range, begin, t_end_ix(get(begin) + get(n)));
   }
 
-  template<typename TAG1, typename TAG, typename T>
+  template<typename TAG1, typename T, typename TAG>
   constexpr
   t_crange<T, TAG1> mk_crange(t_crange<T, TAG> range, t_begin_ix begin,
                               t_n n) noexcept {
@@ -840,35 +937,35 @@ namespace range
   template<typename T, typename TAG>
   template<typename TAG1>
   constexpr t_crange<T, TAG1> t_crange<T, TAG>::mk_crange() const noexcept {
-    return range::mk_crange<T, TAG1>(*this);
+    return range::mk_crange<TAG1>(*this);
   }
 
   template<typename T, typename TAG>
   template<typename TAG1>
   constexpr t_crange<T, TAG1> t_crange<T, TAG>::
       mk_crange(t_begin_ix begin) const noexcept {
-    return range::mk_crange<T, TAG1>(*this, begin);
+    return range::mk_crange<TAG1>(*this, begin);
   }
 
   template<typename T, typename TAG>
   template<typename TAG1>
   constexpr t_crange<T, TAG1> t_crange<T, TAG>::
       mk_crange(t_begin_ix begin, t_end_ix end) const noexcept {
-    return range::mk_range<T, TAG1>(*this, begin, end);
+    return range::mk_range<TAG1>(*this, begin, end);
   }
 
   template<typename T, typename TAG>
   template<typename TAG1>
   constexpr t_crange<T, TAG1> t_crange<T, TAG>::
       mk_crange(t_n n) const noexcept {
-    return range::mk_crange<T, TAG1>(*this, n);
+    return range::mk_crange<TAG1>(*this, n);
   }
 
   template<typename T, typename TAG>
   template<typename TAG1>
   constexpr t_crange<T, TAG1> t_crange<T, TAG>::
       mk_crange(t_begin_ix begin, t_n n) const noexcept {
-    return range::mk_crange<T, TAG1>(*this, begin, n);
+    return range::mk_crange<TAG1>(*this, begin, n);
   }
 
   template<typename T, typename TAG>
