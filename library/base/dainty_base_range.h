@@ -428,7 +428,7 @@ namespace range
   template<typename TAG1, typename T, typename TAG>
   constexpr
   t_range<T, TAG1> mk_range(t_range<T, TAG> range,
-                            t_begin_ix _begin) noexcept {
+                            t_begin_ix begin) noexcept {
     return mk_range<TAG1>(range, begin, t_end_ix{get(range.n)});
   }
 
