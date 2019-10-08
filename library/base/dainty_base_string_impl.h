@@ -520,36 +520,6 @@ namespace impl_
     assign(store, block);
   }
 
-  inline
-  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,
-                                            t_crange range) noexcept {
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,
-                                            t_block block) noexcept {
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store, t_crange range,
-                                            va_list vars) noexcept {
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::append(t_buf_range store,
-                                            t_crange range) noexcept {
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::append(t_buf_range store,
-                                            t_block block) noexcept {
-  }
-
-  inline
-  t_void t_impl_<t_overflow_assert>::append(t_buf_range store, t_crange range,
-                                            va_list vars) noexcept {
-  }
-
   template<typename F>
   inline
   t_void t_impl_<t_overflow_assert>::custom_assign(t_buf_range store,
@@ -674,38 +644,6 @@ namespace impl_
                                         t_block block) noexcept
       : t_impl_base_{store} {
     assign(store, block);
-  }
-
-  inline
-  t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
-                                              t_crange range) noexcept {
-  }
-
-  inline
-  t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
-                                              t_block block) noexcept {
-  }
-
-  inline
-  t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
-                                              t_crange range,
-                                              va_list vars) noexcept {
-  }
-
-  inline
-  t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,
-                                              t_crange range) noexcept {
-  }
-
-  inline
-  t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,
-                                              t_block block) noexcept {
-  }
-
-  inline
-  t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,
-                                              t_crange range,
-                                              va_list vars) noexcept {
   }
 
   template<typename F>

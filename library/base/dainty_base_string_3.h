@@ -55,8 +55,6 @@ namespace string
     t_string(t_n max, t_crange)          noexcept;
     t_string(         R_string)          noexcept;
     t_string(t_n max, R_string)          noexcept;
-    t_string(         t_cstr_cptr_, ...) noexcept
-      __attribute__((format(printf, 2, 3)));
     t_string(t_n max, t_cstr_cptr_, ...) noexcept
       __attribute__((format(printf, 3, 4)));
 
@@ -181,16 +179,6 @@ namespace string
   inline
   t_string<TAG, 0, O>::t_string(t_n max, t_crange range) noexcept
     : store_{max}, impl_{store_, range} {
-  }
-
-  template<class TAG, typename O>
-  inline
-  t_string<TAG, 0, O>::t_string(t_cstr_cptr_ fmt, ...) noexcept
-      : impl_{store_} { // XXX this is a problem
-    va_list vars;
-    va_start(vars, fmt);
-    impl_.assign(store_, string::mk_range(fmt), vars);
-    va_end(vars);
   }
 
   template<class TAG, typename O>

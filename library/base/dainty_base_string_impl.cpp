@@ -602,6 +602,60 @@ namespace impl_
   }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,
+                                            t_crange range) noexcept {
+  }
+
+  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,
+                                            t_block block) noexcept {
+  }
+
+  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store, t_crange range,
+                                            va_list vars) noexcept {
+  }
+
+  t_void t_impl_<t_overflow_assert>::append(t_buf_range store,
+                                            t_crange range) noexcept {
+  }
+
+  t_void t_impl_<t_overflow_assert>::append(t_buf_range store,
+                                            t_block block) noexcept {
+  }
+
+  t_void t_impl_<t_overflow_assert>::append(t_buf_range store, t_crange range,
+                                            va_list vars) noexcept {
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
+                                              t_crange range) noexcept {
+  }
+
+  t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
+                                              t_block block) noexcept {
+  }
+
+  t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
+                                              t_crange range,
+                                              va_list vars) noexcept {
+  }
+
+  t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,
+                                              t_crange range) noexcept {
+  }
+
+  t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,
+                                              t_block block) noexcept {
+  }
+
+  t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,
+                                              t_crange range,
+                                              va_list vars) noexcept {
+  }
+
+////////////////////////////////////////////////////////////////////////////////
 }
 }
 }
