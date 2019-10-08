@@ -278,7 +278,7 @@ namespace impl_
     if (p != str) {
       if (p == max_p && (*str > first || (*str == first && p[-1] > last)))
         --p;
-      use = t_n{p-- - str};
+      use = t_n(p-- - str);
       for (t_ullong i = 1; p >= str; i *= 10)
         value += (*p-- - '0') * i;
     } else
@@ -294,7 +294,7 @@ namespace impl_
     P_cstr_      begin = str + (neg || *str == '+');
     return static_cast<t_llong>(
              to_uint_(use, first, last, t_n{get(max_n) - (begin == str)},
-                      begin)) * (neg ? -1 : 1);
+                      string::mk_range(begin))) * (neg ? -1 : 1);
   }
 
   t_ullong hex_to_uint_(r_n use, t_n max_n, t_crange range) noexcept {
@@ -305,7 +305,7 @@ namespace impl_
           (*p <= 'f' && *p >= 'a') ||
           (*p <= 'F' && *p >= 'A')); ++p);
     if (p != str) {
-      use = p-- - str;
+      use = t_n(p-- - str);
       for (t_ullong i = 1; p >= str; i *= 16) {
         if (*p >= '0' && *p <= '9')
           value += (*p-- - '0') * i;
@@ -315,7 +315,7 @@ namespace impl_
           value += (*p-- - 'A' + 10) * i;
       }
     } else
-      use = 0;
+      use = 0_n;
     return value;
   }
 
@@ -346,14 +346,16 @@ namespace impl_
     return t_n{req};
   }
 
-  // XXX
-  t_n int_to_str_(p_cstr_ dst, t_n_ max, t_llong value) noexcept {
-    T_bool neg = value < 0;
+  t_n int_to_str_(t_buf_range range, t_llong value) noexcept {
+    T_bool neg = value < 0; // XXX
     if (neg) {
-      if (max > 2)
-        *dst++ = '-';
+      value = -value;
+      if (get(range.n) > 2) {
+        *range.ptr = '-';
+        range = range.mk_range(t_begin_ix{1});
+      }
     }
-    return uint_to_str_(dst, max - neg, neg ? -value : value) + neg;
+    return t_n(get(uint_to_str_(range, value)) + neg);
   }
 
   t_n hex_to_str_(p_cstr_ dst, t_n_ max, t_ullong value) noexcept {
@@ -383,23 +385,23 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_n scan_(t_crange str, t_n n, t_crange fmt, va_list args) noexcept {
+  t_n scan_va_(t_crange str, t_n _n, t_crange fmt, va_list args) noexcept {
     if (str == VALID && fmt == VALID) {
       auto found = std::vsscanf(str.ptr, fmt.ptr, args);
       auto n = get(_n);
       if (n && static_cast<t_int>(n) != found)
         assert_now(P_cstr("scanf could not find you value(s)"));
-      return t_n{found};
+      return t_n(found);
     }
     return 0_n;
   }
 
-  t_void scan_fmt_(t_crange str, t_n n, t_crange fmt, ...) noexcept {
+  t_n scan_(t_crange str, t_n n, t_crange fmt, ...) noexcept {
     va_list args;
     va_start(args, fmt);
     auto found = scan_(str, n, fmt, args);
     va_end(args);
-    return found;
+    return t_n(found);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
