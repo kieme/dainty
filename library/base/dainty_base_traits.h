@@ -67,8 +67,11 @@ namespace traits
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<t_bool> struct t_bool_result       : t_add_result<t_false> { };
-  template<>       struct t_bool_result<true> : t_add_result<t_true>  { };
+  template<t_bool>
+  struct t_bool_result : t_false, t_add_result<t_false> { };
+
+  template<>
+  struct t_bool_result<true> : t_true,  t_add_result<t_true> { };
 
   using t_result_true  = t_bool_result<true>;  // shorthand
   using t_result_false = t_bool_result<false>; // shorthand
