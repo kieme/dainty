@@ -61,10 +61,12 @@ namespace logical
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<class, class TAG, class...> class t_logical;
+  template<class, class TAG, class...>
+  class t_logical;
 
   template<class T, class TAG, class... TAGS>
-  constexpr T get(t_logical<T, TAG, TAGS...>) noexcept;
+  constexpr
+  T get(t_logical<T, TAG, TAGS...>) noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -78,20 +80,23 @@ namespace logical
     using t_tags    = t_pack<TAG, TAGS...>;
     using t_flatten = typename t_flatten_tree<t_tags>::t_value;
 
-    constexpr explicit t_logical(t_value value) noexcept
-      : value_{value} // XXX - write tests
-    { }
-
-    template<typename T1, typename... TAGS1>
-    constexpr t_logical(t_logical<T1, TAGS1...> logical) noexcept {
-      static_assert(t_is_subset_of<t_flatten,
-                      typename t_logical<T1, TAGS1...>::t_flatten>::VALUE,
-                     "cannot copy type. types don't give permission.");
-      value_ = logical.value_;
+    constexpr
+    explicit t_logical(t_value value) noexcept : value_{value} {
+      // XXX - tests
     }
 
     template<typename T1, typename... TAGS1>
-    constexpr t_logical& operator=(t_logical<T1, TAGS1...> logical) noexcept {
+    constexpr
+    t_logical(t_logical<T1, TAGS1...> logical) noexcept
+        : value_{logical.value_} {
+      static_assert(t_is_subset_of<t_flatten,
+                      typename t_logical<T1, TAGS1...>::t_flatten>::VALUE,
+                     "cannot copy type. types don't give permission.");
+    }
+
+    template<typename T1, typename... TAGS1>
+    constexpr
+    t_logical& operator=(t_logical<T1, TAGS1...> logical) noexcept {
       static_assert(t_is_subset_of<t_flatten,
                       typename t_logical<T1, TAGS1...>::t_flatten>::VALUE,
                      "cannot copy type. types don't give permission.");
@@ -99,14 +104,14 @@ namespace logical
       return *this;
     }
 
-    t_logical()                            = delete;  // for clarity
-    t_logical(const t_logical&)            = default; // for clarity
-    t_logical& operator=(const t_logical&) = default; // for clarity
+    t_logical()                                     = delete;  // for clarity
+    t_logical(const t_logical&)            noexcept = default; // for clarity
+    t_logical& operator=(const t_logical&) noexcept = default; // for clarity
 
   private:
     template<class T1, class TAG1, class... TAGS1> friend class t_logical;
     template<class T1, class TAG1, class... TAGS1>
-    friend constexpr T1  get(t_logical<T1, TAG1, TAGS1...>) noexcept;
+    friend constexpr T1 get(t_logical<T1, TAG1, TAGS1...>) noexcept;
     t_value value_;
   };
 
@@ -118,7 +123,8 @@ namespace logical
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<class> struct t_is_logical : t_result_false { };
+  template<class>
+  struct t_is_logical : t_result_false { };
 
   template<class T, class TAG, class... TAGS>
   struct t_is_logical<t_logical<T, TAG, TAGS...>> : t_result_true { };
@@ -137,13 +143,16 @@ namespace impl_ {
           typename t_logical<T1, TAGS1...>::t_flatten>,
         t_is_subset_of<
           typename t_logical<T1, TAGS1... >::t_flatten,
-          typename t_logical<T,  TAGS...>::t_flatten>>> { };
+          typename t_logical<T,  TAGS...>::t_flatten>>> {
+  };
 
   template<typename, typename, typename>
   struct t_is_op_allowed_ : t_result_false { };
 
-  template<class C, class T,  class... TAGS, class T1, class... TAGS1>
-  struct t_is_op_allowed_<C, t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>> {
+  template<class... Cs, class T,  class... TAGS, class T1, class... TAGS1>
+  struct t_is_op_allowed_<t_pack<Cs...>, t_logical<T,  TAGS...>,
+                                         t_logical<T1, TAGS1...>> {
+    using t_0_ = typename t_flatten_tree<Cs...>::t_value;
     using t_1_ = typename t_logical<T,  TAGS... >::t_flatten;
     using t_2_ = typename t_logical<T1, TAGS1...>::t_flatten;
     using t_result = t_and<
@@ -151,73 +160,193 @@ namespace impl_ {
                          t_or<
                            t_is_subset_of<t_1_, t_2_>,
                            t_is_subset_of<t_2_, t_1_>>,
-                         t_is_one_of<C, t_1_>>,
-                       t_is_one_of<C, t_2_>>;
+                         t_is_subset_of<t_0_, t_1_>>,
+                       t_is_subset_of<t_0_, t_2_>>;
   };
 }
 
 template<typename T, typename T1>
 struct t_is_allowed : impl_::t_is_allowed_<T, T1>::t_result { };
 
-///////////////////////////////////////////////////////////////////////////////
-
-  template<class T,  class... TAGS,
-           class T1, class... TAGS1>
-  constexpr t_bool operator==(t_logical<T,  TAGS...> lh,
-                              t_logical<T1, TAGS1...> rh) noexcept {
-    static_assert(
-      t_is_allowed<t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>::VALUE,
-           "logical types not allowed to do equal comparison");
-    return get(lh) == get(rh);
-  }
+template<typename C, typename T, typename T1>
+struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<class T,  class... TAGS,
-           class T1, class... TAGS1>
-  constexpr t_bool operator!=(t_logical<T,  TAGS...> lh,
-                              t_logical<T1, TAGS1...> rh) noexcept {
-
-    static_assert(
-      t_is_allowed<t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>::VALUE,
-           "logical types not allowed to do not_equal comparison");
-    return get(lh) != get(rh);
-  }
+  enum t_allow_op_less_tag         { };
+  enum t_allow_op_less_equal_tag   { };
+  enum t_allow_op_larger_tag       { };
+  enum t_allow_op_larger_equal_tag { };
+  enum t_allow_op_equal_tag        { };
+  enum t_allow_op_not_equal_tag    { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<class T,  class... TAGS, class T1, class... TAGS1>
-  constexpr t_bool operator<(t_logical<T,  TAGS...>  lh,
-                             t_logical<T1, TAGS1...> rh) noexcept {
+  constexpr
+  t_bool operator==(t_logical<T,  TAGS...>  lh,
+                    t_logical<T1, TAGS1...> rh) noexcept {
     static_assert(
-      t_is_allowed<t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>::VALUE,
-           "logical types not allowed to do less comparison");
+      t_is_op_allowed<t_pack<t_allow_op_equal_tag>,
+                      t_logical<T,  TAGS...>,
+                      t_logical<T1, TAGS1...>>::VALUE,
+           "logical types not allowed to do equal operation");
+    return get(lh) == get(rh);
+  }
+
+  template<class T,  class... TAGS, class T1, class... TAGS1>
+  constexpr
+  t_bool operator!=(t_logical<T,  TAGS...>  lh,
+                    t_logical<T1, TAGS1...> rh) noexcept {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_not_equal_tag>,
+                      t_logical<T,  TAGS...>,
+                      t_logical<T1, TAGS1...>>::VALUE,
+           "logical types not allowed to do not_equal operation");
+    return get(lh) != get(rh);
+  }
+
+  template<class T,  class... TAGS, class T1, class... TAGS1>
+  constexpr
+  t_bool operator<(t_logical<T,  TAGS...>  lh,
+                   t_logical<T1, TAGS1...> rh) noexcept {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_less_tag>,
+                      t_logical<T,  TAGS...>,
+                      t_logical<T1, TAGS1...>>::VALUE,
+           "logical types not allowed to do less operation");
     return get(lh) < get(rh);
+  }
+
+  template<class T,  class... TAGS, class T1, class... TAGS1>
+  constexpr
+  t_bool operator>(t_logical<T,  TAGS...>  lh,
+                   t_logical<T1, TAGS1...> rh) noexcept {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_larger_tag>,
+                      t_logical<T,  TAGS...>,
+                      t_logical<T1, TAGS1...>>::VALUE,
+           "logical types not allowed to do larger operation");
+    return get(lh) > get(rh);
+  }
+
+  template<class T,  class... TAGS, class T1, class... TAGS1>
+  constexpr
+  t_bool operator<=(t_logical<T,  TAGS...>  lh,
+                    t_logical<T1, TAGS1...> rh) noexcept {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_less_equal_tag>,
+                      t_logical<T,  TAGS...>,
+                      t_logical<T1, TAGS1...>>::VALUE,
+           "logical types not allowed to do less_equal operation");
+    return get(lh) <= get(rh);
+  }
+
+  template<class T,  class... TAGS, class T1, class... TAGS1>
+  constexpr
+  t_bool operator>=(t_logical<T,  TAGS...>  lh,
+                    t_logical<T1, TAGS1...> rh) noexcept {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_larger_equal_tag>,
+                      t_logical<T,  TAGS...>,
+                      t_logical<T1, TAGS1...>>::VALUE,
+           "logical types not allowed to do larger_equal operation");
+    return get(lh) >= get(rh);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_n = t_logical<types::t_n_, types::t_n_tag_>;
-
-  enum  t_max_n_tag_ {};
-  using t_max_n = t_logical<types::t_n_, types::t_n_tag_, t_max_n_tag_>;
-
-  enum  t_min_n_tag_ {};
-  using t_min_n = t_logical<types::t_n_, types::t_n_tag_, t_min_n_tag_>;
-
-  enum  t_by_n_tag_ {};
-  using t_by_n = t_logical<types::t_n_, types::t_n_tag_,  t_by_n_tag_>;
+  enum t_allow_op_plus_tag     { };
+  enum t_allow_op_minus_tag    { };
+  enum t_allow_op_multiply_tag { };
+  enum t_allow_op_divide_tag   { };
+  enum t_allow_op_mod_tag      { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  using t_ix_tags_ = t_pack<types::t_ix_tag_>;
-  using t_ix = t_logical<types::t_ix_, t_ix_tags_>;
+  template<class T,  class... TAGS, class T1, class... TAGS1>
+  constexpr
+  auto operator+(t_logical<T,  TAGS...>  lh,
+                 t_logical<T1, TAGS1...> rh) noexcept {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_plus_tag>,
+                      t_logical<T,  TAGS...>,
+                      t_logical<T1, TAGS1...>>::VALUE,
+           "logical types not allowed to do plus operation");
+    //return typename traits::t_if_then_else<
+    //  traits::t_bool_result<
+    //    (typename t_logical<T,  TAGS... >::t_flatten::N <
+    //     typename t_logical<T1, TAGS1...>::t_flatten::N)>,
+    //  t_logical<T,  TAGS...>,
+    //  t_logical<T1, TAGS1...>>::t_value(get(lh) + get(rh));
+    // XXX no working yet
+    return t_logical<T, TAGS...>(get(lh) + get(rh));
+  }
+
+  template<class T,  class... TAGS>
+  constexpr
+  auto operator+(t_logical<T,  TAGS...> lh, T rh) noexcept
+      -> t_logical<T, TAGS...> {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_plus_tag>,
+                      t_logical<T, TAGS...>,
+                      t_logical<T, TAGS...>>::VALUE,
+           "logical types not allowed to do plus operation");
+    return t_logical<T, TAGS...>(get(lh) + rh);
+  }
+
+  template<class T,  class... TAGS>
+  constexpr
+  auto operator+(T lh, t_logical<T,  TAGS...> rh) noexcept
+      -> t_logical<T, TAGS...> {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_plus_tag>,
+                      t_logical<T, TAGS...>,
+                      t_logical<T, TAGS...>>::VALUE,
+           "logical types not allowed to do plus operation");
+    return t_logical<T, TAGS...>(lh + get(rh));
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  using t_allow_ops_compare_tag = traits::t_pack<t_allow_op_less_tag,
+                                                 t_allow_op_less_equal_tag,
+                                                 t_allow_op_larger_tag,
+                                                 t_allow_op_larger_equal_tag,
+                                                 t_allow_op_equal_tag,
+                                                 t_allow_op_not_equal_tag>;
+
+  using t_allow_ops_arithmetic_tag = traits::t_pack<t_allow_op_plus_tag,
+                                                    t_allow_op_minus_tag,
+                                                    t_allow_op_multiply_tag,
+                                                    t_allow_op_divide_tag,
+                                                    t_allow_op_mod_tag>;
+
+  using t_allow_ops_value_tag = traits::t_pack<t_allow_ops_compare_tag,
+                                               t_allow_ops_arithmetic_tag>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  using t_n = t_logical<types::t_n_, types::t_n_tag_, t_allow_ops_value_tag>;
+
+  enum  t_max_n_tag_ {};
+  using t_max_n = t_logical<types::t_n_, t_n::t_tags, t_max_n_tag_>;
+
+  enum  t_min_n_tag_ {};
+  using t_min_n = t_logical<types::t_n_, t_n::t_tags, t_min_n_tag_>;
+
+  enum  t_by_n_tag_ {};
+  using t_by_n = t_logical<types::t_n_, t_n::t_tags,  t_by_n_tag_>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  using t_ix = t_logical<types::t_ix_, types::t_ix_tag_, t_allow_ops_value_tag>;
 
   enum  t_begin_ix_tag_ {};
-  using t_begin_ix = t_logical<types::t_ix_, t_ix_tags_, t_begin_ix_tag_>;
+  using t_begin_ix = t_logical<types::t_ix_, t_ix::t_tags, t_begin_ix_tag_>;
 
   enum  t_end_ix_tag_ {};
-  using t_end_ix   = t_logical<types::t_ix_, t_ix_tags_, t_end_ix_tag_>;
+  using t_end_ix   = t_logical<types::t_ix_, t_ix::t_tags, t_end_ix_tag_>;
 
 ///////////////////////////////////////////////////////////////////////////////
 }
