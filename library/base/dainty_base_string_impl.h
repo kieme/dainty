@@ -121,6 +121,8 @@ namespace impl_
 
   constexpr t_crange NO_RANGE;
 
+  // pattern XXX
+
 ///////////////////////////////////////////////////////////////////////////////
 
   enum  t_block_tag_ { };
@@ -300,10 +302,19 @@ namespace impl_
     t_crange mk_range  (t_buf_crange, t_begin_ix)           const noexcept;
     t_crange mk_range  (t_buf_crange, t_begin_ix, t_end_ix) const noexcept;
 
+    t_void   assign    (t_buf_range, t_crange)          noexcept;
+    t_void   assign    (t_buf_range, t_block)           noexcept;
+    t_void   assign    (t_buf_range, t_crange, va_list) noexcept;
+
+    t_void   append    (t_buf_range, t_crange)          noexcept;
+    t_void   append    (t_buf_range, t_block)           noexcept;
+    t_void   append    (t_buf_range, t_crange, va_list) noexcept;
+
     t_bool   remove    (t_buf_range, t_begin_ix, t_end_ix)    noexcept;
     t_void   mod_      (t_buf_range, t_ix,       t_char)      noexcept;
     t_n      reset     (t_n len = 0_n)                        noexcept;
     t_void   clear     (t_buf_range)                          noexcept;
+
     t_n      scan      (t_buf_crange, t_n, t_crange, va_list) noexcept;
 
     t_void display           (t_buf_crange, t_crange, t_crange) const noexcept;
@@ -311,15 +322,6 @@ namespace impl_
 
     template<class F>
     t_void each(t_buf_crange, F&&) const noexcept;
-
-  protected:  // XXX
-    t_void assign_(t_buf_range, t_crange)          noexcept;
-    t_void assign_(t_buf_range, t_block)           noexcept;
-    t_void assign_(t_buf_range, t_crange, va_list) noexcept;
-
-    t_void append_(t_buf_range, t_crange)          noexcept;
-    t_void append_(t_buf_range, t_block)           noexcept;
-    t_void append_(t_buf_range, t_crange, va_list) noexcept;
 
   protected:
     t_n_ len_ = 0;
@@ -554,17 +556,6 @@ namespace impl_
 ///////////////////////////////////////////////////////////////////////////////
 
   /*
-  inline
-  t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max,
-                                      P_cstr_ src) noexcept
-    : base_{copy_(str, max, src, length_(src), OVERFLOW_ASSERT)} {
-  }
-
-  inline
-  t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max, P_cstr_ src, t_n_ len) noexcept
-    : base_{copy_(str, max, src, len, OVERFLOW_ASSERT)} {
-  }
-
   inline
   t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max, t_crange range) noexcept
     : base_{copy_(str, max, range.ptr, get(range.n), OVERFLOW_ASSERT)} {
