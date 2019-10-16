@@ -70,6 +70,34 @@ namespace logical
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  /*
+  template<typename T> using t_check_op     = decltype(T::check(T()));
+  template<typename T> using t_has_check_op = traits::t_is_there<t_check_op, T>;
+
+  template<typename T, typename>
+  struct t_check_values;
+
+  template<typename T, typename TAG, typename... TAGS>
+  struct t_check_values<T, traits::t_pack<TAG, TAGS...>> {
+    static constexpr T check(T value) noexcept {
+       if constexpr (t_has_check_op<TAG>::VALUE)
+          value = TAG::check(value);
+       return t_check_values<T, traits::t_pack<TAGS...>>(value);
+    }
+  };
+
+  template<typename T, typename TAG>
+  struct t_check_values<T, traits::t_pack<TAG>> {
+    static constexpr T check(T value) noexcept {
+       if constexpr (t_has_check_op<TAG>::VALUE)
+          value = TAG::check(value);
+       return value;
+    }
+  };
+  */
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<class T, class TAG, class... TAGS>
   class t_logical {
   public:
@@ -81,8 +109,9 @@ namespace logical
     using t_flatten = typename t_flatten_tree<t_tags>::t_value;
 
     constexpr
-    explicit t_logical(t_value value) noexcept : value_{value} {
-      // XXX - tests
+    explicit t_logical(t_value value) noexcept
+      : value_{value} {
+      //: value_{t_check_values<T, t_flatten>::check(value)} {
     }
 
     template<typename T1, typename... TAGS1>
@@ -128,6 +157,15 @@ namespace logical
 
   template<class T, class TAG, class... TAGS>
   struct t_is_logical<t_logical<T, TAG, TAGS...>> : t_result_true { };
+
+  template<class T>
+  using t_is_not_logical = traits::t_not<t_is_logical<T>>;
+
+  template<class T>
+  using t_if_logical = traits::t_if<t_is_logical<T>>;
+
+  template<class T>
+  using t_if_not_logical = traits::t_if<t_is_not_logical<T>>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
