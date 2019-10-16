@@ -352,10 +352,11 @@ namespace impl_
       value = -value;
       if (get(range.n) > 2) {
         *range.ptr = '-';
-        range = range.mk_range(t_begin_ix{1});
+        return t_n(get(uint_to_str_(range.mk_range(t_begin_ix{1}), value)) + 1);
       }
+      // XXX
     }
-    return t_n(get(uint_to_str_(range, value)) + neg);
+    return uint_to_str_(range, value);
   }
 
   t_n hex_to_str_(p_cstr_ dst, t_n_ max, t_ullong value) noexcept {
@@ -406,134 +407,135 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_n_ skip_(t_crange range, t_char ch) noexcept {
+  t_n skip_(t_crange range, t_char ch) noexcept {
     t_n_ max = get(range.n);
     if (max >= 1 && range[t_ix{0}] == ch)
-      return 1;
+      return 1_n;
 
     assertion::assert_now(P_cstr("can't skip charater"));
-    return 0;
+    return 0_n;
   }
 
-  t_n_ skip_(t_crange range, t_n_ n) noexcept {
+  t_n skip_(t_crange range, t_n n) noexcept {
     t_n_ max = get(range.n);
-    if (n <= max)
+    if (get(n) <= max)
       return n;
 
     assertion::assert_now(P_cstr("buffer not big enough"));
-    return 0;
+    return 0_n;
   }
 
-  t_n_ skip_(t_crange range, t_crange src) noexcept {
-    auto ix_begin = t_ix{0}, ix_end = t_ix{get(src.n)};
-    auto tmp = mk_range(range, ix_begin, ix_end);
+  t_n skip_(t_crange range, t_crange src) noexcept {
+    auto ix_begin = t_begin_ix{0};
+    auto ix_end   = t_end_ix{get(src.n)};
+    auto tmp      = mk_range(range, ix_begin, ix_end);
     if (tmp == src)
-      return get(src.n);
+      return src.n;
 
     assertion::assert_now(P_cstr("range not the same"));
-    return 0;
+    return 0_n;
   }
 
-  t_n_ skip_(t_crange range, R_block block) noexcept {
-    auto max = get(range.n), n = get(block.max);
+  t_n skip_(t_crange range, t_block block) noexcept {
+    auto max = get(range.n), n = get(block.n);
     if (n <= max) {
       t_ix_ ix = 0;
-      for (; ix < n && range[t_ix{ix}] == block.c; ++ix);
+      for (; ix < n && range[t_ix{ix}] == block.value; ++ix);
       if (ix == n)
-        return n;
+        return block.n; // check XXX
     }
 
     assertion::assert_now(P_cstr("range not the same"));
-    return 0;
+    return 0_n;
   }
 
-  t_n_ skip_until_(t_crange range, t_char ch, t_plus1_ plus1) noexcept {
+  t_n skip_until_(t_crange range, t_char ch, t_plus1_ plus1) noexcept {
     auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
       for (; ix < max && range[t_ix{ix}] != ch; ++ix);
       if (ix < max)
-        return ix + plus1;
+        return t_n{ix + plus1};
     }
 
     assertion::assert_now(P_cstr("dont find char"));
-    return 0;
+    return 0_n;
   }
 
-  t_n_ skip_until_(t_crange range, t_crange value, t_plus1_ plus1) noexcept {
+  t_n skip_until_(t_crange range, t_crange value, t_plus1_ plus1) noexcept {
     auto max = get(range.n), value_max = get(value.n);
     if (max && max > value_max) {
       t_ix_ ix = 0, k = 0;
       for (; ix < max && k < value_max; ++ix)
         k = range[t_ix{ix}] == value[t_ix{k}] ? k + 1 : 0;
       if (k == value_max)
-        return plus1 == PLUS1 ? ix : ix - value_max;
+        return t_n{plus1 == PLUS1 ? ix : ix - value_max};
     }
 
     assertion::assert_now(P_cstr("dont find substring"));
-    return 0;
+    return 0_n;
   }
 
-  t_n_ skip_all_(t_crange range, t_char ch) noexcept {
+  t_n skip_all_(t_crange range, t_char ch) noexcept {
     auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
       for (; ix < max && range[t_ix{ix}] == ch; ++ix);
       if (ix <= max)
-        return ix;
+        return t_n{ix};
     }
-    return 0;
+    return 0_n;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_n_ snip_n_(t_crange range, p_snippet snip, t_n_ n) noexcept {
-    auto max = get(range.n);
+  t_n snip_n_(t_crange range, p_snippet snip, t_n _n) noexcept {
+    auto max = get(range.n), n = get(_n);
     if (max && max > n) {
       *snip = range;
-      return max;
+      return range.n;
     }
 
     assertion::assert_now(P_cstr("not large enough"));
-    return 0;
+    return 0_n;
   }
 
-  t_n_ snip_char_(t_crange range, p_snippet snip, t_char ch,
-                  t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
+  t_n snip_char_(t_crange range, p_snippet snip, t_char ch,
+                 t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
     auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
       for (; ix < max && range[t_ix{ix}] != ch; ++ix);
       if (ix < max) {
         *snip = t_crange{range.ptr, t_n{ix + incl_char}};
-        return ix + plus1;
+        return t_n{ix + plus1};
       }
     }
 
     assertion::assert_now(P_cstr("not found"));
-    return 0;
+    return 0_n;
   }
 
-  t_n_ snip_char_eol_(t_crange range, p_snippet snip, t_char ch,
-                      t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
+  t_n snip_char_eol_(t_crange range, p_snippet snip, t_char ch,
+                     t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
     auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
       for (; ix < max && range[t_ix{ix}] != ch; ++ix);
       if (ix < max) {
         *snip = t_crange{range.ptr, t_n{ix + incl_char}};
-        return ix + plus1;
+        return t_n{ix + plus1};
       }
       *snip = range;
-      return max;
+      return range.n;
     }
 
     assertion::assert_now(P_cstr("not found"));
-    return 0;
+    return 0_n;
   }
 
-  t_n_ snip_char_(t_crange range, p_snippet snip, p_char_select select,
-                  t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
+  t_n snip_char_(t_crange range, p_snippet snip, p_char_select select,
+                 t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
     auto max = get(range.n);
     if (max) {
       t_ix_ ix = 0;
@@ -542,17 +544,17 @@ namespace impl_
           if (range[t_ix{ix}] == ch) {
             select->choice = ch;
             *snip = t_crange{range.ptr, t_n{ix + incl_char}};
-            return ix + plus1;
+            return t_n{ix + plus1};
           }
         }
       }
     }
 
     select->choice = EOL;
-    return 0;
+    return 0_n;
   }
 
-  t_n_ snip_char_eol_(t_crange range, p_snippet snip, p_char_select select,
+  t_n snip_char_eol_(t_crange range, p_snippet snip, p_char_select select,
                       t_plus1_ plus1, t_incl_char_ incl_char) noexcept {
     auto max = get(range.n);
     if (max) {
@@ -562,22 +564,22 @@ namespace impl_
           if (range[t_ix{ix}] == ch) {
             select->choice = ch;
             *snip = t_crange{range.ptr, t_n{ix + incl_char}};
-            return ix + plus1;
+            return t_n{ix + plus1};
           }
         }
       }
       select->choice = EOL;
       *snip = range;
-      return max;
+      return range.n;
     }
 
     select->choice = EOL;
-    return 0;
+    return 0_n;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_n_ shift_left_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
+  t_n shift_left_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
     t_n_ n = max - 1;
     if (len < max) {
       if (len <= width) {
@@ -592,15 +594,15 @@ namespace impl_
       str[width] = '\0';
       n = width;
     }
-    return n;
+    return t_n{n};
   }
 
-  t_n_ shift_right_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
-    return len < max ? len : max - 1; // XXX do next
+  t_n shift_right_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
+    return t_n{len < max ? len : max - 1}; // XXX - not implemented
   }
 
-  t_n_ shift_centre_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
-    return shift_left_(str, max, len, width);
+  t_n shift_centre_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
+    return shift_left_(str, max, len, width); // XXX - not implemented
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -610,7 +612,7 @@ namespace impl_
     if (len_ + specific::get(range.n) < specific::get(store.n))
       t_impl_base_::assign_(store, range);
     else
-      assert_now(FMT, "t_string: "); // XXX
+      assert_now(P_cstr{"t_string: "}); // XXX
   }
 
   t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,

@@ -41,17 +41,16 @@ namespace assertion
   using types::t_bool;
   using types::t_void;
   using types::P_cstr_;
-
   using specific::P_cstr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_void assert_now(P_cstr reason) noexcept; // REASON is a type
+  t_void assert_now(P_cstr reason) noexcept;
 
-  t_void assert_now(t_fmt, P_cstr_ fmt, ...) noexcept
-    __attribute__((format(printf, 2, 3)));
+  t_void assert_now(P_cstr_ fmt, ...) noexcept
+    __attribute__((format(printf, 1, 2)));
 
-  t_void assert_now(t_fmt_va, P_cstr_ fmt, va_list) noexcept;
+  t_void assert_now(P_cstr_ fmt, va_list) noexcept;
 
 ///////////////////////////////////////////////////////////////////////////////
 

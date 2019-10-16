@@ -182,6 +182,14 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  enum t_allow_op_plus_tag     { };
+  enum t_allow_op_minus_tag    { };
+  enum t_allow_op_multiply_tag { };
+  enum t_allow_op_divide_tag   { };
+  enum t_allow_op_mod_tag      { };
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<class T,  class... TAGS, class T1, class... TAGS1>
   constexpr
   t_bool operator==(t_logical<T,  TAGS...>  lh,
@@ -256,14 +264,6 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  enum t_allow_op_plus_tag     { };
-  enum t_allow_op_minus_tag    { };
-  enum t_allow_op_multiply_tag { };
-  enum t_allow_op_divide_tag   { };
-  enum t_allow_op_mod_tag      { };
-
-///////////////////////////////////////////////////////////////////////////////
-
   template<class T,  class... TAGS, class T1, class... TAGS1>
   constexpr
   auto operator+(t_logical<T,  TAGS...>  lh,
@@ -273,14 +273,14 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
                       t_logical<T,  TAGS...>,
                       t_logical<T1, TAGS1...>>::VALUE,
            "logical types not allowed to do plus operation");
-    //return typename traits::t_if_then_else<
-    //  traits::t_bool_result<
-    //    (typename t_logical<T,  TAGS... >::t_flatten::N <
-    //     typename t_logical<T1, TAGS1...>::t_flatten::N)>,
-    //  t_logical<T,  TAGS...>,
-    //  t_logical<T1, TAGS1...>>::t_value(get(lh) + get(rh));
-    // XXX no working yet
-    return t_logical<T, TAGS...>(get(lh) + get(rh));
+    using t_0_ = typename t_logical<T,  TAGS... >::t_flatten;
+    using t_1_ = typename t_logical<T1, TAGS1...>::t_flatten;
+    using t_result_ =
+      typename traits::t_bool_result<(t_0_::N > t_1_::N)>::t_result;
+    using t_value_ = typename traits::t_if_then_else<t_result_,
+      t_logical<T,  TAGS...>,
+      t_logical<T1, TAGS1...>>::t_value;
+    return t_value_(get(lh) + get(rh));
   }
 
   template<class T,  class... TAGS>
@@ -305,6 +305,186 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
                       t_logical<T, TAGS...>>::VALUE,
            "logical types not allowed to do plus operation");
     return t_logical<T, TAGS...>(lh + get(rh));
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<class T,  class... TAGS, class T1, class... TAGS1>
+  constexpr
+  auto operator-(t_logical<T,  TAGS...>  lh,
+                 t_logical<T1, TAGS1...> rh) noexcept {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_minus_tag>,
+                      t_logical<T,  TAGS...>,
+                      t_logical<T1, TAGS1...>>::VALUE,
+           "logical types not allowed to do minus operation");
+    using t_0_ = typename t_logical<T,  TAGS... >::t_flatten;
+    using t_1_ = typename t_logical<T1, TAGS1...>::t_flatten;
+    using t_result_ =
+      typename traits::t_bool_result<(t_0_::N > t_1_::N)>::t_result;
+    using t_value_ = typename traits::t_if_then_else<t_result_,
+      t_logical<T,  TAGS...>,
+      t_logical<T1, TAGS1...>>::t_value;
+    return t_value_(get(lh) - get(rh));
+  }
+
+  template<class T,  class... TAGS>
+  constexpr
+  auto operator-(t_logical<T,  TAGS...> lh, T rh) noexcept
+      -> t_logical<T, TAGS...> {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_minus_tag>,
+                      t_logical<T, TAGS...>,
+                      t_logical<T, TAGS...>>::VALUE,
+           "logical types not allowed to do minus operation");
+    return t_logical<T, TAGS...>(get(lh) - rh);
+  }
+
+  template<class T,  class... TAGS>
+  constexpr
+  auto operator-(T lh, t_logical<T,  TAGS...> rh) noexcept
+      -> t_logical<T, TAGS...> {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_minus_tag>,
+                      t_logical<T, TAGS...>,
+                      t_logical<T, TAGS...>>::VALUE,
+           "logical types not allowed to do minus operation");
+    return t_logical<T, TAGS...>(lh - get(rh));
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<class T,  class... TAGS, class T1, class... TAGS1>
+  constexpr
+  auto operator*(t_logical<T,  TAGS...>  lh,
+                 t_logical<T1, TAGS1...> rh) noexcept {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_multiply_tag>,
+                      t_logical<T,  TAGS...>,
+                      t_logical<T1, TAGS1...>>::VALUE,
+           "logical types not allowed to do multiply operation");
+    using t_0_ = typename t_logical<T,  TAGS... >::t_flatten;
+    using t_1_ = typename t_logical<T1, TAGS1...>::t_flatten;
+    using t_result_ =
+      typename traits::t_bool_result<(t_0_::N > t_1_::N)>::t_result;
+    using t_value_ = typename traits::t_if_then_else<t_result_,
+      t_logical<T,  TAGS...>,
+      t_logical<T1, TAGS1...>>::t_value;
+    return t_value_(get(lh) * get(rh));
+  }
+
+  template<class T,  class... TAGS>
+  constexpr
+  auto operator*(t_logical<T,  TAGS...> lh, T rh) noexcept
+      -> t_logical<T, TAGS...> {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_multiply_tag>,
+                      t_logical<T, TAGS...>,
+                      t_logical<T, TAGS...>>::VALUE,
+           "logical types not allowed to do multiply operation");
+    return t_logical<T, TAGS...>(get(lh) * rh);
+  }
+
+  template<class T,  class... TAGS>
+  constexpr
+  auto operator*(T lh, t_logical<T,  TAGS...> rh) noexcept
+      -> t_logical<T, TAGS...> {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_multiply_tag>,
+                      t_logical<T, TAGS...>,
+                      t_logical<T, TAGS...>>::VALUE,
+           "logical types not allowed to do multiply operation");
+    return t_logical<T, TAGS...>(lh * get(rh));
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<class T,  class... TAGS, class T1, class... TAGS1>
+  constexpr
+  auto operator/(t_logical<T,  TAGS...>  lh,
+                 t_logical<T1, TAGS1...> rh) noexcept {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_divide_tag>,
+                      t_logical<T,  TAGS...>,
+                      t_logical<T1, TAGS1...>>::VALUE,
+           "logical types not allowed to do divide operation");
+    using t_0_ = typename t_logical<T,  TAGS... >::t_flatten;
+    using t_1_ = typename t_logical<T1, TAGS1...>::t_flatten;
+    using t_result_ =
+      typename traits::t_bool_result<(t_0_::N > t_1_::N)>::t_result;
+    using t_value_ = typename traits::t_if_then_else<t_result_,
+      t_logical<T,  TAGS...>,
+      t_logical<T1, TAGS1...>>::t_value;
+    return t_value_(get(lh) / get(rh));
+  }
+
+  template<class T,  class... TAGS>
+  constexpr
+  auto operator/(t_logical<T,  TAGS...> lh, T rh) noexcept
+      -> t_logical<T, TAGS...> {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_divide_tag>,
+                      t_logical<T, TAGS...>,
+                      t_logical<T, TAGS...>>::VALUE,
+           "logical types not allowed to do divide operation");
+    return t_logical<T, TAGS...>(get(lh) / rh);
+  }
+
+  template<class T,  class... TAGS>
+  constexpr
+  auto operator/(T lh, t_logical<T,  TAGS...> rh) noexcept
+      -> t_logical<T, TAGS...> {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_divide_tag>,
+                      t_logical<T, TAGS...>,
+                      t_logical<T, TAGS...>>::VALUE,
+           "logical types not allowed to do divide operation");
+    return t_logical<T, TAGS...>(lh / get(rh));
+  }
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<class T,  class... TAGS, class T1, class... TAGS1>
+  constexpr
+  auto operator%(t_logical<T,  TAGS...>  lh,
+                 t_logical<T1, TAGS1...> rh) noexcept {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_mod_tag>,
+                      t_logical<T,  TAGS...>,
+                      t_logical<T1, TAGS1...>>::VALUE,
+           "logical types not allowed to do mod operation");
+    using t_0_ = typename t_logical<T,  TAGS... >::t_flatten;
+    using t_1_ = typename t_logical<T1, TAGS1...>::t_flatten;
+    using t_result_ =
+      typename traits::t_bool_result<(t_0_::N > t_1_::N)>::t_result;
+    using t_value_ = typename traits::t_if_then_else<t_result_,
+      t_logical<T,  TAGS...>,
+      t_logical<T1, TAGS1...>>::t_value;
+    return t_value_(get(lh) % get(rh));
+  }
+
+  template<class T,  class... TAGS>
+  constexpr
+  auto operator%(t_logical<T,  TAGS...> lh, T rh) noexcept
+      -> t_logical<T, TAGS...> {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_mod_tag>,
+                      t_logical<T, TAGS...>,
+                      t_logical<T, TAGS...>>::VALUE,
+           "logical types not allowed to do mod operation");
+    return t_logical<T, TAGS...>(get(lh) % rh);
+  }
+
+  template<class T,  class... TAGS>
+  constexpr
+  auto operator%(T lh, t_logical<T,  TAGS...> rh) noexcept
+      -> t_logical<T, TAGS...> {
+    static_assert(
+      t_is_op_allowed<t_pack<t_allow_op_mod_tag>,
+                      t_logical<T, TAGS...>,
+                      t_logical<T, TAGS...>>::VALUE,
+           "logical types not allowed to do mod operation");
+    return t_logical<T, TAGS...>(lh % get(rh));
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -347,6 +527,23 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
 
   enum  t_end_ix_tag_ {};
   using t_end_ix   = t_logical<types::t_ix_, t_ix::t_tags, t_end_ix_tag_>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  constexpr
+  t_n operator""_n(unsigned long long value) noexcept {
+    return t_n{value};
+  }
+
+  constexpr
+  t_min_n operator""_min_n(unsigned long long value) noexcept {
+    return t_min_n{value};
+  }
+
+  constexpr
+  t_max_n operator""_max_n(unsigned long long value) noexcept {
+    return t_max_n{value};
+  }
 
 ///////////////////////////////////////////////////////////////////////////////
 }

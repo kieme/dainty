@@ -552,7 +552,7 @@ namespace impl_
     if (user && (size_ + HDR_MAX_ <= specific::get(store.n)))
       return t_impl_base_::push_back(store, user);
 
-    assertion::assert_now(FMT, "t_segmented: push_back failed");
+    assertion::assert_now(P_cstr{"t_segmented: push_back failed"});
     return BAD_RESULT;
   }
 
@@ -562,7 +562,7 @@ namespace impl_
     if (size_ + HDR_MAX_ + specific::get(range.n) <= specific::get(store.n))
       return t_impl_base_::push_back(store, range, user);
 
-    assertion::assert_now(FMT, "t_segmented: push_back failed");
+    assertion::assert_now(P_cstr{"t_segmented: push_back failed"});
     return BAD_RESULT;
   }
 
@@ -572,7 +572,7 @@ namespace impl_
     if (size_ + HDR_MAX_ <= specific::get(store.n))
       return t_impl_base_::insert(store, seg_no, user);
 
-    assertion::assert_now(FMT, "t_segmented: insert failed");
+    assertion::assert_now(P_cstr{"t_segmented: insert failed"});
     return BAD_ID;
   }
 
@@ -583,7 +583,7 @@ namespace impl_
     if (size_ + HDR_MAX_ + specific::get(range.n) <= specific::get(store.n))
       return t_impl_base_::insert(store, seg_no, range, user);
 
-    assertion::assert_now(FMT, "t_segmented: insert failed");
+    assertion::assert_now(P_cstr{"t_segmented: insert failed"});
     return BAD_ID;
   }
 
@@ -593,7 +593,7 @@ namespace impl_
     if (size_ + HDR_MAX_ <= specific::get(store.n))
       return t_impl_base_::insert(store, id, user);
 
-    assertion::assert_now(FMT, "t_segmented: insert failed");
+    assertion::assert_now(P_cstr{"t_segmented: insert failed"});
     return BAD_ID;
   }
 
@@ -603,7 +603,7 @@ namespace impl_
     if (size_ + HDR_MAX_ + specific::get(range.n) <= specific::get(store.n))
       return t_impl_base_::insert(store, id, range, user);
 
-    assertion::assert_now(FMT, "t_segmented: insert failed");
+    assertion::assert_now(P_cstr{"t_segmented: insert failed"});
     return BAD_ID;
   }
 
@@ -614,7 +614,7 @@ namespace impl_
       if (t_impl_base_::change(store, seg_no, user))
         return true;
 
-      assertion::assert_now(FMT, "t_segmented: change failed");
+      assertion::assert_now(P_cstr{"t_segmented: change failed"});
     }
     return false;
   }
@@ -625,7 +625,7 @@ namespace impl_
     if (t_impl_base_::change(store, id, user))
       return true;
 
-    assertion::assert_now(FMT, "t_segmented: change failed");
+    assertion::assert_now(P_cstr{"t_segmented: change failed"});
     return false;
   }
 
@@ -636,7 +636,7 @@ namespace impl_
     if (specific::get(seg_no) < segs_) {
       if (t_impl_base_::change(store, seg_no, range, user))
         return true;
-      assertion::assert_now(FMT, "t_segmented: change failed");
+      assertion::assert_now(P_cstr{"t_segmented: change failed"});
     }
     return false;
   }
@@ -647,7 +647,7 @@ namespace impl_
     if (t_impl_base_::change(store, id, range, user))
       return true;
 
-    assertion::assert_now(FMT, "t_segmented: change failed");
+    assertion::assert_now(P_cstr{"t_segmented: change failed"});
     return false;
   }
 
@@ -658,7 +658,7 @@ namespace impl_
     if (need <= store.n)
        return true;
 
-    assertion::assert_now(FMT, "t_segmented: assign failed");
+    assertion::assert_now(P_cstr{"t_segmented: assign failed"});
     return false;
   }
 
@@ -670,7 +670,7 @@ namespace impl_
        return true;
     }
 
-    assertion::assert_now(FMT, "t_segmented: assign failed");
+    assertion::assert_now(P_cstr{"t_segmented: assign failed"});
     return false;
   }
 

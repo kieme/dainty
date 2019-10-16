@@ -43,7 +43,10 @@ namespace assertion
   using namespace terminal;
 
   t_void assert_now(P_cstr reason) noexcept {
-    t_out{FMT, "assert: %s\n", get(reason)};
+    {
+      t_out out;
+      out << "assert: "_SL << get(reason);
+    }
 
     p_void array[20];
     auto size = backtrace(array, 20);
@@ -56,10 +59,13 @@ namespace assertion
     assert(0);
   }
 
-  t_void assert_now(t_fmt_va, P_cstr_ fmt, va_list args) noexcept {
-    t_out out{"assert:"};
-    out.append(FMT_VA_IT, fmt, args);
-    out.display();
+  t_void assert_now(P_cstr_ fmt, va_list args) noexcept {
+    {
+      t_out out;
+      out << "assert:"_SL;
+      out.append(string::mk_range(fmt), args);
+      out.display();
+    }
 
     p_void array[20];
     auto size = backtrace(array, 20);
@@ -72,10 +78,10 @@ namespace assertion
     assert(0);
   }
 
-  t_void assert_now(t_fmt, P_cstr_ fmt, ...) noexcept {
+  t_void assert_now(P_cstr_ fmt, ...) noexcept {
     va_list args;
     va_start(args, fmt);
-    assert_now(FMT_VA_IT, fmt, args);
+    assert_now(fmt, args);
     va_end(args);
   }
 }
