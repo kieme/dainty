@@ -607,6 +607,10 @@ namespace impl_
 
   t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,
                                             t_crange range) noexcept {
+    if (len_ + specific::get(range.n) < specific::get(store.n))
+      t_impl_base_::assign_(store, range);
+    else
+      assert_now(FMT, "t_string: "); // XXX
   }
 
   t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,

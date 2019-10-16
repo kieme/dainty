@@ -117,9 +117,7 @@ namespace impl_
 
   using t_range_tag_ = range::t_cstr_range_tag_;
   using t_range      = range::t_cstr_range;
-  using R_range      = range::R_cstr_range;
   using t_crange     = range::t_cstr_crange;
-  using R_crange     = range::R_cstr_crange;
 
   constexpr t_crange NO_RANGE;
 
@@ -145,7 +143,7 @@ namespace impl_
     }
 
     constexpr
-    t_char_select(R_crange _range) noexcept : range{_range} {
+    t_char_select(t_crange _range) noexcept : range{_range} {
     }
 
     constexpr
@@ -171,7 +169,7 @@ namespace impl_
     t_snippet() noexcept = default;
 
     constexpr
-    t_snippet(R_crange range) noexcept
+    t_snippet(t_crange range) noexcept
       : ptr_{range.ptr}, n_{get(range.n)} {
     }
 
@@ -186,7 +184,7 @@ namespace impl_
     }
 
     constexpr
-    r_snippet operator=(R_crange range) noexcept {
+    r_snippet operator=(t_crange range) noexcept {
       ptr_ = range.ptr;
       n_   = get(range.n);
       return *this;
@@ -233,8 +231,8 @@ namespace impl_
   t_n int_to_str_   (t_buf_range, t_llong)  noexcept;
   t_n hex_to_str_   (t_buf_range, t_ullong) noexcept;
 
-  t_n  scan_va_     (t_crange, t_n, t_crange, va_list) noexcept;
-  t_n  scan_        (t_crange, t_n, t_crange, ...)     noexcept;
+  t_n scan_va_      (t_crange, t_n, t_crange, va_list) noexcept; // XXX
+  t_n scan_         (t_crange, t_n, t_crange, ...)     noexcept;
 
   t_n skip_         (t_crange, t_char)             noexcept;
   t_n skip_         (t_crange, t_n)                noexcept;
@@ -262,7 +260,7 @@ namespace impl_
   }
 
   inline
-  t_crange mk_range(t_cstr_cptr_ str) noexcept { // XXX
+  t_crange mk_range(t_cstr_cptr_ str) noexcept {
     return t_crange{str, length_(P_cstr(str)), range::SKIP_};
   }
 
@@ -273,12 +271,12 @@ namespace impl_
   }
 
   constexpr
-  t_crange mk_range(R_crange range, t_begin_ix begin) noexcept {
+  t_crange mk_range(t_crange range, t_begin_ix begin) noexcept {
     return range::mk_crange<t_range_tag_>(range, begin);
   }
 
   constexpr
-  t_crange mk_range(R_crange range, t_begin_ix begin, t_end_ix end) noexcept {
+  t_crange mk_range(t_crange range, t_begin_ix begin, t_end_ix end) noexcept {
     return range::mk_crange<t_range_tag_>(range, begin, end);
   }
 
@@ -288,9 +286,6 @@ namespace impl_
   public:
     t_impl_base_(t_n)         noexcept;
     t_impl_base_(t_buf_range) noexcept;
-
-    t_void display           (t_buf_crange, t_crange, t_crange) const noexcept;
-    t_void display_then_clear(t_buf_range,  t_crange, t_crange)       noexcept;
 
     t_bool   is_match  (t_buf_crange, t_crange) const noexcept;
     t_bool   is_empty  ()                       const noexcept;
@@ -305,15 +300,26 @@ namespace impl_
     t_crange mk_range  (t_buf_crange, t_begin_ix)           const noexcept;
     t_crange mk_range  (t_buf_crange, t_begin_ix, t_end_ix) const noexcept;
 
-    t_bool   remove    (t_buf_range, t_begin_ix, t_end_ix) noexcept;
-    t_void   mod_      (t_buf_range, t_ix,       t_char)   noexcept;
-    t_n      reset     (t_n len = 0_n) noexcept;
-    t_void   clear     (t_buf_range)   noexcept;
-
+    t_bool   remove    (t_buf_range, t_begin_ix, t_end_ix)    noexcept;
+    t_void   mod_      (t_buf_range, t_ix,       t_char)      noexcept;
+    t_n      reset     (t_n len = 0_n)                        noexcept;
+    t_void   clear     (t_buf_range)                          noexcept;
     t_n      scan      (t_buf_crange, t_n, t_crange, va_list) noexcept;
+
+    t_void display           (t_buf_crange, t_crange, t_crange) const noexcept;
+    t_void display_then_clear(t_buf_range,  t_crange, t_crange)       noexcept;
 
     template<class F>
     t_void each(t_buf_crange, F&&) const noexcept;
+
+  protected:  // XXX
+    t_void assign_(t_buf_range, t_crange)          noexcept;
+    t_void assign_(t_buf_range, t_block)           noexcept;
+    t_void assign_(t_buf_range, t_crange, va_list) noexcept;
+
+    t_void append_(t_buf_range, t_crange)          noexcept;
+    t_void append_(t_buf_range, t_block)           noexcept;
+    t_void append_(t_buf_range, t_crange, va_list) noexcept;
 
   protected:
     t_n_ len_ = 0;
@@ -560,7 +566,7 @@ namespace impl_
   }
 
   inline
-  t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max, R_crange range) noexcept
+  t_impl_<t_overflow_assert>::t_impl_(p_cstr_ str, t_n_ max, t_crange range) noexcept
     : base_{copy_(str, max, range.ptr, get(range.n), OVERFLOW_ASSERT)} {
   }
 
@@ -581,7 +587,7 @@ namespace impl_
   }
 
   inline
-  t_void t_impl_<t_overflow_assert>::assign(p_cstr_ str, t_n_ max, R_crange range) noexcept {
+  t_void t_impl_<t_overflow_assert>::assign(p_cstr_ str, t_n_ max, t_crange range) noexcept {
     len_ = copy_(str, max, range.ptr, get(range.n), OVERFLOW_ASSERT);
   }
 
@@ -602,7 +608,7 @@ namespace impl_
   }
 
   inline
-  t_void t_impl_<t_overflow_assert>::append(p_cstr_ str, t_n_ max, R_crange range) noexcept {
+  t_void t_impl_<t_overflow_assert>::append(p_cstr_ str, t_n_ max, t_crange range) noexcept {
     len_ += copy_(str + len_, max - len_, range.ptr, get(range.n),
                   OVERFLOW_ASSERT);
   }
@@ -689,7 +695,7 @@ namespace impl_
       : base_{copy_(str, max, src, len, OVERFLOW_TRUNCATE)} {
     }
 
-    inline t_impl_(p_cstr_ str, t_n_ max, R_crange range) noexcept
+    inline t_impl_(p_cstr_ str, t_n_ max, t_crange range) noexcept
       : base_{copy_(str, max, range.ptr, get(range.n), OVERFLOW_TRUNCATE)} {
     }
 
@@ -706,7 +712,7 @@ namespace impl_
       len_ = copy_(str, max, src, len, OVERFLOW_TRUNCATE);
     }
 
-    inline t_void assign(p_cstr_ str, t_n_ max, R_crange range) noexcept {
+    inline t_void assign(p_cstr_ str, t_n_ max, t_crange range) noexcept {
       len_ = copy_(str, max, range.ptr, get(range.n), OVERFLOW_TRUNCATE);
     }
 
@@ -724,7 +730,7 @@ namespace impl_
       len_ += copy_(str + len_, max - len_, src, len, OVERFLOW_TRUNCATE);
     }
 
-    inline t_void append(p_cstr_ str, t_n_ max, R_crange range) noexcept {
+    inline t_void append(p_cstr_ str, t_n_ max, t_crange range) noexcept {
       len_ += copy_(str + len_, max - len_, range.ptr, get(range.n),
                     OVERFLOW_TRUNCATE);
     }
@@ -843,7 +849,7 @@ namespace impl_
       : base_{copy_(str, max, src, len, OVERFLOW_TRUNCATE)} {
     }
 
-    inline t_impl_(p_cstr_ str, t_n_ max, R_crange range) noexcept
+    inline t_impl_(p_cstr_ str, t_n_ max, t_crange range) noexcept
       : base_{copy_(str, max, range.ptr, get(range.n), OVERFLOW_TRUNCATE)} {
     }
 
@@ -860,7 +866,7 @@ namespace impl_
       len_ = copy_(str, max, src, len, OVERFLOW_TRUNCATE);
     }
 
-    inline t_void assign(p_cstr_ str, t_n_ max, R_crange range) noexcept {
+    inline t_void assign(p_cstr_ str, t_n_ max, t_crange range) noexcept {
       len_ = copy_(str, max, range.ptr, get(range.n), OVERFLOW_TRUNCATE);
     }
 
@@ -878,7 +884,7 @@ namespace impl_
       len_ += copy_(str + len_, max - len_, src, len, OVERFLOW_TRUNCATE);
     }
 
-    inline t_void append(p_cstr_ str, t_n_ max, R_crange range) noexcept {
+    inline t_void append(p_cstr_ str, t_n_ max, t_crange range) noexcept {
       len_ += copy_(str + len_, max - len_, range.ptr, get(range.n),
                     OVERFLOW_TRUNCATE);
     }

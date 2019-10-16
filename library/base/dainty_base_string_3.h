@@ -41,12 +41,12 @@ namespace string
   class t_string<TAG, 0, O> {
     using t_impl_ = impl_::t_impl_<O>;
   public:
-    using t_n         = string::t_n;
-    using t_crange    = string::t_crange;
-    using t_char      = string::t_char;
-    using t_block     = string::t_block;
-    using r_string    = typename t_prefix<t_string>::r_;
-    using R_string    = typename t_prefix<t_string>::R_;
+    using t_n      = string::t_n;
+    using t_crange = string::t_crange;
+    using t_char   = string::t_char;
+    using t_block  = string::t_block;
+    using r_string = typename t_prefix<t_string>::r_;
+    using R_string = typename t_prefix<t_string>::R_;
 
     t_string(t_n max)                    noexcept;
     t_string(         t_block)           noexcept;

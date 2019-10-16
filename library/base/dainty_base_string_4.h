@@ -41,12 +41,12 @@ namespace string
   class t_string<TAG, 0, t_overflow_grow> {
     using t_impl_ = impl_::t_impl_<t_overflow_grow>;
   public:
-    using t_n         = string::t_n;
-    using t_crange    = string::t_crange;
-    using t_char      = string::t_char;
-    using t_block     = string::t_block;
-    using r_string    = typename t_prefix<t_string>::r_;
-    using R_string    = typename t_prefix<t_string>::R_;
+    using t_n      = string::t_n;
+    using t_crange = string::t_crange;
+    using t_char   = string::t_char;
+    using t_block  = string::t_block;
+    using r_string = typename t_prefix<t_string>::r_;
+    using R_string = typename t_prefix<t_string>::R_;
 
     t_string()                  noexcept;
     t_string(t_n max)           noexcept;
