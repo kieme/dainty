@@ -233,8 +233,7 @@ namespace impl_
   t_n int_to_str_   (t_buf_range, t_llong)  noexcept;
   t_n hex_to_str_   (t_buf_range, t_ullong) noexcept;
 
-  t_n scan_va_      (t_crange, t_n, t_crange, va_list) noexcept; // XXX
-  t_n scan_         (t_crange, t_n, t_crange, ...)     noexcept;
+  t_n scan_         (t_crange, t_n, t_crange, va_list) noexcept; // XXX
 
   t_n skip_         (t_crange, t_char)             noexcept;
   t_n skip_         (t_crange, t_n)                noexcept;
@@ -514,7 +513,7 @@ namespace impl_
   inline
   t_n t_impl_base_::scan(t_buf_crange store, t_n n, t_crange fmt,
                          va_list vars) noexcept {
-    return scan_va_(mk_range(store), n, fmt, vars);
+    return scan_(mk_range(store), n, fmt, vars);
   }
 
   template<class F>

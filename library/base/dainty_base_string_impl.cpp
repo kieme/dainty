@@ -386,7 +386,7 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  t_n scan_va_(t_crange str, t_n _n, t_crange fmt, va_list args) noexcept {
+  t_n scan_(t_crange str, t_n _n, t_crange fmt, va_list args) noexcept {
     if (str == VALID && fmt == VALID) {
       auto found = std::vsscanf(str.ptr, fmt.ptr, args);
       auto n = get(_n);
@@ -395,14 +395,6 @@ namespace impl_
       return t_n(found);
     }
     return 0_n;
-  }
-
-  t_n scan_(t_crange str, t_n n, t_crange fmt, ...) noexcept {
-    va_list args;
-    va_start(args, fmt);
-    auto found = scan_(str, n, fmt, args);
-    va_end(args);
-    return t_n(found);
   }
 
 ///////////////////////////////////////////////////////////////////////////////
