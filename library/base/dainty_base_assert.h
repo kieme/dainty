@@ -41,6 +41,7 @@ namespace assertion
   using types::t_bool;
   using types::t_void;
   using types::P_cstr_;
+
   using specific::P_cstr;
 
 ///////////////////////////////////////////////////////////////////////////////

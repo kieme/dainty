@@ -45,7 +45,7 @@ namespace assertion
   t_void assert_now(P_cstr reason) noexcept {
     {
       t_out out;
-      out << "assert: "_SL << get(reason);
+      out << "assert: "_SL << string::mk_range(reason);
     }
 
     p_void array[20];

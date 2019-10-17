@@ -208,8 +208,8 @@ namespace impl_
     return true;
   }
 
-  t_n length_(P_cstr_ str) noexcept {
-    return t_n{std::strlen(str)};
+  t_n length_(P_cstr str) noexcept {
+    return t_n{std::strlen(get(str))};
   }
 
   t_n length_(t_crange fmt, va_list vars) noexcept {
@@ -607,10 +607,21 @@ namespace impl_
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  t_void t_impl_base_::assign(t_buf_range, t_crange) noexcept {
+  }
+
+  t_void t_impl_base_::assign(t_buf_range, t_block) noexcept {
+  }
+
+  t_void t_impl_base_::assign(t_buf_range, t_crange, va_list) noexcept {
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
   t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,
                                             t_crange range) noexcept {
-    if (len_ + specific::get(range.n) < specific::get(store.n))
-      t_impl_base_::assign_(store, range);
+    if (len_ + get(range.n) < get(store.n))
+      t_impl_base_::assign(store, range);
     else
       assert_now(P_cstr{"t_string: "}); // XXX
   }
