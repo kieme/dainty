@@ -72,46 +72,21 @@ namespace impl_
     }
   }
 
-  t_n build(t_buf_range store, t_crange fmt, va_list vars,
-            t_overflow_grow) noexcept {
+  t_n build_(t_buf_range store, t_crange fmt, va_list vars) noexcept {
+    if (fmt == VALID && store == VALID) {
+      auto n = std::vsnprintf(store.ptr, get(store.n), fmt.ptr, vars);
+      return t_n(n);
+    }
+    return 0_n;
+  }
+
+  t_n try_build(t_buf_range store, t_crange fmt, va_list vars) noexcept {
     if (fmt == VALID) {
-      auto max = get(store.n);
       va_list args;
       va_copy(args, vars);
-      t_n_ n = std::vsnprintf(store.ptr, max, fmt.ptr, args);
+      t_n_ n = std::vsnprintf(store.ptr, get(store.n), fmt.ptr, args);
       va_end(args);
       return t_n{n};
-    }
-    return 0_n;
-  }
-
-  t_n build_(t_buf_range store, t_crange fmt, va_list vars,
-             t_overflow_assert) noexcept {
-    if (fmt == VALID) {
-      if (store == VALID) {
-        auto max = get(store.n);
-        auto n = std::vsnprintf(store.ptr, max, fmt.ptr, vars);
-        if (n > 0 && (t_n_)n < max)
-          return t_n(n); // type can be bigger than t_n
-      }
-      assert_now(P_cstr("failed to build, buffer might be too small"));
-    }
-    return 0_n;
-  }
-
-  t_n build_(t_buf_range store, t_crange fmt, va_list vars,
-             t_overflow_truncate) noexcept {
-    if (fmt == VALID) {
-      if (store == VALID) {
-        auto max = get(store.n);
-        auto n = std::vsnprintf(store.ptr, max, fmt.ptr, vars);
-        if (n > 0) {
-          if ((t_n_)n >= max)
-            n = max - 1;
-          return t_n(n); // type can be bigger than t_n
-        }
-        assert_now(P_cstr("failed to build, std::vsnprintf failed"));
-      }
     }
     return 0_n;
   }
@@ -256,13 +231,13 @@ namespace impl_
 
   t_bool t_impl_base_::remove(t_buf_range store, t_begin_ix _begin,
                               t_end_ix _end) noexcept {
-    auto begin = get(_begin), end = get(_end);
-    if (begin < end && end <= len_) {
+    auto begin = get(_begin), end = get(_end), len = get(len_);
+    if (begin < end && end <= len) {
       t_n_ remove_n = end - begin;
-      while (end != len_)
+      while (end != len)
         store[t_ix(begin++)] = store[t_ix(end++)];
       store[t_ix{begin}] = '\0';
-      len_ -= remove_n;
+      len_ = t_n{len - remove_n};
       return true;
     }
     return false;
@@ -599,58 +574,81 @@ namespace impl_
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  t_void t_impl_base_::assign(t_buf_range, t_crange) noexcept {
+  t_impl_<t_overflow_assert>::t_impl_(t_buf_range store,
+                                      t_crange range) noexcept
+      : t_impl_base_{store} {
+    assign(store, range);
   }
 
-  t_void t_impl_base_::assign(t_buf_range, t_block) noexcept {
+  t_impl_<t_overflow_assert>::t_impl_(t_buf_range store,
+                                      t_block block) noexcept
+      : t_impl_base_{store} {
+    assign(store, block);
   }
-
-  t_void t_impl_base_::assign(t_buf_range, t_crange, va_list) noexcept {
-  }
-
-////////////////////////////////////////////////////////////////////////////////
 
   t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,
                                             t_crange range) noexcept {
-    if (len_ + get(range.n) < get(store.n))
-      t_impl_base_::assign(store, range);
-    else
-      assert_now(P_cstr{"t_string: "}); // XXX
+    len_ = copy_(store, range, OVERFLOW_ASSERT);
   }
 
   t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,
                                             t_block block) noexcept {
+    len_ = fill_(store, range, OVERFLOW_ASSERT);
   }
 
-  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store, t_crange range,
+  t_void t_impl_<t_overflow_assert>::assign(t_buf_range store, t_crange fmt,
                                             va_list vars) noexcept {
+    len_ = build_(store, fmt, vars, OVERFLOW_ASSERT);
   }
 
   t_void t_impl_<t_overflow_assert>::append(t_buf_range store,
                                             t_crange range) noexcept {
+    if (get(len_) + get(range.n) >= get(store.n))
+      assert_now(P_cstr{"t_string: append range"});
+    t_impl_base_::append(store, range);
   }
 
   t_void t_impl_<t_overflow_assert>::append(t_buf_range store,
                                             t_block block) noexcept {
+    if (get(len_) + get(block.n) >= get(store.n))
+      assert_now(P_cstr{"t_string: append block"});
+    t_impl_base_::append(store, block);
   }
 
-  t_void t_impl_<t_overflow_assert>::append(t_buf_range store, t_crange range,
+  t_void t_impl_<t_overflow_assert>::append(t_buf_range store, t_crange fmt,
                                             va_list vars) noexcept {
+    len_ = build_(store.mk_range(t_begin_ix{get(len_)}), fmt, vars,
+                                 OVERFLOW_ASSERT); // XXX
   }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+  t_impl_<t_overflow_truncate>::t_impl_(t_buf_range store,
+                                        t_crange range) noexcept
+      : t_impl_base_{store} {
+    assign(store, range);
+  }
+
+  t_impl_<t_overflow_truncate>::t_impl_(t_buf_range store,
+                                        t_block block) noexcept
+      : t_impl_base_{store} {
+    assign(store, block);
+  }
 
   t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
                                               t_crange range) noexcept {
+    t_impl_base_::assign(store, range);
   }
 
   t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
                                               t_block block) noexcept {
+    t_impl_base_::assign(store, block);
   }
 
   t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
-                                              t_crange range,
+                                              t_crange fmt,
                                               va_list vars) noexcept {
+    len_ = build_(store, fmt, vars, OVERFLOW_TRUNCATE);
   }
 
   t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,

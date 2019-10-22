@@ -194,8 +194,7 @@ namespace string
   template<class TAG>
   inline
   t_string<TAG, 0, t_overflow_grow>::t_string(t_cstr_cptr_ fmt,
-                                              ...) noexcept
-      : impl_{store_} { // XXX this is a problem
+                                              ...) noexcept : impl_{store_} {
     va_list vars;
     va_start(vars, fmt);
     impl_.assign(store_, string::mk_range(fmt), vars);
