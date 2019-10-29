@@ -69,9 +69,9 @@ namespace impl_
   using types::t_ullong;
   using types::r_ullong;
   using types::t_uintptr;
-  using types::p_cstr_;      // XXX
-  using types::P_cstr_;      // XXX
-  using types::t_cstr_cptr_; // XXX
+  using types::p_cstr_;      // XXX-1
+  using types::P_cstr_;      // XXX-2
+  using types::t_cstr_cptr_; // XXX-3
   using types::t_n_;
   using types::t_ix_;
 
@@ -79,8 +79,8 @@ namespace impl_
   using specific::operator""_begin_ix;
   using specific::operator""_end_ix;
   using specific::operator""_n;
-  using specific::P_cstr;      // XXX
-  using specific::t_cstr_cptr; // XXX
+  using specific::P_cstr;      // XXX-4
+  using specific::t_cstr_cptr; // XXX-5
   using specific::t_n;
   using specific::r_n;
   using specific::t_ix;
@@ -117,8 +117,8 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  // pattern XXX
-  // format  XXX
+  // pattern XXX-6
+  // format  XXX-7
   using t_range_tag = range::t_cstr_range_tag_;
   using t_range     = range::t_cstr_range;
   using t_crange    = range::t_cstr_crange;
@@ -208,6 +208,7 @@ namespace impl_
   t_n build_assert_  (t_buf_range, t_crange, va_list) noexcept;
   t_n build_truncate_(t_buf_range, t_crange, va_list) noexcept;
 
+  // need a safe copy
   t_n copy_assert_  (t_buf_range, t_crange) noexcept;
   t_n copy_truncate_(t_buf_range, t_crange) noexcept;
   t_n fill_assert_  (t_buf_range, t_block)  noexcept;
@@ -513,7 +514,7 @@ namespace impl_
   t_void t_impl_base_::mod_(t_buf_range store, t_ix _pos, t_char ch) noexcept {
     auto pos = get(_pos);
     if (pos >= get(len_))
-      assertion::assert_now(P_cstr{"not in range"});
+      assert_now(P_cstr{"not in range"});
     store[_pos] = ch;
   }
 
@@ -542,7 +543,7 @@ namespace impl_
   inline
   t_impl_<t_overflow_assert>::t_impl_(t_buf_range store,
                                       t_block block) noexcept
-    : t_impl_base_{fill_assert_(store, range)} {
+    : t_impl_base_{fill_assert_(store, block)} {
   }
 
   inline
@@ -554,7 +555,7 @@ namespace impl_
   inline
   t_void t_impl_<t_overflow_assert>::assign(t_buf_range store,
                                             t_block block) noexcept {
-    len_ = fill_assert_(store, range);
+    len_ = fill_assert_(store, block);
   }
 
   inline
@@ -566,19 +567,19 @@ namespace impl_
   inline
   t_void t_impl_<t_overflow_assert>::append(t_buf_range store,
                                             t_crange range) noexcept {
-    len_ += copy_assert_(store, range);
+    len_ += copy_assert_(store.mk_range(t_begin_ix{get(len_)}), range);
   }
 
   inline
   t_void t_impl_<t_overflow_assert>::append(t_buf_range store,
                                             t_block block) noexcept {
-    len_ += fill_assert_(store.mk_range(t_begin_ix{get(len_)}), fmt, vars);
+    len_ += fill_assert_(store.mk_range(t_begin_ix{get(len_)}), block);
   }
 
   inline
   t_void t_impl_<t_overflow_assert>::append(t_buf_range store, t_crange fmt,
                                             va_list vars) noexcept {
-    len_ += build_(store.mk_range(t_begin_ix{get(len_)}), fmt, vars);
+    len_ += build_assert_(store.mk_range(t_begin_ix{get(len_)}), fmt, vars);
   }
 
   template<typename F>
@@ -587,7 +588,7 @@ namespace impl_
                                                    F&& func) noexcept {
     t_n n = func(store);
     if (get(n) >= get(store.n))
-      assertion::assert_now(P_cstr{"buffer overflow"});
+      assert_now(P_cstr{"buffer overflow"});
     len_ = n;
   }
 
@@ -599,7 +600,7 @@ namespace impl_
     t_n n = func(store.mk_range(t_begin_ix{len}));
     len += get(n);
     if (len >= max)
-      assertion::assert_now(P_cstr{"buffer overflow"});
+      assert_now(P_cstr{"buffer overflow"});
     len_ = t_n{len};
   }
 
@@ -614,7 +615,7 @@ namespace impl_
   inline
   t_impl_<t_overflow_truncate>::t_impl_(t_buf_range store,
                                         t_block block) noexcept
-    : t_impl_base_{fill_truncate_(store, range)} {
+    : t_impl_base_{fill_truncate_(store, block)} {
   }
 
   inline
@@ -626,7 +627,7 @@ namespace impl_
   inline
   t_void t_impl_<t_overflow_truncate>::assign(t_buf_range store,
                                               t_block block) noexcept {
-    len_ = fill_truncate_(store, range);
+    len_ = fill_truncate_(store, block);
   }
 
   inline
@@ -639,18 +640,18 @@ namespace impl_
   inline
   t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,
                                               t_crange range) noexcept {
-    len_ += copy_truncate_(store, range);
+    len_ += copy_truncate_(store.mk_range(t_begin_ix{get(len_)}), range);
   }
 
   inline
   t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,
                                               t_block block) noexcept {
-    len_ += fill_truncate_(store.mk_range(t_begin_ix{get(len_)}), fmt, vars);
+    len_ += fill_truncate_(store.mk_range(t_begin_ix{get(len_)}), block);
   }
 
   inline
   t_void t_impl_<t_overflow_truncate>::append(t_buf_range store,
-                                              t_crange range,
+                                              t_crange fmt,
                                               va_list vars) noexcept {
     len_ += build_truncate_(store.mk_range(t_begin_ix{get(len_)}), fmt, vars);
   }
@@ -704,14 +705,20 @@ namespace impl_
   inline
   t_void t_impl_<t_overflow_grow>::assign(t_grow_buf<N>& store,
                                           t_crange range) noexcept {
-    // XXX
+    auto len = range.n, max = store.get_capacity();
+    if (len >= max)
+      store.enlarge_to(len + 1);
+    len_ = copy_truncate_(store, range);
   }
 
   template<t_n_ N>
   inline
   t_void t_impl_<t_overflow_grow>::assign(t_grow_buf<N>& store,
                                           t_block block)  noexcept {
-    // XXX
+    auto len = block.n, max = store.get_capacity();
+    if (max <= len)
+      store.enlarge_to(len + 1);
+    len_ = fill_truncate_(store, block);
   }
 
   template<t_n_ N>
@@ -719,28 +726,27 @@ namespace impl_
   t_void t_impl_<t_overflow_grow>::assign(t_grow_buf<N>& store,
                                           t_crange fmt,
                                           va_list vars) noexcept {
-    // XXX
-    if (fmt == VALID && store == VALID) {
-      auto n = build_try_(store, fmt, vars);
-      if (get(n) >= get(store.n))
-        void(); // resize
-
-      len_ = build_assert_(store, fmt, vars);
-    }
+    // XXX-8
   }
 
   template<t_n_ N>
   inline
   t_void t_impl_<t_overflow_grow>::append(t_grow_buf<N>& store,
                                           t_crange range) noexcept {
-    // XXX
+    auto len = range.n + len_, max = store.get_capacity();
+    if (max <= len)
+      store.enlarge_to(len + 1);
+    len_ = copy_truncate_(store.mk_range(t_begin_ix{get(len_)}), range);
   }
 
   template<t_n_ N>
   inline
   t_void t_impl_<t_overflow_grow>::append(t_grow_buf<N>& store,
                                           t_block block)  noexcept {
-    // XXX
+    auto len = block.n + len_, max = store.get_capacity();
+    if (max <= len)
+      store.resize_to(len + 1);
+    len_ = fill_truncate_(store.mk_range(t_begin_ix{get(len_)}), block);
   }
 
   template<t_n_ N>
@@ -748,21 +754,29 @@ namespace impl_
   t_void t_impl_<t_overflow_grow>::append(t_grow_buf<N>& store,
                                           t_crange fmt,
                                           va_list vars) noexcept {
-    // XXX
+    // XXX-9
   }
 
   template<t_n_ N, typename F>
   inline
   t_void t_impl_<t_overflow_grow>::custom_assign(t_grow_buf<N>& store,
                                                  F&& func) noexcept {
-    // XXX
+    auto max = store.get_capacity();
+    t_n len = func(store);
+    if (max <= len)
+      store.enlarge_to(len + 1);
+    len_ = func(store);
   }
 
   template<t_n_ N, typename F>
   inline
   t_void t_impl_<t_overflow_grow>::custom_append(t_grow_buf<N>& store,
                                                  F&& func) noexcept {
-    // XXX
+    auto max = store.get_capacity();
+    t_n len = func(store.mk_range(t_begin_ix{get(len_)})) + len_;
+    if (len < max)
+      store.enlarge_to(len + 1);
+    len_ += func(store.mk_range(t_begin_ix{get(len_)}));
   }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -469,13 +469,71 @@ namespace specific
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_bool operator< (t_n lh, t_n rh) noexcept {
+  constexpr t_bool operator<(t_n lh, t_n rh) noexcept {
     return get(lh) < get(rh);
+  }
+
+  constexpr t_bool operator<(t_n_ lh, t_n rh) noexcept {
+    return lh < get(rh);
+  }
+
+  constexpr t_bool operator<(t_n lh, t_n_ rh) noexcept {
+    return get(lh) < rh;
   }
 
   constexpr t_bool operator<=(t_n lh, t_n rh) noexcept {
     return get(lh) <= get(rh);
   }
+
+  constexpr t_bool operator<=(t_n_ lh, t_n rh) noexcept {
+    return lh <= get(rh);
+  }
+
+  constexpr t_bool operator<=(t_n lh, t_n_ rh) noexcept {
+    return get(lh) <= rh;
+  }
+
+  constexpr t_n operator+(t_n lh, t_n rh) noexcept {
+    return t_n(get(lh) + get(rh)); // can check for overflow - XXX
+  }
+
+  constexpr t_n operator+(t_n_ lh, t_n rh) noexcept {
+    return t_n(lh + get(rh)); // can check for overflow - XXX
+  }
+
+  constexpr t_n operator+(t_n lh, t_n_ rh) noexcept {
+    return t_n(get(lh) + rh); // can check for overflow - XXX
+  }
+
+  constexpr t_n operator-(t_n lh, t_n rh) noexcept {
+    return t_n(get(lh) - get(rh)); // can check for overflow - XXX
+  }
+
+  constexpr t_n operator-(t_n_ lh, t_n rh) noexcept {
+    return t_n(lh - get(rh)); // can check for overflow - XXX
+  }
+
+  constexpr t_n operator-(t_n lh, t_n_ rh) noexcept {
+    return t_n(get(lh) - rh); // can check for overflow - XXX
+  }
+
+  constexpr r_n operator+=(r_n lh, t_n rh) noexcept {
+    return lh = t_n(get(lh) + get(rh)); // can check for overflow - XXX
+  }
+
+  constexpr r_n operator+=(r_n lh, t_n_ rh) noexcept {
+    return lh = t_n(get(lh) + rh); // can check for overflow - XXX
+  }
+
+  constexpr r_n operator-=(r_n lh, t_n rh) noexcept {
+    return lh = t_n(get(lh) - get(rh)); // can check for overflow - XXX
+  }
+
+  constexpr r_n operator-=(r_n lh, t_n_ rh) noexcept {
+    return lh = t_n(get(lh) - rh); // can check for overflow - XXX
+  }
+
+///////////////////////////////////////////////////////////////////////////////
 
   constexpr t_bool operator< (t_ix lh, t_ix rh) noexcept {
     return get(lh) < get(rh);

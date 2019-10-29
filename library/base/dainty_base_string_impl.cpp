@@ -179,7 +179,7 @@ namespace impl_
   }
 
   t_bool equal_(t_crange lh, t_crange rh) noexcept {
-    auto len1 = get(lh.n), len2 = get(rh.n); // XXX
+    auto len1 = get(lh.n), len2 = get(rh.n); // XXX-1
     if (len1 == len2)
       return lh.ptr != rh.ptr ? (std::strncmp(lh.ptr, rh.ptr, len1) == 0)
                               : true;
@@ -199,7 +199,7 @@ namespace impl_
     auto len1 = get(lh.n), len2 = get(rh.n);
     if (lh.ptr != rh.ptr) {
       auto ret = std::strncmp(lh.ptr, rh.ptr, len1 < len2 ? len1 : len2);
-      return !ret ? len1 <= len2 : ret < 0; // XXX - ok?
+      return !ret ? len1 <= len2 : ret < 0; // XXX-2
     }
     return true;
   }
@@ -221,7 +221,7 @@ namespace impl_
 
   t_bool match_(t_crange str, t_crange pattern) noexcept {
     if (str == VALID && pattern == VALID) {
-      P_cstr_ l = nullptr, s = str.ptr, p = pattern.ptr; // XXX not fully correct
+      P_cstr_ l = nullptr, s = str.ptr, p = pattern.ptr; // XXX-3
       while (*p && *s) {
                if (*p == *s)      ++p;
           else if (*p == '*') l = ++p;
@@ -343,14 +343,14 @@ namespace impl_
   }
 
   t_n int_to_str_(t_buf_range range, t_llong value) noexcept {
-    T_bool neg = value < 0; // XXX
+    T_bool neg = value < 0; // XXX-4
     if (neg) {
       value = -value;
       if (get(range.n) > 2) {
         *range.ptr = '-';
         return t_n(get(uint_to_str_(range.mk_range(t_begin_ix{1}), value)) + 1);
       }
-      // XXX
+      // XXX-5
     }
     return uint_to_str_(range, value);
   }
@@ -430,7 +430,7 @@ namespace impl_
       t_ix_ ix = 0;
       for (; ix < n && range[t_ix{ix}] == block.value; ++ix);
       if (ix == n)
-        return block.n; // check XXX
+        return block.n; // XXX-6
     }
 
     assertion::assert_now(P_cstr("range not the same"));
@@ -586,11 +586,11 @@ namespace impl_
   }
 
   t_n shift_right_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
-    return t_n{len < max ? len : max - 1}; // XXX - not implemented
+    return t_n{len < max ? len : max - 1}; // XXX-7
   }
 
   t_n shift_centre_(p_cstr_ str, t_n_ max, t_n_ len, t_n_ width) noexcept {
-    return shift_left_(str, max, len, width); // XXX - not implemented
+    return shift_left_(str, max, len, width); // XXX-8
   }
 
 ////////////////////////////////////////////////////////////////////////////////

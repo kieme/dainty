@@ -557,15 +557,19 @@ namespace string
     t_crange_to_str_helper_(t_crange _value) noexcept : value{_value} {
     }
 
-    template<typename O>
     inline
-    t_n operator()(t_buf_range range, O overflow) noexcept {
-      return impl_::copy_(range, value, overflow);
+    t_n operator()(t_buf_range range, t_overflow_assert) noexcept {
+      return impl_::copy_assert_(range, value);
+    }
+
+    inline
+    t_n operator()(t_buf_range range, t_overflow_truncate) noexcept {
+      return impl_::copy_truncate_(range, value);
     }
 
     inline
     t_n operator()(t_buf_range range, t_overflow_grow) noexcept {
-      return impl_::copy_(range, value, OVERFLOW_TRUNCATE);
+      return impl_::copy_truncate_(range, value);
     }
 
     t_crange value;
