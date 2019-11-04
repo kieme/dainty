@@ -38,6 +38,8 @@ namespace base
 {
 namespace buf
 {
+namespace impl_
+{
 ////////////////////////////////////////////////////////////////////////////////
 
   using types::t_prefix;
@@ -80,11 +82,6 @@ namespace buf
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  template<typename, t_n_, typename = t_size_dynamic>
-  class t_buf;
-
-////////////////////////////////////////////////////////////////////////////////
-
   p_void mem_alloc_  (t_n)         noexcept;
   p_void mem_realloc_(p_void, t_n) noexcept;
   t_void mem_dealloc_(p_void)      noexcept;
@@ -92,20 +89,24 @@ namespace buf
 ////////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  inline T* alloc_(t_n n = 1_n) noexcept {
+  inline
+  T* alloc_(t_n n = 1_n) noexcept {
     return reinterpret_cast<T*>(mem_alloc_(t_n(sizeof(T) * get(n))));
   }
 
   template<typename T>
-  inline T* realloc_(p_void obj, t_n n = 1_n) noexcept {
+  inline
+  T* realloc_(p_void obj, t_n n = 1_n) noexcept {
     return reinterpret_cast<T*>(mem_realloc_(obj, t_n(sizeof(T) * get(n))));
   }
 
-  inline t_void dealloc_(p_void obj) noexcept {
+  inline
+  t_void dealloc_(p_void obj) noexcept {
     return mem_dealloc_(obj);
   }
 
 ////////////////////////////////////////////////////////////////////////////////
+}
 }
 }
 }

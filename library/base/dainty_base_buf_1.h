@@ -37,15 +37,40 @@ namespace buf
 {
 ////////////////////////////////////////////////////////////////////////////////
 
+  using impl_::t_bool;
+  using impl_::t_n;
+  using impl_::t_void;
+  using impl_::t_ix;
+  using impl_::t_begin_ix;
+  using impl_::t_end_ix;
+  using impl_::t_validity;
+  using impl_::operator""_ix;
+  using impl_::operator""_begin_ix;
+  using impl_::operator""_n;
+  using impl_::VALID;
+  using impl_::INVALID;
+  using impl_::t_ptr;
+  using impl_::mk_range;
+  using impl_::mk_crange;
+  using impl_::t_range;
+  using impl_::t_crange;
+
+////////////////////////////////////////////////////////////////////////////////
+
+  template<typename, t_n_, typename = t_size_dynamic>
+  class t_buf;
+
+////////////////////////////////////////////////////////////////////////////////
+
   template<typename T>
   class t_buf<T, 0, t_size_dynamic> {
   public:
-    using t_value      = typename t_prefix<T>::t_;
-    using r_value      = typename t_prefix<T>::r_;
-    using R_value      = typename t_prefix<T>::R_;
-    using p_value      = typename t_prefix<T>::p_;
-    using P_value      = typename t_prefix<T>::P_;
-    using x_value      = typename t_prefix<T>::x_;
+    using t_value      = typename impl_::t_prefix<T>::t_;
+    using r_value      = typename impl_::t_prefix<T>::r_;
+    using R_value      = typename impl_::t_prefix<T>::R_;
+    using p_value      = typename impl_::t_prefix<T>::p_;
+    using P_value      = typename impl_::t_prefix<T>::P_;
+    using x_value      = typename impl_::t_prefix<T>::x_;
     using t_buf_range  = buf::t_buf_range<t_value>;
     using t_buf_crange = buf::t_buf_crange<t_value>;
 
@@ -94,20 +119,34 @@ namespace buf
 
     t_void enlarge_by(t_n) noexcept;
     t_void resize_to (t_n) noexcept;
+    t_ptr_ release()       noexcept; // allow release
 
-    template<typename TAG> t_range <T, TAG> mk_range ()       noexcept;
-    template<typename TAG> t_crange<T, TAG> mk_range () const noexcept;
-    template<typename TAG> t_crange<T, TAG> mk_crange() const noexcept;
+    /*
+    template<typename TAG>
+    t_range <T, TAG> mk_range ()       noexcept;
+    template<typename TAG>
+    t_crange<T, TAG> mk_range () const noexcept;
+    template<typename TAG>
+    t_crange<T, TAG> mk_crange() const noexcept;
 
-    template<typename TAG> t_range <T, TAG> mk_range (t_ix)       noexcept;
-    template<typename TAG> t_crange<T, TAG> mk_range (t_ix) const noexcept;
-    template<typename TAG> t_crange<T, TAG> mk_crange(t_ix) const noexcept;
+    template<typename TAG>
+    t_range <T, TAG> mk_range (t_ix)       noexcept;
+    template<typename TAG>
+    t_crange<T, TAG> mk_range (t_ix) const noexcept;
+    template<typename TAG>
+    t_crange<T, TAG> mk_crange(t_ix) const noexcept;
 
-    template<typename TAG> t_range <T, TAG> mk_range (t_ix, t_ix)       noexcept;
-    template<typename TAG> t_crange<T, TAG> mk_range (t_ix, t_ix) const noexcept;
-    template<typename TAG> t_crange<T, TAG> mk_crange(t_ix, t_ix) const noexcept;
+    template<typename TAG>
+    t_range <T, TAG> mk_range (t_ix, t_ix)       noexcept;
+    template<typename TAG>
+    t_crange<T, TAG> mk_range (t_ix, t_ix) const noexcept;
+    template<typename TAG>
+    t_crange<T, TAG> mk_crange(t_ix, t_ix) const noexcept;
+    */
 
   private:
+    using t_valuestore = impl_::t_valuestore<t_value>;
+
     t_n_      max_ = 0;
     t_ptr_<T> ptr_ = nullptr;
   };
@@ -117,7 +156,7 @@ namespace buf
   template<typename T>
   inline
   t_buf<T, 0, t_size_dynamic>::t_buf(t_n max) noexcept
-      : max_{get(max)}, ptr_{alloc_<t_valuestore<t_value>>(max)} {
+      : max_{get(max)}, ptr_{impl_::alloc_<t_valuestore>(max)} {
   }
 
   template<typename T>
@@ -125,7 +164,7 @@ namespace buf
   inline
   t_buf<T, 0, t_size_dynamic>::t_buf(t_n max, t_emplace_it,
                                      F&& func) noexcept
-      : max_{get(max)}, ptr_{alloc_<t_valuestore<t_value>>(max)} {
+      : max_{get(max)}, ptr_{impl_::alloc_<t_valuestore>(max)} {
     func(max, ptr_.get());
   }
 
@@ -220,14 +259,14 @@ namespace buf
   inline
   t_void t_buf<T, 0, t_size_dynamic>::enlarge_by(t_n by) noexcept {
     max_ += get(by);
-    ptr_ = realloc_<t_valuestore<t_value>>(ptr_.release(), t_n{max_});
+    ptr_ = impl_::realloc_<t_valuestore>>(ptr_.release(), t_n{max_});
   }
 
   template<typename T>
   inline
   t_void t_buf<T, 0, t_size_dynamic>::resize_to(t_n n) noexcept {
     max_ = get(n);
-    ptr_ = realloc_<t_valuestore<t_value>>(ptr_.release(), n);
+    ptr_ = impl_::realloc_<t_valuestore>(ptr_.release(), n);
   }
 
   template<typename T>
@@ -328,6 +367,7 @@ namespace buf
     return get_cref(ix);
   }
 
+  /*
   template<typename T>
   template<typename TAG>
   inline
@@ -397,6 +437,7 @@ namespace buf
       ::mk_crange(t_ix begin, t_ix end) const noexcept {
     return buf::mk_crange(mk_crange(), begin, end);
   }
+  */
 
 ////////////////////////////////////////////////////////////////////////////////
 }

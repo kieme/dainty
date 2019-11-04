@@ -27,7 +27,7 @@
 #ifndef _DAINTY_BASE_BUF_3_H_
 #define _DAINTY_BASE_BUF_3_H_
 
-#include "dainty_base_buf_impl.h"
+#include "dainty_base_buf_1.h"
 
 namespace dainty
 {
@@ -40,12 +40,12 @@ namespace buf
   template<typename T, t_n_ N>
   class t_buf<T, N, t_size_static> {
   public:
-    using t_value      = typename t_prefix<T>::t_;
-    using r_value      = typename t_prefix<T>::r_;
-    using R_value      = typename t_prefix<T>::R_;
-    using p_value      = typename t_prefix<T>::p_;
-    using P_value      = typename t_prefix<T>::P_;
-    using x_value      = typename t_prefix<T>::x_;
+    using t_value      = typename impl_::t_prefix<T>::t_;
+    using r_value      = typename impl_::t_prefix<T>::r_;
+    using R_value      = typename impl_::t_prefix<T>::R_;
+    using p_value      = typename impl_::t_prefix<T>::p_;
+    using P_value      = typename impl_::t_prefix<T>::P_;
+    using x_value      = typename impl_::t_prefix<T>::x_;
     using t_buf_range  = buf::t_buf_range<t_value>;
     using t_buf_crange = buf::t_buf_crange<t_value>;
 
@@ -90,20 +90,33 @@ namespace buf
     P_value  end  () const noexcept;
     P_value cend  () const noexcept;
 
-    template<typename TAG> t_range <T, TAG> mk_range ()       noexcept;
-    template<typename TAG> t_crange<T, TAG> mk_range () const noexcept;
-    template<typename TAG> t_crange<T, TAG> mk_crange() const noexcept;
+    /*
+    template<typename TAG>
+    t_range <T, TAG> mk_range ()       noexcept;
+    template<typename TAG>
+    t_crange<T, TAG> mk_range () const noexcept;
+    template<typename TAG>
+    t_crange<T, TAG> mk_crange() const noexcept;
 
-    template<typename TAG> t_range <T, TAG> mk_range (t_ix)       noexcept;
-    template<typename TAG> t_crange<T, TAG> mk_range (t_ix) const noexcept;
-    template<typename TAG> t_crange<T, TAG> mk_crange(t_ix) const noexcept;
+    template<typename TAG>
+    t_range <T, TAG> mk_range (t_ix)       noexcept;
+    template<typename TAG>
+    t_crange<T, TAG> mk_range (t_ix) const noexcept;
+    template<typename TAG>
+    t_crange<T, TAG> mk_crange(t_ix) const noexcept;
 
-    template<typename TAG> t_range <T, TAG> mk_range (t_ix, t_ix)       noexcept;
-    template<typename TAG> t_crange<T, TAG> mk_range (t_ix, t_ix) const noexcept;
-    template<typename TAG> t_crange<T, TAG> mk_crange(t_ix, t_ix) const noexcept;
+    template<typename TAG>
+    t_range <T, TAG> mk_range (t_ix, t_ix)       noexcept;
+    template<typename TAG>
+    t_crange<T, TAG> mk_range (t_ix, t_ix) const noexcept;
+    template<typename TAG>
+    t_crange<T, TAG> mk_crange(t_ix, t_ix) const noexcept;
+    */
 
   private:
-    t_valuestore<T> store_[N];
+    using t_valuestore = impl_::t_valuestore<t_value>;
+
+    t_valuestore store_[N];
   };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -288,6 +301,7 @@ namespace buf
     return get_cref(ix);
   }
 
+  /*
   template<typename T, t_n_ N>
   template<typename TAG>
   inline
@@ -357,6 +371,7 @@ namespace buf
       ::mk_crange(t_ix begin, t_ix end) const noexcept {
     return buf::mk_crange(mk_crange(), begin, end);
   }
+  */
 
 ///////////////////////////////////////////////////////////////////////////////
 }

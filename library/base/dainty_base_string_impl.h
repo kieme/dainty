@@ -660,27 +660,26 @@ namespace impl_
   inline
   t_void t_impl_<t_overflow_truncate>::custom_assign(t_buf_range store,
                                                      F&& func) noexcept {
-    t_n n = func(store);
-    auto len = get(n), max = get(store.n);
-    if (len >= max)
+    auto max = store.n;
+    t_n len = func(store);
+    if (max <= len)
       len = max - 1;
 
-    store[t_ix{len}] = '\0';
-    len_ = t_n{len};
+    store[t_ix{get(len)}] = '\0';
+    len_ = len;
   }
 
   template<typename F>
   inline
   t_void t_impl_<t_overflow_truncate>::custom_append(t_buf_range store,
                                                      F&& func) noexcept {
-    auto len = get(len_), max = get(store.n);
-    t_n n = func(store.mk_range(t_begin_ix{len}));
-    len += get(n);
-    if (len >= max)
+    auto max = store.n;
+    t_n len = func(store.mk_range(t_begin_ix{get(len_)})) + len_;
+    if (max <= len)
       len = max - 1;
 
-    store[t_ix{len}] = '\0';
-    len_ = t_n{len};
+    store[t_ix{get(len)}] = '\0';
+    len_ = len;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -707,7 +706,7 @@ namespace impl_
                                           t_crange range) noexcept {
     auto len = range.n, max = store.get_capacity();
     if (len >= max)
-      store.enlarge_to(len + 1);
+      store.resize_to(len + 1);
     len_ = copy_truncate_(store, range);
   }
 
@@ -717,7 +716,7 @@ namespace impl_
                                           t_block block)  noexcept {
     auto len = block.n, max = store.get_capacity();
     if (max <= len)
-      store.enlarge_to(len + 1);
+      store.resize_to(len + 1);
     len_ = fill_truncate_(store, block);
   }
 

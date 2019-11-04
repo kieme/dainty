@@ -43,9 +43,10 @@ namespace buf
 // it could be used by nearly all my container structures.
 // it takes care where the memory comes from - maybe use an allocator
 //
-//                              class t_buf<T, 0, t_size_dynamic>
 // template<typename T, t_n_ N> class t_buf<T, N, t_size_dynamic>
+// template<typename T>         class t_buf<T, 0, t_size_dynamic>
 // template<typename T, t_n_ N> class t_buf<T, N, t_size_static>
+// template<typename T>         class t_buf<T, 1, t_size_static>
 
 ///////////////////////////////////////////////////////////////////////////////
 }
