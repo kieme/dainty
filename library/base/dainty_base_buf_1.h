@@ -38,14 +38,13 @@ namespace buf
 ////////////////////////////////////////////////////////////////////////////////
 
   using impl_::t_bool;
+  using impl_::t_n_;
   using impl_::t_n;
   using impl_::t_void;
   using impl_::t_ix;
-  using impl_::t_begin_ix;
-  using impl_::t_end_ix;
+  using impl_::t_size_dynamic;
   using impl_::t_validity;
   using impl_::operator""_ix;
-  using impl_::operator""_begin_ix;
   using impl_::operator""_n;
   using impl_::VALID;
   using impl_::INVALID;
@@ -53,6 +52,8 @@ namespace buf
   using impl_::mk_crange;
   using impl_::t_range;
   using impl_::t_crange;
+  using impl_::t_buf_range;
+  using impl_::t_buf_crange;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -70,8 +71,8 @@ namespace buf
     using p_value      = typename impl_::t_prefix<T>::p_;
     using P_value      = typename impl_::t_prefix<T>::P_;
     using x_value      = typename impl_::t_prefix<T>::x_;
-    using t_buf_range  = buf::t_buf_range<t_value>;
-    using t_buf_crange = buf::t_buf_crange<t_value>;
+    using t_buf_range  = impl_::t_buf_range<t_value>;
+    using t_buf_crange = impl_::t_buf_crange<t_value>;
 
     t_buf()    noexcept = default;
     t_buf(t_n) noexcept;
@@ -116,15 +117,18 @@ namespace buf
     P_value  end  () const noexcept;
     P_value cend  () const noexcept;
 
-    t_void  enlarge_by(t_n) noexcept; // they must copy
-    t_void  resize_to (t_n) noexcept;
-    p_value release()       noexcept; // allow release - XXX
+    t_void      enlarge_by(t_n) noexcept; // they must copy
+    t_void      resize_to (t_n) noexcept;
+    t_buf_range release()       noexcept; // allow release - XXX
 
   private:
     using t_valuestore = impl_::t_valuestore<t_value>;
     using t_ptr_       = impl_::t_ptr_<t_value>;
 
-    t_n_   max  = 0_n;
+    t_bool is_valid_  (t_ix) const noexcept;
+    t_ix   get_end_ix_()     const noexcept;
+
+    t_n    max_ = 0_n;
     t_ptr_ ptr_ = nullptr;
   };
 
@@ -151,6 +155,18 @@ namespace buf
     if (ptr_)
       impl_::dealloc_(ptr_.release());
     max_ = 0_n;
+  }
+
+  template<typename T>
+  inline
+  t_bool t_buf<T, 0, t_size_dynamic>::is_valid_(t_ix ix) const noexcept {
+    return get(ix) < get(max_);
+  }
+
+  template<typename T>
+  inline
+  t_ix t_buf<T, 0, t_size_dynamic>::get_end_ix_() const noexcept {
+    return t_ix{get(max_)};
   }
 
   template<typename T>
@@ -195,7 +211,7 @@ namespace buf
   inline
   typename t_buf<T, 0, t_size_dynamic>::p_value
       t_buf<T, 0, t_size_dynamic>::construct(t_ix ix) noexcept {
-    if (get(ix) < get(max_))
+    if (is_valid_(ix))
       return ptr_[ix].default_construct();
     return nullptr;
   }
@@ -205,7 +221,7 @@ namespace buf
   typename t_buf<T, 0, t_size_dynamic>::p_value
       t_buf<T, 0, t_size_dynamic>
         ::construct(t_ix ix, R_value value) noexcept {
-    if (get(ix) < get(max_))
+    if (is_valid_(ix))
       return ptr_[ix].copy_construct(value);
     return nullptr;
   }
@@ -215,7 +231,7 @@ namespace buf
   typename t_buf<T, 0, t_size_dynamic>::p_value
       t_buf<T, 0, t_size_dynamic>
         ::construct(t_ix ix, x_value value) noexcept {
-    if (get(ix) < get(max_))
+    if (is_valid_(ix))
       return ptr_[ix].move_construct(base::x_cast(value));
     return nullptr;
   }
@@ -226,7 +242,7 @@ namespace buf
   typename t_buf<T, 0, t_size_dynamic>::p_value
       t_buf<T, 0, t_size_dynamic>
         ::construct(t_emplace_it, t_ix ix, Args&&... args) noexcept {
-    if (get(ix) < get(max_))
+    if (is_valid_(ix))
       return ptr_[ix].emplace_construct(base::preserve<Args>(args)...);
     return nullptr;
   }
@@ -234,15 +250,14 @@ namespace buf
   template<typename T>
   inline
   t_void t_buf<T, 0, t_size_dynamic>::destruct(t_ix ix) noexcept {
-    if (get(ix) < get(max_))
+    if (is_valid_(ix))
       ptr_[ix].destruct();
   }
 
   template<typename T>
   inline
   t_void t_buf<T, 0, t_size_dynamic>::enlarge_by(t_n by) noexcept {
-    max_ += by;
-    ptr_ = impl_::realloc_<t_valuestore>>(ptr_.release(), max_);
+    resize_to(max_ + by);
   }
 
   template<typename T>
@@ -277,28 +292,28 @@ namespace buf
   inline
   typename t_buf<T, 0, t_size_dynamic>::p_value
       t_buf<T, 0, t_size_dynamic>::end() noexcept {
-    return ptr_[t_ix{get(max_)}].ptr();
+    return ptr_[get_end_ix_()].ptr();
   }
 
   template<typename T>
   inline
   typename t_buf<T, 0, t_size_dynamic>::P_value
       t_buf<T, 0, t_size_dynamic>::end() const noexcept {
-    return ptr_[t_ix{get(max_)}].cptr();
+    return ptr_[get_end_ix_()].cptr();
   }
 
   template<typename T>
   inline
   typename t_buf<T, 0, t_size_dynamic>::P_value
       t_buf<T, 0, t_size_dynamic>::cend() const noexcept {
-    return ptr_[t_ix{get(max_)}].cptr();
+    return ptr_[get_end_ix_()].cptr();
   }
 
   template<typename T>
   inline
   typename t_buf<T, 0, t_size_dynamic>::p_value
       t_buf<T, 0, t_size_dynamic>::get_ptr(t_ix ix) noexcept {
-    if (get(ix) < get(max_))
+    if (is_valid_(ix))
       return ptr_[ix].ptr();
     return nullptr;
   }
@@ -307,7 +322,7 @@ namespace buf
   inline
   typename t_buf<T, 0, t_size_dynamic>::P_value
       t_buf<T, 0, t_size_dynamic>::get_ptr(t_ix ix) const noexcept {
-    if (get(ix) < get(max_))
+    if (is_valid_(ix))
       return ptr_[ix].ptr();
     return nullptr;
   }
@@ -316,7 +331,7 @@ namespace buf
   inline
   typename t_buf<T, 0, t_size_dynamic>::P_value
       t_buf<T, 0, t_size_dynamic>::get_cptr(t_ix ix) const noexcept {
-    if (get(ix) < get(max_))
+    if (is_valid_(ix))
       return ptr_[ix].cptr();
     return nullptr;
   }

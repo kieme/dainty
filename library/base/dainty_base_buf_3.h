@@ -37,6 +37,10 @@ namespace buf
 {
 ///////////////////////////////////////////////////////////////////////////////
 
+  using impl_::t_size_static;
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<typename T, t_n_ N>
   class t_buf<T, N, t_size_static> {
   public:
@@ -46,8 +50,8 @@ namespace buf
     using p_value      = typename impl_::t_prefix<T>::p_;
     using P_value      = typename impl_::t_prefix<T>::P_;
     using x_value      = typename impl_::t_prefix<T>::x_;
-    using t_buf_range  = buf::t_buf_range<t_value>;
-    using t_buf_crange = buf::t_buf_crange<t_value>;
+    using t_buf_range  = impl_::t_buf_range<t_value>;
+    using t_buf_crange = impl_::t_buf_crange<t_value>;
 
     t_buf() noexcept = default;
     template<typename F>
@@ -56,6 +60,7 @@ namespace buf
     t_buf(const t_buf&)            = delete;
     t_buf& operator=(const t_buf&) = delete;
 
+    constexpr
     t_bool   use_heap    () const noexcept;
     constexpr
     t_n      get_capacity() const noexcept;
@@ -90,31 +95,10 @@ namespace buf
     P_value  end  () const noexcept;
     P_value cend  () const noexcept;
 
-    /*
-    template<typename TAG>
-    t_range <T, TAG> mk_range ()       noexcept;
-    template<typename TAG>
-    t_crange<T, TAG> mk_range () const noexcept;
-    template<typename TAG>
-    t_crange<T, TAG> mk_crange() const noexcept;
-
-    template<typename TAG>
-    t_range <T, TAG> mk_range (t_ix)       noexcept;
-    template<typename TAG>
-    t_crange<T, TAG> mk_range (t_ix) const noexcept;
-    template<typename TAG>
-    t_crange<T, TAG> mk_crange(t_ix) const noexcept;
-
-    template<typename TAG>
-    t_range <T, TAG> mk_range (t_ix, t_ix)       noexcept;
-    template<typename TAG>
-    t_crange<T, TAG> mk_range (t_ix, t_ix) const noexcept;
-    template<typename TAG>
-    t_crange<T, TAG> mk_crange(t_ix, t_ix) const noexcept;
-    */
-
   private:
     using t_valuestore = impl_::t_valuestore<t_value>;
+
+    t_bool is_valid_(t_ix) const noexcept;
 
     t_valuestore store_[N];
   };
@@ -134,6 +118,12 @@ namespace buf
 
   template<typename T, t_n_ N>
   inline
+  t_bool t_buf<T, N, t_size_static>::is_valid_(t_ix ix) const noexcept {
+    return get(ix) < N;
+  }
+
+  template<typename T, t_n_ N>
+  constexpr
   t_bool t_buf<T, N, t_size_static>::use_heap() const noexcept {
     return false;
   }
@@ -166,7 +156,9 @@ namespace buf
   inline
   typename t_buf<T, N, t_size_static>::p_value
       t_buf<T, N, t_size_static>::construct(t_ix ix) noexcept {
-    return get(ix) < N ? store_[ix].default_construct() : nullptr;
+    if (is_valid_(ix))
+      return store_[ix].default_construct();
+    return nullptr;
   }
 
   template<typename T, t_n_ N>
@@ -174,7 +166,9 @@ namespace buf
   typename t_buf<T, N, t_size_static>::p_value
       t_buf<T, N, t_size_static>
         ::construct(t_ix ix, R_value value) noexcept {
-    return get(ix) < N ? store_[ix].copy_construct(value) : nullptr;
+    if (is_valid_(ix))
+      return store_[ix].copy_construct(value);
+    return nullptr;
   }
 
   template<typename T, t_n_ N>
@@ -182,8 +176,9 @@ namespace buf
   typename t_buf<T, N, t_size_static>::p_value
       t_buf<T, N, t_size_static>
         ::construct(t_ix ix, x_value value) noexcept {
-    return get(ix) < N ?
-      store_[ix].move_construct(base::x_cast(value)) : nullptr;
+    if (is_valid_(ix))
+      return store_[ix].move_construct(base::x_cast(value));
+    return nullptr;
   }
 
   template<typename T, t_n_ N>
@@ -192,14 +187,15 @@ namespace buf
   typename t_buf<T, N, t_size_static>::p_value
       t_buf<T, N, t_size_static>
         ::construct(t_emplace_it, t_ix ix, Args&&... args) noexcept {
-    return get(ix) < N ?
-      store_[ix].emplace_construct(base::preserve<Args>(args)...) : nullptr;
+    if (is_valid_(ix))
+      return store_[ix].emplace_construct(base::preserve<Args>(args)...);
+    return nullptr;
   }
 
   template<typename T, t_n_ N>
   inline
   t_void t_buf<T, N, t_size_static>::destruct(t_ix ix) noexcept {
-    if (get(ix) < N)
+    if (is_valid_(ix))
       store_[ix].destruct();
   }
 
@@ -249,21 +245,27 @@ namespace buf
   inline
   typename t_buf<T, N, t_size_static>::p_value
       t_buf<T, N, t_size_static>::get_ptr(t_ix ix) noexcept {
-    return get(ix) < N ? store_[ix].ptr() : nullptr;
+    if (is_valid_(ix))
+      return store_[ix].ptr();
+    return nullptr;
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_buf<T, N, t_size_static>::P_value
       t_buf<T, N, t_size_static>::get_ptr(t_ix ix) const noexcept {
-    return get(ix) < N ? store_[ix].ptr() : nullptr;
+    if (is_valid_(ix))
+      return store_[ix].ptr();
+    return nullptr;
   }
 
   template<typename T, t_n_ N>
   inline
   typename t_buf<T, N, t_size_static>::P_value
       t_buf<T, N, t_size_static>::get_cptr(t_ix ix) const noexcept {
-    return get(ix) < N ? store_[ix].cptr() : nullptr;
+    if (is_valid_(ix))
+      return store_[ix].cptr();
+    return nullptr;
   }
 
   template<typename T, t_n_ N>
@@ -300,78 +302,6 @@ namespace buf
       t_buf<T, N, t_size_static>::operator[](t_ix ix) const noexcept {
     return get_cref(ix);
   }
-
-  /*
-  template<typename T, t_n_ N>
-  template<typename TAG>
-  inline
-  t_range<T, TAG> t_buf<T, N, t_size_static>::mk_range() noexcept {
-    return {store_[0].ptr(), t_n{N}};
-  }
-
-  template<typename T, t_n_ N>
-  template<typename TAG>
-  inline
-  t_crange<T, TAG> t_buf<T, N, t_size_static>::mk_range() const noexcept {
-    return {store_[0].ptr(), t_n{N}};
-  }
-
-  template<typename T, t_n_ N>
-  template<typename TAG>
-  inline
-  t_crange<T, TAG> t_buf<T, N, t_size_static>
-      ::mk_crange() const noexcept {
-    return {store_[0].cptr(), t_n{N}};
-  }
-
-  template<typename T, t_n_ N>
-  template<typename TAG>
-  inline
-  t_range<T, TAG> t_buf<T, N, t_size_static>
-      ::mk_range(t_ix ix) noexcept {
-    return buf::mk_range(mk_range(), ix);
-  }
-
-  template<typename T, t_n_ N>
-  template<typename TAG>
-  inline
-  t_crange<T, TAG> t_buf<T, N, t_size_static>
-      ::mk_range(t_ix ix) const noexcept {
-    return buf::mk_range(mk_range(), ix);
-  }
-
-  template<typename T, t_n_ N>
-  template<typename TAG>
-  inline
-  t_crange<T, TAG> t_buf<T, N, t_size_static>
-      ::mk_crange(t_ix ix) const noexcept {
-    return buf::mk_crange(mk_crange(), ix);
-  }
-
-  template<typename T, t_n_ N>
-  template<typename TAG>
-  inline
-  t_range<T, TAG> t_buf<T, N, t_size_static>
-      ::mk_range(t_ix begin, t_ix end) noexcept {
-    return buf::mk_range(mk_range(), begin, end);
-  }
-
-  template<typename T, t_n_ N>
-  template<typename TAG>
-  inline
-  t_crange<T, TAG> t_buf<T, N, t_size_static>
-      ::mk_range(t_ix begin, t_ix end) const noexcept {
-    return buf::mk_range(mk_range(), begin, end);
-  }
-
-  template<typename T, t_n_ N>
-  template<typename TAG>
-  inline
-  t_crange<T, TAG> t_buf<T, N, t_size_static>
-      ::mk_crange(t_ix begin, t_ix end) const noexcept {
-    return buf::mk_crange(mk_crange(), begin, end);
-  }
-  */
 
 ///////////////////////////////////////////////////////////////////////////////
 }
