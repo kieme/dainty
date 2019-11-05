@@ -30,6 +30,8 @@
 #include "dainty_base_buf_1.h"
 #include "dainty_base_buf_2.h"
 #include "dainty_base_buf_3.h"
+#include "dainty_base_buf_4.h"
+#include "dainty_base_buf_5.h"
 
 namespace dainty
 {
@@ -43,10 +45,11 @@ namespace buf
 // it could be used by nearly all my container structures.
 // it takes care where the memory comes from - maybe use an allocator
 //
-// template<typename T, t_n_ N> class t_buf<T, N, t_size_dynamic>
-// template<typename T>         class t_buf<T, 0, t_size_dynamic>
-// template<typename T, t_n_ N> class t_buf<T, N, t_size_static>
-// template<typename T>         class t_buf<T, 1, t_size_static>
+// template<typename T, t_n_ N>             class t_buf<T, N, t_size_dynamic>
+// template<typename T>                     class t_buf<T, 0, t_size_dynamic>
+// template<typename T, t_n_ N>             class t_buf<T, N, t_size_static>
+// template<typename T, t_n_ N, typename A> class t_buf<T, N, A>
+// template<typename T, typename A>         class t_buf<T, 0, A>
 
 ///////////////////////////////////////////////////////////////////////////////
 }
