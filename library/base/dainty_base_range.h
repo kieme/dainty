@@ -405,7 +405,7 @@ namespace range
 
   template<typename T, typename TAG>
   constexpr
-  t_range<T, TAG> mk_range(t_range<T, TAG> range, t_begin_ix _begin) noexcept {
+  t_range<T, TAG> mk_range(t_range<T, TAG> range, t_begin_ix begin) noexcept {
     return mk_range(range, begin, t_end_ix{get(range.n)});
   }
 

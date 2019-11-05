@@ -735,7 +735,7 @@ namespace impl_
     auto len = range.n + len_, max = store.get_capacity();
     if (max <= len)
       store.enlarge_to(len + 1);
-    len_ = copy_truncate_(store.mk_range(t_begin_ix{get(len_)}), range);
+    len_ = copy_truncate_(range::mk_range(store, t_begin_ix{get(len_)}), range);
   }
 
   template<t_n_ N>
@@ -745,7 +745,8 @@ namespace impl_
     auto len = block.n + len_, max = store.get_capacity();
     if (max <= len)
       store.resize_to(len + 1);
-    len_ = fill_truncate_(mk_range(store, t_begin_ix{get(len_)}), block);
+    t_buf_range buf_range = store;
+    len_ = fill_truncate_(range::mk_range(buf_range, t_begin_ix{get(len_)}), block);
   }
 
   template<t_n_ N>
@@ -772,10 +773,10 @@ namespace impl_
   t_void t_impl_<t_overflow_grow>::custom_append(t_grow_buf<N>& store,
                                                  F&& func) noexcept {
     auto max = store.get_capacity();
-    t_n len = func(store.mk_range(t_begin_ix{get(len_)})) + len_;
+    t_n len = func(range::mk_range(store, t_begin_ix{get(len_)})) + len_;
     if (len < max)
       store.enlarge_to(len + 1);
-    len_ += func(store.mk_range(t_begin_ix{get(len_)}));
+    len_ += func(range::mk_range(store, t_begin_ix{get(len_)}));
   }
 
 ///////////////////////////////////////////////////////////////////////////////
