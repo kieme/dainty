@@ -567,19 +567,19 @@ namespace impl_
   inline
   t_void t_impl_<t_overflow_assert>::append(t_buf_range store,
                                             t_crange range) noexcept {
-    len_ += copy_assert_(store.mk_range(t_begin_ix{get(len_)}), range);
+    len_ += copy_assert_(range::mk_range(store, t_begin_ix{get(len_)}), range);
   }
 
   inline
   t_void t_impl_<t_overflow_assert>::append(t_buf_range store,
                                             t_block block) noexcept {
-    len_ += fill_assert_(store.mk_range(t_begin_ix{get(len_)}), block);
+    len_ += fill_assert_(range::mk_range(store, t_begin_ix{get(len_)}), block);
   }
 
   inline
   t_void t_impl_<t_overflow_assert>::append(t_buf_range store, t_crange fmt,
                                             va_list vars) noexcept {
-    len_ += build_assert_(store.mk_range(t_begin_ix{get(len_)}), fmt, vars);
+    len_ += build_assert_(range::mk_range(store, t_begin_ix{get(len_)}), fmt, vars);
   }
 
   template<typename F>
@@ -745,7 +745,7 @@ namespace impl_
     auto len = block.n + len_, max = store.get_capacity();
     if (max <= len)
       store.resize_to(len + 1);
-    len_ = fill_truncate_(store.mk_range(t_begin_ix{get(len_)}), block);
+    len_ = fill_truncate_(mk_range(store, t_begin_ix{get(len_)}), block);
   }
 
   template<t_n_ N>
