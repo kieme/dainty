@@ -274,17 +274,19 @@ namespace specific
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<class> struct t_is_specific_;
+  template<class>
+  struct t_is_specific : traits::t_result_false {
+  };
 
   template<class T, class TAG, class CHECK>
-  struct t_is_specific_<t_specific<T, TAG, CHECK>> {
-    using t_result_ = t_specific<T, TAG, CHECK>;
+  struct t_is_specific<t_specific<T, TAG, CHECK>> : traits::t_result_true {
   };
 
   template<class E, class T, class TAG, class CHECK>
   constexpr
-  E transform(t_specific<T, TAG, CHECK> src) {
-    return typename t_is_specific_<E>::t_result_{get(src)};
+  E mk(t_specific<T, TAG, CHECK> src) noexcept {
+    static_assert(t_is_specific<E>::VALUE, "not t_specific source");
+    return E{get(src)};
   }
 
 ///////////////////////////////////////////////////////////////////////////////

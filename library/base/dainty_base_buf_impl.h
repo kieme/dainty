@@ -51,8 +51,12 @@ namespace impl_
 
   using specific::t_n;
   using specific::t_ix;
+  using specific::t_begin_ix;
+  using specific::t_end_ix;
   using specific::t_validity;
   using specific::operator""_ix;
+  using specific::operator""_begin_ix;
+  using specific::operator""_end_ix;
   using specific::operator""_n;
 
   using specific::VALID;
@@ -104,6 +108,8 @@ namespace impl_
   t_void dealloc_(p_void obj) noexcept {
     return mem_dealloc_(obj);
   }
+
+  // XXX write an impl_ object
 
 ////////////////////////////////////////////////////////////////////////////////
 }

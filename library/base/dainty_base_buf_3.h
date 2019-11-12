@@ -95,6 +95,24 @@ namespace buf
     P_value  end  () const noexcept;
     P_value cend  () const noexcept;
 
+    t_buf_range  mk_range()                     noexcept;
+    t_buf_range  mk_range(t_begin_ix)           noexcept;
+    t_buf_range  mk_range(t_begin_ix, t_end_ix) noexcept;
+    t_buf_range  mk_range(t_n)                  noexcept;
+    t_buf_range  mk_range(t_begin_ix, t_n)      noexcept;
+
+    t_buf_crange mk_range()                      const noexcept;
+    t_buf_crange mk_range(t_begin_ix)            const noexcept;
+    t_buf_crange mk_range(t_begin_ix, t_end_ix)  const noexcept;
+    t_buf_crange mk_range(t_n)                   const noexcept;
+    t_buf_crange mk_range(t_begin_ix, t_n)       const noexcept;
+
+    t_buf_crange mk_crange()                     const noexcept;
+    t_buf_crange mk_crange(t_begin_ix)           const noexcept;
+    t_buf_crange mk_crange(t_begin_ix, t_end_ix) const noexcept;
+    t_buf_crange mk_crange(t_n)                  const noexcept;
+    t_buf_crange mk_crange(t_begin_ix, t_n)      const noexcept;
+
   private:
     using t_valuestore = impl_::t_valuestore<t_value>;
 
@@ -301,6 +319,117 @@ namespace buf
   typename t_buf<T, N, t_size_static>::R_value
       t_buf<T, N, t_size_static>::operator[](t_ix ix) const noexcept {
     return get_cref(ix);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_range
+      t_buf<T, N, t_size_static>::mk_range() noexcept {
+    return static_cast<t_buf_range>(*this);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_range
+      t_buf<T, N, t_size_static>::mk_range(t_begin_ix begin) noexcept {
+    return impl_::mk_range(static_cast<t_buf_range>(*this), begin);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_range
+      t_buf<T, N, t_size_static>::mk_range(t_begin_ix begin,
+                                           t_end_ix end) noexcept {
+    return impl_::mk_range(static_cast<t_buf_range>(*this), begin, end);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_range
+      t_buf<T, N, t_size_static>::mk_range(t_n n) noexcept {
+    return impl_::mk_range(static_cast<t_buf_range>(*this), n);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_range
+      t_buf<T, N, t_size_static>::mk_range(t_begin_ix begin,
+                                           t_n n) noexcept {
+    return impl_::mk_range(static_cast<t_buf_range>(*this), begin, n);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_crange
+      t_buf<T, N, t_size_static>::mk_range() const noexcept {
+    return static_cast<t_buf_crange>(*this);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_crange
+      t_buf<T, N, t_size_static>::mk_range(t_begin_ix begin) const noexcept {
+    return impl_::mk_range(static_cast<t_buf_crange>(*this), begin);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_crange
+      t_buf<T, N, t_size_static>::mk_range(t_begin_ix begin,
+                                           t_end_ix end) const noexcept {
+    return impl_::mk_range(static_cast<t_buf_crange>(*this), begin, end);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_crange
+      t_buf<T, N, t_size_static>::mk_range(t_n n) const noexcept {
+    return impl_::mk_range(static_cast<t_buf_crange>(*this), n);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_crange
+      t_buf<T, N, t_size_static>::mk_range(t_begin_ix begin,
+                                           t_n n) const noexcept {
+    return impl_::mk_range(static_cast<t_buf_crange>(*this), begin, n);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_crange
+      t_buf<T, N, t_size_static>::mk_crange() const noexcept {
+    return static_cast<t_buf_crange>(*this);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_crange
+      t_buf<T, N, t_size_static>::mk_crange(t_begin_ix begin) const noexcept {
+    return impl_::mk_range(static_cast<t_buf_crange>(*this), begin);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_crange
+      t_buf<T, N, t_size_static>::mk_crange(t_begin_ix begin,
+                                            t_end_ix end) const noexcept {
+    return impl_::mk_range(static_cast<t_buf_crange>(*this), begin, end);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_crange
+      t_buf<T, N, t_size_static>::mk_crange(t_n n) const noexcept {
+    return impl_::mk_range(static_cast<t_buf_crange>(*this), n);
+  }
+
+  template<typename T, t_n_ N>
+  inline
+  typename t_buf<T, N, t_size_static>::t_buf_crange
+      t_buf<T, N, t_size_static>::mk_crange(t_begin_ix begin,
+                                            t_n n) const noexcept {
+    return impl_::mk_range(static_cast<t_buf_crange>(*this), begin, n);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -62,11 +62,10 @@ namespace impl_
 
   t_void display_(t_crange range) noexcept {
     if (range == VALID) {
-      auto max = get(range.n);
-      if (range[t_ix{max - 1}] == '\n')
-        display("%.*s", max, range.ptr);
+      if (range[mk<t_ix>(range.n - 1)] == '\n')
+        display("%.*s", get(range.n), range.ptr);
       else
-        display("%.*s\n", max, range.ptr);
+        display("%.*s\n", get(range.n), range.ptr);
     }
   }
 
@@ -87,7 +86,7 @@ namespace impl_
     if (fmt == VALID) {
       if (store == VALID) {
         auto max = get(store.n);
-        t_n_ n = std::vsnprintf(store.ptr, max, fmt.ptr, vars);
+        t_n_ n = std::vsnprintf(store.ptr, max, fmt.ptr, vars); // XXX
         if (n > 0 && (t_n_)n < max)
           return t_n(n);
         assert_now(P_cstr("failed to build, buffer might be too small"));
@@ -115,11 +114,10 @@ namespace impl_
   t_n copy_assert_(t_buf_range store, t_crange range) noexcept {
     if (range == VALID) {
       if (store == VALID) {
-        auto len = get(range.n), max = get(store.n);
-        if (len < max) {
+        if (range.n < store.n) {
           store.copy(range.mk_crange<t_buf_range::t_tag>());
-          store[t_ix{len}] = '\0';
-          return t_n{len};
+          store[mk<t_ix>(range.n)] = '\0';
+          return range.n;
         }
         assert_now(P_cstr("buffer not big enough"));
       }
