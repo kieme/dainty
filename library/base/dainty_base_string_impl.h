@@ -318,6 +318,8 @@ namespace impl_
     t_crange mk_range  (t_buf_crange)                       const noexcept;
     t_crange mk_range  (t_buf_crange, t_begin_ix)           const noexcept;
     t_crange mk_range  (t_buf_crange, t_begin_ix, t_end_ix) const noexcept;
+    t_crange mk_range  (t_buf_crange, t_n)                  const noexcept;
+    t_crange mk_range  (t_buf_crange, t_begin_ix, t_n)      const noexcept;
 
     t_bool   remove    (t_buf_range, t_begin_ix, t_end_ix)    noexcept;
     t_void   mod_      (t_buf_range, t_ix,       t_char)      noexcept;
@@ -509,6 +511,17 @@ namespace impl_
   t_crange t_impl_base_::mk_range(t_buf_crange store, t_begin_ix begin,
                                   t_end_ix end) const noexcept {
     return mk_range(store).mk_crange(begin, end);
+  }
+
+  inline
+  t_crange t_impl_base_::mk_range(t_buf_crange store, t_n n) const noexcept {
+    return mk_range(store).mk_crange(n);
+  }
+
+  inline
+  t_crange t_impl_base_::mk_range(t_buf_crange store, t_begin_ix begin,
+                                  t_n n) const noexcept {
+    return mk_range(store).mk_crange(begin, n);
   }
 
   inline
@@ -721,7 +734,11 @@ namespace impl_
   t_void t_impl_<t_overflow_grow>::assign(t_grow_buf<N>& store,
                                           t_crange fmt,
                                           va_list vars) noexcept {
-    // XXX-8
+    auto max = store.get_capacity();
+    auto len = build_try_(store, fmt, vars);
+    if (max <= len)
+      store.resize_to(len + 1);
+    len_ = build_assert_(store, fmt, vars);
   }
 
   template<t_n_ N>
@@ -749,7 +766,12 @@ namespace impl_
   t_void t_impl_<t_overflow_grow>::append(t_grow_buf<N>& store,
                                           t_crange fmt,
                                           va_list vars) noexcept {
-    // XXX-9
+    auto buf = store.mk_range(mk<t_begin_ix>(len_));
+    auto max = store.get_capacity();
+    auto len = build_try_(buf, fmt, vars) + len_;
+    if (max <= len)
+      store.resize_to(len + 1);
+    len_ += build_assert_(buf, fmt, vars);
   }
 
   template<t_n_ N, typename F>
@@ -767,11 +789,12 @@ namespace impl_
   inline
   t_void t_impl_<t_overflow_grow>::custom_append(t_grow_buf<N>& store,
                                                  F&& func) noexcept {
+    auto buf = store.mk_range(mk<t_begin_ix>(len_));
     auto max = store.get_capacity();
-    t_n len = func(store.mk_range(mk<t_begin_ix>(len_))) + len_;
+    t_n len = func(buf) + len_;
     if (max <= len)
       store.resize_to(len + 1);
-    len_ += func(store.mk_range(mk<t_begin_ix>(len_)));
+    len_ += func(buf);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

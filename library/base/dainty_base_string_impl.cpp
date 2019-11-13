@@ -69,7 +69,7 @@ namespace impl_
     }
   }
 
-  t_n try_build(t_buf_range store, t_crange fmt, va_list vars) noexcept {
+  t_n build_try_(t_buf_range store, t_crange fmt, va_list vars) noexcept {
     if (fmt == VALID) {
       if (store == VALID) {
         va_list args;

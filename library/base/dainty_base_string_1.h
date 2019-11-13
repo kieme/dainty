@@ -102,15 +102,16 @@ namespace string
     template<t_n_ N1, typename O1>
     t_string(const t_string<TAG, N1, O1>&) noexcept;
 
-    r_string operator=(t_block)     noexcept;
-    r_string operator=(t_crange)    noexcept;
-    r_string operator=(R_string)    noexcept;
+    r_string operator=(t_block)  noexcept;
+    r_string operator=(t_crange) noexcept;
+    r_string operator=(R_string) noexcept;
 
     template<t_n_ N1, typename O1>
     r_string operator=(const t_string<TAG, N1, O1>&) noexcept;
 
     template<class TAG1, t_n_ N1, typename O1>
     r_string assign(const t_string<TAG1, N1, O1>&) noexcept;
+    r_string assign(t_block)                       noexcept;
     r_string assign(t_crange)                      noexcept;
     r_string assign(t_crange fmt, va_list vars)    noexcept;
     r_string assign(t_cstr_cptr_, ...)             noexcept
@@ -150,6 +151,8 @@ namespace string
     t_crange mk_range()                     const noexcept;
     t_crange mk_range(t_begin_ix)           const noexcept;
     t_crange mk_range(t_begin_ix, t_end_ix) const noexcept;
+    t_crange mk_range(t_n)                  const noexcept;
+    t_crange mk_range(t_begin_ix, t_n)      const noexcept;
 
     template<class F> void  each(F&&)       noexcept;
     template<class F> void  each(F&&) const noexcept;
@@ -157,7 +160,7 @@ namespace string
 
     t_void mod_(t_ix pos, t_char) noexcept;
 
-  public: // custom interface - your responsibility
+  public:
     template<typename F>
     inline
     r_string custom_assign_(F&& func) noexcept {
@@ -278,6 +281,14 @@ namespace string
   template<class TAG, t_n_ N, typename O>
   inline
   typename t_string<TAG, N, O>::r_string t_string<TAG, N, O>
+      ::assign(t_block block) noexcept {
+    impl_.assign(store_, block);
+    return *this;
+  }
+
+  template<class TAG, t_n_ N, typename O>
+  inline
+  typename t_string<TAG, N, O>::r_string t_string<TAG, N, O>
       ::append(t_block block) noexcept {
     impl_.append(store_, block);
     return *this;
@@ -308,6 +319,14 @@ namespace string
   typename t_string<TAG, N, O>::r_string t_string<TAG, N, O>
       ::append(const t_string<TAG1, N1, O1>& str) noexcept {
     impl_.append(store_, str.mk_range());
+    return *this;
+  }
+
+  template<class TAG, t_n_ N, typename O>
+  inline
+  typename t_string<TAG, N, O>::r_string t_string<TAG, N, O>
+      ::assign(t_crange range) noexcept {
+    impl_.assign(store_, range);
     return *this;
   }
 
@@ -357,7 +376,7 @@ namespace string
   inline
   t_bool t_string<TAG, N, O>::remove(t_begin_ix begin,
                                      t_end_ix   end) noexcept {
-    return impl_.remove(store_, get(begin), get(end));
+    return impl_.remove(store_, begin, end);
   }
 
   template<class TAG, t_n_ N, typename O>
@@ -375,7 +394,7 @@ namespace string
   template<class TAG, t_n_ N, typename O>
   constexpr
   t_n t_string<TAG, N, O>::get_capacity() noexcept {
-    return t_n{get(t_store_::get_capacity()) - 1};
+    return t_store_::get_capacity() - 1;
   }
 
   template<class TAG, t_n_ N, typename O>
@@ -424,6 +443,19 @@ namespace string
   }
 
   template<class TAG, t_n_ N, typename O>
+  inline
+  t_crange t_string<TAG, N, O>::mk_range(t_n n) const noexcept {
+    return impl_.mk_range(store_, n);
+  }
+
+  template<class TAG, t_n_ N, typename O>
+  inline
+  t_crange t_string<TAG, N, O>::mk_range(t_begin_ix begin,
+                                         t_n n) const noexcept {
+    return impl_.mk_range(store_, begin, n);
+  }
+
+  template<class TAG, t_n_ N, typename O>
   template<class F>
   inline
   t_void t_string<TAG, N, O>::each(F&& func) noexcept {
@@ -447,7 +479,7 @@ namespace string
   template<class TAG, t_n_ N, typename O>
   inline
   t_void t_string<TAG, N, O>::mod_(t_ix pos, t_char ch) noexcept {
-    impl_.mod_(store_, get(pos), ch);
+    impl_.mod_(store_, pos, ch);
   }
 
   template<class TAG, t_n_ N, typename O>
