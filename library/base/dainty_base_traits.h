@@ -80,8 +80,8 @@ namespace traits
 
   template<typename> struct t_test;
 
-  enum t_ok { IS_OK };
-  template<typename...> using t_test_well_formed = t_ok; // void_t
+  enum t_yes { YES };
+  template<typename...> using t_wellformed = t_yes; // void_t
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -90,27 +90,29 @@ namespace traits
     struct t_is_there_ : t_add_value<U>, t_result_false { };
 
     template<template<typename> class Op, typename T, typename U>
-    struct t_is_there_<Op, T, U, t_test_well_formed<Op<T>>>
+    struct t_is_there_<Op, T, U, t_wellformed<Op<T>>>
       : t_add_value<Op<T>>, t_result_true { };
   }
 
   template<template<typename> class Op, typename T>
-  using t_is_there = typename impl_::t_is_there_<Op, T, t_ok, t_ok>::t_result;
+  using t_is_there = typename impl_::t_is_there_<Op, T, t_yes, t_yes>::t_result;
 
   template<template<typename> class Op, typename T>
-  using t_expr_of = typename impl_::t_is_there_<Op, T, t_ok, t_ok>::t_value;
+  using t_expr_of = typename impl_::t_is_there_<Op, T, t_yes, t_yes>::t_value;
 
   template<template<typename> class Op, typename T, typename U>
-  using t_expr_of_or = typename impl_::t_is_there_<Op, T, U, t_ok>::t_value;
+  using t_expr_of_or = typename impl_::t_is_there_<Op, T, U, t_yes>::t_value;
 
-  template<typename T> using t_result       = typename T::t_result;
-  template<typename T> using t_has_result   = t_is_there<t_result, T>;
+///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_value        = typename T::t_t_value;
-  template<typename T> using t_has_value    = t_is_there<t_value, T>;
+  template<typename T> using t_result_of    = typename T::t_result;
+  template<typename T> using t_has_result   = t_is_there<t_result_of, T>;
 
-  template<typename T> using t_identity     = typename T::t_identity;
-  template<typename T> using t_has_identity = t_is_there<t_identity, T>;
+  template<typename T> using t_value_of     = typename T::t_value;
+  template<typename T> using t_has_value    = t_is_there<t_value_of, T>;
+
+  template<typename T> using t_identity_of  = typename T::t_identity;
+  template<typename T> using t_has_identity = t_is_there<t_identity_of, T>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -146,7 +148,7 @@ namespace traits
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename I> using t_if = t_if_then<I, t_ok>; // enable_if
+  template<typename I> using t_if = t_value_of<t_if_then<I, t_yes>>; // enable_if
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -341,14 +343,14 @@ namespace traits
     struct t_is_true_  : t_result_false { };
 
     template<typename T>
-    struct t_is_true_<T, t_test_well_formed<typename T::t_result>>
+    struct t_is_true_<T, t_wellformed<typename T::t_result>>
       : t_is_same<typename T::t_result, t_true> { };
 
     template<>
-    struct t_is_true_<t_true, t_ok> : t_result_true { };
+    struct t_is_true_<t_true, t_yes> : t_result_true { };
   }
 
-  template<typename T> struct t_is_true : impl_::t_is_true_<T, t_ok> { };
+  template<typename T> struct t_is_true : impl_::t_is_true_<T, t_yes> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -357,14 +359,14 @@ namespace traits
     struct t_is_false_  : t_result_false { };
 
     template<typename T>
-    struct t_is_false_<T, t_test_well_formed<typename T::t_result>>
+    struct t_is_false_<T, t_wellformed<typename T::t_result>>
       : t_is_same<typename T::t_result, t_false> { };
 
     template<>
-    struct t_is_false_<t_false, t_ok> : t_result_true { };
+    struct t_is_false_<t_false, t_yes> : t_result_true { };
   }
 
-  template<typename T> struct t_is_false : impl_::t_is_false_<T, t_ok> { };
+  template<typename T> struct t_is_false : impl_::t_is_false_<T, t_yes> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1372,11 +1374,11 @@ using t_member_func = typename impl_::t_member_func_<T>::t_value;
      struct t_is_func_ : t_result_false { };
 
     template<typename T>
-    struct t_is_func_<T, t_test_well_formed<typename t_func<T>::t_value>>
+    struct t_is_func_<T, t_wellformed<typename t_func<T>::t_value>>
       : t_result_true { };
   }
 
-  template<typename T> struct t_is_func : impl_::t_is_func_<T, t_ok> { };
+  template<typename T> struct t_is_func : impl_::t_is_func_<T, t_yes> { };
   template<typename T> using  t_is_not_func = t_not<t_is_func<T>>;
   template<typename T> using  t_if_func     = t_if<t_is_func<T>>;
   template<typename T> using  t_if_not_func = t_if<t_is_not_func<T>>;
@@ -1504,15 +1506,38 @@ using t_member_func = typename impl_::t_member_func_<T>::t_value;
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  struct t_is_unsigned : t_is_one_of<T, unsigned char,
-                                        unsigned short,
-                                        unsigned int,
-                                        unsigned long,
-                                        unsigned long long> { };
+  struct t_is_unsigned_integral : t_is_one_of<T, unsigned char,
+                                                 unsigned short,
+                                                 unsigned int,
+                                                 unsigned long,
+                                                 unsigned long long> { };
 
-  template<typename T> using t_is_not_unsigned = t_not<t_is_unsigned<T>>;
-  template<typename T> using t_if_unsigned     = t_if<t_is_unsigned<T>>;
-  template<typename T> using t_if_not_unsigned = t_if<t_is_not_unsigned<T>>;
+  template<typename T>
+  using t_is_not_unsigned_integral = t_not<t_is_unsigned_integral<T>>;
+
+  template<typename T>
+  using t_if_unsigned_integral     = t_if<t_is_unsigned_integral<T>>;
+
+  template<typename T>
+  using t_if_not_unsigned_integral = t_if<t_is_not_unsigned_integral<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  struct t_is_signed_integral : t_is_one_of<T, char, signed char,
+                                               short,
+                                               int,
+                                               long,
+                                               long long> { };
+
+  template<typename T>
+  using t_is_not_signed_integral = t_not<t_is_signed_integral<T>>;
+
+  template<typename T>
+  using t_if_signed_integral     = t_if<t_is_signed_integral<T>>;
+
+  template<typename T>
+  using t_if_not_signed_integral = t_if<t_is_not_signed_integral<T>>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1587,9 +1612,10 @@ struct t_is_precision : t_is_one_of<T, double, float, long double> { };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> struct t_is_signed : t_all_is_true<T, t_is_arithmetic,
-                                                             t_is_not_unsigned,
-                                                             t_is_not_bool> { };
+  template<typename T> struct t_is_signed
+    : t_all_is_true<T, t_is_arithmetic,
+                       t_is_not_unsigned_integral,
+                       t_is_not_bool> { };
 
   template<typename T> using t_is_not_signed = t_not<t_is_signed<T>>;
   template<typename T> using t_if_signed     = t_if<t_is_signed<T>>;
