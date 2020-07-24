@@ -45,6 +45,14 @@ namespace traits
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  enum t_yes { YES };
+  template<typename...> using t_wellformed = t_yes; // void_t
+
+  template<typename>      struct t_test;
+  template<typename T, T> struct t_test_value;
+
+///////////////////////////////////////////////////////////////////////////////
+
   template<typename T> struct t_add_identity { using t_identity = T; };
   template<typename T> struct t_add_result   { using t_result   = T; };
   template<typename T> struct t_add_value    { using t_value    = T; };
@@ -75,13 +83,6 @@ namespace traits
 
   using t_result_true  = t_bool_result<true>;  // shorthand
   using t_result_false = t_bool_result<false>; // shorthand
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename> struct t_test;
-
-  enum t_yes { YES };
-  template<typename...> using t_wellformed = t_yes; // void_t
 
 ///////////////////////////////////////////////////////////////////////////////
 

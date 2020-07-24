@@ -248,6 +248,15 @@ namespace impl_
 
 ///////////////////////////////////////////////////////////////////////////////
 
+  t_void t_impl_base_::reverse(t_buf_range store) {
+    p_cptr p = store.ptr, end = store.ptr + get(store.n);
+    while (p < end) {
+      t_char tmp = *--end;
+      *end       = *p;
+      *p++       = tmp;
+    }
+  }
+
   t_bool t_impl_base_::remove(t_buf_range store, t_begin_ix _begin,
                               t_end_ix _end) noexcept {
     auto begin = get(_begin), end = get(_end), len = get(len_);

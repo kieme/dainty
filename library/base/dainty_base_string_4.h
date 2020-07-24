@@ -97,8 +97,10 @@ namespace string
     r_string append(t_cstr_cptr_, ...)             noexcept
       __attribute__((format(printf, 2, 3)));
 
-    t_void clear()                      noexcept;
-    t_bool remove(t_begin_ix, t_end_ix) noexcept;
+    t_bool remove  (t_begin_ix, t_end_ix) noexcept;
+    t_void clear   ()    noexcept;
+    t_void truncate(t_n) noexcept;
+    t_void reverse ()    noexcept;
 
     t_void display           (t_crange prefix  = NO_RANGE,
                               t_crange postfix = NO_RANGE) const noexcept;
@@ -411,15 +413,27 @@ namespace string
 
   template<class TAG>
   inline
+  t_bool t_string<TAG, 0, t_overflow_grow>::remove(t_begin_ix begin,
+                                                   t_end_ix   end) noexcept {
+    return impl_.remove(store_, begin, end);
+  }
+
+  template<class TAG>
+  inline
   t_void t_string<TAG, 0, t_overflow_grow>::clear() noexcept {
     impl_.clear(store_);
   }
 
   template<class TAG>
   inline
-  t_bool t_string<TAG, 0, t_overflow_grow>::remove(t_begin_ix begin,
-                                                   t_end_ix   end) noexcept {
-    return impl_.remove(store_, begin, end);
+  t_bool t_string<TAG, 0, t_overflow_grow>::truncate(t_n n) noexcept {
+    return impl_.truncate(store_, n);
+  }
+
+  template<class TAG>
+  inline
+  t_void t_string<TAG, 0, t_overflow_grow>::reverse() noexcept {
+    return impl_.reverse(store_);
   }
 
   template<class TAG>

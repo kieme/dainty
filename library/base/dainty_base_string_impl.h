@@ -210,10 +210,10 @@ namespace impl_
   t_n build_truncate_(t_buf_range, t_crange, va_list) noexcept;
 
   // need a safe copy
-  t_n copy_assert_  (t_buf_range, t_crange) noexcept;
-  t_n copy_truncate_(t_buf_range, t_crange) noexcept;
-  t_n fill_assert_  (t_buf_range, t_block)  noexcept;
-  t_n fill_truncate_(t_buf_range, t_block)  noexcept;
+  t_n    copy_assert_  (t_buf_range, t_crange) noexcept;
+  t_n    copy_truncate_(t_buf_range, t_crange) noexcept;
+  t_n    fill_assert_  (t_buf_range, t_block)  noexcept;
+  t_n    fill_truncate_(t_buf_range, t_block)  noexcept;
 
   t_bool match_     (t_crange, t_crange) noexcept;
   t_n    count_     (t_crange, t_char)   noexcept;
@@ -321,6 +321,8 @@ namespace impl_
     t_crange mk_range  (t_buf_crange, t_n)                  const noexcept;
     t_crange mk_range  (t_buf_crange, t_begin_ix, t_n)      const noexcept;
 
+    t_bool   truncate  (t_buf_range, t_n)                     noexcept;
+    t_void   reverse   (t_buf_range)                          noexcept;
     t_bool   remove    (t_buf_range, t_begin_ix, t_end_ix)    noexcept;
     t_void   mod_      (t_buf_range, t_ix,       t_char)      noexcept;
     t_n      reset     (t_n len = 0_n)                        noexcept;
@@ -435,9 +437,25 @@ namespace impl_
 
   inline
   t_void t_impl_base_::clear(t_buf_range store) noexcept {
-    if (store == VALID)
+    if (store == VALID && len_ >= 0_n)
       store[0_ix] = '\0';
     len_ = 0_n;
+  }
+
+  inline
+  t_bool t_impl_base_::truncate(t_buf_range store, t_n n) noexcept {
+    if (store == VALID && n < len_) {
+      store[t_ix{get(n)}] = '\0';
+      len_ = n;
+      return true;
+    }
+    return false;
+  }
+
+  inline
+  t_void t_impl_base_::reverse(t_buf_range store) noexcept {
+    if (store == VALID && len_ > 1_n)
+      reverse_(store, len_);
   }
 
   inline
