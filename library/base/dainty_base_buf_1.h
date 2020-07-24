@@ -120,7 +120,7 @@ namespace buf
     t_buf(t_buf<T, N1, A>&&) noexcept;
     template<typename T, t_n_ N1>
     r_buf operator=(t_buf<T, N1, t_size_dynamic>&&) noexcept;
-    *
+    */
 
     ///////////////////////////////////////////////////////////////////////////
 
