@@ -84,6 +84,46 @@ namespace buf
     t_buf(t_n, t_emplace_it, F&&) noexcept;
    ~t_buf();
 
+    ///////////////////////////////////////////////////////////////////////////
+
+    // XXX: finally figured out how to manage t_buf construction of all the
+    // t_buf types:
+    //
+    //  t_buf constructors         - will copy bytes or move when possible
+    //  t_buf assignment operators - will copy bytes or move when possible.
+    //
+    //  Each of the t_buf must implememt a unique set of these methods
+    //  as to behave as expected to its buffer layout strategy.
+    //
+    //  t_buf provide the methods for constructing T elements but will
+    //  never do so it self.
+    //
+    //  With t_buf I want to make memory allocation through a pointer
+    //  obsolete.
+    //
+    //  t_buf does not have a type (TAG), this will be added later
+    //  t_buf<T, 1>  needs its own interface
+    //  all to do. But I first finish the idea of numeric
+
+    /*
+    t_buf(x_buf) noexcept;
+    r_buf operator=(x_buf) noexcept;
+
+    // might take it if it uses heap
+    template<t_n_ N1>
+    t_buf(t_buf<T, N1, t_size_dynamic>&&) noexcept;
+    template<t_n_ N1>
+    r_buf operator=(t_buf<T, N1, t_size_dynamic>&&) noexcept;
+
+    // can only use to know large it should be
+    template<typename T, t_n_ N1, typename A>
+    t_buf(t_buf<T, N1, A>&&) noexcept;
+    template<typename T, t_n_ N1>
+    r_buf operator=(t_buf<T, N1, t_size_dynamic>&&) noexcept;
+    *
+
+    ///////////////////////////////////////////////////////////////////////////
+
     t_buf(const t_buf&)            = delete;
     t_buf& operator=(const t_buf&) = delete;
 
