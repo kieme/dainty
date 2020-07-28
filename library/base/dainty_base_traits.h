@@ -1493,6 +1493,18 @@ using t_member_func = typename impl_::t_member_func_<T>::t_value;
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
+  struct t_is_integer : t_is_one_of<T, short,     unsigned short,
+                                       int,       unsigned int,
+                                       long,      unsigned long,
+                                       long long, unsigned long long> { };
+
+  template<typename T> using t_is_not_integer = t_not<t_is_integer<T>>;
+  template<typename T> using t_if_integer     = t_if<t_is_integer<T>>;
+  template<typename T> using t_if_not_integer = t_if<t_is_not_integer<T>>;
+
+///////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
   struct t_is_integral : t_is_one_of<T, bool,
                                         char,      unsigned char, signed char,
                                         short,     unsigned short,
