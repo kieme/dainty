@@ -1027,13 +1027,13 @@ namespace numeric
   // BIN_METHOD_24_2_
   inline
   t_bool t_binary::reset(R_binary value) noexcept {
-    return impl_.reset(store_, value.bin_);
+    return impl_.reset(store_, value.store_);
   }
 
   // BIN_METHOD_24_3_
   inline
   t_bool t_binary::reset(t_n n, R_binary value) noexcept {
-    return impl_.reset(store_, n, value.bin_);
+    return impl_.reset(store_, n, value.store_);
   }
 
   // BIN_METHOD_24_4_
@@ -1140,7 +1140,7 @@ namespace numeric
   // INT_METHOD_1_2_
   inline
   t_integer::t_integer(t_n digits_max) noexcept
-    : bin_{calc_bits_(digits_max)} {
+    : bin_{impl_::calc_bits_(digits_max)} {
   }
 
   // INT_METHOD_1_3__
@@ -1151,19 +1151,20 @@ namespace numeric
   // INT_METHOD_1_4_
   inline
   t_integer::t_integer(t_n digits_max, R_integer value) noexcept
-    : bin_{calc_bits_(digits_max), value} {
+    : bin_{impl_::calc_bits_(digits_max), value} {
   }
 
   // INT_METHOD_1_5_
   inline
   t_integer::t_integer(x_integer value) noexcept
-    : bin_{x_cast(value)} {
+    : bin_{static_cast<x_binary>(x_cast(value))} {
   }
 
   // INT_METHOD_1_6_
   inline
   t_integer::t_integer(t_n digits_max, x_integer value) noexcept
-    : bin_{calc_bits_(digits_max), x_cast(value)} {
+    : bin_{impl_::calc_bits_(digits_max),
+           static_cast<x_binary>(x_cast(value))} {
   }
 
   // INT_METHOD_1_7__
@@ -1174,7 +1175,7 @@ namespace numeric
   // INT_METHOD_1_8_
   inline
   t_integer::t_integer(t_n digits_max, R_binary value) noexcept
-    : bin_{calc_bits_(digits_max), value} {
+    : bin_{impl_::calc_bits_(digits_max), value} {
   }
 
   // INT_METHOD_1_9_
@@ -1186,7 +1187,7 @@ namespace numeric
   // INT_METHOD_1_10_
   inline
   t_integer::t_integer(t_n digits_max, x_binary value) noexcept
-    : bin_{calc_bits_(digits_max), x_cast(value)} {
+    : bin_{impl_::calc_bits_(digits_max), x_cast(value)} {
   }
 
   // INT_METHOD_1_11_
@@ -1199,7 +1200,7 @@ namespace numeric
   template<typename T, t_if_int<T>>
   inline
   t_integer::t_integer(t_n digits_max, T value) noexcept
-    : bin_{calc_bits_(digits_max), value} {
+    : bin_{impl_::calc_bits_(digits_max), value} {
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -1214,7 +1215,7 @@ namespace numeric
   // INT_METHOD_2_2_
   inline
   r_integer t_integer::operator=(x_integer value) noexcept {
-    bin_ = x_cast(value);
+    bin_ = static_cast<x_binary>(x_cast(value));
     return *this;
   }
 
@@ -1341,7 +1342,7 @@ namespace numeric
   // INT_METHOD_7_
   inline
   t_bool t_integer::ensure_digits(t_n digits) noexcept {
-    return bin_.ensure_bits(calc_bits_(digits));
+    return bin_.ensure_bits(impl_::calc_bits_(digits));
   }
 
   // INT_METHOD_8_
@@ -1353,7 +1354,7 @@ namespace numeric
   // INT_METHOD_9_
   inline
   t_n t_integer::get_digits() const noexcept {
-    return calc_digits_(bin_.get_bits());
+    return impl_::calc_digits_(bin_.get_bits());
   }
 
   // INT_METHOD_10_
@@ -1399,7 +1400,7 @@ namespace numeric
   // INT_METHOD_12_3_
   inline
   t_bool t_integer::reset(t_n digits_max, R_integer value) noexcept {
-    return bin_.reset(calc_bits_(digits_max), value);
+    return bin_.reset(impl_::calc_bits_(digits_max), value);
   }
 
   // INT_METHOD_12_4_
@@ -1411,7 +1412,7 @@ namespace numeric
   // INT_METHOD_12_5_
   inline
   t_bool t_integer::reset(t_n digits_max, R_binary value) noexcept {
-    return bin_.reset(calc_bits_(digits_max), value);
+    return bin_.reset(impl_::calc_bits_(digits_max), value);
   }
 
   // INT_METHOD_12_6_
@@ -1425,7 +1426,7 @@ namespace numeric
   template<typename T, t_if_int<T>>
   inline
   t_bool t_integer::reset(t_n digits_max, T value) noexcept {
-    return bin_.reset(calc_bits_(digits_max), value);
+    return bin_.reset(impl_::calc_bits_(digits_max), value);
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -2197,7 +2198,7 @@ namespace numeric
   // INT_FUNC_3_3_
   inline
   t_integer operator*(R_integer lh, x_integer rh) noexcept {
-    DAINTY_BASE_NUMERIC_OP_R_X_COMMUTATIVE_, (*=, lh, rh)
+    DAINTY_BASE_NUMERIC_OP_R_X_COMMUTATIVE_(*=, lh, rh)
   }
 
   // INT_FUNC_3_4_

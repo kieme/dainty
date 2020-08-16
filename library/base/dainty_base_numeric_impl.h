@@ -78,8 +78,8 @@ namespace impl_
 ///////////////////////////////////////////////////////////////////////////////
 
   constexpr
-  t_n calc_(t_n n) noexcept {
-    return t_n((get(n)/BITS_UNIT_) + ((get(n) % BITS_UNIT_) ? 1ULL : 0ULL));
+  t_n calc_(t_n bits) noexcept {
+    return t_n((get(bits)/BITS_UNIT_) + ((get(bits) % BITS_UNIT_) != 0));
   }
 
   constexpr
@@ -109,7 +109,8 @@ namespace impl_
     }
 
     inline
-    t_store_(t_n n) noexcept {
+    t_store_(t_n bits) noexcept {
+      ensure_size(bits);
     }
 
     ~t_store_() noexcept {
@@ -118,8 +119,8 @@ namespace impl_
       }
     }
 
-    t_bool ensure_size(t_n n) noexcept {
-      t_n need = calc_(n);
+    t_bool ensure_size(t_n bits) noexcept {
+      t_n need = calc_(bits);
       if (get(size) < get(need)) {
         if (!is_heap()) {
           ptr = static_cast<p_pvalue_>(::malloc(get(need)));
