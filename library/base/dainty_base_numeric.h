@@ -40,7 +40,7 @@ namespace numeric
   using impl_::t_n;
   using impl_::t_ix;
 
-///////////////////////////////////////////////////////////////////////////////
+ //////////////////////////////////////////////////////////////////////////////
 
   template<typename T> using t_if_neg = traits::t_if_signed_integral<T>;
   template<typename T> using t_if_pos = traits::t_if_unsigned_integral<T>;
@@ -48,7 +48,7 @@ namespace numeric
     traits::t_if<traits::t_or<traits::t_is_signed_integral<T>,
                               traits::t_is_unsigned_integral<T>>>;
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   class t_binary;
   using r_binary = types::t_prefix<t_binary>::r_;
@@ -57,150 +57,157 @@ namespace numeric
 
   class t_binary {
   public:
-    t_binary()    noexcept; // BIN_METHOD_1_
-    t_binary(t_n) noexcept; // BIN_METHOD_2_
+    t_binary()              noexcept; // BIN_METHOD_1_1_
+    t_binary(t_n)           noexcept; // BIN_METHOD_1_2_
+
+    t_binary(     R_binary) noexcept; // BIN_METHOD_1_3_
+    t_binary(t_n, R_binary) noexcept; // BIN_METHOD_1_4_
+    t_binary(     x_binary) noexcept; // BIN_METHOD_1_5_
+    t_binary(t_n, x_binary) noexcept; // BIN_METHOD_1_6_
 
     template<typename T, t_if_neg<T> = traits::YES>
-    t_binary(     T) noexcept; // BIN_METHOD_3_
+    t_binary(     T)        noexcept; // BIN_METHOD_1_7_
     template<typename T, t_if_neg<T> = traits::YES>
-    t_binary(t_n, T) noexcept; // BIN_METHOD_4_
+    t_binary(t_n, T)        noexcept; // BIN_METHOD_1_8_
 
     template<typename T, t_if_pos<T> = traits::YES>
-    t_binary(     T) noexcept; // BIN_METHOD_5_
+    t_binary(     T)        noexcept; // BIN_METHOD_1_9_
     template<typename T, t_if_pos<T> = traits::YES>
-    t_binary(t_n, T) noexcept; // BIN_METHOD_6_
-
-    t_binary(     R_binary) noexcept; // BIN_METHOD_7_
-    t_binary(t_n, R_binary) noexcept; // BIN_METHOD_10_
-    t_binary(     x_binary) noexcept; // BIN_METHOD_11_
-    t_binary(t_n, x_binary) noexcept; // BIN_METHOD_12_
+    t_binary(t_n, T)        noexcept; // BIN_METHOD_1_10_
 
     ///////////////////////////////////////////////////////////////////////////
+
+    r_binary operator=(R_binary) noexcept; // BIN_METHOD_2_1_
+    r_binary operator=(x_binary) noexcept; // BIN_METHOD_2_2_
 
     template<typename T, t_if_neg<T> = traits::YES>
-    r_binary operator=(T) noexcept; // BIN_METHOD_13_
-
+    r_binary operator=(T)        noexcept; // BIN_METHOD_2_3_
     template<typename T, t_if_pos<T> = traits::YES>
-    r_binary operator=(T) noexcept; // BIN_METHOD_14_
-
-    r_binary operator=(R_binary) noexcept; // BIN_METHOD_16_
-    r_binary operator=(x_binary) noexcept; // BIN_METHOD_17_
+    r_binary operator=(T)        noexcept; // BIN_METHOD_2_4_
 
     ///////////////////////////////////////////////////////////////////////////
+
+    r_binary operator+=(R_binary) noexcept; // BIN_METHOD_3_1_
 
     template<typename T, t_if_neg<T> = traits::YES>
-    r_binary operator+=(T) noexcept; // BIN_METHOD_18_
-
+    r_binary operator+=(T)        noexcept; // BIN_METHOD_3_2_
     template<typename T, t_if_pos<T> = traits::YES>
-    r_binary operator+=(T) noexcept; // BIN_METHOD_19_
-
-    r_binary operator+=(R_binary) noexcept; // BIN_METHOD_21_
+    r_binary operator+=(T)        noexcept; // BIN_METHOD_3_3_
 
     ///////////////////////////////////////////////////////////////////////////
+
+    r_binary operator-=(R_binary) noexcept; // BIN_METHOD_4_1_
 
     template<typename T, t_if_neg<T> = traits::YES>
-    r_binary operator-=(T) noexcept; // BIN_METHOD_22_
-
+    r_binary operator-=(T)        noexcept; // BIN_METHOD_4_2_
     template<typename T, t_if_pos<T> = traits::YES>
-    r_binary operator-=(T) noexcept; // BIN_METHOD_23_
-
-    r_binary operator-=(R_binary) noexcept; // BIN_METHOD_25_
+    r_binary operator-=(T)        noexcept; // BIN_METHOD_4_3_
 
     ///////////////////////////////////////////////////////////////////////////
+
+    r_binary operator*=(R_binary) noexcept; // BIN_METHOD_5_1_
 
     template<typename T, t_if_neg<T> = traits::YES>
-    r_binary operator*=(T) noexcept; // BIN_METHOD_26_
-
+    r_binary operator*=(T)        noexcept; // BIN_METHOD_5_2_
     template<typename T, t_if_pos<T> = traits::YES>
-    r_binary operator*=(T) noexcept; // BIN_METHOD_27_
-
-    r_binary operator*=(R_binary) noexcept; // BIN_METHOD_29_
+    r_binary operator*=(T)        noexcept; // BIN_METHOD_5_3_
 
     ///////////////////////////////////////////////////////////////////////////
+
+    r_binary operator/=(R_binary) noexcept; // BIN_METHOD_6_1_
 
     template<typename T, t_if_neg<T> = traits::YES>
-    r_binary operator/=(T) noexcept; // BIN_METHOD_30_
-
+    r_binary operator/=(T)        noexcept; // BIN_METHOD_6_2_
     template<typename T, t_if_pos<T> = traits::YES>
-    r_binary operator/=(T) noexcept; // BIN_METHOD_31_
-
-    r_binary operator/=(R_binary) noexcept; // BIN_METHOD_33_
+    r_binary operator/=(T)        noexcept; // BIN_METHOD_6_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
-    template<typename T, t_if_int<T> = traits::YES>
-    r_binary operator&=(T) noexcept; // BIN_METHOD_34_
+    r_binary operator&=(R_binary) noexcept; // BIN_METHOD_7_1_
 
-    r_binary operator&=(R_binary) noexcept; // BIN_METHOD_37_
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    template<typename T, t_if_int<T> = traits::YES>
-    r_binary operator|=(T) noexcept; // BIN_METHOD_38_
-
-    r_binary operator|=(R_binary) noexcept; // BIN_METHOD_41_
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    template<typename T, t_if_int<T> = traits::YES>
-    r_binary operator^=(T) noexcept; // BIN_METHOD_42_
-
-    r_binary operator^=(R_binary) noexcept; // BIN_METHOD_45_
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    t_binary operator-()      noexcept; // BIN_METHOD_46_
-    t_binary operator~()      noexcept; // BIN_METHOD_47_
-    r_binary operator>>=(t_n) noexcept; // BIN_METHOD_48_
-    r_binary operator<<=(t_n) noexcept; // BIN_METHOD_49_
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    r_binary ones_complement()     noexcept; // BIN_METHOD_50_
-    r_binary twos_complement()     noexcept; // BIN_METHOD_51_
-    r_binary shift_left(t_n)       noexcept; // BIN_METHOD_52_
-    r_binary shift_right(t_n)      noexcept; // BIN_METHOD_53_
-    r_binary set_bit(t_ix, t_bool) noexcept; // BIN_METHOD_54_
-    r_binary set_bits(t_n)         noexcept; // BIN_METHOD_63_
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    operator t_bool()       const noexcept; // BIN_METHOD_63_
-    t_n    get_bits()       const noexcept; // BIN_METHOD_55_
-    t_bool operator[](t_ix) const noexcept; // BIN_METHOD_56_
-    t_bool is_negative()    const noexcept; // BIN_METHOD_57_
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    r_binary reset()       noexcept; // BIN_METHOD_58_
     template<typename T, t_if_neg<T> = traits::YES>
-    r_binary reset(     T) noexcept; // BIN_METHOD_59_
-    template<typename T, t_if_neg<T> = traits::YES>
-    r_binary reset(t_n, T) noexcept; // BIN_METHOD_60_
+    r_binary operator&=(T)        noexcept; // BIN_METHOD_7_2_
     template<typename T, t_if_pos<T> = traits::YES>
-    r_binary reset(     T) noexcept; // BIN_METHOD_61_
-    template<typename T, t_if_pos<T> = traits::YES>
-    r_binary reset(t_n, T) noexcept; // BIN_METHOD_62_
+    r_binary operator&=(T)        noexcept; // BIN_METHOD_7_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
-    t_bool is_equal(R_binary) const noexcept; // BIN_METHOD_63_
-    template<typename T, t_if_neg<T> = traits::YES>
-    t_bool is_equal(T) const noexcept; // BIN_METHOD_64_
-    template<typename T, t_if_pos<T> = traits::YES>
-    t_bool is_equal(T) const noexcept; // BIN_METHOD_65_
+    r_binary operator|=(R_binary) noexcept; // BIN_METHOD_8_1_
 
-    t_bool is_less(R_binary) const noexcept; // BIN_METHOD_66_
     template<typename T, t_if_neg<T> = traits::YES>
-    t_bool is_less(T) const noexcept; // BIN_METHOD_67_
+    r_binary operator|=(T)        noexcept; // BIN_METHOD_8_2_
     template<typename T, t_if_pos<T> = traits::YES>
-    t_bool is_less(T) const noexcept; // BIN_METHOD_68_
+    r_binary operator|=(T)        noexcept; // BIN_METHOD_8_3_
 
-    t_bool is_less_equal(R_binary) const noexcept; // BIN_METHOD_69_
+    ///////////////////////////////////////////////////////////////////////////
+
+    r_binary operator^=(R_binary) noexcept; // BIN_METHOD_9_1_
+
     template<typename T, t_if_neg<T> = traits::YES>
-    t_bool is_less_equal(T) const noexcept; // BIN_METHOD_70_
+    r_binary operator^=(T)        noexcept; // BIN_METHOD_9_2_
     template<typename T, t_if_pos<T> = traits::YES>
-    t_bool is_less_equal(T) const noexcept; // BIN_METHOD_71_
+    r_binary operator^=(T)        noexcept; // BIN_METHOD_9_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_binary operator-()     const noexcept; // BIN_METHOD_10_
+    t_binary operator~()     const noexcept; // BIN_METHOD_11_
+    r_binary operator>>=(t_n)      noexcept; // BIN_METHOD_12_
+    r_binary operator<<=(t_n)      noexcept; // BIN_METHOD_13_
+
+    r_binary ones_complement()     noexcept; // BIN_METHOD_14_
+    r_binary twos_complement()     noexcept; // BIN_METHOD_15_
+    r_binary shift_left(t_n)       noexcept; // BIN_METHOD_16_
+    r_binary shift_right(t_n)      noexcept; // BIN_METHOD_17_
+    t_bool   set_bit(t_ix, t_bool) noexcept; // BIN_METHOD_18_
+    t_bool   ensure_bits(t_n)      noexcept; // BIN_METHOD_19_
+
+    operator t_bool()        const noexcept; // BIN_METHOD_20_
+    t_bool operator[](t_ix)  const noexcept; // BIN_METHOD_21_
+    t_n    get_bits()        const noexcept; // BIN_METHOD_22_
+    t_bool is_negative()     const noexcept; // BIN_METHOD_23_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_void reset()              noexcept; // BIN_METHOD_24_1_
+    t_bool reset(     R_binary) noexcept; // BIN_METHOD_24_2_
+    t_bool reset(t_n, R_binary) noexcept; // BIN_METHOD_24_3_
+
+    template<typename T, t_if_neg<T> = traits::YES>
+    t_void reset(     T)        noexcept; // BIN_METHOD_24_4_
+    template<typename T, t_if_neg<T> = traits::YES>
+    t_bool reset(t_n, T)        noexcept; // BIN_METHOD_24_5_
+    template<typename T, t_if_pos<T> = traits::YES>
+    t_void reset(     T)        noexcept; // BIN_METHOD_24_6_
+    template<typename T, t_if_pos<T> = traits::YES>
+    t_bool reset(t_n, T)        noexcept; // BIN_METHOD_24_7_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_bool is_equal(R_binary) const noexcept; // BIN_METHOD_25_1_
+
+    template<typename T, t_if_neg<T> = traits::YES>
+    t_bool is_equal(T)        const noexcept; // BIN_METHOD_25_2_
+    template<typename T, t_if_pos<T> = traits::YES>
+    t_bool is_equal(T)        const noexcept; // BIN_METHOD_25_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_bool is_less(R_binary) const noexcept; // BIN_METHOD_26_1_
+
+    template<typename T, t_if_neg<T> = traits::YES>
+    t_bool is_less(T)        const noexcept; // BIN_METHOD_26_2_
+    template<typename T, t_if_pos<T> = traits::YES>
+    t_bool is_less(T)        const noexcept; // BIN_METHOD_26_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_bool is_less_equal(R_binary) const noexcept; // BIN_METHOD_27_1_
+
+    template<typename T, t_if_neg<T> = traits::YES>
+    t_bool is_less_equal(T)        const noexcept; // BIN_METHOD_27_2_
+    template<typename T, t_if_pos<T> = traits::YES>
+    t_bool is_less_equal(T)        const noexcept; // BIN_METHOD_27_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -212,19 +219,137 @@ namespace numeric
     t_impl_  impl_;
   };
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   // make_binary();
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+
+  class t_integer;
+  using r_integer = types::t_prefix<t_integer>::r_;
+  using x_integer = types::t_prefix<t_integer>::x_;
+  using R_integer = types::t_prefix<t_integer>::R_;
 
   class t_integer {
   public:
+    t_integer()               noexcept; // INT_METHOD_1_1_
+    t_integer(t_n)            noexcept; // INT_METHOD_1_2_
+
+    t_integer(     R_integer) noexcept; // INT_METHOD_1_3_
+    t_integer(t_n, R_integer) noexcept; // INT_METHOD_1_4_
+    t_integer(     x_integer) noexcept; // INT_METHOD_1_5_
+    t_integer(t_n, x_integer) noexcept; // INT_METHOD_1_6_
+
+    t_integer(     R_binary)  noexcept; // INT_METHOD_1_7_
+    t_integer(t_n, R_binary)  noexcept; // INT_METHOD_1_8_
+    t_integer(     x_binary)  noexcept; // INT_METHOD_1_9_
+    t_integer(t_n, x_binary)  noexcept; // INT_METHOD_1_10_
+
+    template<typename T, t_if_int<T> = traits::YES>
+    t_integer(     T)         noexcept; // INT_METHOD_1_11_
+    template<typename T, t_if_int<T> = traits::YES>
+    t_integer(t_n, T)         noexcept; // INT_METHOD_1_12_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    r_integer operator=(R_integer) noexcept; // INT_METHOD_2_1_
+    r_integer operator=(x_integer) noexcept; // INT_METHOD_2_2_
+
+    r_integer operator=(R_binary)  noexcept; // INT_METHOD_2_3_
+    r_integer operator=(x_binary)  noexcept; // INT_METHOD_2_4_
+
+    template<typename T, t_if_int<T> = traits::YES>
+    r_integer operator=(T)         noexcept; // INT_METHOD_2_5_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    r_integer operator+=(R_integer) noexcept; // INT_METHOD_3_1_
+    r_integer operator+=(R_binary)  noexcept; // INT_METHOD_3_2_
+
+    template<typename T, t_if_int<T> = traits::YES>
+    r_integer operator+=(T)         noexcept; // INT_METHOD_3_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    r_integer operator-=(R_integer) noexcept; // INT_METHOD_4_1_
+    r_integer operator-=(R_binary)  noexcept; // INT_METHOD_4_2_
+
+    template<typename T, t_if_int<T> = traits::YES>
+    r_integer operator-=(T)         noexcept; // INT_METHOD_4_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    r_integer operator*=(R_integer) noexcept; // INT_METHOD_5_1_
+    r_integer operator*=(R_binary)  noexcept; // INT_METHOD_5_2_
+
+    template<typename T, t_if_int<T> = traits::YES>
+    r_integer operator*=(T)         noexcept; // INT_METHOD_5_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    r_integer operator/=(R_integer) noexcept; // INT_METHOD_6_1_
+    r_integer operator/=(R_binary)  noexcept; // INT_METHOD_6_2_
+
+    template<typename T, t_if_int<T> = traits::YES>
+    r_integer operator/=(T)         noexcept; // INT_METHOD_6_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_bool    ensure_digits(t_n)  noexcept; // INT_METHOD_7_
+    t_integer operator-()   const noexcept; // INT_METHOD_8_
+    t_n       get_digits()  const noexcept; // INT_METHOD_9_
+    t_bool    is_negative() const noexcept; // INT_METHOD_10_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    operator x_binary() &&    noexcept; // INT_METHOD_11_1_
+    operator R_binary() const noexcept; // INT_METHOD_11_2_
+    operator t_bool()   const noexcept; // INT_METHOD_11_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_void reset()               noexcept; // INT_METHOD_12_1_
+    t_bool reset(     R_integer) noexcept; // INT_METHOD_12_2_
+    t_bool reset(t_n, R_integer) noexcept; // INT_METHOD_12_3_
+    t_bool reset(     R_binary)  noexcept; // INT_METHOD_12_4_
+    t_bool reset(t_n, R_binary)  noexcept; // INT_METHOD_12_5_
+
+    template<typename T, t_if_int<T> = traits::YES>
+    t_void reset(     T)         noexcept; // INT_METHOD_12_6_
+    template<typename T, t_if_int<T> = traits::YES>
+    t_bool reset(t_n, T)         noexcept; // INT_METHOD_12_7_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_bool is_equal(R_integer) const noexcept; // INT_METHOD_13_1_
+    t_bool is_equal(R_binary)  const noexcept; // INT_METHOD_13_2_
+
+    template<typename T, t_if_int<T> = traits::YES>
+    t_bool is_equal(T)         const noexcept; // INT_METHOD_13_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_bool is_less(R_integer) const noexcept; // INT_METHOD_14_1_
+    t_bool is_less(R_binary)  const noexcept; // INT_METHOD_14_2_
+
+    template<typename T, t_if_int<T> = traits::YES>
+    t_bool is_less(T)         const noexcept; // INT_METHOD_14_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_bool is_less_equal(R_integer) const noexcept; // INT_METHOD_15_1_
+    t_bool is_less_equal(R_binary)  const noexcept; // INT_METHOD_15_2_
+
+    template<typename T, t_if_int<T> = traits::YES>
+    t_bool is_less_equal(T)         const noexcept; // INT_METHOD_15_3_
+
   private:
-    t_binary binary_;
+    t_binary bin_;
   };
 
-  class t_rational {
+  /////////////////////////////////////////////////////////////////////////////
+
+  class t_fraction {
   public:
   private:
     t_integer numerator_;
@@ -236,993 +361,2066 @@ namespace numeric
   private:
   };
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
-  t_binary operator+(R_binary, R_binary) noexcept; // BIN_FUNC_1_
-  t_binary operator+(x_binary, R_binary) noexcept; // BIN_FUNC_2_
-  t_binary operator+(R_binary, x_binary) noexcept; // BIN_FUNC_3_
-  t_binary operator+(x_binary, x_binary) noexcept; // BIN_FUNC_4_
-
-  template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator+(R_binary, T) noexcept; // BIN_FUNC_5_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator+(T, R_binary) noexcept; // BIN_FUNC_6_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator+(x_binary, T) noexcept; // BIN_FUNC_7_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator+(T, x_binary) noexcept; // BIN_FUNC_8_
-
-  t_binary operator-(R_binary, R_binary) noexcept; // BIN_FUNC_9_
-  t_binary operator-(x_binary, R_binary) noexcept; // BIN_FUNC_10_
-  t_binary operator-(R_binary, x_binary) noexcept; // BIN_FUNC_11_
-  t_binary operator-(x_binary, x_binary) noexcept; // BIN_FUNC_12_
+  t_binary operator+(R_binary, R_binary) noexcept; // BIN_FUNC_1_1_
+  t_binary operator+(x_binary, R_binary) noexcept; // BIN_FUNC_1_2_
+  t_binary operator+(R_binary, x_binary) noexcept; // BIN_FUNC_1_3_
+  t_binary operator+(x_binary, x_binary) noexcept; // BIN_FUNC_1_4_
 
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator-(R_binary, T) noexcept; // BIN_FUNC_13_
+  t_binary operator+(R_binary, T)        noexcept; // BIN_FUNC_1_5_
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator-(T, R_binary) noexcept; // BIN_FUNC_14_
+  t_binary operator+(T, R_binary)        noexcept; // BIN_FUNC_1_6_
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator-(x_binary, T) noexcept; // BIN_FUNC_15_
+  t_binary operator+(x_binary, T)        noexcept; // BIN_FUNC_1_7_
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator-(T, x_binary) noexcept; // BIN_FUNC_16_
+  t_binary operator+(T, x_binary)        noexcept; // BIN_FUNC_1_8_
 
-  t_binary operator*(R_binary, R_binary) noexcept; // BIN_FUNC_17_
-  t_binary operator*(x_binary, R_binary) noexcept; // BIN_FUNC_18_
-  t_binary operator*(R_binary, x_binary) noexcept; // BIN_FUNC_19_
-  t_binary operator*(x_binary, x_binary) noexcept; // BIN_FUNC_20_
+  /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator*(R_binary, T) noexcept; // BIN_FUNC_21_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator*(T, R_binary) noexcept; // BIN_FUNC_22_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator*(x_binary, T) noexcept; // BIN_FUNC_23_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator*(T, x_binary) noexcept; // BIN_FUNC_24_
-
-  t_binary operator/(R_binary, R_binary) noexcept; // BIN_FUNC_25_
-  t_binary operator/(x_binary, R_binary) noexcept; // BIN_FUNC_26_
-  t_binary operator/(R_binary, x_binary) noexcept; // BIN_FUNC_27_
-  t_binary operator/(x_binary, x_binary) noexcept; // BIN_FUNC_28_
+  t_binary operator-(R_binary, R_binary) noexcept; // BIN_FUNC_2_1_
+  t_binary operator-(x_binary, R_binary) noexcept; // BIN_FUNC_2_2_
+  t_binary operator-(R_binary, x_binary) noexcept; // BIN_FUNC_2_3_
+  t_binary operator-(x_binary, x_binary) noexcept; // BIN_FUNC_2_4_
 
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator/(R_binary, T) noexcept; // BIN_FUNC_29_
+  t_binary operator-(R_binary, T)        noexcept; // BIN_FUNC_2_5_
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator/(T, R_binary) noexcept; // BIN_FUNC_30_
+  t_binary operator-(T, R_binary)        noexcept; // BIN_FUNC_2_6_
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator/(x_binary, T) noexcept; // BIN_FUNC_31_
+  t_binary operator-(x_binary, T)        noexcept; // BIN_FUNC_2_7_
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator/(T, x_binary) noexcept; // BIN_FUNC_32_
+  t_binary operator-(T, x_binary)        noexcept; // BIN_FUNC_2_8_
 
-  t_binary operator|(R_binary, R_binary) noexcept; // BIN_FUNC_33_
-  t_binary operator|(x_binary, R_binary) noexcept; // BIN_FUNC_34_
-  t_binary operator|(R_binary, x_binary) noexcept; // BIN_FUNC_35_
-  t_binary operator|(x_binary, x_binary) noexcept; // BIN_FUNC_36_
+  /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator|(R_binary, T) noexcept; // BIN_FUNC_37_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator|(T, R_binary) noexcept; // BIN_FUNC_38_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator|(x_binary, T) noexcept; // BIN_FUNC_39_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator|(T, x_binary) noexcept; // BIN_FUNC_40_
-
-  t_binary operator&(R_binary, R_binary) noexcept; // BIN_FUNC_41_
-  t_binary operator&(x_binary, R_binary) noexcept; // BIN_FUNC_42_
-  t_binary operator&(R_binary, x_binary) noexcept; // BIN_FUNC_43_
-  t_binary operator&(x_binary, x_binary) noexcept; // BIN_FUNC_44_
+  t_binary operator*(R_binary, R_binary) noexcept; // BIN_FUNC_3_1_
+  t_binary operator*(x_binary, R_binary) noexcept; // BIN_FUNC_3_2_
+  t_binary operator*(R_binary, x_binary) noexcept; // BIN_FUNC_3_3_
+  t_binary operator*(x_binary, x_binary) noexcept; // BIN_FUNC_3_4_
 
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator&(R_binary, T) noexcept; // BIN_FUNC_45_
+  t_binary operator*(R_binary, T)        noexcept; // BIN_FUNC_3_5_
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator&(T, R_binary) noexcept; // BIN_FUNC_46_
+  t_binary operator*(T, R_binary)        noexcept; // BIN_FUNC_3_6_
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator&(x_binary, T) noexcept; // BIN_FUNC_47_
+  t_binary operator*(x_binary, T)        noexcept; // BIN_FUNC_3_7_
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator&(T, x_binary) noexcept; // BIN_FUNC_48_
+  t_binary operator*(T, x_binary)        noexcept; // BIN_FUNC_3_8_
 
-  t_binary operator^(R_binary, R_binary) noexcept; // BIN_FUNC_49_
-  t_binary operator^(x_binary, R_binary) noexcept; // BIN_FUNC_50_
-  t_binary operator^(R_binary, x_binary) noexcept; // BIN_FUNC_51_
-  t_binary operator^(x_binary, x_binary) noexcept; // BIN_FUNC_52_
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_binary operator/(R_binary, R_binary) noexcept; // BIN_FUNC_4_1_
+  t_binary operator/(x_binary, R_binary) noexcept; // BIN_FUNC_4_2_
+  t_binary operator/(R_binary, x_binary) noexcept; // BIN_FUNC_4_3_
+  t_binary operator/(x_binary, x_binary) noexcept; // BIN_FUNC_4_4_
 
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator^(R_binary, T) noexcept; // BIN_FUNC_53_
+  t_binary operator/(R_binary, T)        noexcept; // BIN_FUNC_4_5_
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator^(T, R_binary) noexcept; // BIN_FUNC_54_
+  t_binary operator/(T, R_binary)        noexcept; // BIN_FUNC_4_6_
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator^(x_binary, T) noexcept; // BIN_FUNC_55_
+  t_binary operator/(x_binary, T)        noexcept; // BIN_FUNC_4_7_
   template<typename T, t_if_int<T> = traits::YES>
-  t_binary operator^(T, x_binary) noexcept; // BIN_FUNC_56_
+  t_binary operator/(T, x_binary)        noexcept; // BIN_FUNC_4_8_
 
-  t_binary operator>>(t_binary, t_n) noexcept; // BIN_FUNC_57_
-  t_binary operator<<(t_binary, t_n) noexcept; // BIN_FUNC_66_
+  /////////////////////////////////////////////////////////////////////////////
 
-  t_bool operator==(R_binary, R_binary) noexcept; // BIN_FUNC_67_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_bool operator==(R_binary, T) noexcept; // BIN_FUNC_68_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_bool operator==(T, R_binary) noexcept; // BIN_FUNC_69_
+  t_binary operator|(R_binary, R_binary) noexcept; // BIN_FUNC_5_1_
+  t_binary operator|(x_binary, R_binary) noexcept; // BIN_FUNC_5_2_
+  t_binary operator|(R_binary, x_binary) noexcept; // BIN_FUNC_5_3_
+  t_binary operator|(x_binary, x_binary) noexcept; // BIN_FUNC_5_4_
 
-  t_bool operator!=(R_binary, R_binary) noexcept; // BIN_FUNC_70_
   template<typename T, t_if_int<T> = traits::YES>
-  t_bool operator!=(R_binary, T) noexcept; // BIN_FUNC_71_
+  t_binary operator|(R_binary, T)        noexcept; // BIN_FUNC_5_5_
   template<typename T, t_if_int<T> = traits::YES>
-  t_bool operator!=(T, R_binary) noexcept; // BIN_FUNC_72_
+  t_binary operator|(T, R_binary)        noexcept; // BIN_FUNC_5_6_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_binary operator|(x_binary, T)        noexcept; // BIN_FUNC_5_7_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_binary operator|(T, x_binary)        noexcept; // BIN_FUNC_5_8_
 
-  t_bool operator<(R_binary, R_binary) noexcept; // BIN_FUNC_67_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_bool operator<(R_binary, T) noexcept; // BIN_FUNC_73_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_bool operator<(T, R_binary) noexcept; // BIN_FUNC_74_
+  /////////////////////////////////////////////////////////////////////////////
 
-  t_bool operator<=(R_binary, R_binary) noexcept; // BIN_FUNC_75_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_bool operator<=(R_binary, T) noexcept; // BIN_FUNC_76_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_bool operator<=(T, R_binary) noexcept; // BIN_FUNC_77_
+  t_binary operator&(R_binary, R_binary) noexcept; // BIN_FUNC_6_1_
+  t_binary operator&(x_binary, R_binary) noexcept; // BIN_FUNC_6_2_
+  t_binary operator&(R_binary, x_binary) noexcept; // BIN_FUNC_6_3_
+  t_binary operator&(x_binary, x_binary) noexcept; // BIN_FUNC_6_4_
 
-  t_bool operator>(R_binary, R_binary) noexcept; // BIN_FUNC_78_
   template<typename T, t_if_int<T> = traits::YES>
-  t_bool operator>(R_binary, T) noexcept; // BIN_FUNC_79_
+  t_binary operator&(R_binary, T)        noexcept; // BIN_FUNC_6_5_
   template<typename T, t_if_int<T> = traits::YES>
-  t_bool operator>(T, R_binary) noexcept; // BIN_FUNC_80_
+  t_binary operator&(T, R_binary)        noexcept; // BIN_FUNC_6_6_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_binary operator&(x_binary, T)        noexcept; // BIN_FUNC_6_7_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_binary operator&(T, x_binary)        noexcept; // BIN_FUNC_6_8_
 
-  t_bool operator>=(R_binary, R_binary) noexcept; // BIN_FUNC_81_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_bool operator>=(R_binary, T) noexcept; // BIN_FUNC_82_
-  template<typename T, t_if_int<T> = traits::YES>
-  t_bool operator>=(T, R_binary) noexcept; // BIN_FUNC_83_
+  /////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
+  t_binary operator^(R_binary, R_binary) noexcept; // BIN_FUNC_7_1_
+  t_binary operator^(x_binary, R_binary) noexcept; // BIN_FUNC_7_2_
+  t_binary operator^(R_binary, x_binary) noexcept; // BIN_FUNC_7_3_
+  t_binary operator^(x_binary, x_binary) noexcept; // BIN_FUNC_7_4_
 
+  template<typename T, t_if_int<T> = traits::YES>
+  t_binary operator^(R_binary, T)        noexcept; // BIN_FUNC_7_5_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_binary operator^(T, R_binary)        noexcept; // BIN_FUNC_7_6_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_binary operator^(x_binary, T)        noexcept; // BIN_FUNC_7_7_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_binary operator^(T, x_binary)        noexcept; // BIN_FUNC_7_8_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_binary operator>>(t_binary, t_n) noexcept; // BIN_FUNC_8_
+  t_binary operator<<(t_binary, t_n) noexcept; // BIN_FUNC_9_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_bool operator==(R_binary, R_binary) noexcept; // BIN_FUNC_10_1_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator==(R_binary, T)        noexcept; // BIN_FUNC_10_2_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator==(T, R_binary)        noexcept; // BIN_FUNC_10_3_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_bool operator!=(R_binary, R_binary) noexcept; // BIN_FUNC_11_1_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator!=(R_binary, T)        noexcept; // BIN_FUNC_11_2_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator!=(T, R_binary)        noexcept; // BIN_FUNC_11_3_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_bool operator<(R_binary, R_binary) noexcept; // BIN_FUNC_12_1_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator<(R_binary, T)        noexcept; // BIN_FUNC_12_2_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator<(T, R_binary)        noexcept; // BIN_FUNC_12_3_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_bool operator<=(R_binary, R_binary) noexcept; // BIN_FUNC_13_1_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator<=(R_binary, T)        noexcept; // BIN_FUNC_13_2_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator<=(T, R_binary)        noexcept; // BIN_FUNC_13_3_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_bool operator>(R_binary, R_binary) noexcept; // BIN_FUNC_14_1_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator>(R_binary, T)        noexcept; // BIN_FUNC_14_2_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator>(T, R_binary)        noexcept; // BIN_FUNC_14_3_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_bool operator>=(R_binary, R_binary) noexcept; // BIN_FUNC_15_1_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator>=(R_binary, T)        noexcept; // BIN_FUNC_15_2_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator>=(T, R_binary)        noexcept; // BIN_FUNC_15_3_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_integer operator+(R_integer, R_integer) noexcept; // INT_FUNC_1_1_
+  t_integer operator+(x_integer, R_integer) noexcept; // INT_FUNC_1_2_
+  t_integer operator+(R_integer, x_integer) noexcept; // INT_FUNC_1_3_
+  t_integer operator+(x_integer, x_integer) noexcept; // INT_FUNC_1_4_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator+(R_integer, T)         noexcept; // INT_FUNC_1_5_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator+(T, R_integer)         noexcept; // INT_FUNC_1_6_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator+(x_integer, T)         noexcept; // INT_FUNC_1_7_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator+(T, x_integer)         noexcept; // INT_FUNC_1_8_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_integer operator-(R_integer, R_integer) noexcept; // INT_FUNC_2_1_
+  t_integer operator-(x_integer, R_integer) noexcept; // INT_FUNC_2_2_
+  t_integer operator-(R_integer, x_integer) noexcept; // INT_FUNC_2_3_
+  t_integer operator-(x_integer, x_integer) noexcept; // INT_FUNC_2_4_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator-(R_integer, T)         noexcept; // INT_FUNC_2_5_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator-(T, R_integer)         noexcept; // INT_FUNC_2_6_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator-(x_integer, T)         noexcept; // INT_FUNC_2_7_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator-(T, x_integer)         noexcept; // INT_FUNC_2_8_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_integer operator*(R_integer, R_integer) noexcept; // INT_FUNC_3_1_
+  t_integer operator*(x_integer, R_integer) noexcept; // INT_FUNC_3_2_
+  t_integer operator*(R_integer, x_integer) noexcept; // INT_FUNC_3_3_
+  t_integer operator*(x_integer, x_integer) noexcept; // INT_FUNC_3_4_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator*(R_integer, T)         noexcept; // INT_FUNC_3_5_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator*(T, R_integer)         noexcept; // INT_FUNC_3_6_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator*(x_integer, T)         noexcept; // INT_FUNC_3_7_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator*(T, x_integer)         noexcept; // INT_FUNC_3_8_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_integer operator/(R_integer, R_integer) noexcept; // INT_FUNC_4_1_
+  t_integer operator/(x_integer, R_integer) noexcept; // INT_FUNC_4_2_
+  t_integer operator/(R_integer, x_integer) noexcept; // INT_FUNC_4_3_
+  t_integer operator/(x_integer, x_integer) noexcept; // INT_FUNC_4_4_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator/(R_integer, T)         noexcept; // INT_FUNC_4_5_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator/(T, R_integer)         noexcept; // INT_FUNC_4_6_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator/(x_integer, T)         noexcept; // INT_FUNC_4_7_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_integer operator/(T, x_integer)         noexcept; // INT_FUNC_4_8_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_bool operator==(R_integer, R_integer) noexcept; // INT_FUNC_5_1_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator==(R_integer, T)         noexcept; // INT_FUNC_5_2_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator==(T, R_integer)         noexcept; // INT_FUNC_5_3_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_bool operator!=(R_integer, R_integer) noexcept; // INT_FUNC_6_1_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator!=(R_integer, T)         noexcept; // INT_FUNC_6_2_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator!=(T, R_integer)         noexcept; // INT_FUNC_6_3_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_bool operator<(R_integer, R_integer) noexcept; // INT_FUNC_7_1_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator<(R_integer, T)         noexcept; // INT_FUNC_7_2_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator<(T, R_integer)         noexcept; // INT_FUNC_7_3_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_bool operator<=(R_integer, R_integer) noexcept; // INT_FUNC_8_1_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator<=(R_integer, T)         noexcept; // INT_FUNC_8_2_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator<=(T, R_integer)         noexcept; // INT_FUNC_8_3_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_bool operator>(R_integer, R_integer) noexcept; // INT_FUNC_9_1_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator>(R_integer, T)         noexcept; // INT_FUNC_9_2_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator>(T, R_integer)         noexcept; // INT_FUNC_9_3_
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_bool operator>=(R_integer, R_integer) noexcept; // INT_FUNC_10_1_
+
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator>=(R_integer, T)         noexcept; // INT_FUNC_10_2_
+  template<typename T, t_if_int<T> = traits::YES>
+  t_bool operator>=(T, R_integer)         noexcept; // INT_FUNC_10_3_
+
+  /////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_1_1_
   inline
-  t_binary::t_binary() noexcept : impl_{store_} { // BIN_METHOD_1_
+  t_binary::t_binary() noexcept : impl_{store_} {
   }
 
+  // BIN_METHOD_1_2_
   inline
-  t_binary::t_binary(t_n n) noexcept
-    : store_{n, 0}, impl_{store_} { // BIN_METHOD_2_
+  t_binary::t_binary(t_n n) noexcept : store_{n}, impl_{store_} {
   }
 
-  template<typename T, t_if_neg<T>>
+  // BIN_METHOD_1_3_
   inline
-  t_binary::t_binary(T value) noexcept
-    : impl_{store_, static_cast<impl_::t_nvalue_>(value)} { // BIN_METHOD_3_
+  t_binary::t_binary(R_binary value) noexcept : impl_{store_, value.store_} {
   }
 
-  template<typename T, t_if_neg<T>>
-  inline
-  t_binary::t_binary(t_n n, T value) noexcept
-    : store_{n, 0}, impl_{store_, static_cast<impl_::t_nvalue_>(value)} { // BIN_METHOD_4_
-  }
-
-  template<typename T, t_if_pos<T>>
-  inline
-  t_binary::t_binary(T value) noexcept
-    : impl_{store_, static_cast<impl_::t_pvalue_>(value)} { // BIN_METHOD_5_
-  }
-
-  template<typename T, t_if_pos<T>>
-  inline
-  t_binary::t_binary(t_n n, T value) noexcept
-    : store_{n, 0}, impl_{store_, static_cast<impl_::t_pvalue_>(value)} { // BIN_METHOD_6_
-  }
-
-  inline
-  t_binary::t_binary(R_binary value) noexcept : impl_{store_, value.store_} { // BIN_METHOD_7_
-  }
-
+  // BIN_METHOD_1_4_
   inline
   t_binary::t_binary(t_n n, R_binary value) noexcept
-    : store_{n, 0}, impl_{store_, value.store_} { // BIN_METHOD_10_
+    : store_{n}, impl_{store_, value.store_} {
   }
 
+  // BIN_METHOD_1_5_
   inline
-  t_binary::t_binary(x_binary value) noexcept
-    : impl_{store_, value.store_} { // BIN_METHOD_11_
+  t_binary::t_binary(x_binary value) noexcept : impl_{store_, value.store_} {
   }
 
+  // BIN_METHOD_1_6_
   inline
   t_binary::t_binary(t_n n, x_binary value) noexcept
-    : store_{n, 0}, impl_{store_, value.store_} { // BIN_METHOD_12_
+    : store_{n}, impl_{store_, value.store_} {
   }
 
+  // BIN_METHOD_1_7_
   template<typename T, t_if_neg<T>>
   inline
-  r_binary t_binary::operator=(T value) noexcept { // BIN_METHOD_13_
+  t_binary::t_binary(T value) noexcept
+    : impl_{store_, static_cast<impl_::t_nvalue_>(value)} {
+  }
+
+  // BIN_METHOD_1_8_
+  template<typename T, t_if_neg<T>>
+  inline
+  t_binary::t_binary(t_n n, T value) noexcept
+    : store_{n}, impl_{store_, static_cast<impl_::t_nvalue_>(value)} {
+  }
+
+  // BIN_METHOD_1_9_
+  template<typename T, t_if_pos<T>>
+  inline
+  t_binary::t_binary(T value) noexcept
+    : impl_{store_, static_cast<impl_::t_pvalue_>(value)} {
+  }
+
+  // BIN_METHOD_1_10_
+  template<typename T, t_if_pos<T>>
+  inline
+  t_binary::t_binary(t_n n, T value) noexcept
+    : store_{n}, impl_{store_, static_cast<impl_::t_pvalue_>(value)} {
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_2_1_
+  inline
+  r_binary t_binary::operator=(R_binary value) noexcept {
+    impl_.assign(store_, value.store_);
+    return *this;
+  }
+
+  // BIN_METHOD_2_2_
+  inline
+  r_binary t_binary::operator=(x_binary value) noexcept {
+    impl_.assign(store_, value.store_);
+    return *this;
+  }
+
+  // BIN_METHOD_2_3_
+  template<typename T, t_if_neg<T>>
+  inline
+  r_binary t_binary::operator=(T value) noexcept {
     impl_.assign(store_, static_cast<impl_::t_nvalue_>(value));
     return *this;
   }
 
+  // BIN_METHOD_2_4_
   template<typename T, t_if_pos<T>>
   inline
-  r_binary t_binary::operator=(T value) noexcept { // BIN_METHOD_14_
+  r_binary t_binary::operator=(T value) noexcept {
     impl_.assign(store_, static_cast<impl_::t_pvalue_>(value));
     return *this;
   }
 
-  inline
-  r_binary t_binary::operator=(R_binary value) noexcept { // BIN_METHOD_16_
-    impl_.assign(store_, value.store_);
-    return *this;
-  }
+  /////////////////////////////////////////////////////////////////////////////
 
+  // BIN_METHOD_3_1_
   inline
-  r_binary t_binary::operator=(x_binary value) noexcept { // BIN_METHOD_17_
-    impl_.assign(store_, value.store_);
-    return *this;
-  }
-
-  template<typename T, t_if_neg<T>>
-  inline
-  r_binary t_binary::operator+=(T value) noexcept { // BIN_METHOD_18_
-    impl_.addition(store_, static_cast<impl_::t_nvalue_>(value));
-    return *this;
-  }
-
-  template<typename T, t_if_pos<T>>
-  inline
-  r_binary t_binary::operator+=(T value) noexcept { // BIN_METHOD_19_
-    impl_.addition(store_, static_cast<impl_::t_pvalue_>(value));
-    return *this;
-  }
-
-  inline
-  r_binary t_binary::operator+=(R_binary value) noexcept { // BIN_METHOD_21_
+  r_binary t_binary::operator+=(R_binary value) noexcept {
     impl_.addition(store_, value.store_);
     return *this;
   }
 
+  // BIN_METHOD_3_2_
   template<typename T, t_if_neg<T>>
   inline
-  r_binary t_binary::operator-=(T value) noexcept { // BIN_METHOD_22_
-    impl_.subtraction(store_, static_cast<impl_::t_nvalue_>(value));
+  r_binary t_binary::operator+=(T value) noexcept {
+    impl_.addition(store_, static_cast<impl_::t_nvalue_>(value));
     return *this;
   }
 
+  // BIN_METHOD_3_3_
   template<typename T, t_if_pos<T>>
   inline
-  r_binary t_binary::operator-=(T value) noexcept { // BIN_METHOD_23_
-    impl_.subtraction(store_, static_cast<impl_::t_pvalue_>(value));
+  r_binary t_binary::operator+=(T value) noexcept {
+    impl_.addition(store_, static_cast<impl_::t_pvalue_>(value));
     return *this;
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_4_1_
   inline
-  r_binary t_binary::operator-=(R_binary value) noexcept { // BIN_METHOD_25_
+  r_binary t_binary::operator-=(R_binary value) noexcept {
     impl_.subtraction(store_, value.store_);
     return *this;
   }
 
+  // BIN_METHOD_4_2_
   template<typename T, t_if_neg<T>>
   inline
-  r_binary t_binary::operator*=(T value) noexcept { // BIN_METHOD_26_
-    impl_.multiplication(store_, static_cast<impl_::t_nvalue_>(value));
+  r_binary t_binary::operator-=(T value) noexcept {
+    impl_.subtraction(store_, static_cast<impl_::t_nvalue_>(value));
     return *this;
   }
 
+  // BIN_METHOD_4_3_
   template<typename T, t_if_pos<T>>
   inline
-  r_binary t_binary::operator*=(T value) noexcept { // BIN_METHOD_27_
-    impl_.multiplication(store_, static_cast<impl_::t_pvalue_>(value));
+  r_binary t_binary::operator-=(T value) noexcept {
+    impl_.subtraction(store_, static_cast<impl_::t_pvalue_>(value));
     return *this;
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_5_1_
   inline
-  r_binary t_binary::operator*=(R_binary value) noexcept { // BIN_METHOD_29_
+  r_binary t_binary::operator*=(R_binary value) noexcept {
     impl_.multiplication(store_, value.store_);
     return *this;
   }
 
+  // BIN_METHOD_5_2_
   template<typename T, t_if_neg<T>>
   inline
-  r_binary t_binary::operator/=(T value) noexcept { // BIN_METHOD_30_
-    impl_.division(store_, static_cast<impl_::t_nvalue_>(value));
+  r_binary t_binary::operator*=(T value) noexcept {
+    impl_.multiplication(store_, static_cast<impl_::t_nvalue_>(value));
     return *this;
   }
 
+  // BIN_METHOD_5_3_
   template<typename T, t_if_pos<T>>
   inline
-  r_binary t_binary::operator/=(T value) noexcept { // BIN_METHOD_31_
-    impl_.division(store_, static_cast<impl_::t_pvalue_>(value));
+  r_binary t_binary::operator*=(T value) noexcept {
+    impl_.multiplication(store_, static_cast<impl_::t_pvalue_>(value));
     return *this;
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_6_1_
   inline
-  r_binary t_binary::operator/=(R_binary value) noexcept { // BIN_METHOD_33_
+  r_binary t_binary::operator/=(R_binary value) noexcept {
     impl_.division(store_, value.store_);
     return *this;
   }
 
-  template<typename T, t_if_int<T>>
+  // BIN_METHOD_6_2_
+  template<typename T, t_if_neg<T>>
   inline
-  r_binary t_binary::operator&=(T value) noexcept { // BIN_METHOD_34_
-    impl_.binary_and(store_, static_cast<impl_::t_pvalue_>(value));
+  r_binary t_binary::operator/=(T value) noexcept {
+    impl_.division(store_, static_cast<impl_::t_nvalue_>(value));
     return *this;
   }
 
+  // BIN_METHOD_6_3_
+  template<typename T, t_if_pos<T>>
   inline
-  r_binary t_binary::operator&=(R_binary value) noexcept { // BIN_METHOD_37_
+  r_binary t_binary::operator/=(T value) noexcept {
+    impl_.division(store_, static_cast<impl_::t_pvalue_>(value));
+    return *this;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_7_1_
+  inline
+  r_binary t_binary::operator&=(R_binary value) noexcept {
     impl_.binary_and(store_, value.store_);
     return *this;
   }
 
-  template<typename T, t_if_int<T>>
+  // BIN_METHOD_7_2_
+  template<typename T, t_if_neg<T>>
   inline
-  r_binary t_binary::operator|=(T value) noexcept { // BIN_METHOD_38_
-    impl_.binary_or(store_, static_cast<impl_::t_pvalue_>(value));
+  r_binary t_binary::operator&=(T value) noexcept {
+    impl_.binary_and(store_, static_cast<impl_::t_nvalue_>(value));
     return *this;
   }
 
+  // BIN_METHOD_7_3_
+  template<typename T, t_if_pos<T>>
   inline
-  r_binary t_binary::operator|=(R_binary value) noexcept { // BIN_METHOD_41_
+  r_binary t_binary::operator&=(T value) noexcept {
+    impl_.binary_and(store_, static_cast<impl_::t_pvalue_>(value));
+    return *this;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_8_1_
+  inline
+  r_binary t_binary::operator|=(R_binary value) noexcept {
     impl_.binary_or(store_, value.store_);
     return *this;
   }
 
-  template<typename T, t_if_int<T>>
+  // BIN_METHOD_8_2_
+  template<typename T, t_if_neg<T>>
   inline
-  r_binary t_binary::operator^=(T value) noexcept { // BIN_METHOD_43_
-    impl_.binary_xor(store_, static_cast<impl_::t_pvalue_>(value));
+  r_binary t_binary::operator|=(T value) noexcept {
+    impl_.binary_or(store_, static_cast<impl_::t_nvalue_>(value));
     return *this;
   }
 
+  // BIN_METHOD_8_3_
+  template<typename T, t_if_pos<T>>
   inline
-  r_binary t_binary::operator^=(R_binary value) noexcept { // BIN_METHOD_45_
+  r_binary t_binary::operator|=(T value) noexcept {
+    impl_.binary_or(store_, static_cast<impl_::t_pvalue_>(value));
+    return *this;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_9_1_
+  inline
+  r_binary t_binary::operator^=(R_binary value) noexcept {
     impl_.binary_xor(store_, value.store_);
     return *this;
   }
 
+  // BIN_METHOD_9_2_
+  template<typename T, t_if_neg<T>>
   inline
-  t_binary t_binary::operator-() noexcept { // BIN_METHOD_46_
+  r_binary t_binary::operator^=(T value) noexcept {
+    impl_.binary_xor(store_, static_cast<impl_::t_nvalue_>(value));
+    return *this;
+  }
+
+  // BIN_METHOD_9_3_
+  template<typename T, t_if_pos<T>>
+  inline
+  r_binary t_binary::operator^=(T value) noexcept {
+    impl_.binary_xor(store_, static_cast<impl_::t_pvalue_>(value));
+    return *this;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_10_
+  inline
+  t_binary t_binary::operator-() const noexcept {
     t_binary tmp(*this);
     tmp.twos_complement();
     return tmp;
   }
 
+  // BIN_METHOD_11_
   inline
-  t_binary t_binary::operator~() noexcept { // BIN_METHOD_47_
+  t_binary t_binary::operator~() const noexcept {
     t_binary tmp(*this);
     tmp.ones_complement();
     return tmp;
   }
 
+  // BIN_METHOD_12_
   inline
-  r_binary t_binary::operator>>=(t_n n) noexcept { // BIN_METHOD_48_
+  r_binary t_binary::operator>>=(t_n n) noexcept {
     impl_.shift_right(store_, n);
     return *this;
   }
 
+  // BIN_METHOD_13_
   inline
-  r_binary t_binary::operator<<=(t_n n) noexcept { // BIN_METHOD_49_
+  r_binary t_binary::operator<<=(t_n n) noexcept {
     impl_.shift_left(store_, n);
     return *this;
   }
 
+  // BIN_METHOD_14_
   inline
-  r_binary t_binary::ones_complement() noexcept { // BIN_METHOD_50_
+  r_binary t_binary::ones_complement() noexcept {
     impl_.ones_complement(store_);
     return *this;
   }
 
+  // BIN_METHOD_15_
   inline
-  r_binary t_binary::twos_complement() noexcept { // BIN_METHOD_51_
+  r_binary t_binary::twos_complement() noexcept {
     impl_.twos_complement(store_);
     return *this;
   }
 
+  // BIN_METHOD_16_
   inline
-  r_binary t_binary::shift_left(t_n n) noexcept { // BIN_METHOD_52_
+  r_binary t_binary::shift_left(t_n n) noexcept {
     impl_.shift_left(store_, n);
     return *this;
   }
 
+  // BIN_METHOD_17_
   inline
-  r_binary t_binary::shift_right(t_n n) noexcept { // BIN_METHOD_53_
+  r_binary t_binary::shift_right(t_n n) noexcept {
     impl_.shift_right(store_, n);
     return *this;
   }
 
+  // BIN_METHOD_18_
   inline
-  r_binary t_binary::set_bit(t_ix ix, t_bool on) noexcept { // BIN_METHOD_54_
-    impl_.set_bit(store_, ix, on);
-    return *this;
+  t_bool t_binary::set_bit(t_ix ix, t_bool on) noexcept {
+    return impl_.set_bit(store_, ix, on);
   }
 
+  // BIN_METHOD_19_
   inline
-  r_binary t_binary::set_bits(t_n n) noexcept { // BIN_METHOD_63_
-    impl_.set_bits(store_, n);
-    return *this;
+  t_bool t_binary::ensure_bits(t_n n) noexcept {
+    return impl_.ensure_bits(store_, n);
   }
 
+  // BIN_METHOD_20_
   inline
-  t_n t_binary::get_bits() const noexcept { // BIN_METHOD_55_
-    return impl_.get_bits(store_);
-  }
-
-  inline
-  t_bool t_binary::operator[](t_ix ix) const noexcept { // BIN_METHOD_56_
-    return impl_.get_bit(store_, ix);
-  }
-
-  inline
-  t_bool t_binary::is_negative() const noexcept { // BIN_METHOD_57_
-    return impl_.is_negative(store_);
-  }
-
-  inline
-  r_binary t_binary::reset() noexcept { // BIN_METHOD_58_
-    impl_.reset(store_, 0ULL);
-    return *this;
-  }
-
-  template<typename T, t_if_neg<T>>
-  inline
-  r_binary t_binary::reset(T value) noexcept { // BIN_METHOD_59_
-    impl_.reset(store_, static_cast<impl_::t_nvalue_>(value));
-    return *this;
-  }
-
-  template<typename T, t_if_neg<T>>
-  inline
-  r_binary t_binary::reset(t_n n, T value) noexcept { // BIN_METHOD_60_
-    impl_.reset(store_, n, static_cast<impl_::t_nvalue_>(value));
-    return *this;
-  }
-
-  template<typename T, t_if_pos<T>>
-  inline
-  r_binary t_binary::reset(T value) noexcept { // BIN_METHOD_61_
-    impl_.reset(store_, static_cast<impl_::t_pvalue_>(value));
-    return *this;
-  }
-
-  template<typename T, t_if_pos<T>>
-  inline
-  r_binary t_binary::reset(t_n n, T value) noexcept { // BIN_METHOD_62_
-    impl_.reset(store_, n, static_cast<impl_::t_pvalue_>(value));
-    return *this;
-  }
-
-  inline
-  t_binary::operator t_bool() const noexcept { // BIN_METHOD_63_
+  t_binary::operator t_bool() const noexcept {
     return impl_.not_zero(store_);
   }
 
+  // BIN_METHOD_21_
   inline
-  t_bool t_binary::is_equal(R_binary value) const noexcept { // BIN_METHOD_63_
+  t_bool t_binary::operator[](t_ix ix) const noexcept {
+    return impl_.get_bit(store_, ix);
+  }
+
+  // BIN_METHOD_22_
+  inline
+  t_n t_binary::get_bits() const noexcept {
+    return impl_.get_bits(store_);
+  }
+
+  // BIN_METHOD_23_
+  inline
+  t_bool t_binary::is_negative() const noexcept {
+    return impl_.is_negative(store_);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_24_1_
+  inline
+  t_void t_binary::reset() noexcept {
+    impl_.reset(store_, 0ULL);
+  }
+
+  // BIN_METHOD_24_2_
+  inline
+  t_bool t_binary::reset(R_binary value) noexcept {
+    return impl_.reset(store_, value.bin_);
+  }
+
+  // BIN_METHOD_24_3_
+  inline
+  t_bool t_binary::reset(t_n n, R_binary value) noexcept {
+    return impl_.reset(store_, n, value.bin_);
+  }
+
+  // BIN_METHOD_24_4_
+  template<typename T, t_if_neg<T>>
+  inline
+  t_void t_binary::reset(T value) noexcept {
+    impl_.reset(store_, static_cast<impl_::t_nvalue_>(value));
+  }
+
+  // BIN_METHOD_24_5_
+  template<typename T, t_if_neg<T>>
+  inline
+  t_bool t_binary::reset(t_n n, T value) noexcept {
+    return impl_.reset(store_, n, static_cast<impl_::t_nvalue_>(value));
+  }
+
+  // BIN_METHOD_24_6_
+  template<typename T, t_if_pos<T>>
+  inline
+  t_void t_binary::reset(T value) noexcept {
+    impl_.reset(store_, static_cast<impl_::t_pvalue_>(value));
+  }
+
+  // BIN_METHOD_24_7_
+  template<typename T, t_if_pos<T>>
+  inline
+  t_bool t_binary::reset(t_n n, T value) noexcept {
+    return impl_.reset(store_, n, static_cast<impl_::t_pvalue_>(value));
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_25_1_
+  inline
+  t_bool t_binary::is_equal(R_binary value) const noexcept {
     return impl_.is_equal(store_, value.store_);
   }
 
+  // BIN_METHOD_25_2_
   template<typename T, t_if_neg<T>>
   inline
-  t_bool t_binary::is_equal(T value) const noexcept { // BIN_METHOD_64_
+  t_bool t_binary::is_equal(T value) const noexcept {
     return impl_.is_equal(store_, static_cast<impl_::t_nvalue_>(value));
   }
 
+  // BIN_METHOD_25_3_
   template<typename T, t_if_pos<T>>
   inline
-  t_bool t_binary::is_equal(T value) const noexcept { // BIN_METHOD_65_
+  t_bool t_binary::is_equal(T value) const noexcept {
     return impl_.is_equal(store_, static_cast<impl_::t_pvalue_>(value));
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_26_1_
   inline
-  t_bool t_binary::is_less(R_binary value) const noexcept { // BIN_METHOD_66_
+  t_bool t_binary::is_less(R_binary value) const noexcept {
     return impl_.is_less(store_, value.store_);
   }
 
+  // BIN_METHOD_26_2_
   template<typename T, t_if_neg<T>>
   inline
-  t_bool t_binary::is_less(T value) const noexcept { // BIN_METHOD_67_
+  t_bool t_binary::is_less(T value) const noexcept {
     return impl_.is_less(store_, static_cast<impl_::t_nvalue_>(value));
   }
 
+  // BIN_METHOD_26_3_
   template<typename T, t_if_pos<T>>
   inline
-  t_bool t_binary::is_less(T value) const noexcept { // BIN_METHOD_68_
+  t_bool t_binary::is_less(T value) const noexcept {
     return impl_.is_less(store_, static_cast<impl_::t_pvalue_>(value));
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_METHOD_27_1_
   inline
-  t_bool t_binary::is_less_equal(R_binary value) const noexcept { // BIN_METHOD_69_
+  t_bool t_binary::is_less_equal(R_binary value) const noexcept {
     return impl_.is_less_equal(store_, value.store_);
   }
 
+  // BIN_METHOD_27_2_
   template<typename T, t_if_neg<T>>
   inline
-  t_bool t_binary::is_less_equal(T value) const noexcept { // BIN_METHOD_70_
+  t_bool t_binary::is_less_equal(T value) const noexcept {
     return impl_.is_less_equal(store_, static_cast<impl_::t_nvalue_>(value));
   }
 
+  // BIN_METHOD_27_3_
   template<typename T, t_if_pos<T>>
   inline
-  t_bool t_binary::is_less_equal(T value) const noexcept { // BIN_METHOD_71_
+  t_bool t_binary::is_less_equal(T value) const noexcept {
     return impl_.is_less_equal(store_, static_cast<impl_::t_pvalue_>(value));
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
-#define DAINTY_BASE_NUMERIC_OP_R_R_(op, lh, rh) \
-    t_binary sum(lh); \
-    sum op rh; \
-    return sum;
-
-#define DAINTY_BASE_NUMERIC_OP_X_R_(op, lh, rh) \
-    lh op rh; \
-    return x_cast(lh);
-
-#define DAINTY_BASE_NUMERIC_OP_R_X_(op, lh, rh) \
-    rh op lh; \
-    return x_cast(rh);
-
-#define DAINTY_BASE_NUMERIC_OP_X_X_(op, lh, rh) \
-    if (get(lh.get_bits()) > get(rh.get_bits())) { \
-      lh op rh; \
-      return x_cast(lh); \
-    } \
-    rh op lh; \
-    return x_cast(rh);
-
-#define DAINTY_BASE_NUMERIC_OP_R_T_(op, lh, rh) \
-    t_binary sum(lh); \
-    sum op rh; \
-    return sum;
-
-#define DAINTY_BASE_NUMERIC_OP_T_R_(op, lh, rh) \
-    t_binary sum(rh); \
-    sum op lh; \
-    return sum;
-
-#define DAINTY_BASE_NUMERIC_OP_X_T_(op, lh, rh) \
-    lh op rh; \
-    return x_cast(lh);
-
-#define DAINTY_BASE_NUMERIC_OP_T_X_(op, lh, rh) \
-    rh op lh; \
-    return x_cast(rh);
-
-///////////////////////////////////////////////////////////////////////////////
-
+  // INT_METHOD_1_1_
   inline
-  t_binary operator+(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_1_
-    DAINTY_BASE_NUMERIC_OP_R_R_(+=, lh, rh)
+  t_integer::t_integer() noexcept {
   }
 
+  // INT_METHOD_1_2_
   inline
-  t_binary operator+(x_binary lh, R_binary rh) noexcept { // BIN_FUNC_2_
+  t_integer::t_integer(t_n digits_max) noexcept
+    : bin_{calc_bits_(digits_max)} {
+  }
+
+  // INT_METHOD_1_3__
+  inline
+  t_integer::t_integer(R_integer value) noexcept : bin_{value} {
+  }
+
+  // INT_METHOD_1_4_
+  inline
+  t_integer::t_integer(t_n digits_max, R_integer value) noexcept
+    : bin_{calc_bits_(digits_max), value} {
+  }
+
+  // INT_METHOD_1_5_
+  inline
+  t_integer::t_integer(x_integer value) noexcept
+    : bin_{x_cast(value)} {
+  }
+
+  // INT_METHOD_1_6_
+  inline
+  t_integer::t_integer(t_n digits_max, x_integer value) noexcept
+    : bin_{calc_bits_(digits_max), x_cast(value)} {
+  }
+
+  // INT_METHOD_1_7__
+  inline
+  t_integer::t_integer(R_binary value) noexcept : bin_{value} {
+  }
+
+  // INT_METHOD_1_8_
+  inline
+  t_integer::t_integer(t_n digits_max, R_binary value) noexcept
+    : bin_{calc_bits_(digits_max), value} {
+  }
+
+  // INT_METHOD_1_9_
+  inline
+  t_integer::t_integer(x_binary value) noexcept
+    : bin_{x_cast(value)} {
+  }
+
+  // INT_METHOD_1_10_
+  inline
+  t_integer::t_integer(t_n digits_max, x_binary value) noexcept
+    : bin_{calc_bits_(digits_max), x_cast(value)} {
+  }
+
+  // INT_METHOD_1_11_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer::t_integer(T value) noexcept : bin_{value} {
+  }
+
+  // INT_METHOD_1_12_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer::t_integer(t_n digits_max, T value) noexcept
+    : bin_{calc_bits_(digits_max), value} {
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_METHOD_2_1_
+  inline
+  r_integer t_integer::operator=(R_integer value) noexcept {
+    bin_ = value;
+    return *this;
+  }
+
+  // INT_METHOD_2_2_
+  inline
+  r_integer t_integer::operator=(x_integer value) noexcept {
+    bin_ = x_cast(value);
+    return *this;
+  }
+
+  // INT_METHOD_2_3_
+  inline
+  r_integer t_integer::operator=(R_binary value) noexcept {
+    bin_ = value;
+    return *this;
+  }
+
+  // INT_METHOD_2_4_
+  inline
+  r_integer t_integer::operator=(x_binary value) noexcept {
+    bin_ = x_cast(value);
+    return *this;
+  }
+
+  // INT_METHOD_2_5_
+  template<typename T, t_if_int<T>>
+  inline
+  r_integer t_integer::operator=(T value) noexcept {
+    bin_ = value;
+    return *this;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_METHOD_3_1_
+  inline
+  r_integer t_integer::operator+=(R_integer value) noexcept {
+    bin_ += value;
+    return *this;
+  }
+
+  // INT_METHOD_3_2_
+  inline
+  r_integer t_integer::operator+=(R_binary value) noexcept {
+    bin_ += value;
+    return *this;
+  }
+
+  // INT_METHOD_3_3_
+  template<typename T, t_if_int<T>>
+  inline
+  r_integer t_integer::operator+=(T value) noexcept {
+    bin_ += value;
+    return *this;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_METHOD_4_1_
+  inline
+  r_integer t_integer::operator-=(R_integer value) noexcept {
+    bin_ -= value;
+    return *this;
+  }
+
+  // INT_METHOD_4_2_
+  inline
+  r_integer t_integer::operator-=(R_binary value) noexcept {
+    bin_ -= value;
+    return *this;
+  }
+
+  // INT_METHOD_4_3_
+  template<typename T, t_if_int<T>>
+  inline
+  r_integer t_integer::operator-=(T value) noexcept {
+    bin_ -= value;
+    return *this;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_METHOD_5_1_
+  inline
+  r_integer t_integer::operator*=(R_integer value) noexcept {
+    bin_ *= value;
+    return *this;
+  }
+
+  // INT_METHOD_5_2_
+  inline
+  r_integer t_integer::operator*=(R_binary value) noexcept {
+    bin_ *= value;
+    return *this;
+  }
+
+  // INT_METHOD_5_3_
+  template<typename T, t_if_int<T>>
+  inline
+  r_integer t_integer::operator*=(T value) noexcept {
+    bin_ *= value;
+    return *this;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_METHOD_6_1_
+  inline
+  r_integer t_integer::operator/=(R_integer value) noexcept {
+    bin_ /= value;
+    return *this;
+  }
+
+  // INT_METHOD_6_2_
+  inline
+  r_integer t_integer::operator/=(R_binary value) noexcept {
+    bin_ /= value;
+    return *this;
+  }
+
+  // INT_METHOD_6_3_
+  template<typename T, t_if_int<T>>
+  inline
+  r_integer t_integer::operator/=(T value) noexcept {
+    bin_ /= value;
+    return *this;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_METHOD_7_
+  inline
+  t_bool t_integer::ensure_digits(t_n digits) noexcept {
+    return bin_.ensure_bits(calc_bits_(digits));
+  }
+
+  // INT_METHOD_8_
+  inline
+  t_integer t_integer::operator-() const noexcept {
+    return t_integer{-bin_};
+  }
+
+  // INT_METHOD_9_
+  inline
+  t_n t_integer::get_digits() const noexcept {
+    return calc_digits_(bin_.get_bits());
+  }
+
+  // INT_METHOD_10_
+  inline
+  t_bool t_integer::is_negative() const noexcept {
+    return bin_.is_negative();
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_METHOD_11_1_
+  inline
+  t_integer::operator x_binary() && noexcept {
+    return x_cast(bin_);
+  }
+
+  // INT_METHOD_11_2_
+  inline
+  t_integer::operator R_binary() const noexcept {
+    return bin_;
+  }
+
+  // INT_METHOD_11_3_
+  inline
+  t_integer::operator t_bool() const noexcept {
+    return bin_;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_METHOD_12_1_
+  inline
+  t_void t_integer::reset() noexcept {
+    bin_.reset();
+  }
+
+  // INT_METHOD_12_2_
+  inline
+  t_bool t_integer::reset(R_integer value) noexcept {
+    return bin_.reset(value);
+  }
+
+  // INT_METHOD_12_3_
+  inline
+  t_bool t_integer::reset(t_n digits_max, R_integer value) noexcept {
+    return bin_.reset(calc_bits_(digits_max), value);
+  }
+
+  // INT_METHOD_12_4_
+  inline
+  t_bool t_integer::reset(R_binary value) noexcept {
+    return bin_.reset(value);
+  }
+
+  // INT_METHOD_12_5_
+  inline
+  t_bool t_integer::reset(t_n digits_max, R_binary value) noexcept {
+    return bin_.reset(calc_bits_(digits_max), value);
+  }
+
+  // INT_METHOD_12_6_
+  template<typename T, t_if_int<T>>
+  inline
+  t_void t_integer::reset(T value) noexcept {
+    bin_.reset(value);
+  }
+
+  // INT_METHOD_12_7_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool t_integer::reset(t_n digits_max, T value) noexcept {
+    return bin_.reset(calc_bits_(digits_max), value);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_METHOD_13_1_
+  inline
+  t_bool t_integer::is_equal(R_integer value) const noexcept {
+    return bin_.is_equal(value);
+  }
+
+  // INT_METHOD_13_2_
+  inline
+  t_bool t_integer::is_equal(R_binary value) const noexcept {
+    return bin_.is_equal(value);
+  }
+
+  // INT_METHOD_13_3_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool t_integer::is_equal(T value) const noexcept {
+    return bin_.is_equal(value);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_METHOD_14_1_
+  inline
+  t_bool t_integer::is_less(R_integer value) const noexcept {
+    return bin_.is_less(value);
+  }
+
+  // INT_METHOD_14_2_
+  inline
+  t_bool t_integer::is_less(R_binary value) const noexcept {
+    return bin_.is_less(value);
+  }
+
+  // INT_METHOD_14_3_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool t_integer::is_less(T value) const noexcept {
+    return bin_.is_less(value);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_METHOD_15_1_
+  inline
+  t_bool t_integer::is_less_equal(R_integer value) const noexcept {
+    return bin_.is_less_equal(value);
+  }
+
+  // INT_METHOD_15_2_
+  inline
+  t_bool t_integer::is_less_equal(R_binary value) const noexcept {
+    return bin_.is_less_equal(value);
+  }
+
+  // INT_METHOD_15_3_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool t_integer::is_less_equal(T value) const noexcept {
+    return bin_.is_less_equal(value);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  #define DAINTY_BASE_NUMERIC_OP_R_R_(type, op, lh, rh) \
+      type result(lh); \
+      result op rh; \
+      return result;
+
+  #define DAINTY_BASE_NUMERIC_OP_X_R_(op, lh, rh) \
+      lh op rh; \
+      return x_cast(lh);
+
+  #define DAINTY_BASE_NUMERIC_OP_R_X_(type, op, lh, rh) \
+      type result(lh); \
+      result op rh; \
+      return result;
+
+  #define DAINTY_BASE_NUMERIC_OP_R_X_COMMUTATIVE_(op, lh, rh) \
+      rh op lh; \
+      return x_cast(rh);
+
+  #define DAINTY_BASE_NUMERIC_OP_X_X_(op, lh, rh) \
+      lh op rh; \
+      return lh;
+
+  #define DAINTY_BASE_NUMERIC_OP_X_X_COMMUTATIVE_(op, lh_larger, lh, rh) \
+      if (lh_larger) { \
+        lh op rh; \
+        return x_cast(lh); \
+      } \
+      rh op lh; \
+      return x_cast(rh);
+
+  #define DAINTY_BASE_NUMERIC_OP_R_T_(type, op, lh, rh) \
+      type result(lh); \
+      result op rh; \
+      return result;
+
+  #define DAINTY_BASE_NUMERIC_OP_T_R_(type, op, lh, rh) \
+      type result(lh); \
+      result op rh; \
+      return result;
+
+  #define DAINTY_BASE_NUMERIC_OP_X_T_(op, lh, rh) \
+      lh op rh; \
+      return x_cast(lh);
+
+  #define DAINTY_BASE_NUMERIC_OP_T_X_(type, op, lh, rh) \
+      type result(lh); \
+      result op rh; \
+      return x_cast(rh);
+
+  #define DAINTY_BASE_NUMERIC_OP_T_X_COMMUTATIVE_(op, lh, rh) \
+      rh op lh; \
+      return x_cast(rh);
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_FUNC_1_1
+  inline
+  t_binary operator+(R_binary lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_R_(t_binary, +=, lh, rh)
+  }
+
+  // BIN_FUNC_1_2_
+  inline
+  t_binary operator+(x_binary lh, R_binary rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_R_(+=, lh, rh)
   }
 
+  // BIN_FUNC_1_3_
   inline
-  t_binary operator+(R_binary lh, x_binary rh) noexcept { // BIN_FUNC_3_
-    DAINTY_BASE_NUMERIC_OP_R_X_(+=, lh, rh)
+  t_binary operator+(R_binary lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_X_COMMUTATIVE_(+=, lh, rh)
   }
 
+  // BIN_FUNC_1_4_
   inline
-  t_binary operator+(x_binary lh, x_binary rh) noexcept { // BIN_FUNC_4_
-    DAINTY_BASE_NUMERIC_OP_X_X_(+=, lh, rh)
+  t_binary operator+(x_binary lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_X_COMMUTATIVE_(+=, get(lh.get_bits()) > get(rh.get_bits()), lh, rh)
   }
 
+  // BIN_FUNC_1_5_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator+(R_binary lh, T rh) noexcept { // BIN_FUNC_5_
-    DAINTY_BASE_NUMERIC_OP_R_T_(+=, lh, rh)
+  t_binary operator+(R_binary lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_T_(t_binary, +=, lh, rh)
   }
 
+  // BIN_FUNC_1_6_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator+(T lh, R_binary rh) noexcept { // BIN_FUNC_6_
-    DAINTY_BASE_NUMERIC_OP_T_R_(+=, lh, rh)
+  t_binary operator+(T lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_R_(t_binary, +=, lh, rh)
   }
 
+  // BIN_FUNC_1_7_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator+(x_binary lh, T rh) noexcept { // BIN_FUNC_7_
+  t_binary operator+(x_binary lh, T rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_T_(+=, lh, rh)
   }
 
+  // BIN_FUNC_1_8_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator+(T lh, x_binary rh) noexcept { // BIN_FUNC_8_
-    DAINTY_BASE_NUMERIC_OP_T_X_(+=, lh, rh)
+  t_binary operator+(T lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_X_COMMUTATIVE_(+=, lh, rh)
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
+  // BIN_FUNC_2_1_
   inline
-  t_binary operator-(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_9_
-    DAINTY_BASE_NUMERIC_OP_R_R_(-=, lh, rh)
+  t_binary operator-(R_binary lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_R_(t_binary, -=, lh, rh)
   }
 
+  // BIN_FUNC_2_2_
   inline
-  t_binary operator-(x_binary lh, R_binary rh) noexcept { // BIN_FUNC_10_
+  t_binary operator-(x_binary lh, R_binary rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_R_(-=, lh, rh)
   }
 
+  // BIN_FUNC_2_3_
   inline
-  t_binary operator-(R_binary lh, x_binary rh) noexcept { // BIN_FUNC_11_
-    DAINTY_BASE_NUMERIC_OP_R_X_(-=, lh, rh)
+  t_binary operator-(R_binary lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_X_(t_binary, -=, lh, rh)
   }
 
+  // BIN_FUNC_2_4_
   inline
-  t_binary operator-(x_binary lh, x_binary rh) noexcept { // BIN_FUNC_12_
+  t_binary operator-(x_binary lh, x_binary rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_X_(-=, lh, rh)
   }
 
+  // BIN_FUNC_2_5_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator-(R_binary lh, T rh) noexcept { // BIN_FUNC_13_
-    DAINTY_BASE_NUMERIC_OP_R_T_(-=, lh, rh)
+  t_binary operator-(R_binary lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_T_(t_binary, -=, lh, rh)
   }
 
+  // BIN_FUNC_2_6_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator-(T lh, R_binary rh) noexcept { // BIN_FUNC_14_
-    DAINTY_BASE_NUMERIC_OP_T_R_(-=, lh, rh)
+  t_binary operator-(T lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_R_(t_binary, -=, lh, rh)
   }
 
+  // BIN_FUNC_2_7_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator-(x_binary lh, T rh) noexcept { // BIN_FUNC_15_
+  t_binary operator-(x_binary lh, T rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_T_(-=, lh, rh)
   }
 
+  // BIN_FUNC_2_8_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator-(T lh, x_binary rh) noexcept { // BIN_FUNC_16_
-    DAINTY_BASE_NUMERIC_OP_T_X_(-=, lh, rh)
+  t_binary operator-(T lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_X_(t_binary, -=, lh, rh)
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
+  // BIN_FUNC_3_1_
   inline
-  t_binary operator*(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_17_
-    DAINTY_BASE_NUMERIC_OP_R_R_(*=, lh, rh)
+  t_binary operator*(R_binary lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_R_(t_binary, *=, lh, rh)
   }
 
+  // BIN_FUNC_3_2_
   inline
-  t_binary operator*(x_binary lh, R_binary rh) noexcept { // BIN_FUNC_18_
+  t_binary operator*(x_binary lh, R_binary rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_R_(*=, lh, rh)
   }
 
+  // BIN_FUNC_3_3_
   inline
-  t_binary operator*(R_binary lh, x_binary rh) noexcept { // BIN_FUNC_19_
-    DAINTY_BASE_NUMERIC_OP_R_X_(*=, lh, rh)
+  t_binary operator*(R_binary lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_X_COMMUTATIVE_(*=, lh, rh)
   }
 
+  // BIN_FUNC_3_4_
   inline
-  t_binary operator*(x_binary lh, x_binary rh) noexcept { // BIN_FUNC_20_
-    DAINTY_BASE_NUMERIC_OP_X_X_(*=, lh, rh)
+  t_binary operator*(x_binary lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_X_COMMUTATIVE_(*=, get(lh.get_bits()) > get(rh.get_bits()), lh, rh)
   }
 
+  // BIN_FUNC_3_5_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator*(R_binary lh, T rh) noexcept { // BIN_FUNC_21_
-    DAINTY_BASE_NUMERIC_OP_R_T_(*=, lh, rh)
+  t_binary operator*(R_binary lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_T_(t_binary, *=, lh, rh)
   }
 
+  // BIN_FUNC_3_6_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator*(T lh, R_binary rh) noexcept { // BIN_FUNC_22_
-    DAINTY_BASE_NUMERIC_OP_T_R_(*=, lh, rh)
+  t_binary operator*(T lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_R_(t_binary, *=, lh, rh)
   }
 
+  // BIN_FUNC_3_7_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator*(x_binary lh, T rh) noexcept { // BIN_FUNC_23_
+  t_binary operator*(x_binary lh, T rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_T_(*=, lh, rh)
   }
 
+  // BIN_FUNC_3_8_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator*(T lh, x_binary rh) noexcept { // BIN_FUNC_24_
-    DAINTY_BASE_NUMERIC_OP_T_X_(*=, lh, rh)
+  t_binary operator*(T lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_X_COMMUTATIVE_(*=, lh, rh)
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
+  // BIN_FUNC_4_1_
   inline
-  t_binary operator/(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_25_
-    DAINTY_BASE_NUMERIC_OP_R_R_(/=, lh, rh)
+  t_binary operator/(R_binary lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_R_(t_binary, /=, lh, rh)
   }
 
+  // BIN_FUNC_4_2_
   inline
-  t_binary operator/(x_binary lh, R_binary rh) noexcept { // BIN_FUNC_26_
+  t_binary operator/(x_binary lh, R_binary rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_R_(/=, lh, rh)
   }
 
+  // BIN_FUNC_4_3_
   inline
-  t_binary operator/(R_binary lh, x_binary rh) noexcept { // BIN_FUNC_27_
-    DAINTY_BASE_NUMERIC_OP_R_X_(/=, lh, rh)
+  t_binary operator/(R_binary lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_X_(t_binary, /=, lh, rh)
   }
 
+  // BIN_FUNC_4_4_
   inline
-  t_binary operator/(x_binary lh, x_binary rh) noexcept { // BIN_FUNC_28_
+  t_binary operator/(x_binary lh, x_binary rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_X_(/=, lh, rh)
   }
 
+  // BIN_FUNC_4_5_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator/(R_binary lh, T rh) noexcept { // BIN_FUNC_29_
-    DAINTY_BASE_NUMERIC_OP_R_T_(/=, lh, rh)
+  t_binary operator/(R_binary lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_T_(t_binary, /=, lh, rh)
   }
 
+  // BIN_FUNC_4_6_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator/(T lh, R_binary rh) noexcept { // BIN_FUNC_30_
-    DAINTY_BASE_NUMERIC_OP_T_R_(/=, lh, rh)
+  t_binary operator/(T lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_R_(t_binary, /=, lh, rh)
   }
 
+  // BIN_FUNC_4_7_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator/(x_binary lh, T rh) noexcept { // BIN_FUNC_31_
+  t_binary operator/(x_binary lh, T rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_T_(/=, lh, rh)
   }
 
+  // BIN_FUNC_4_8_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator/(T lh, x_binary rh) noexcept { // BIN_FUNC_32_
-    DAINTY_BASE_NUMERIC_OP_T_X_(/=, lh, rh)
+  t_binary operator/(T lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_X_(t_binary, /=, lh, rh)
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
+  // BIN_FUNC_5_1_
   inline
-  t_binary operator|(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_33_
-    DAINTY_BASE_NUMERIC_OP_R_R_(|=, lh, rh)
+  t_binary operator|(R_binary lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_R_(t_binary, |=, lh, rh)
   }
 
+  // BIN_FUNC_5_2_
   inline
-  t_binary operator|(x_binary lh, R_binary rh) noexcept { // BIN_FUNC_34_
+  t_binary operator|(x_binary lh, R_binary rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_R_(|=, lh, rh)
   }
 
+  // BIN_FUNC_5_3_
   inline
-  t_binary operator|(R_binary lh, x_binary rh) noexcept { // BIN_FUNC_35_
-    DAINTY_BASE_NUMERIC_OP_R_X_(|=, lh, rh)
+  t_binary operator|(R_binary lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_X_COMMUTATIVE_(|=, lh, rh)
   }
 
+  // BIN_FUNC_5_4_
   inline
-  t_binary operator|(x_binary lh, x_binary rh) noexcept { // BIN_FUNC_36_
-    DAINTY_BASE_NUMERIC_OP_X_X_(|=, lh, rh)
+  t_binary operator|(x_binary lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_X_COMMUTATIVE_(|=, get(lh.get_bits()) > get(rh.get_bits()), lh, rh)
   }
 
+  // BIN_FUNC_5_5_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator|(R_binary lh, T rh) noexcept { // BIN_FUNC_37_
-    DAINTY_BASE_NUMERIC_OP_R_T_(|=, lh, rh)
+  t_binary operator|(R_binary lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_T_(t_binary, |=, lh, rh)
   }
 
+  // BIN_FUNC_5_6_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator|(T lh, R_binary rh) noexcept { // BIN_FUNC_38_
-    DAINTY_BASE_NUMERIC_OP_T_R_(|=, lh, rh)
+  t_binary operator|(T lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_R_(t_binary, |=, lh, rh)
   }
 
+  // BIN_FUNC_5_7_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator|(x_binary lh, T rh) noexcept { // BIN_FUNC_39_
+  t_binary operator|(x_binary lh, T rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_T_(|=, lh, rh)
   }
 
+  // BIN_FUNC_5_8_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator|(T lh, x_binary rh) noexcept { // BIN_FUNC_40_
-    DAINTY_BASE_NUMERIC_OP_T_X_(|=, lh, rh)
+  t_binary operator|(T lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_X_COMMUTATIVE_(|=, lh, rh)
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
+  // BIN_FUNC_6_1_
   inline
-  t_binary operator&(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_41_
-    DAINTY_BASE_NUMERIC_OP_R_R_(&=, lh, rh)
+  t_binary operator&(R_binary lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_R_(t_binary, &=, lh, rh)
   }
 
+  // BIN_FUNC_6_2_
   inline
-  t_binary operator&(x_binary lh, R_binary rh) noexcept { // BIN_FUNC_42_
+  t_binary operator&(x_binary lh, R_binary rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_R_(&=, lh, rh)
   }
 
+  // BIN_FUNC_6_3_
   inline
-  t_binary operator&(R_binary lh, x_binary rh) noexcept { // BIN_FUNC_43_
-    DAINTY_BASE_NUMERIC_OP_R_X_(&=, lh, rh)
+  t_binary operator&(R_binary lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_X_COMMUTATIVE_(&=, lh, rh)
   }
 
+  // BIN_FUNC_6_4_
   inline
-  t_binary operator&(x_binary lh, x_binary rh) noexcept { // BIN_FUNC_44_
-    DAINTY_BASE_NUMERIC_OP_X_X_(&=, lh, rh)
+  t_binary operator&(x_binary lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_X_COMMUTATIVE_(&=, get(lh.get_bits()) > get(rh.get_bits()), lh, rh)
   }
 
+  // BIN_FUNC_6_5_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator&(R_binary lh, T rh) noexcept { // BIN_FUNC_45_
-    DAINTY_BASE_NUMERIC_OP_R_T_(&=, lh, rh)
+  t_binary operator&(R_binary lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_T_(t_binary, &=, lh, rh)
   }
 
+  // BIN_FUNC_6_6_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator&(T lh, R_binary rh) noexcept { // BIN_FUNC_46_
-    DAINTY_BASE_NUMERIC_OP_T_R_(&=, lh, rh)
+  t_binary operator&(T lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_R_(t_binary, &=, lh, rh)
   }
 
+  // BIN_FUNC_6_7_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator&(x_binary lh, T rh) noexcept { // BIN_FUNC_47_
+  t_binary operator&(x_binary lh, T rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_T_(&=, lh, rh)
   }
 
+  // BIN_FUNC_6_8_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator&(T lh, x_binary rh) noexcept { // BIN_FUNC_48_
-    DAINTY_BASE_NUMERIC_OP_T_X_(&=, lh, rh)
+  t_binary operator&(T lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_X_COMMUTATIVE_(&=, lh, rh)
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
+  // BIN_FUNC_7_1_
   inline
-  t_binary operator^(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_49_
-    DAINTY_BASE_NUMERIC_OP_R_R_(^=, lh, rh)
+  t_binary operator^(R_binary lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_R_(t_binary, ^=, lh, rh)
   }
 
+  // BIN_FUNC_7_2_
   inline
-  t_binary operator^(x_binary lh, R_binary rh) noexcept { // BIN_FUNC_50_
+  t_binary operator^(x_binary lh, R_binary rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_R_(^=, lh, rh)
   }
 
+  // BIN_FUNC_7_3_
   inline
-  t_binary operator^(R_binary lh, x_binary rh) noexcept { // BIN_FUNC_51_
-    DAINTY_BASE_NUMERIC_OP_R_X_(^=, lh, rh)
+  t_binary operator^(R_binary lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_X_COMMUTATIVE_(^=, lh, rh)
   }
 
+  // BIN_FUNC_7_4_
   inline
-  t_binary operator^(x_binary lh, x_binary rh) noexcept { // BIN_FUNC_52_
-    DAINTY_BASE_NUMERIC_OP_X_X_(^=, lh, rh)
+  t_binary operator^(x_binary lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_X_COMMUTATIVE_(^=, get(lh.get_bits()) > get(rh.get_bits()), lh, rh)
   }
 
+  // BIN_FUNC_7_5_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator^(R_binary lh, T rh) noexcept { // BIN_FUNC_53_
-    DAINTY_BASE_NUMERIC_OP_R_T_(^=, lh, rh)
+  t_binary operator^(R_binary lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_T_(t_binary, ^=, lh, rh)
   }
 
+  // BIN_FUNC_7_6_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator^(T lh, R_binary rh) noexcept { // BIN_FUNC_54_
-    DAINTY_BASE_NUMERIC_OP_T_R_(^=, lh, rh)
+  t_binary operator^(T lh, R_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_R_(t_binary, ^=, lh, rh)
   }
 
+  // BIN_FUNC_7_7_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator^(x_binary lh, T rh) noexcept { // BIN_FUNC_55_
+  t_binary operator^(x_binary lh, T rh) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_T_(^=, lh, rh)
   }
 
+  // BIN_FUNC_7_8_
   template<typename T, t_if_int<T>>
   inline
-  t_binary operator^(T lh, x_binary rh) noexcept { // BIN_FUNC_56_
-    DAINTY_BASE_NUMERIC_OP_T_X_(^=, lh, rh)
+  t_binary operator^(T lh, x_binary rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_X_COMMUTATIVE_(^=, lh, rh)
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
+  // BIN_FUNC_8_
   inline
-  t_binary operator>>(t_binary lh, t_n n) noexcept { // BIN_FUNC_57_
+  t_binary operator>>(t_binary lh, t_n n) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_T_(>>=, lh, n)
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
+  // BIN_FUNC_9_
   inline
-  t_binary operator<<(t_binary lh, t_n n) noexcept { // BIN_FUNC_66_
+  t_binary operator<<(t_binary lh, t_n n) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_T_(<<=, lh, n)
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
+  // BIN_FUNC_10_1_
   inline
-  t_bool operator==(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_67_
+  t_bool operator==(R_binary lh, R_binary rh) noexcept {
     return lh.is_equal(rh);
   }
 
+  // BIN_FUNC_10_2_
   template<typename T, t_if_int<T>>
   inline
-  t_bool operator==(R_binary lh, T rh) noexcept { // BIN_FUNC_68_
+  t_bool operator==(R_binary lh, T rh) noexcept {
     return lh.is_equal(rh);
   }
 
+  // BIN_FUNC_10_3_
   template<typename T, t_if_int<T>>
   inline
-  t_bool operator==(T lh, R_binary rh) noexcept { // BIN_FUNC_69_
+  t_bool operator==(T lh, R_binary rh) noexcept {
     return rh.is_equal(lh);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_FUNC_11_1_
   inline
-  t_bool operator!=(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_70_
+  t_bool operator!=(R_binary lh, R_binary rh) noexcept {
     return !lh.is_equal(rh);
   }
 
+  // BIN_FUNC_11_2_
   template<typename T, t_if_int<T>>
   inline
-  t_bool operator!=(R_binary lh, T rh) noexcept { // BIN_FUNC_71_
+  t_bool operator!=(R_binary lh, T rh) noexcept {
     return !lh.is_equal(rh);
   }
 
+  // BIN_FUNC_11_3_
   template<typename T, t_if_int<T>>
   inline
-  t_bool operator!=(T lh, R_binary rh) noexcept { // BIN_FUNC_72_
+  t_bool operator!=(T lh, R_binary rh) noexcept {
     return !rh.is_equal(lh);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_FUNC_12_1_
   inline
-  t_bool operator<(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_67_
+  t_bool operator<(R_binary lh, R_binary rh) noexcept {
     return lh.is_less(rh);
   }
 
+  // BIN_FUNC_12_2_
   template<typename T, t_if_int<T>>
   inline
-  t_bool operator<(R_binary lh, T rh) noexcept { // BIN_FUNC_73_
+  t_bool operator<(R_binary lh, T rh) noexcept {
     return lh.is_less(rh);
   }
 
+  // BIN_FUNC_12_3_
   template<typename T, t_if_int<T>>
   inline
-  t_bool operator<(T lh, R_binary rh) noexcept { // BIN_FUNC_74_
+  t_bool operator<(T lh, R_binary rh) noexcept {
     return !rh.is_less_equal(lh);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_FUNC_13_1_
   inline
-  t_bool operator<=(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_75_
+  t_bool operator<=(R_binary lh, R_binary rh) noexcept {
     return lh.is_less_equal(rh);
   }
 
+  // BIN_FUNC_13_2_
   template<typename T, t_if_int<T>>
   inline
-  t_bool operator<=(R_binary lh, T rh) noexcept { // BIN_FUNC_76_
+  t_bool operator<=(R_binary lh, T rh) noexcept {
     return lh.is_less_equal(rh);
   }
 
+  // BIN_FUNC_13_3_
   template<typename T, t_if_int<T>>
   inline
-  t_bool operator<=(T lh, R_binary rh) noexcept { // BIN_FUNC_77_
+  t_bool operator<=(T lh, R_binary rh) noexcept {
     return !rh.is_less(lh);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_FUNC_14_1_
   inline
-  t_bool operator>(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_78_
+  t_bool operator>(R_binary lh, R_binary rh) noexcept {
     return !lh.is_less_equal(rh);
   }
 
+  // BIN_FUNC_14_2_
   template<typename T, t_if_int<T>>
   inline
-  t_bool operator>(R_binary lh, T rh) noexcept { // BIN_FUNC_79_
+  t_bool operator>(R_binary lh, T rh) noexcept {
     return !lh.is_less_equal(rh);
   }
 
+  // BIN_FUNC_14_3_
   template<typename T, t_if_int<T>>
   inline
-  t_bool operator>(T lh, R_binary rh) noexcept { // BIN_FUNC_80_
+  t_bool operator>(T lh, R_binary rh) noexcept {
     return rh.is_less(lh);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // BIN_FUNC_15_1_
   inline
-  t_bool operator>=(R_binary lh, R_binary rh) noexcept { // BIN_FUNC_81_
+  t_bool operator>=(R_binary lh, R_binary rh) noexcept {
     return rh.is_less_equal(lh);
   }
 
+  // BIN_FUNC_15_2_
   template<typename T, t_if_int<T>>
   inline
-  t_bool operator>=(R_binary lh, T rh) noexcept { // BIN_FUNC_82_
+  t_bool operator>=(R_binary lh, T rh) noexcept {
     return !lh.is_less(rh);
   }
 
+  // BIN_FUNC_15_3_
   template<typename T, t_if_int<T>>
   inline
-  t_bool operator>=(T lh, R_binary rh) noexcept { // BIN_FUNC_83_
+  t_bool operator>=(T lh, R_binary rh) noexcept {
     return rh.is_less_equal(lh);
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_FUNC_1_1_
+  inline
+  t_integer operator+(R_integer lh, R_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_R_(t_integer, +=, lh, rh)
+  }
+
+  // INT_FUNC_1_2_
+  inline
+  t_integer operator+(x_integer lh, R_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_R_(+=, lh, rh)
+  }
+
+  // INT_FUNC_1_3_
+  inline
+  t_integer operator+(R_integer lh, x_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_X_COMMUTATIVE_(+=, lh, rh)
+  }
+
+  // INT_FUNC_1_4_
+  inline
+  t_integer operator+(x_integer lh, x_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_X_COMMUTATIVE_(+=, get(lh.get_digits()) > get(rh.get_digits()), lh, rh)
+  }
+
+  // INT_FUNC_1_5_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator+(R_integer lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_T_(t_integer, +=, lh, rh)
+  }
+
+  // INT_FUNC_1_6_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator+(T lh, R_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_R_(t_integer, +=, lh, rh)
+  }
+
+  // INT_FUNC_1_7_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator+(x_integer lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_T_(+=, lh, rh)
+  }
+
+  // INT_FUNC_1_8_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator+(T lh, x_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_X_COMMUTATIVE_(+=, lh, rh)
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_FUNC_2_1_
+  inline
+  t_integer operator-(R_integer lh, R_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_R_(t_integer, -=, lh, rh)
+  }
+
+  // INT_FUNC_2_2_
+  inline
+  t_integer operator-(x_integer lh, R_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_R_(-=, lh, rh)
+  }
+
+  // INT_FUNC_2_3_
+  inline
+  t_integer operator-(R_integer lh, x_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_X_(t_integer, -=, lh, rh)
+  }
+
+  // INT_FUNC_2_4_
+  inline
+  t_integer operator-(x_integer lh, x_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_X_(-=, lh, rh)
+  }
+
+  // INT_FUNC_2_5_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator-(R_integer lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_T_(t_integer, -=, lh, rh)
+  }
+
+  // INT_FUNC_2_6_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator-(T lh, R_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_R_(t_integer, -=, lh, rh)
+  }
+
+  // INT_FUNC_2_7_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator-(x_integer lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_T_(-=, lh, rh)
+  }
+
+  // INT_FUNC_2_8_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator-(T lh, x_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_X_(t_integer, -=, lh, rh)
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_FUNC_3_1_
+  inline
+  t_integer operator*(R_integer lh, R_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_R_(t_integer, *=, lh, rh)
+  }
+
+  // INT_FUNC_3_2_
+  inline
+  t_integer operator*(x_integer lh, R_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_R_(*=, lh, rh)
+  }
+
+  // INT_FUNC_3_3_
+  inline
+  t_integer operator*(R_integer lh, x_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_X_COMMUTATIVE_, (*=, lh, rh)
+  }
+
+  // INT_FUNC_3_4_
+  inline
+  t_integer operator*(x_integer lh, x_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_X_COMMUTATIVE_(*=, get(lh.get_digits()) > get(rh.get_digits()), lh, rh)
+  }
+
+  // INT_FUNC_3_5_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator*(R_integer lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_T_(t_integer, *=, lh, rh)
+  }
+
+  // INT_FUNC_3_6_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator*(T lh, R_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_R_(t_integer, *=, lh, rh)
+  }
+
+  // INT_FUNC_3_7_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator*(x_integer lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_T_(*=, lh, rh)
+  }
+
+  // INT_FUNC_3_8_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator*(T lh, x_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_X_COMMUTATIVE_(*=, lh, rh)
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_FUNC_4_1_
+  inline
+  t_integer operator/(R_integer lh, R_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_R_(t_integer, /=, lh, rh)
+  }
+
+  // INT_FUNC_4_2_
+  inline
+  t_integer operator/(x_integer lh, R_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_R_(/=, lh, rh)
+  }
+
+  // INT_FUNC_4_3_
+  inline
+  t_integer operator/(R_integer lh, x_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_X_(t_integer, /=, lh, rh)
+  }
+
+  // INT_FUNC_4_4_
+  inline
+  t_integer operator/(x_integer lh, x_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_X_(/=, lh, rh)
+  }
+
+  // INT_FUNC_4_5_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator/(R_integer lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_R_T_(t_integer, /=, lh, rh)
+  }
+
+  // INT_FUNC_4_6_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator/(T lh, R_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_R_(t_integer, /=, lh, rh)
+  }
+
+  // INT_FUNC_4_7_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator/(x_integer lh, T rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_X_T_(/=, lh, rh)
+  }
+
+  // INT_FUNC_4_8_
+  template<typename T, t_if_int<T>>
+  inline
+  t_integer operator/(T lh, x_integer rh) noexcept {
+    DAINTY_BASE_NUMERIC_OP_T_X_(t_integer, /=, lh, rh)
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_FUNC_5_1_
+  inline
+  t_bool operator==(R_integer lh, R_integer rh) noexcept {
+    return lh.is_equal(rh);
+  }
+
+  // INT_FUNC_5_2_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool operator==(R_integer lh, T rh) noexcept {
+    return lh.is_equal(rh);
+  }
+
+  // INT_FUNC_5_3_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool operator==(T lh, R_integer rh) noexcept {
+    return rh.is_equal(lh);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_FUNC_6_1_
+  inline
+  t_bool operator!=(R_integer lh, R_integer rh) noexcept {
+    return !lh.is_equal(rh);
+  }
+
+  // INT_FUNC_6_2_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool operator!=(R_integer lh, T rh) noexcept {
+    return !lh.is_equal(rh);
+  }
+
+  // INT_FUNC_6_3_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool operator!=(T lh, R_integer rh) noexcept {
+    return !rh.is_equal(lh);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_FUNC_7_1_
+  inline
+  t_bool operator<(R_integer lh, R_integer rh) noexcept {
+    return lh.is_less(rh);
+  }
+
+  // INT_FUNC_7_2_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool operator<(R_integer lh, T rh) noexcept {
+    return lh.is_less(rh);
+  }
+
+  // INT_FUNC_7_3_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool operator<(T lh, R_integer rh) noexcept {
+    return !rh.is_less_equal(lh);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_FUNC_8_1_
+  inline
+  t_bool operator<=(R_integer lh, R_integer rh) noexcept {
+    return lh.is_less_equal(rh);
+  }
+
+  // INT_FUNC_8_2_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool operator<=(R_integer lh, T rh) noexcept {
+    return lh.is_less_equal(rh);
+  }
+
+  // INT_FUNC_8_3_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool operator<=(T lh, R_integer rh) noexcept {
+    return !rh.is_less(lh);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_FUNC_9_1_
+  inline
+  t_bool operator>(R_integer lh, R_integer rh) noexcept {
+    return !lh.is_less_equal(rh);
+  }
+
+  // INT_FUNC_9_2_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool operator>(R_integer lh, T rh) noexcept {
+    return !lh.is_less_equal(rh);
+  }
+
+  // INT_FUNC_9_3_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool operator>(T lh, R_integer rh) noexcept {
+    return rh.is_less(lh);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // INT_FUNC_10_1_
+  inline
+  t_bool operator>=(R_integer lh, R_integer rh) noexcept {
+    return rh.is_less_equal(lh);
+  }
+
+  // INT_FUNC_10_2_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool operator>=(R_integer lh, T rh) noexcept {
+    return !lh.is_less(rh);
+  }
+
+  // INT_FUNC_10_3_
+  template<typename T, t_if_int<T>>
+  inline
+  t_bool operator>=(T lh, R_integer rh) noexcept {
+    return rh.is_less_equal(lh);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
 }
 }
 }

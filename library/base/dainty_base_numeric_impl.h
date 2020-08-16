@@ -47,6 +47,7 @@ namespace impl_
   using specific::t_n_;
   using specific::t_ix;
   using specific::t_ix_;
+  using specific::operator""_n;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -81,10 +82,35 @@ namespace impl_
     return t_n((get(n)/BITS_UNIT_) + ((get(n) % BITS_UNIT_) ? 1ULL : 0ULL));
   }
 
+  constexpr
+  t_n calc_bits_(t_n digits) {
+    // XXX-1
+    return 0_n;
+  }
+
+  constexpr
+  t_n calc_digits_(t_n bits) {
+    // XXX-2
+    return 0_n;
+  }
+
+  struct t_store_;
+  using  r_store_ = types::t_prefix<t_store_>::r_;
+  using  x_store_ = types::t_prefix<t_store_>::x_;
+  using  R_store_ = types::t_prefix<t_store_>::R_;
+
   struct t_store_ {
-    t_n       size    = t_n{2}; // why two - it holds the largest builtin integer
+    t_n       size    = t_n{2}; // support more than 64 bits - 127 bit
     t_pvalue_ sso_[2] = { 0, 0 };
     p_pvalue_ ptr     = sso_;
+
+    constexpr
+    t_store_() noexcept {
+    }
+
+    inline
+    t_store_(t_n n) noexcept {
+    }
 
     ~t_store_() noexcept {
       if (ptr != sso_) {
@@ -106,7 +132,7 @@ namespace impl_
       return true;
     }
 
-    t_void reset(t_n n) noexcept { // NOT OK - it must shrink
+    t_void reset(t_n n) noexcept {// XXX-3 NOT OK - it must shrink
       t_n need = calc_(n);
       if (!is_heap()) {
         if (get(need) <= t_n{2}) {
@@ -124,80 +150,107 @@ namespace impl_
     t_bool is_heap() const noexcept {
       return ptr != sso_;
     }
-
   };
-  using r_store_ = types::t_prefix<t_store_>::r_;
-  using x_store_ = types::t_prefix<t_store_>::x_;
-  using R_store_ = types::t_prefix<t_store_>::R_;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   class t_impl_base_ {
   public:
+    constexpr
+    t_impl_base_(r_store_)            noexcept; // IMPL_METHOD_1_1_
+    constexpr
+    t_impl_base_(r_store_, t_nvalue_) noexcept; // IMPL_METHOD_1_2_
+    constexpr
+    t_impl_base_(r_store_, t_pvalue_) noexcept; // IMPL_METHOD_1_3_
+    t_impl_base_(r_store_, R_store_)  noexcept; // IMPL_METHOD_1_4_
+
     ///////////////////////////////////////////////////////////////////////////
 
-    t_impl_base_(r_store_)            noexcept; // BIN_METHOD_1_
-    t_impl_base_(r_store_, t_nvalue_) noexcept; // BIN_METHOD_2_
-    t_impl_base_(r_store_, t_pvalue_) noexcept; // BIN_METHOD_3_
-    t_impl_base_(r_store_, R_store_)  noexcept; // BIN_METHOD_4_
+    t_void assign(r_store_, t_nvalue_) noexcept; // IMPL_METHOD_2_1_
+    t_void assign(r_store_, t_pvalue_) noexcept; // IMPL_METHOD_2_2_
+    t_void assign(r_store_, R_store_)  noexcept; // IMPL_METHOD_2_3_
 
-    t_void assign(r_store_, t_nvalue_) noexcept; // BIN_METHOD_5_
-    t_void assign(r_store_, t_pvalue_) noexcept; // BIN_METHOD_6_
-    t_void assign(r_store_, R_store_)  noexcept; // BIN_METHOD_7_
+    ///////////////////////////////////////////////////////////////////////////
 
-    t_void addition(r_store_, t_nvalue_) noexcept; // BIN_METHOD_8_
-    t_void addition(r_store_, t_pvalue_) noexcept; // BIN_METHOD_9_
-    t_void addition(r_store_, R_store_)  noexcept; // BIN_METHOD_10_
+    t_void addition(r_store_, t_nvalue_) noexcept; // IMPL_METHOD_3_1_
+    t_void addition(r_store_, t_pvalue_) noexcept; // IMPL_METHOD_3_2_
+    t_void addition(r_store_, R_store_)  noexcept; // IMPL_METHOD_3_3_
 
-    t_void subtraction(r_store_, t_nvalue_) noexcept; // BIN_METHOD_11_
-    t_void subtraction(r_store_, t_pvalue_) noexcept; // BIN_METHOD_12_
-    t_void subtraction(r_store_, R_store_)  noexcept; // BIN_METHOD_13_
+    ///////////////////////////////////////////////////////////////////////////
 
-    t_void multiplication(r_store_, t_nvalue_) noexcept; // BIN_METHOD_14_
-    t_void multiplication(r_store_, t_pvalue_) noexcept; // BIN_METHOD_15_
-    t_void multiplication(r_store_, R_store_)  noexcept; // BIN_METHOD_16_
+    t_void subtraction(r_store_, t_nvalue_) noexcept; // IMPL_METHOD_4_1_
+    t_void subtraction(r_store_, t_pvalue_) noexcept; // IMPL_METHOD_4_2_
+    t_void subtraction(r_store_, R_store_)  noexcept; // IMPL_METHOD_4_3_
 
-    t_void division(r_store_, t_nvalue_) noexcept; // BIN_METHOD_17_
-    t_void division(r_store_, t_pvalue_) noexcept; // BIN_METHOD_18_
-    t_void division(r_store_, R_store_)  noexcept; // BIN_METHOD_19_
+    ///////////////////////////////////////////////////////////////////////////
 
-    t_void binary_and(r_store_, t_pvalue_) noexcept; // BIN_METHOD_21_
-    t_void binary_and(r_store_, R_store_)  noexcept; // BIN_METHOD_22_
+    t_void multiplication(r_store_, t_nvalue_) noexcept; // IMPL_METHOD_5_1_
+    t_void multiplication(r_store_, t_pvalue_) noexcept; // IMPL_METHOD_5_2_
+    t_void multiplication(r_store_, R_store_)  noexcept; // IMPL_METHOD_5_3_
 
-    t_void binary_or(r_store_, t_pvalue_) noexcept; // BIN_METHOD_24_
-    t_void binary_or(r_store_, R_store_)  noexcept; // BIN_METHOD_25_
+    ///////////////////////////////////////////////////////////////////////////
 
-    t_void binary_xor(r_store_, t_pvalue_) noexcept; // BIN_METHOD_27_
-    t_void binary_xor(r_store_, R_store_)  noexcept; // BIN_METHOD_28_
+    t_void division(r_store_, t_nvalue_) noexcept; // IMPL_METHOD_6_1_
+    t_void division(r_store_, t_pvalue_) noexcept; // IMPL_METHOD_6_2_
+    t_void division(r_store_, R_store_)  noexcept; // IMPL_METHOD_6_3_
 
-    t_void ones_complement(r_store_)       noexcept; // BIN_METHOD_29_
-    t_void twos_complement(r_store_)       noexcept; // BIN_METHOD_30_
-    t_void shift_left(r_store_, t_n)       noexcept; // BIN_METHOD_31_
-    t_void shift_right(r_store_, t_n)      noexcept; // BIN_METHOD_32_
-    t_void set_bit(r_store_, t_ix, t_bool) noexcept; // BIN_METHOD_33_
-    t_void set_bits(r_store_, t_n)         noexcept; // BIN_METHOD_41_
+    ///////////////////////////////////////////////////////////////////////////
 
-    t_bool not_zero(R_store_)      const noexcept; // BIN_METHOD_41_
-    t_n    get_bits(R_store_)      const noexcept; // BIN_METHOD_34_
-    t_bool get_bit(R_store_, t_ix) const noexcept; // BIN_METHOD_35_
-    t_bool is_negative(R_store_)   const noexcept; // BIN_METHOD_36_
+    t_void binary_and(r_store_, t_nvalue_) noexcept; // IMPL_METHOD_7_1_
+    t_void binary_and(r_store_, t_pvalue_) noexcept; // IMPL_METHOD_7_2_
+    t_void binary_and(r_store_, R_store_)  noexcept; // IMPL_METHOD_7_3_
 
-    t_void reset(r_store_,      t_nvalue_) noexcept; // BIN_METHOD_37_
-    t_void reset(r_store_, t_n, t_nvalue_) noexcept; // BIN_METHOD_38_
-    t_void reset(r_store_,      t_pvalue_) noexcept; // BIN_METHOD_39_
-    t_void reset(r_store_, t_n, t_pvalue_) noexcept; // BIN_METHOD_40_
+    ///////////////////////////////////////////////////////////////////////////
 
-    t_bool is_equal(R_store_, R_store_)  const noexcept; // BIN_METHOD_41_
-    t_bool is_equal(R_store_, t_pvalue_) const noexcept; // BIN_METHOD_42_
-    t_bool is_equal(R_store_, t_nvalue_) const noexcept; // BIN_METHOD_43_
+    t_void binary_or(r_store_, t_nvalue_) noexcept; // IMPL_METHOD_8_1_
+    t_void binary_or(r_store_, t_pvalue_) noexcept; // IMPL_METHOD_8_2_
+    t_void binary_or(r_store_, R_store_)  noexcept; // IMPL_METHOD_8_3_
 
-    t_bool is_less(R_store_, R_store_)  const noexcept; // BIN_METHOD_44_
-    t_bool is_less(R_store_, t_pvalue_) const noexcept; // BIN_METHOD_45_
-    t_bool is_less(R_store_, t_nvalue_) const noexcept; // BIN_METHOD_46_
+    ///////////////////////////////////////////////////////////////////////////
 
-    t_bool is_less_equal(R_store_, R_store_)  const noexcept; // BIN_METHOD_47_
-    t_bool is_less_equal(R_store_, t_pvalue_) const noexcept; // BIN_METHOD_48_
-    t_bool is_less_equal(R_store_, t_nvalue_) const noexcept; // BIN_METHOD_49_
+    t_void binary_xor(r_store_, t_nvalue_) noexcept; // IMPL_METHOD_9_1_
+    t_void binary_xor(r_store_, t_pvalue_) noexcept; // IMPL_METHOD_9_2_
+    t_void binary_xor(r_store_, R_store_)  noexcept; // IMPL_METHOD_9_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_void ones_complement(r_store_)       noexcept; // IMPL_METHOD_10_
+    t_void twos_complement(r_store_)       noexcept; // IMPL_METHOD_11_
+    t_void shift_left(r_store_, t_n)       noexcept; // IMPL_METHOD_12_
+    t_void shift_right(r_store_, t_n)      noexcept; // IMPL_METHOD_13_
+    t_bool set_bit(r_store_, t_ix, t_bool) noexcept; // IMPL_METHOD_14_
+    t_bool ensure_bits(r_store_, t_n)      noexcept; // IMPL_METHOD_15_
+    t_bool not_zero(R_store_)        const noexcept; // IMPL_METHOD_16_
+    t_n    get_bits(R_store_)        const noexcept; // IMPL_METHOD_17_
+    t_bool get_bit(R_store_, t_ix)   const noexcept; // IMPL_METHOD_18_
+    t_bool is_negative(R_store_)     const noexcept; // IMPL_METHOD_19_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_void reset(r_store_,      t_nvalue_) noexcept; // IMPL_METHOD_20_1_
+    t_bool reset(r_store_, t_n, t_nvalue_) noexcept; // IMPL_METHOD_20_2_
+    t_void reset(r_store_,      t_pvalue_) noexcept; // IMPL_METHOD_20_3_
+    t_bool reset(r_store_, t_n, t_pvalue_) noexcept; // IMPL_METHOD_20_4_
+    t_bool reset(r_store_,      R_store_)  noexcept; // IMPL_METHOD_20_5_
+    t_bool reset(r_store_, t_n, R_store_)  noexcept; // IMPL_METHOD_20_6_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_bool is_equal(R_store_, R_store_)  const noexcept; // IMPL_METHOD_21_1_
+    t_bool is_equal(R_store_, t_pvalue_) const noexcept; // IMPL_METHOD_21_2_
+    t_bool is_equal(R_store_, t_nvalue_) const noexcept; // IMPL_METHOD_21_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_bool is_less(R_store_, R_store_)  const noexcept; // IMPL_METHOD_22_1_
+    t_bool is_less(R_store_, t_pvalue_) const noexcept; // IMPL_METHOD_22_2_
+    t_bool is_less(R_store_, t_nvalue_) const noexcept; // IMPL_METHOD_22_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_bool is_less_equal(R_store_, R_store_)  const noexcept; // IMPL_METHOD_23_1_
+    t_bool is_less_equal(R_store_, t_pvalue_) const noexcept; // IMPL_METHOD_23_2_
+    t_bool is_less_equal(R_store_, t_nvalue_) const noexcept; // IMPL_METHOD_23_3_
 
     ///////////////////////////////////////////////////////////////////////////
   };
@@ -205,6 +258,30 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   using t_binary_ = t_impl_base_; // Don't support variable grow
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  r_store_ ones_compl_   (r_store_)                noexcept; // IMPL_FUNC_1_
+  r_store_ twos_compl_   (r_store_)                noexcept; // IMPL_FUNC_2_
+  t_void   assign_       (r_store_, R_store_)      noexcept; // IMPL_FUNC_3_
+  t_void   add_          (r_store_, R_store_)      noexcept; // IMPL_FUNC_4_
+  t_void   minus_        (r_store_, R_store_)      noexcept; // IMPL_FUNC_5_
+  t_void   multiply_     (r_store_, R_store_)      noexcept; // IMPL_FUNC_6_
+  t_void   divide_       (r_store_, R_store_)      noexcept; // IMPL_FUNC_7_
+  t_void   and_          (r_store_, R_store_)      noexcept; // IMPL_FUNC_8_
+  t_void   or_           (r_store_, R_store_)      noexcept; // IMPL_FUNC_9_
+  t_void   xor_          (r_store_, R_store_)      noexcept; // IMPL_FUNC_10_
+  t_void   shift_left_   (r_store_, t_n)           noexcept; // IMPL_FUNC_11_
+  t_void   shift_right_  (r_store_, t_n)           noexcept; // IMPL_FUNC_12_
+  t_bool   set_bit_      (r_store_, t_ix, t_bool)  noexcept; // IMPL_FUNC_13_
+  t_bool   get_bit_      (R_store_, t_ix)          noexcept; // IMPL_FUNC_14_
+  t_bool   ensure_bits_  (r_store_, t_n)           noexcept; // IMPL_FUNC_15_
+  t_bool   not_zero_     (R_store_)                noexcept; // IMPL_FUNC_16_
+  t_bool   reset_        (r_store_, R_store_)      noexcept; // IMPL_FUNC_17_
+  t_bool   reset_        (r_store_, t_n, R_store_) noexcept; // IMPL_FUNC_18_
+  t_bool   is_equal_     (R_store_, R_store_)      noexcept; // IMPL_FUNC_19_
+  t_bool   is_less_      (R_store_, R_store_)      noexcept; // IMPL_FUNC_20_
+  t_bool   is_less_equal_(R_store_, R_store_)      noexcept; // IMPL_FUNC_21_
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -220,30 +297,38 @@ namespace impl_
 
   constexpr
   t_bool is_negative_(R_store_ store) noexcept {
-    return store.ptr[get(store.size) - 1] & BITS_SIGN_;
+    return last_(store) & BITS_SIGN_;
+  }
+
+  enum class t_sign_      : types::t_int { NEG = -1, POS = 1 };
+  enum class t_same_sign_ : types::t_int { NEG = -1, NO  = 0, POS = 1 };
+
+  using t_negs_ = t_bool[2];
+
+  constexpr
+  t_same_sign_ same_sign_(R_store_ store, t_pvalue_ value) noexcept {
+    return is_negative_(store) ? t_same_sign_::NO : t_same_sign_::POS;
   }
 
   constexpr
-  t_n_ get_bits_(R_store_ store) noexcept {
-    return (get(store.size) * BITS_UNIT_) + 1;
+  t_same_sign_ same_sign_(R_store_ store, t_nvalue_ value) noexcept {
+    t_negs_ negs = { is_negative_(store), value < 0L };
+    if (negs[0] == negs[1])
+      return negs[0] ? t_same_sign_::NEG : t_same_sign_::POS;
+    return t_same_sign_::NO;
   }
 
-  inline
-  r_store_ ones_complement_(r_store_ store) noexcept {
-    t_ix_ last = get(store.size) - 1;
-    for (t_ix_ ix = 0; ix < last; ++ix)
-      store.ptr[ix] = ((~store.ptr[ix]) & BITS_MASK_);
-    last_(store) = ~last_(store);
-    return store;
+  constexpr
+  t_same_sign_ same_sign_(R_store_ store, R_store_ value) noexcept {
+    t_negs_ negs = { is_negative_(store), is_negative_(value) };
+    if (negs[0] == negs[1])
+      return negs[0] ? t_same_sign_::NEG : t_same_sign_::POS;
+    return t_same_sign_::NO;
   }
 
-  inline
-  t_void assign_(r_store_ store, R_store_ value) noexcept {
-    if (store.ensure_size(value.size)) {
-      t_ix_ max = get(value.size);
-      for (t_ix_ ix = 0; ix < max; ++ix)
-        store.ptr[ix] = value.ptr[ix];
-    }
+  constexpr
+  t_n get_bits_(R_store_ store) noexcept {
+    return t_n((get(store.size) * BITS_UNIT_) + 1);
   }
 
   constexpr
@@ -258,418 +343,447 @@ namespace impl_
     store.ptr[1] = value & BITS_SIGN_ ? BITS_ALL_ : BITS_ZERO_;
   }
 
-  /*
-  #define HIGHEST_BIT(value)   ((value) & (1 << ((sizeof(value)*8) - 1)))
+  /////////////////////////////////////////////////////////////////////////////
 
-  #define IS_NEG(value)    (value < 0)
-  #define TWOS_COMP(value) (-value)
-
-  t_binary_base multiply_(t_binary_base i, t_binary_base j) {
-    t_binary_base k;
-    if (i && j) {
-      int sign = 0;
-      if (i.is_negative()) {
-        sign = 1;
-        i.twos_complement();
-      }
-      if (j.is_negative()) {
-        sign += 3;
-        j.twos_complement();
-      }
-      for (;j;j>>=1,i<<=1)
-        if (j & 1)
-          k += i;
-      if (sign & 1)
-        k.twos_complement();
-    }
-    return k;
-  }
-
-  // positive
-  t_binary multiply_(t_binary_base i, t_binary_base j) {
-    t_binary k;
-    if (i && j) {
-      for (;j;j>>=1,i<<=1)
-        if (j & 1)
-          k += i;
-    }
-    return k;
-  }
-
-  int multiply_(int i, int j) {
-    int k = 0;
-    if (i && j) {
-      int sign = 0;
-      if (IS_NEG(i)) {
-        sign = 1;
-        i = TWOS_COMP(i);
-      }
-      if (IS_NEG(j)) {
-        sign += 3;
-        j = TWOS_COMP(j);
-      }
-      for (;j;j>>=1,i<<=1)
-        if (j & 1)
-          k += i;
-      if (sign & 1)
-        k = TWOS_COMP(k);
-    }
-    return k;
-  }
-
-  int divide_(int i, int j) { // works for ints not for unsigned
-    int l = 0;
-    if (i) {
-      int sign = 0;
-      if (IS_NEG(i)) {
-        sign = 1;
-        i = TWOS_COMP(i);
-      }
-      if (IS_NEG(j)) {
-        sign += 3;
-        j = TWOS_COMP(j);
-      }
-      int k = j;
-      for (; !HIGHEST_BIT(k) && k < i; k <<= 1); // NOT MAX PROOF
-      for (k >>= 1; k >= j; k >>= 1) {
-        l <<= 1; // DONT understand this
-        if (k < i) {
-          i += TWOS_COMP(k);
-          l += 1;
-        }
-      }
-      if (j == i)
-        l += 1;
-      if (sign & 1)
-        l = TWOS_COMP(l);
-    }
-    return l;
-  }
-  */
-
-  t_void add_(r_store_ store, R_store_ value) {
-    // XXX_1_
-    // must know if negative
-    int last = get(store.size) - 1;
-    t_pvalue_ carry = 0;
-    for (int ix = 0; ix < last; ++ix) {
-      store.ptr[ix] += value.ptr[ix] + carry;
-      if (BITS_MSB_ & store.ptr[ix]) {
-        store.ptr[ix] = store.ptr[ix] & BITS_MASK_;
-        carry = 1;
-      }
-    }
-  }
-
-  t_void add_(r_store_ store, t_pvalue_ value) {
-    // XXX_2_
-  }
-
-  t_void add_(r_store_ store, t_nvalue_ value) {
-    // XXX_3_
-  }
-
+  template<typename T>
   inline
-  r_store_ twos_complement_(r_store_ store) noexcept {
-    ones_complement_(store);
-    add_(store, 1ULL); // XXX_4_ expensive
-    return store;
+  t_void add_(r_store_ store, T value) noexcept {
+    t_store_ value_store;
+    assign_(value_store, value);
+    add_(store, value_store);
+  }
+
+  template<typename T>
+  inline
+  t_void minus_(r_store_ store, T value) noexcept {
+    t_store_ value_store;
+    assign_(value_store, value);
+    minus_(store, value_store);
+  }
+
+  template<typename T>
+  inline
+  t_void multiply_(r_store_ store, T value) noexcept {
+    t_store_ value_store;
+    assign_(value_store, value);
+    multiply_(store, value_store);
+  }
+
+  template<typename T>
+  inline
+  t_void divide_(r_store_ store, T value) noexcept {
+    t_store_ value_store;
+    assign_(value_store, value);
+    divide_(store, value_store);
+  }
+
+  template<typename T>
+  inline
+  t_void and_(r_store_ store, T value) noexcept {
+    t_store_ value_store;
+    assign_(value_store, value);
+    and_(store, value_store);
+  }
+
+  template<typename T>
+  inline
+  t_void or_(r_store_ store, T value) noexcept {
+    t_store_ value_store;
+    assign_(value_store, value);
+    or_(store, value_store);
+  }
+
+  template<typename T>
+  inline
+  t_void xor_(r_store_ store, T value) noexcept {
+    t_store_ value_store;
+    assign_(value_store, value);
+    xor_(store, value_store);
+  }
+
+  template<typename T>
+  inline
+  t_void reset_(r_store_ store, T value) noexcept {
+    t_store_ value_store;
+    assign_(value_store, value);
+    reset_(store, value_store);
+  }
+
+  template<typename T>
+  inline
+  t_bool reset_(r_store_ store, t_n n, T value) noexcept {
+    t_store_ value_store;
+    assign_(value_store, value);
+    return reset_(store, n, value_store);
+  }
+
+  template<typename T>
+  inline
+  t_bool is_equal_(R_store_ store, T value) noexcept {
+    t_store_ value_store;
+    assign_(value_store, value);
+    return is_equal_(store, value_store);
+  }
+
+  template<typename T>
+  inline
+  t_bool is_less_(R_store_ store, T value) noexcept {
+    t_store_ value_store;
+    assign_(value_store, value);
+    return is_less_(store, value_store);
+  }
+
+  template<typename T>
+  inline
+  t_bool is_less_equal_(R_store_ store, T value) noexcept {
+    t_store_ value_store;
+    assign_(value_store, value);
+    return is_less_equal_(store, value_store);
   }
 
   /////////////////////////////////////////////////////////////////////////////
 
-  inline
-  t_impl_base_::t_impl_base_(r_store_ store) noexcept { // BIN_METHOD_1_
+  // IMPL_METHOD_1_1_
+  constexpr
+  t_impl_base_::t_impl_base_(r_store_ store) noexcept {
   }
 
-  inline
-  t_impl_base_::t_impl_base_(r_store_ store, t_nvalue_ value) noexcept { // BIN_METHOD_2_
+  // IMPL_METHOD_1_2_
+  constexpr
+  t_impl_base_::t_impl_base_(r_store_ store, t_nvalue_ value) noexcept {
     assign_(store, value);
   }
 
-  inline
-  t_impl_base_::t_impl_base_(r_store_ store, t_pvalue_ value) noexcept { // BIN_METHOD_3_
+  // IMPL_METHOD_1_3_
+  constexpr
+  t_impl_base_::t_impl_base_(r_store_ store, t_pvalue_ value) noexcept {
     assign_(store, value);
   }
 
+  // IMPL_METHOD_1_4_
   inline
-  t_impl_base_::t_impl_base_(r_store_ store, R_store_ value) noexcept { // BIN_METHOD_4_
+  t_impl_base_::t_impl_base_(r_store_ store, R_store_ value) noexcept {
     assign_(store, value);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_2_1_
   inline
-  t_void t_impl_base_::assign(r_store_ store, t_nvalue_ value) noexcept { // BIN_METHOD_5_
+  t_void t_impl_base_::assign(r_store_ store, t_nvalue_ value) noexcept {
     assign_(store, value);
   }
 
+  // IMPL_METHOD_2_2_
   inline
-  t_void t_impl_base_::assign(r_store_ store, t_pvalue_ value) noexcept { // BIN_METHOD_6_
+  t_void t_impl_base_::assign(r_store_ store, t_pvalue_ value) noexcept {
     assign_(store, value);
   }
 
+  // IMPL_METHOD_2_3_
   inline
-  t_void t_impl_base_::assign(r_store_ store, R_store_ value) noexcept { // BIN_METHOD_7_
+  t_void t_impl_base_::assign(r_store_ store, R_store_ value) noexcept {
     assign_(store, value);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_3_1_
   inline
-  t_void t_impl_base_::addition(r_store_ store, t_nvalue_ value) noexcept { // BIN_METHOD_8_
+  t_void t_impl_base_::addition(r_store_ store, t_nvalue_ value) noexcept {
     add_(store, value);
   }
 
+  // IMPL_METHOD_3_2_
   inline
-  t_void t_impl_base_::addition(r_store_ store, t_pvalue_ value) noexcept { // BIN_METHOD_9_
+  t_void t_impl_base_::addition(r_store_ store, t_pvalue_ value) noexcept {
     add_(store, value);
   }
 
+  // IMPL_METHOD_3_3_
   inline
-  t_void t_impl_base_::addition(r_store_ store, R_store_ value) noexcept { // BIN_METHOD_10_
+  t_void t_impl_base_::addition(r_store_ store, R_store_ value) noexcept {
     add_(store, value);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_4_1_
   inline
-  t_void t_impl_base_::subtraction(r_store_ store, t_nvalue_ value) noexcept { // BIN_METHOD_11_
-    add_(store, -value); // XXX_5_ no sure
+  t_void t_impl_base_::subtraction(r_store_ store, t_nvalue_ value) noexcept {
+    minus_(store, value);
   }
 
+  // IMPL_METHOD_4_2_
   inline
-  t_void t_impl_base_::subtraction(r_store_ store, t_pvalue_ value) noexcept { // BIN_METHOD_12_
-    add_(store, -value); // XXX_6_ no sure
+  t_void t_impl_base_::subtraction(r_store_ store, t_pvalue_ value) noexcept {
+    minus_(store, value);
   }
 
+  // IMPL_METHOD_4_3_
   inline
-  t_void t_impl_base_::subtraction(r_store_ store, R_store_ value) noexcept { // BIN_METHOD_13_
-    //add_(store, twos_complement_(value));
-    // XXX_7_
+  t_void t_impl_base_::subtraction(r_store_ store, R_store_ value) noexcept {
+    minus_(store, value);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_5_1_
   inline
-  t_void t_impl_base_::multiplication(r_store_, t_nvalue_) noexcept { // BIN_METHOD_14_
-    // XXX_8_
+  t_void t_impl_base_::multiplication(r_store_ store, t_nvalue_ value) noexcept {
+    multiply_(store, value);
   }
 
+  // IMPL_METHOD_5_2_
   inline
-  t_void t_impl_base_::multiplication(r_store_, t_pvalue_) noexcept { // BIN_METHOD_15_
-    // XXX_9_
+  t_void t_impl_base_::multiplication(r_store_ store, t_pvalue_ value) noexcept {
+    multiply_(store, value);
   }
 
+  // IMPL_METHOD_5_3_
   inline
-  t_void t_impl_base_::multiplication(r_store_, R_store_) noexcept { // BIN_METHOD_16_
-    // XXX_10_
+  t_void t_impl_base_::multiplication(r_store_ store, R_store_ value) noexcept {
+    multiply_(store, value);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_6_1_
   inline
-  t_void t_impl_base_::division(r_store_, t_nvalue_) noexcept { // BIN_METHOD_17_
-    // XXX_11_
+  t_void t_impl_base_::division(r_store_ store, t_nvalue_ value) noexcept {
+    divide_(store, value);
   }
 
+  // IMPL_METHOD_6_2_
   inline
-  t_void t_impl_base_::division(r_store_, t_pvalue_) noexcept { // BIN_METHOD_18_
-    // XXX_12_
+  t_void t_impl_base_::division(r_store_ store, t_pvalue_ value) noexcept {
+    divide_(store, value);
   }
 
+  // IMPL_METHOD_6_3_
   inline
-  t_void t_impl_base_::division(r_store_, R_store_) noexcept { // BIN_METHOD_19_
-    // XXX_13_
+  t_void t_impl_base_::division(r_store_ store, R_store_ value) noexcept {
+    divide_(store, value);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_7_1_
   inline
-  t_void t_impl_base_::binary_and(r_store_ store, t_pvalue_ value) noexcept { // BIN_METHOD_21_
-    // XXX_15_
-    store.ptr[0] &= value; // XXX_14_ - 64th bit can be in ptr[1]
-    if (value >= 0) {
-      t_ix_ max = get(store.size);
-      for (t_ix_ ix = 1; ix < max; ++ix)
-        store.ptr[ix] = BITS_ZERO_;
-    } else {
-      t_ix_ last = get(store.size) - 1;
-      for (t_ix_ ix = 1; ix < last; ++ix)
-        store.ptr[ix] = BITS_MASK_;
-      store.ptr[last] = BITS_ALL_;
-    }
+  t_void t_impl_base_::binary_and(r_store_ store, t_nvalue_ value) noexcept {
+    and_(store, value);
   }
 
+  // IMPL_METHOD_7_2_
   inline
-  t_void t_impl_base_::binary_and(r_store_, R_store_) noexcept { // BIN_METHOD_22_
-    // XXX_16_
+  t_void t_impl_base_::binary_and(r_store_ store, t_pvalue_ value) noexcept {
+    and_(store, value);
   }
 
+  // IMPL_METHOD_7_3_
   inline
-  t_void t_impl_base_::binary_or(r_store_, t_pvalue_) noexcept { // BIN_METHOD_24_
-    // XXX_18_
+  t_void t_impl_base_::binary_and(r_store_ store, R_store_ value) noexcept {
+    and_(store, value);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_8_1_
   inline
-  t_void t_impl_base_::binary_or(r_store_, R_store_)  noexcept { // BIN_METHOD_25_
-    // XXX_19_
+  t_void t_impl_base_::binary_or(r_store_ store, t_nvalue_ value) noexcept {
+    or_(store, value);
   }
 
+  // IMPL_METHOD_8_2_
   inline
-  t_void t_impl_base_::binary_xor(r_store_, t_pvalue_) noexcept { // BIN_METHOD_27_
-    // XXX_21_
+  t_void t_impl_base_::binary_or(r_store_ store, t_pvalue_ value) noexcept {
+    or_(store, value);
   }
 
+  // IMPL_METHOD_8_3_
   inline
-  t_void t_impl_base_::binary_xor(r_store_, R_store_) noexcept { // BIN_METHOD_28_
-    // XXX_22_
+  t_void t_impl_base_::binary_or(r_store_ store, R_store_ value)  noexcept {
+    or_(store, value);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_9_1_
   inline
-  t_void t_impl_base_::ones_complement(r_store_ store) noexcept { // BIN_METHOD_29_
-    ones_complement(store);
+  t_void t_impl_base_::binary_xor(r_store_ store, t_nvalue_ value) noexcept {
+    xor_(store, value);
   }
 
+  // IMPL_METHOD_9_2_
   inline
-  t_void t_impl_base_::twos_complement(r_store_ store) noexcept { // BIN_METHOD_30_
-    twos_complement(store);
+  t_void t_impl_base_::binary_xor(r_store_ store, t_pvalue_ value) noexcept {
+    xor_(store, value);
   }
 
+  // IMPL_METHOD_9_3_
   inline
-  t_void t_impl_base_::shift_left(r_store_ store, t_n n) noexcept { // BIN_METHOD_31_
-    // will not enlarge
-    // XXX_23_
+  t_void t_impl_base_::binary_xor(r_store_ store, R_store_ value) noexcept {
+    xor_(store, value);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_10_
   inline
-  t_void t_impl_base_::shift_right(r_store_ store, t_n n) noexcept { // BIN_METHOD_32_
-    // XXX_24_
-    // calculate how many indexes will be removed
-    // calculate how many bit will be removed
-    // check first bit of last
-    // if bit is set then it must be carried
-    // then bit shiff last to right
-    // check if first bit set, if yes remember
-    // shift to right
-    // if the previous had a zero bit on, then add it to 62.
+  t_void t_impl_base_::ones_complement(r_store_ store) noexcept {
+    ones_compl_(store);
   }
 
+  // IMPL_METHOD_11_
   inline
-  t_void t_impl_base_::set_bit(r_store_ store, t_ix ix, t_bool on) noexcept { // BIN_METHOD_33_
-    t_ix_ bit = get(ix);
-    t_ix_ max = get_bits_(store);
-    if (bit < max) {
-      if (bit != max - 1) {
-        t_ix_ ix = bit/BITS_UNIT_;
-        if (on)
-          store.ptr[ix] |=  (1ULL << bit%BITS_UNIT_);
-        else
-          store.ptr[ix] &= ~(1ULL << bit%BITS_UNIT_);
-      } else {
-        if (on)
-          last_(store) |=  BITS_MSB_;
-        else
-          last_(store) &= ~BITS_MSB_;
-      }
-    }
+  t_void t_impl_base_::twos_complement(r_store_ store) noexcept {
+    twos_compl_(store);
   }
 
+  // IMPL_METHOD_12_
   inline
-  t_n t_impl_base_::get_bits(R_store_ store) const noexcept { // BIN_METHOD_34_
-    return t_n{get_bits_(store)};
+  t_void t_impl_base_::shift_left(r_store_ store, t_n n) noexcept {
+    shift_left_(store, n);
   }
 
+  // IMPL_METHOD_13_
   inline
-  t_bool t_impl_base_::get_bit(R_store_ store, t_ix ix) const noexcept { // BIN_METHOD_35_
-    t_ix_ bit = get(ix);
-    t_ix_ max = get_bits_(store);
-    if (bit < max) {
-      if (bit != max - 1) {
-        t_ix_ ix = bit/BITS_UNIT_;
-        return (1ULL << bit%BITS_UNIT_) & store.ptr[ix];
-      }
-      return last_(store) & BITS_MSB_;
-    }
-    return false;
+  t_void t_impl_base_::shift_right(r_store_ store, t_n n) noexcept {
+    shift_right_(store, n);
   }
 
+  // IMPL_METHOD_14_
   inline
-  t_bool t_impl_base_::is_negative(R_store_ store) const noexcept { // BIN_METHOD_36_
+  t_bool t_impl_base_::set_bit(r_store_ store, t_ix ix, t_bool on) noexcept {
+    return set_bit_(store, ix, on);
+  }
+
+  // IMPL_METHOD_15_
+  inline
+  t_bool t_impl_base_::ensure_bits(r_store_ store, t_n n) noexcept {
+    return ensure_bits_(store, n);
+  }
+
+  // IMPL_METHOD_16_
+  inline
+  t_bool t_impl_base_::not_zero(R_store_ store) const noexcept {
+    return not_zero_(store);
+  }
+
+  // IMPL_METHOD_17_
+  inline
+  t_n t_impl_base_::get_bits(R_store_ store) const noexcept {
+    return get_bits_(store);
+  }
+
+  // IMPL_METHOD_18_
+  inline
+  t_bool t_impl_base_::get_bit(R_store_ store, t_ix ix) const noexcept {
+    return get_bit_(store, ix);
+  }
+
+  // IMPL_METHOD_19_
+  inline
+  t_bool t_impl_base_::is_negative(R_store_ store) const noexcept {
     return is_negative_(store);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_20_1_
   inline
-  t_void t_impl_base_::reset(r_store_, t_nvalue_) noexcept { // BIN_METHOD_37_
-    // XXX_26_
+  t_void t_impl_base_::reset(r_store_ store, t_nvalue_ value) noexcept {
+    reset_(store, value);
   }
 
+  // IMPL_METHOD_20_2_
   inline
-  t_void t_impl_base_::reset(r_store_, t_n, t_nvalue_) noexcept { // BIN_METHOD_38_
-    // XXX_27_
+  t_bool t_impl_base_::reset(r_store_ store, t_n n, t_nvalue_ value) noexcept {
+    return reset_(store, n, value);
   }
 
+  // IMPL_METHOD_20_3_
   inline
-  t_void t_impl_base_::reset(r_store_, t_pvalue_) noexcept { // BIN_METHOD_39_
-    // XXX_28_
+  t_void t_impl_base_::reset(r_store_ store, t_pvalue_ value) noexcept {
+    reset_(store, value);
   }
 
+  // IMPL_METHOD_20_4_
   inline
-  t_void t_impl_base_::reset(r_store_, t_n, t_pvalue_) noexcept { // BIN_METHOD_40_
-    // XXX_29_
+  t_bool t_impl_base_::reset(r_store_ store, t_n n, t_pvalue_ value) noexcept {
+    return reset_(store, n, value);
   }
 
+  // IMPL_METHOD_20_5_
   inline
-  t_void t_impl_base_::set_bits(r_store_, t_n) noexcept { // BIN_METHOD_41_
-    // XXX_30_
+  t_bool t_impl_base_::reset(r_store_ store, R_store_ value) noexcept {
+    return reset_(store, value);
   }
 
+  // IMPL_METHOD_20_6_
   inline
-  t_bool t_impl_base_::not_zero(R_store_) const noexcept { // BIN_METHOD_41_
-    // XXX_31_
-    return false;
+  t_bool t_impl_base_::reset(r_store_ store, t_n n, R_store_ value) noexcept {
+    return reset_(store, n, value);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_21_1_
   inline
-  t_bool t_impl_base_::is_equal(R_store_, R_store_)  const noexcept { // BIN_METHOD_41_
-    // XXX_32_
-    return false;
+  t_bool t_impl_base_::is_equal(R_store_ store, R_store_ value) const noexcept {
+    return is_equal_(store, value);
   }
 
+  // IMPL_METHOD_21_2_
   inline
-  t_bool t_impl_base_::is_equal(R_store_, t_pvalue_) const noexcept { // BIN_METHOD_42_
-    // XXX_33_
-    return false;
+  t_bool t_impl_base_::is_equal(R_store_ store, t_pvalue_ value) const noexcept {
+    return is_equal_(store, value);
   }
 
+  // IMPL_METHOD_21_3_
   inline
-  t_bool t_impl_base_::is_equal(R_store_, t_nvalue_) const noexcept { // BIN_METHOD_43_
-    // XXX_34_
-    return false;
+  t_bool t_impl_base_::is_equal(R_store_ store, t_nvalue_ value) const noexcept {
+    return is_equal_(store, value);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_22_1_
   inline
-  t_bool t_impl_base_::is_less(R_store_, R_store_)  const noexcept { // BIN_METHOD_44_
-    // XXX_35_
-    return false;
+  t_bool t_impl_base_::is_less(R_store_ store, R_store_ value)  const noexcept {
+    return is_less_(store, value);
   }
 
+  // IMPL_METHOD_22_2_
   inline
-  t_bool t_impl_base_::is_less(R_store_, t_pvalue_) const noexcept { // BIN_METHOD_45_
-    // XXX_36_
-    return false;
+  t_bool t_impl_base_::is_less(R_store_ store, t_pvalue_ value) const noexcept {
+    return is_less_(store, value);
   }
 
+  // IMPL_METHOD_22_3_
   inline
-  t_bool t_impl_base_::is_less(R_store_, t_nvalue_) const noexcept { // BIN_METHOD_46_
-    // XXX_37_
-    return false;
+  t_bool t_impl_base_::is_less(R_store_ store, t_nvalue_ value) const noexcept {
+    return is_less_(store, value);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_METHOD_23_1_
   inline
-  t_bool t_impl_base_::is_less_equal(R_store_, R_store_)  const noexcept { // BIN_METHOD_47_
-    // XXX_38_
-    return false;
+  t_bool t_impl_base_::is_less_equal(R_store_ store, R_store_ value) const noexcept {
+    return is_less_equal_(store, value);
   }
 
+  // IMPL_METHOD_23_2_
   inline
-  t_bool t_impl_base_::is_less_equal(R_store_, t_pvalue_) const noexcept { // BIN_METHOD_48_
-    // XXX_39_
-    return false;
+  t_bool t_impl_base_::is_less_equal(R_store_ store, t_pvalue_ value) const noexcept {
+    return is_less_equal_(store, value);
   }
 
+  // IMPL_METHOD_23_3_
   inline
-  t_bool t_impl_base_::is_less_equal(R_store_, t_nvalue_) const noexcept { // BIN_METHOD_49_
-    // XXX_40_
-    return false;
+  t_bool t_impl_base_::is_less_equal(R_store_ store, t_nvalue_ value) const noexcept {
+    return is_less_equal_(store, value);
   }
 
 ///////////////////////////////////////////////////////////////////////////////

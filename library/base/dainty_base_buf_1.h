@@ -109,6 +109,9 @@ namespace buf
     t_buf(x_buf) noexcept;
     r_buf operator=(x_buf) noexcept;
 
+    t_buf(R_buf) noexcept;
+    r_buf operator=(R_buf) noexcept;
+
     // might take it if it uses heap
     template<t_n_ N1>
     t_buf(t_buf<T, N1, t_size_dynamic>&&) noexcept;
@@ -116,10 +119,15 @@ namespace buf
     r_buf operator=(t_buf<T, N1, t_size_dynamic>&&) noexcept;
 
     // can only use to know large it should be
-    template<typename T, t_n_ N1, typename A>
+    template<t_n_ N1, typename A>
     t_buf(t_buf<T, N1, A>&&) noexcept;
-    template<typename T, t_n_ N1>
+    template<t_n_ N1>
     r_buf operator=(t_buf<T, N1, t_size_dynamic>&&) noexcept;
+
+    template<t_n_ N1, typename A>
+    t_buf(const t_buf<T, N1, A>&) noexcept;
+    template<typename T, t_n_ N1>
+    r_buf operator=(const t_buf<T, N1, t_size_dynamic>&) noexcept;
     */
 
     ///////////////////////////////////////////////////////////////////////////
@@ -178,6 +186,10 @@ namespace buf
     t_buf_crange mk_crange(t_begin_ix, t_end_ix) const noexcept;
     t_buf_crange mk_crange(t_n)                  const noexcept;
     t_buf_crange mk_crange(t_begin_ix, t_n)      const noexcept;
+
+    // t_bool   ensure_size(t_n) noexcept;
+    // t_bool   resize_to  (t_n) noexcept;
+    // t_bool   enlarge_by (t_n) noexcept;
 
     t_void      enlarge_by(t_n) noexcept; // they must copy
     t_void      resize_to (t_n) noexcept;
