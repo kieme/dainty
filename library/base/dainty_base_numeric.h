@@ -35,6 +35,8 @@ namespace base
 {
 namespace numeric
 {
+ //////////////////////////////////////////////////////////////////////////////
+
   using impl_::t_void;
   using impl_::t_bool;
   using impl_::t_n;
@@ -660,29 +662,31 @@ namespace numeric
 
   // BIN_METHOD_1_2_
   inline
-  t_binary::t_binary(t_n n) noexcept : store_{n}, impl_{store_} {
+  t_binary::t_binary(t_n n) noexcept : store_{impl_::calc_(n)}, impl_{store_} {
   }
 
   // BIN_METHOD_1_3_
   inline
-  t_binary::t_binary(R_binary value) noexcept : impl_{store_, value.store_} {
+  t_binary::t_binary(R_binary value) noexcept : store_{value.store_} {
   }
 
   // BIN_METHOD_1_4_
   inline
   t_binary::t_binary(t_n n, R_binary value) noexcept
-    : store_{n}, impl_{store_, value.store_} {
+    : store_{max_of(impl_::calc_(n), value.store_.size)},
+      impl_{store_, value.store_} {
   }
 
   // BIN_METHOD_1_5_
   inline
-  t_binary::t_binary(x_binary value) noexcept : impl_{store_, value.store_} {
+  t_binary::t_binary(x_binary value) noexcept : store_{x_cast(value.store_)} {
   }
 
   // BIN_METHOD_1_6_
   inline
   t_binary::t_binary(t_n n, x_binary value) noexcept
-    : store_{n}, impl_{store_, value.store_} {
+    : store_{impl_::calc_(n), x_cast(value.store_)},
+      impl_{store_, value.store_} {
   }
 
   // BIN_METHOD_1_7_
@@ -696,7 +700,8 @@ namespace numeric
   template<typename T, t_if_neg<T>>
   inline
   t_binary::t_binary(t_n n, T value) noexcept
-    : store_{n}, impl_{store_, static_cast<impl_::t_nvalue_>(value)} {
+    : store_{impl_::calc_(n)},
+      impl_{store_, static_cast<impl_::t_nvalue_>(value)} {
   }
 
   // BIN_METHOD_1_9_
@@ -710,7 +715,8 @@ namespace numeric
   template<typename T, t_if_pos<T>>
   inline
   t_binary::t_binary(t_n n, T value) noexcept
-    : store_{n}, impl_{store_, static_cast<impl_::t_pvalue_>(value)} {
+    : store_{impl_::calc_(n)},
+      impl_{store_, static_cast<impl_::t_pvalue_>(value)} {
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -718,14 +724,20 @@ namespace numeric
   // BIN_METHOD_2_1_
   inline
   r_binary t_binary::operator=(R_binary value) noexcept {
-    impl_.assign(store_, value.store_);
+    if (get(store_.size) <= get(value.store_.size))
+      store_.ensure(value.store_);
+    else
+      impl_.ensure(store_, value.store_);
     return *this;
   }
 
   // BIN_METHOD_2_2_
   inline
   r_binary t_binary::operator=(x_binary value) noexcept {
-    impl_.assign(store_, value.store_);
+    if (get(store_.size) <= get(value.store_.size))
+      store_.ensure(x_cast(value.store_));
+    else
+      impl_.ensure(store_, value.store_);
     return *this;
   }
 
@@ -989,7 +1001,7 @@ namespace numeric
   // BIN_METHOD_19_
   inline
   t_bool t_binary::ensure_bits(t_n n) noexcept {
-    return impl_.ensure_bits(store_, n);
+    return impl_.ensure(n);
   }
 
   // BIN_METHOD_20_
@@ -1027,13 +1039,13 @@ namespace numeric
   // BIN_METHOD_24_2_
   inline
   t_bool t_binary::reset(R_binary value) noexcept {
-    return impl_.reset(store_, value.store_);
+    return store_.reset(value.store_);
   }
 
   // BIN_METHOD_24_3_
   inline
   t_bool t_binary::reset(t_n n, R_binary value) noexcept {
-    return impl_.reset(store_, n, value.store_);
+    return store_.reset(impl_::calc_(n), value.store_);
   }
 
   // BIN_METHOD_24_4_
@@ -1047,7 +1059,8 @@ namespace numeric
   template<typename T, t_if_neg<T>>
   inline
   t_bool t_binary::reset(t_n n, T value) noexcept {
-    return impl_.reset(store_, n, static_cast<impl_::t_nvalue_>(value));
+    return impl_.reset(store_, impl_::calc_(n),
+                       static_cast<impl_::t_nvalue_>(value));
   }
 
   // BIN_METHOD_24_6_
@@ -1061,7 +1074,8 @@ namespace numeric
   template<typename T, t_if_pos<T>>
   inline
   t_bool t_binary::reset(t_n n, T value) noexcept {
-    return impl_.reset(store_, n, static_cast<impl_::t_pvalue_>(value));
+    return impl_.reset(store_, impl_::calc_(n),
+                       static_cast<impl_::t_pvalue_>(value));
   }
 
   /////////////////////////////////////////////////////////////////////////////

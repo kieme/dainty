@@ -36,7 +36,7 @@ namespace base
 {
 namespace logical
 {
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   using types::t_prefix;
   using types::t_bool;
@@ -59,7 +59,7 @@ namespace logical
   using traits::t_result_false;
   using traits::t_result_true;
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<class, class TAG, class...>
   class t_logical;
@@ -68,7 +68,7 @@ namespace logical
   constexpr
   T get(t_logical<T, TAG, TAGS...>) noexcept;
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   /*
   template<typename T> using t_check_op     = decltype(T::check(T()));
@@ -96,7 +96,7 @@ namespace logical
   };
   */
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<class T, class TAG, class... TAGS>
   class t_logical {
@@ -144,13 +144,13 @@ namespace logical
     t_value value_;
   };
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<class T, class TAG, class... TAGS>
   constexpr
   T get(t_logical<T, TAG, TAGS...> logical) noexcept { return logical.value_; }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<class>
   struct t_is_logical : t_result_false { };
@@ -167,49 +167,49 @@ namespace logical
   template<class T>
   using t_if_not_logical = traits::t_if<t_is_not_logical<T>>;
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
-namespace impl_ {
-  template<typename, typename>
-  struct t_is_allowed_ : t_result_false { };
+  namespace impl_ {
+    template<typename, typename>
+    struct t_is_allowed_ : t_result_false { };
 
-  template<class T,  class... TAGS, class T1, class... TAGS1>
-  struct t_is_allowed_<t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>
-    : t_add_result<
-        t_or<t_is_subset_of<
-          typename t_logical<T,  TAGS... >::t_flatten,
-          typename t_logical<T1, TAGS1...>::t_flatten>,
-        t_is_subset_of<
-          typename t_logical<T1, TAGS1... >::t_flatten,
-          typename t_logical<T,  TAGS...>::t_flatten>>> {
-  };
+    template<class T,  class... TAGS, class T1, class... TAGS1>
+    struct t_is_allowed_<t_logical<T,  TAGS...>, t_logical<T1, TAGS1...>>
+      : t_add_result<
+          t_or<t_is_subset_of<
+            typename t_logical<T,  TAGS... >::t_flatten,
+            typename t_logical<T1, TAGS1...>::t_flatten>,
+          t_is_subset_of<
+            typename t_logical<T1, TAGS1... >::t_flatten,
+            typename t_logical<T,  TAGS...>::t_flatten>>> {
+    };
 
-  template<typename, typename, typename>
-  struct t_is_op_allowed_ : t_result_false { };
+    template<typename, typename, typename>
+    struct t_is_op_allowed_ : t_result_false { };
 
-  template<class... Cs, class T,  class... TAGS, class T1, class... TAGS1>
-  struct t_is_op_allowed_<t_pack<Cs...>, t_logical<T,  TAGS...>,
-                                         t_logical<T1, TAGS1...>> {
-    using t_0_ = typename t_flatten_tree<Cs...>::t_value;
-    using t_1_ = typename t_logical<T,  TAGS... >::t_flatten;
-    using t_2_ = typename t_logical<T1, TAGS1...>::t_flatten;
-    using t_result = t_and<
-                       t_and<
-                         t_or<
-                           t_is_subset_of<t_1_, t_2_>,
-                           t_is_subset_of<t_2_, t_1_>>,
-                         t_is_subset_of<t_0_, t_1_>>,
-                       t_is_subset_of<t_0_, t_2_>>;
-  };
-}
+    template<class... Cs, class T,  class... TAGS, class T1, class... TAGS1>
+    struct t_is_op_allowed_<t_pack<Cs...>, t_logical<T,  TAGS...>,
+                                           t_logical<T1, TAGS1...>> {
+      using t_0_ = typename t_flatten_tree<Cs...>::t_value;
+      using t_1_ = typename t_logical<T,  TAGS... >::t_flatten;
+      using t_2_ = typename t_logical<T1, TAGS1...>::t_flatten;
+      using t_result = t_and<
+                         t_and<
+                           t_or<
+                             t_is_subset_of<t_1_, t_2_>,
+                             t_is_subset_of<t_2_, t_1_>>,
+                           t_is_subset_of<t_0_, t_1_>>,
+                         t_is_subset_of<t_0_, t_2_>>;
+    };
+  }
 
-template<typename T, typename T1>
-struct t_is_allowed : impl_::t_is_allowed_<T, T1>::t_result { };
+  template<typename T, typename T1>
+  struct t_is_allowed : impl_::t_is_allowed_<T, T1>::t_result { };
 
-template<typename C, typename T, typename T1>
-struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
+  template<typename C, typename T, typename T1>
+  struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   enum t_allow_op_less_tag         { };
   enum t_allow_op_less_equal_tag   { };
@@ -218,7 +218,7 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
   enum t_allow_op_equal_tag        { };
   enum t_allow_op_not_equal_tag    { };
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   enum t_allow_op_plus_tag     { };
   enum t_allow_op_minus_tag    { };
@@ -226,7 +226,7 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
   enum t_allow_op_divide_tag   { };
   enum t_allow_op_mod_tag      { };
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<class T,  class... TAGS, class T1, class... TAGS1>
   constexpr
@@ -300,7 +300,7 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
     return get(lh) >= get(rh);
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<class T,  class... TAGS, class T1, class... TAGS1>
   constexpr
@@ -345,7 +345,7 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
     return t_logical<T, TAGS...>(lh + get(rh));
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<class T,  class... TAGS, class T1, class... TAGS1>
   constexpr
@@ -390,7 +390,7 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
     return t_logical<T, TAGS...>(lh - get(rh));
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<class T,  class... TAGS, class T1, class... TAGS1>
   constexpr
@@ -435,7 +435,7 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
     return t_logical<T, TAGS...>(lh * get(rh));
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<class T,  class... TAGS, class T1, class... TAGS1>
   constexpr
@@ -480,7 +480,7 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
     return t_logical<T, TAGS...>(lh / get(rh));
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<class T,  class... TAGS, class T1, class... TAGS1>
   constexpr
@@ -525,7 +525,7 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
     return t_logical<T, TAGS...>(lh % get(rh));
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   using t_allow_ops_compare_tag = traits::t_pack<t_allow_op_less_tag,
                                                  t_allow_op_less_equal_tag,
@@ -543,7 +543,7 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
   using t_allow_ops_value_tag = traits::t_pack<t_allow_ops_compare_tag,
                                                t_allow_ops_arithmetic_tag>;
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   using t_n = t_logical<types::t_n_, types::t_n_tag_, t_allow_ops_value_tag>;
 
@@ -556,7 +556,7 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
   enum  t_by_n_tag_ {};
   using t_by_n = t_logical<types::t_n_, t_n::t_tags,  t_by_n_tag_>;
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   using t_ix = t_logical<types::t_ix_, types::t_ix_tag_, t_allow_ops_value_tag>;
 
@@ -566,7 +566,12 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
   enum  t_end_ix_tag_ {};
   using t_end_ix   = t_logical<types::t_ix_, t_ix::t_tags, t_end_ix_tag_>;
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+
+  // max_of
+  // min_of
+
+  /////////////////////////////////////////////////////////////////////////////
 
   constexpr
   t_n operator""_n(unsigned long long value) noexcept {
@@ -583,7 +588,22 @@ struct t_is_op_allowed : impl_::t_is_op_allowed_<C, T, T1>::t_result { };
     return t_max_n{value};
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  constexpr
+  t_ix operator""_ix(unsigned long long value) noexcept {
+    return t_ix{value};
+  }
+
+  constexpr
+  t_begin_ix operator""_begin_ix(unsigned long long value) noexcept {
+    return t_begin_ix{value};
+  }
+
+  constexpr
+  t_end_ix operator""_end_ix(unsigned long long value) noexcept {
+    return t_end_ix{value};
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
 }
 }
 }
