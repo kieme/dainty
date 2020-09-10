@@ -56,15 +56,15 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  using t_nvalue_ = types::t_llong;
-  using t_pvalue_ = types::t_ullong;
-
-  /*
   using t_nvalue_ = types::t_schar;
   using t_pvalue_ = types::t_uchar;
 
+  /*
   using t_nvalue_ = types::t_short;
   using t_pvalue_ = types::t_ushort;
+
+  using t_nvalue_ = types::t_llong;
+  using t_pvalue_ = types::t_ullong;
   */
 
   using p_pvalue_ = types::t_prefix<t_pvalue_>::p_;
@@ -83,6 +83,7 @@ namespace impl_
   constexpr t_pvalue_ BITS_LAST_  = BITS_ONE_ << (BITS_UNIT_ - BITS_ONE_);
   constexpr t_pvalue_ BITS_MASK_  = (t_pvalue_)~BITS_MSB_;
 
+  /*
   static_assert(BITS_ZERO_  ==                  0ULL);
   static_assert(BITS_ONE_   ==                  1ULL);
   static_assert(BITS_ALL_   == 0xffffffffffffffffULL);
@@ -92,7 +93,6 @@ namespace impl_
   static_assert(BITS_LAST_  == 0x4000000000000000ULL);
   static_assert(BITS_MASK_  == 0x7fffffffffffffffULL);
 
-  /*
   static_assert(BITS_ZERO_  ==      0);
   static_assert(BITS_ONE_   ==      1);
   static_assert(BITS_ALL_   == 0xffff);
@@ -101,6 +101,7 @@ namespace impl_
   static_assert(BITS_MSB_   == 0x8000);
   static_assert(BITS_LAST_  == 0x4000);
   static_assert(BITS_MASK_  == 0x7fff);
+  */
 
   static_assert(BITS_ZERO_  ==    0);
   static_assert(BITS_ONE_   ==    1);
@@ -110,7 +111,6 @@ namespace impl_
   static_assert(BITS_MSB_   == 0x80);
   static_assert(BITS_LAST_  == 0x40);
   static_assert(BITS_MASK_  == 0x7f);
-  */
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -314,9 +314,12 @@ namespace impl_
 
     ///////////////////////////////////////////////////////////////////////////
 
-    t_bool ms_bit (R_store_) const noexcept; // BIN_METHOD_1_24_
-    t_bool ls_bit (R_store_) const noexcept; // BIN_METHOD_1_25_
-    t_void display(R_store_) const noexcept; // BIN_METHOD_1_26_
+    t_bool ms_bit      (R_store_) const noexcept; // BIN_METHOD_1_24_
+    t_bool ls_bit      (R_store_) const noexcept; // BIN_METHOD_1_25_
+    t_void display     (R_store_) const noexcept; // BIN_METHOD_1_26_
+    t_ix   first_on_bit(R_store_) const noexcept; // BIN_METHOD_1_27_
+    t_ix   last_on_bit (R_store_) const noexcept; // BIN_METHOD_1_28_
+    t_n    on_bits     (R_store_) const noexcept; // BIN_METHOD_1_29_
 
     ///////////////////////////////////////////////////////////////////////////
   };
@@ -1023,6 +1026,27 @@ namespace impl_
   inline
   t_void t_impl_base_::display(R_store_ store) const noexcept {
     display_bits_(store, false);
+  }
+
+  // BIN_METHOD_1_27_
+  inline
+  t_ix t_impl_base_::first_on_bit(R_store_ store) const noexcept {
+    // XXX_TODO
+    return 0_ix;
+  }
+
+  // BIN_METHOD_1_28_
+  inline
+  t_ix t_impl_base_::last_on_bit(R_store_ store) const noexcept {
+    // XXX_TODO
+    return 0_ix;
+  }
+
+  // BIN_METHOD_1_29_
+  inline
+  t_n t_impl_base_::on_bits(R_store_ store) const noexcept {
+    // XXX_TODO
+    return 0_n;
   }
 
   /////////////////////////////////////////////////////////////////////////////
