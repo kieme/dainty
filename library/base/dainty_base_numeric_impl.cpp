@@ -23,7 +23,7 @@
  SOFTWARE.
 
 ******************************************************************************/
-
+#include <iostream>
 #include "dainty_base_numeric_impl.h"
 
 namespace dainty
@@ -34,268 +34,479 @@ namespace numeric
 {
 namespace impl_
 {
-  /////////////////////////////////////////////////////////////////////////////
+  // XXX_RULE_1_ = total bits are always uneven. e.g. 64 + (63*size)
+  //               positive integers cannot use the last zero bit.
+  // XXX_RULE_2_ = left shift will not result in a negative number
 
-  using types::p_ullong;
-  using types::P_ullong;
-
-  // The decision is based on the idea that you don't care if it is negative
-  // if you shift a value. You can argue binary doesnt know negative. But I
-  // don't see a conflict for binary to know, when it is means to represent
-  // negative numbers. You don't need to make it negative!
-  //
-  // 1. what happens if you shift left  a negative value?
-  //  - it becomes a positive number. all bits move one or more left as they are
-  // 2. what happens if you shift right a negative value?
-  //  . it becomes a positive number, they all shift right.
+  // XXX_TODO - get BIN_FUNC_ numbering right
 
   /////////////////////////////////////////////////////////////////////////////
 
-  t_void copy_(p_ullong dst, P_ullong src, t_n n) noexcept {
-    P_ullong end = src + get(n);
+  using types::t_double;
+  using specific::mk;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_void copy_(p_pvalue_ dst, P_pvalue_ src, t_n n) noexcept {
+    P_pvalue_ end = src + get(n); // memcpy
     while (src != end)
       *dst++ = *src++;
   }
 
-  // IMPL_FUNC_1_1_
-  r_store_ ones_compl_(r_store_ store) noexcept {
-    t_ix_ last = get(store.size) - 1;
-    for (t_ix_ ix = 0; ix < last; ++ix) {
-      r_pvalue_ entry = store.ptr[ix];
-      entry = ~entry & BITS_MASK_;
-    }
-    r_pvalue_ entry = store.ptr[last];
-    entry = ~entry;
-    return store;
+  t_void clear_(p_pvalue_ dst, t_n n) noexcept {
+    P_pvalue_ end = dst + get(n); // memset
+    while (dst != end)
+      *dst++ = 0;
   }
 
-  // IMPL_FUNC_1_2_
-  r_store_ twos_compl_(r_store_ store) noexcept {
-    t_ix_ last = get(store.size) - 1;
-    t_pvalue_ carry = 1;
-    for (t_ix_ ix = 0; ix < last; ++ix) {
-      r_pvalue_ entry = store.ptr[ix];
-      entry = (~entry & BITS_MASK_) + carry;
-      carry = (entry & BITS_MSB_) ? 1 : 0;
-      entry &= BITS_MASK_;
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_void display_bits_(t_pvalue_ value, t_bool msb) noexcept {
+    if (msb)
+      std::cout << ((value & BITS_MSB_) ? '1' : '0');
+    value <<= 1;
+    for (t_ix_ ix = 0; ix < BITS_UNIT_; ++ix) {
+      std::cout << ((value & BITS_MSB_) ? '1' : '0');
+      value <<=1;
     }
-    r_pvalue_ entry = store.ptr[last];
-    entry = ~entry + carry;
-    return store;
+  }
+
+  t_void display_bits_(t_ix ix, t_pvalue_ value, t_bool msb) noexcept {
+    std::cout << "[" << get(ix) << ":";
+    display_bits_(value, msb);
+    std::cout << "]";
+  }
+
+  // IMPL_FUNC_1_1_
+  t_void display_bits_(R_store_ value, t_bool index) noexcept {
+    std::cout << "0b";
+    P_pvalue_ p = value.end() - 1;
+    if (!index) {
+      display_bits_(*p, true);
+      for (--p; p >= value.begin(); --p)
+        display_bits_(*p, false);
+    } else {
+      t_ix ix = last_ix_(value);
+      display_bits_(ix, *p, true);
+      for (--p; p >= value.begin(); --p) {
+        ix = t_ix{get(ix) - 1};
+        display_bits_(ix, *p, false);
+      }
+    }
+    std::cout << std::endl;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_FUNC_1_2_
+  t_binfo_ bits_info_(R_store_ value) noexcept {
+    t_n   max_bits = max_bits_(value);
+    t_ix  last_ix  = last_ix_(value);
+    t_ix_ ix       = get(last_ix);
+    for (; ix && value.ptr[ix] == BITS_ZERO_; --ix);
+
+    if (!ix && value.ptr[0] == BITS_ZERO_)
+      return {max_bits};
+
+    t_pvalue_ val = value.ptr[ix];
+    t_n_ p = 0;
+    t_n_ n = 0;
+    for (; val; val>>=1, ++p)
+      if (val & 1)
+        ++n;
+
+    if (ix) {
+      do {
+        --ix;
+        t_pvalue_ val = value.ptr[ix];
+        for (; val; val>>=1)
+          if (val & 1)
+            ++n;
+      } while (ix);
+    }
+    return {{last_ix, t_n{p}}, t_n{n}, max_bits};
   }
 
   // IMPL_FUNC_1_3_
-  t_void assign_(r_store_ store, R_store_ value) noexcept {
+  t_n free_bits_(R_store_ value) noexcept {
+    if (!is_neg_(value)) {
+      auto max = max_bits_(value);
+      auto ix  = msb_on_bit_(value);
+      return max - bits_(ix);
+    }
+    return 0_n;
+  }
+
+  // IMPL_FUNC_1_4_
+  t_bpos_ msb_on_bit_(R_store_ value) noexcept {
+    t_ix_ ix  = get(last_ix_(value));
+    for (; ix && value.ptr[ix] == BITS_ZERO_; --ix);
+
+    if (!ix && value.ptr[0] == BITS_ZERO_)
+      return {};
+
+    t_pvalue_ val = value.ptr[ix];
+    t_n_ p = 0;
+    for (; val; val>>=1)
+      ++p;
+
+    return {t_ix{ix}, t_n{p}};
+  }
+
+  // IMPL_FUNC_1_5_
+  t_bpos_ msb_off_bit_(R_store_ value) noexcept {
+    t_ix_ ix  = get(last_ix_(value));
+    for (; ix && value.ptr[ix] == BITS_ALL_; --ix);
+
+    if (!ix && value.ptr[0] == BITS_ALL_)
+      return {};
+
+    t_pvalue_ val = value.ptr[ix];
+    t_n_ p = BITS_UNIT_;
+    for (t_pvalue_ mask = BITS_LAST_; mask && (mask & val); mask>>=1)
+      --p;
+
+    return {t_ix{ix}, t_n{p}};
+  }
+
+  // IMPL_FUNC_1_6_
+  t_void ones_compl_(r_store_ value) noexcept {
+    const auto last = get(last_ix_(value.size));
+    for (t_ix_ ix = 0; ix < last; ++ix) {
+      r_pvalue_ entry = value.ptr[ix];
+      entry = ~entry & BITS_MASK_;
+    }
+    r_pvalue_ entry = last_(value);
+    entry = ~entry;
+  }
+
+  // IMPL_FUNC_1_7_
+  t_void twos_compl_(r_store_ value) noexcept {
+    auto last  = get(last_ix_(value.size));
+    auto carry = BITS_ONE_;
+    for (auto ix = get(0_ix); ix < last; ++ix) {
+      r_pvalue_ entry = value.ptr[ix];
+      entry = (~entry & BITS_MASK_) + carry;
+      carry = entry >> BITS_UNIT_;
+      entry &= BITS_MASK_;
+    }
+    r_pvalue_ entry = last_(value);
+    entry = ~entry + carry;
+  }
+
+  // IMPL_FUNC_1_8_
+  t_bool assign_(r_store_ store, R_store_ value) noexcept {
     if (store.ensure(value.size)) {
       t_ix_ max = get(value.size);
       t_ix_ ix  = 0;
       for (; ix < max; ++ix)
         store.ptr[ix] = value.ptr[ix];
-      t_bool neg = is_negative_(value);
+      t_bool neg = is_neg_(value);
       max = get(store.size);
       for (; ix < max; ++ix)
         store.ptr[ix] = neg ? BITS_ALL_ : BITS_ZERO_;
+      return true;
     }
+    return false;
   }
 
-  // IMPL_FUNC_1_4_
-  // XXX-1
-  // note: another way might be to < and sign
-  t_void add_(r_store_ store, R_store_ value) noexcept {
-    t_bool negs[2] = { is_negative_(store), is_negative_(value) };
-    if (get(store.size) == get(value.size)) {
-      t_ix_ last = get(store.size) - 1;
-      t_pvalue_ carry = 0;
-      for (t_ix_ ix = 0; ix < last; ++ix) {
-        store.ptr[ix] += carry;
-        store.ptr[ix] += value.ptr[ix];
-        if (BITS_MSB_ & store.ptr[ix]) {
-          store.ptr[ix] = store.ptr[ix] & BITS_MASK_;
-          carry = 1;
-        }
-      }
-      store.ptr[last] += carry;
-      store.ptr[last] += value.ptr[last];
-      if (negs[0] == negs[1]) {
-        if (negs[0]) {
-          if (!(BITS_MSB_ & store.ptr[last])) {
-            //must enlarge by one + 1111s
-          }
-        } else {
-          if (BITS_MSB_ & store.ptr[last]) {
-            //must enlarge by one + 1
-          }
-        }
-      }
-    } else if (get(store.size) > get(value.size)) {
-      t_ix_ last = get(value.size) - 1, last1 = get(store.size);
-      t_pvalue_ carry = 0;
-      for (t_ix_ ix = 0; ix < last; ++ix) {
-        store.ptr[ix] += carry; // XXX - not sure this is right 
-        store.ptr[ix] += value.ptr[ix];
-        if (BITS_MSB_ & store.ptr[ix]) {
-          store.ptr[ix] = store.ptr[ix] & BITS_MASK_;
-          carry = 1;
-        }
-      }
-      if (negs[1]) {
-        for (t_ix_ ix = last; ix < last1; ++ix) {
-          store.ptr[ix] += carry;
-          store.ptr[ix] += BITS_ALL_;
-          if (BITS_MSB_ & store.ptr[ix]) {
-            store.ptr[ix] = store.ptr[ix] & BITS_MASK_;
-            carry = 1;
-          }
-        }
-        store.ptr[last] += carry;
-        store.ptr[last] += BITS_ALL_;
-        if (negs[0] && !(BITS_MSB_ & store.ptr[last])) {
-            //must enlarge by one + 1111s
-        }
+  /////////////////////////////////////////////////////////////////////////////
+
+  struct t_add_ctxt_ {
+    t_ix_     last[2];
+    t_bool    neg[2];
+    t_n_      min      = 0;
+    t_n_      max      = 0;
+    t_pvalue_ add_loop = BITS_ZERO_;
+    t_pvalue_ add_last = BITS_ZERO_;
+    t_pvalue_ add_end  = BITS_ZERO_;
+    P_pvalue_ longer   = nullptr;
+    P_pvalue_ shorter  = nullptr;
+  };
+  using r_add_ctxt_ = types::t_prefix<t_add_ctxt_>::r_;
+
+  inline
+  t_add_ctxt_ add_ctxt_(R_store_ value, R_store_ value1) noexcept {
+    t_add_ctxt_ ctxt;
+    ctxt.last[0] = get(last_ix_(value));
+    ctxt.last[1] = get(last_ix_(value1));
+    ctxt.neg[0]  = is_neg_(value);
+    ctxt.neg[1]  = is_neg_(value1);
+    if (ctxt.last[0] == ctxt.last[1]) {
+      ctxt.min = ctxt.last[0];
+    } else if (ctxt.last[0] < ctxt.last[1]) {
+      ctxt.min     = ctxt.last[0];
+      ctxt.max     = ctxt.last[1];
+      ctxt.longer  = value1.begin();
+      ctxt.shorter = value.begin();
+      if (ctxt.neg[0]) {
+        ctxt.add_loop = BITS_MASK_;
+        ctxt.add_last = BITS_ALL_;
       } else {
-        if (carry) {
-          for (t_ix_ ix = last; ix < last1; ++ix) {
-            store.ptr[ix] += carry;
-            if (BITS_MSB_ & store.ptr[ix]) {
-              store.ptr[ix] = store.ptr[ix] & BITS_MASK_;
-              carry = 1;
-            }
-          }
-          store.ptr[last] += carry;
-          if (negs[0] && !(BITS_MSB_ & store.ptr[last])) {
-              //must enlarge by one + 1111s
-          }
-        }
+        ctxt.add_loop = BITS_ZERO_;
+        ctxt.add_last = BITS_ZERO_;
       }
     } else {
+      ctxt.min     = ctxt.last[1];
+      ctxt.max     = ctxt.last[0];
+      ctxt.longer  = value.begin();
+      ctxt.shorter = value1.begin();
+      if (ctxt.neg[1]) {
+        ctxt.add_loop = BITS_MASK_;
+        ctxt.add_last = BITS_ALL_;
+      } else {
+        ctxt.add_loop = BITS_ZERO_;
+        ctxt.add_last = BITS_ZERO_;
+      }
     }
+    return ctxt;
   }
 
-  // IMPL_FUNC_1_5_
-  t_void minus_(r_store_ , R_store_) noexcept {
-    // XXX-2
-  }
-
-  // IMPL_FUNC_1_6_
-  t_void multiply_(r_store_ , R_store_) noexcept {
-    // XXX-3
-    /*
-    t_binary k;
-    if (i && j) {
-      int sign = 0;
-      if (is_negative_(i)) {
-        sign = 1;
-        twos_complement_(i);
-      }
-      if (is_negative_(j)) {
-        sign += 3;
-        twos_complement(j);
-      }
-      for (;j;j>>=1,i<<=1)
-        if (j & 1)
-          k += i;
-      if (sign & 1)
-        twos_complement_(k);
+  t_n calc_add_(r_add_ctxt_ ctxt, R_store_ value, R_store_ value1) noexcept {
+    auto carry = BITS_ZERO_;
+    auto ix    = get(0_ix);
+    auto tmp   = BITS_ZERO_;
+    for (; ix < ctxt.min; ++ix) {
+      tmp   = value.ptr[ix] + value1.ptr[ix] + carry;
+      carry = tmp >> BITS_UNIT_;
     }
-    return k;
-    */
-  }
-
-  // IMPL_FUNC_1_7_
-  t_void divide_(r_store_ , R_store_) noexcept {
-    // XXX-4
-    /*
-    int l = 0;
-    if (i) {
-      int sign = 0;
-      if (IS_NEG(i)) {
-        sign = 1;
-        i = TWOS_COMP(i);
+    if (ctxt.last[0] == ctxt.last[1])
+      tmp = value.ptr[ix] + value1.ptr[ix] + carry;
+    else {
+      tmp = (ctxt.shorter[ix] & BITS_MASK_) + ctxt.longer[ix] + carry;
+      carry = tmp >> BITS_UNIT_;
+      for (++ix; ix < ctxt.max; ++ix) {
+        tmp = ctxt.longer[ix] + ctxt.add_loop + carry;
+        carry = tmp >> BITS_UNIT_;
       }
-      if (IS_NEG(j)) {
-        sign += 3;
-        j = TWOS_COMP(j);
-      }
-      int k = j;
-      for (; !HIGHEST_BIT(k) && k < i; k <<= 1); // NOT MAX PROOF
-      for (k >>= 1; k >= j; k >>= 1) {
-        l <<= 1; // DONT understand this
-        if (k < i) {
-          i += TWOS_COMP(k);
-          l += 1;
+      tmp = ctxt.longer[ix] + ctxt.add_last + carry;
+    }
+    if (ctxt.neg[0] == ctxt.neg[1]) {
+      if (ctxt.neg[0]) {
+        if (!(tmp >> BITS_UNIT_)) {
+          ++ix;
+          ctxt.add_end  = ~BITS_ONE_;
         }
+      } else if (tmp >> BITS_UNIT_) {
+        ++ix;
+        ctxt.add_end  = BITS_ONE_;
       }
-      if (j == i)
-        l += 1;
-      if (sign & 1)
-        l = TWOS_COMP(l);
     }
-    return l;
-    */
-  }
-
-  // IMPL_FUNC_1_8_
-  t_void and_(r_store_, R_store_) noexcept {
-    // XXX-5
-    /*
-    store.ptr[0] &= value; // XXX - 64th bit can be in ptr[1]
-    if (value >= 0) {
-      t_ix_ max = get(store.size);
-      for (t_ix_ ix = 1; ix < max; ++ix)
-        store.ptr[ix] = BITS_ZERO_;
-    } else {
-      t_ix_ last = get(store.size) - 1;
-      for (t_ix_ ix = 1; ix < last; ++ix)
-        store.ptr[ix] = BITS_MASK_;
-      store.ptr[last] = BITS_ALL_;
-    }
-    */
+    return t_n{ix + 1};
   }
 
   // IMPL_FUNC_1_9_
-  t_void or_(r_store_, R_store_) noexcept {
-    // XXX-6
-    /*
-    store.ptr[0] &= value; // XXX - 64th bit can be in ptr[1]
-    if (value >= 0) {
-      t_ix_ max = get(store.size);
-      for (t_ix_ ix = 1; ix < max; ++ix)
-        store.ptr[ix] = BITS_ZERO_;
-    } else {
-      t_ix_ last = get(store.size) - 1;
-      for (t_ix_ ix = 1; ix < last; ++ix)
-        store.ptr[ix] = BITS_MASK_;
-      store.ptr[last] = BITS_ALL_;
+  t_bool add_(r_store_ store, R_store_ value) noexcept {
+    t_add_ctxt_ ctxt = add_ctxt_(store, value);
+    if (store.ensure(calc_add_(ctxt, store, value))) {
+      t_ix_ ix        = 0;
+      t_pvalue_ carry = BITS_ZERO_;
+      for (; ix < ctxt.min; ++ix) {
+        store.ptr[ix] += value.ptr[ix] + carry;
+        carry = store.ptr[ix] >> BITS_UNIT_;
+        store.ptr[ix] &= BITS_MASK_;
+      }
+      if (ctxt.last[0] == ctxt.last[1])
+        store.ptr[ix] += value.ptr[ix] + carry;
+      else {
+        store.ptr[ix] = (ctxt.shorter[ix] & BITS_MASK_) + ctxt.longer[ix] + carry;
+        carry = store.ptr[ix] >> BITS_UNIT_;
+        store.ptr[ix] &= BITS_MASK_;
+        for (++ix; ix < ctxt.max; ++ix) {
+          store.ptr[ix] = ctxt.longer[ix] + ctxt.add_loop + carry;
+          carry = store.ptr[ix] >> BITS_UNIT_;
+          store.ptr[ix] &= BITS_MASK_;
+        }
+        store.ptr[ix] = ctxt.longer[ix] + ctxt.add_last + carry;
+      }
+      if (ctxt.add_end) {
+        store.ptr[ix++] &= BITS_MASK_;
+        store.ptr[ix]    = ctxt.add_end;
+      }
+      return true;
     }
-    */
+    return false;
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
   // IMPL_FUNC_1_10_
-  t_void xor_(r_store_, R_store_) noexcept {
-    // XXX-7
+  t_bool minus_(r_store_ store, R_store_ value) noexcept {
+    t_store_ tmp{value};
+    twos_compl_(tmp);
+    return add_(store, tmp);
   }
 
   // IMPL_FUNC_1_11_
-  t_void shift_left_(r_store_, t_n n) noexcept {
-    // XXX-8
+  t_bool multiply_(r_store_ store, R_store_ value) noexcept {
+    if (!is_zero_(store) && !is_zero_(value)) {
+      t_store_ a{x_cast(store)};
+      t_store_ b{value};
+      assign_(store, BITS_ZERO_);
+
+      t_n_ sign = 0;
+      if (is_neg_(a)) {
+        sign = 1;
+        twos_compl_(a);
+      }
+
+      if (is_neg_(b)) {
+        sign += 3;
+        twos_compl_(b);
+      }
+
+      for (; !is_zero_(a); shift_left_(b), shift_right_(a))
+        if (lsb_(a))
+          add_(store, b);
+
+      if (sign & 1)
+        twos_compl_(store);
+    } else
+      assign_(store, BITS_ZERO_);
+    return true;
   }
 
   // IMPL_FUNC_1_12_
-  t_void shift_right_(r_store_, t_n n) noexcept {
-    // XXX-9
+  t_bool divide_(r_store_ store, R_store_ value) noexcept {
+    if (!is_zero_(store)) {
+      t_store_ var1{x_cast(store)};
+      t_store_ var2{value};
+      assign_(store, BITS_ZERO_);
+
+      t_n_ sign = 0;
+      if (is_neg_(var1)) {
+        sign = 1;
+        twos_compl_(var1);
+      }
+
+      if (is_neg_(var2)) {
+        sign += 3;
+        twos_compl_(var2);
+      }
+
+      t_store_ var3{var2};
+      for (; is_less_(var3, var1); shift_left_(var3));
+      for (shift_right_(var3); is_less_equal_(var2, var3); shift_right_(var3)) {
+        shift_right_(store); // XXX_FIXME_X_
+        if (is_less_(var3, var1)) {
+          minus_(var1, var3);
+          add_(store, BITS_ONE_);
+        }
+      }
+
+      if (is_equal_(var1, var3))
+        add_(store, BITS_ONE_);
+      if (sign & 1)
+        twos_compl_(store);
+    }
+    return true;
   }
 
   // IMPL_FUNC_1_13_
+  t_bool and_(r_store_ store, R_store_ value) noexcept {
+    auto ix = get(0_ix), min = get(min_of(store.size, value.size));
+    for (; ix < min; ++ix)
+      store.ptr[ix] &= value.ptr[ix];
+    if (get(store.size) > get(value.size)) {
+      for (t_ix_ end = get(store.size); ix < end; ++ix)
+        store.ptr[ix] = 0;
+    } else {
+      if (store.ensure(value.size)) {
+        for (t_ix_ end = get(store.size); ix < end; ++ix)
+          store.ptr[ix] = 0;
+      } else
+        return false;
+    }
+    return true;
+  }
+
+  // IMPL_FUNC_1_14_
+  t_bool or_(r_store_ store, R_store_ value) noexcept {
+    auto ix = get(0_ix), min = get(min_of(store.size, value.size));
+    for (; ix < min; ++ix)
+      store.ptr[ix] |= value.ptr[ix];
+    if (get(store.size) < get(value.size)) {
+      if (store.ensure(value.size)) {
+        for (t_ix_ end = get(store.size); ix < end; ++ix)
+          store.ptr[ix] |= value.ptr[ix];
+      } else
+        return false;
+    }
+    return true;
+  }
+
+  // IMPL_FUNC_1_15_
+  t_bool xor_(r_store_ store, R_store_ value) noexcept {
+    auto ix = get(0_ix), min = get(min_of(store.size, value.size));
+    for (; ix < min; ++ix)
+      store.ptr[ix] ^= value.ptr[ix];
+    if (get(store.size) < get(value.size)) {
+      if (store.ensure(value.size)) {
+        for (t_ix_ end = get(store.size); ix < end; ++ix)
+          store.ptr[ix] |= value.ptr[ix];
+      } else
+        return false;
+    }
+    return true;
+  }
+
+  // IMPL_FUNC_1_16_
+  t_bool shift_left_(r_store_ store, t_n n) noexcept {
+    auto bpos = msb_on_bit_(store);
+    if (bpos && get(n) > 0) {
+      auto need = calc_size_(bits_(bpos) + n);
+      if (store.ensure(need)) {
+        auto k     = get(n) % BITS_UNIT_;
+        auto z     = BITS_UNIT_ - k;
+        auto ix    = get(bpos.ix);
+        auto to_ix = get(need) - 1;
+        if (to_ix) {
+          store.ptr[to_ix] = store.ptr[ix] >> z;
+          if (store.ptr[to_ix])
+            --to_ix;
+          for (; ix; --ix)
+            store.ptr[to_ix--] =
+              BITS_MASK_ & (store.ptr[ix] << k | store.ptr[ix-1] >> z);
+        }
+        store.ptr[to_ix] = store.ptr[0] << k;
+        for (ix = 0; ix < to_ix; ++ix)
+          store.ptr[ix] = BITS_ZERO_;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // IMPL_FUNC_1_17_
+  t_bool shift_right_(r_store_ store, t_n n) noexcept {
+    if (!is_zero_(store) && (get(n) > 0)) {
+      auto last_ix = get(last_ix_(store));
+      auto k       = get(n) % BITS_UNIT_;
+      auto z       = BITS_UNIT_ - k;
+      auto ix      = get(calc_size_(n)) - 1;
+      auto to_ix   = get(0_ix);
+      for (; ix < last_ix; ++ix)
+        store.ptr[to_ix++] =
+          BITS_MASK_ & (store.ptr[ix] >> k | store.ptr[ix+1] << z);
+      store.ptr[to_ix++] = store.ptr[ix] >> (k ? k : BITS_UNIT_);
+      for (; to_ix <= last_ix; ++to_ix)
+        store.ptr[to_ix] = BITS_ZERO_;
+      return true;
+    }
+    return false;
+  }
+
+  // IMPL_FUNC_1_18_
   t_bool set_bit_(r_store_ store, t_ix ix, t_bool on) noexcept {
-    t_ix_ bit = get(ix);
-    t_ix_ max = get(get_bits_(store));
+    auto bit = get(ix);
+    auto max = get(max_bits_(store));
     if (bit < max) {
       if (bit != max - 1) {
         t_ix_ ix = bit/BITS_UNIT_;
         if (on)
-          store.ptr[ix] |=  (1ULL << bit%BITS_UNIT_);
+          store.ptr[ix] |=  (BITS_ONE_ << bit%BITS_UNIT_);
         else
-          store.ptr[ix] &= ~(1ULL << bit%BITS_UNIT_);
+          store.ptr[ix] &= ~(BITS_ONE_ << bit%BITS_UNIT_);
       } else {
         if (on)
           last_(store) |=  BITS_MSB_;
@@ -307,98 +518,226 @@ namespace impl_
     return false;
   }
 
-  // IMPL_FUNC_1_14_
+  // IMPL_FUNC_1_19_
   t_bool get_bit_(R_store_ store, t_ix ix) noexcept {
     t_ix_ bit = get(ix);
-    t_ix_ max = get(get_bits_(store));
+    t_ix_ max = get(max_bits_(store));
     if (bit < max) {
       if (bit != max - 1) {
         t_ix_ ix = bit/BITS_UNIT_;
-        return (1ULL << bit%BITS_UNIT_) & store.ptr[ix];
+        return (BITS_ONE_ << bit%BITS_UNIT_) & store.ptr[ix];
       }
       return last_(store) & BITS_MSB_;
     }
     return false;
   }
 
-  // IMPL_FUNC_1_16_
-  t_bool not_zero_(R_store_ store) noexcept {
+  // IMPL_FUNC_1_20_
+  t_bool is_zero_(R_store_ store) noexcept {
     t_ix_ max = get(store.size);
     for (t_ix_ ix = 0; ix < max; ++ix) {
       r_pvalue_ entry = store.ptr[ix];
       if (entry)
-        return true;
+        return false;
     }
-    return true;
-  }
-
-  // IMPL_FUNC_1_17_
-  t_bool reset_(r_store_ store, R_store_ value) noexcept {
-    if (store.reset(value.size)) {
-      assign_(store, value);
-      return true;
-    }
-    return false;
-  }
-
-  // IMPL_FUNC_1_18_
-  t_bool reset_(r_store_ store, t_n n, R_store_ value) noexcept {
-    if (store.reset(n)) {
-      assign_(store, value); // XXX Need a fixed assign
-      return true;
-    }
-    return false;
-  }
-
-  // IMPL_FUNC_1_19_
-  t_bool is_equal_(R_store_, R_store_) noexcept {
-    // XXX-10
-    return true;
-  }
-
-  // IMPL_FUNC_1_20_
-  t_bool is_less_(R_store_, R_store_) noexcept {
-    // XXX-11
     return true;
   }
 
   // IMPL_FUNC_1_21_
-  t_bool is_less_equal_(R_store_, R_store_) noexcept {
-    // XXX-12
-    return true;
+  t_bool reset_(r_store_ store, R_store_ value) noexcept {
+    if (store.reset(value.size)) {
+      assign_(store, value); // XXX_FIXME_X_ need a truncate assign
+      return true;
+    }
+    return false;
   }
 
   // IMPL_FUNC_1_22_
-  t_n calc_bits_(t_n digits) noexcept {
-    // XXX-13
-    return 0_n;
+  t_bool reset_(r_store_ store, t_n n, R_store_ value) noexcept {
+    if (store.reset(n)) {
+      assign_(store, value); // XXX_FIXME_X_ need a truncate assign
+      return true;
+    }
+    return false;
   }
 
   // IMPL_FUNC_1_23_
-  t_n calc_digits_(t_n bits) noexcept {
-    // XXX-14
-    return 0_n;
+  t_bool is_equal_(R_store_ store, R_store_ value) noexcept {
+    t_bool negs[2] = { is_neg_(store), is_neg_(value)};
+    if (negs[0] == negs[1]) {
+      t_bpos_ n;
+      t_bpos_ n1;
+      if (negs[0]) {
+        n  = msb_off_bit_(store);
+        n1 = msb_off_bit_(value);
+      } else {
+        n  = msb_on_bit_(store);
+        n1 = msb_on_bit_(value);
+      }
+      if (!n && !n)
+        return true;
+      if (n == n1) {
+        t_ix_ ix = get(n.ix);
+        for (; ix && store.ptr[ix] == value.ptr[ix]; --ix);
+        return (!ix && store.ptr[0] == value.ptr[0]);
+      }
+    }
+    return false;
   }
 
   // IMPL_FUNC_1_24_
-  t_bool ensure_(r_store_, t_n) noexcept {
-    // XXX-15
+  t_bool is_less_(R_store_ store, R_store_ value) noexcept {
+    t_bool negs[2] = { is_neg_(store), is_neg_(value)};
+    if (negs[0] == negs[1]) {
+      t_bpos_ n;
+      t_bpos_ n1;
+      if (negs[0]) {
+        n  = msb_off_bit_(store);
+        n1 = msb_off_bit_(value);
+        if (n) {
+          if (n1) {
+            if (n > n1)
+              return true;
+            if (n < n1)
+              return false;
+            t_ix_ ix = get(n.ix);
+            for (; ix && store.ptr[ix] == value.ptr[ix]; --ix);
+            return store.ptr[ix] < value.ptr[ix];
+          } else
+            return true;
+        } else
+          return false;
+      } else {
+        n  = msb_on_bit_(store);
+        n1 = msb_on_bit_(value);
+        if (n) {
+          if (n1) {
+            if (n > n1)
+              return false;
+            if (n < n1)
+              return true;
+            t_ix_ ix = get(n.ix);
+            for (; ix && store.ptr[ix] == value.ptr[ix]; --ix);
+            return store.ptr[ix] < value.ptr[ix];
+          } else
+            return false;
+        } else
+          return n1;
+      }
+    } else if (negs[0] && !negs[1])
+      return true;
     return false;
   }
 
   // IMPL_FUNC_1_25_
-  t_bool ensure_(r_store_, R_store_) noexcept {
-    // XXX-16
+  t_bool is_less_equal_(R_store_ store, R_store_ value) noexcept {
+    t_bool negs[2] = { is_neg_(store), is_neg_(value)};
+    if (negs[0] == negs[1]) {
+      t_bpos_ n;
+      t_bpos_ n1;
+      if (negs[0]) {
+        n  = msb_off_bit_(store);
+        n1 = msb_off_bit_(value);
+        if (n) {
+          if (n1) {
+            if (n > n1)
+              return true;
+            if (n < n1)
+              return false;
+            t_ix_ ix = get(n.ix);
+            for (; ix && store.ptr[ix] == value.ptr[ix]; --ix);
+            return store.ptr[ix] <= value.ptr[ix];
+          } else
+            return true;
+        } else
+          return !n;
+      } else {
+        n  = msb_on_bit_(store);
+        n1 = msb_on_bit_(value);
+        if (n) {
+          if (n1) {
+            if (n > n1)
+              return false;
+            if (n < n1)
+              return true;
+            t_ix_ ix = get(n.ix);
+            for (; ix && store.ptr[ix] == value.ptr[ix]; --ix);
+            return store.ptr[ix] <= value.ptr[ix];
+          } else
+            return false;
+        } else
+          return n1;
+      }
+    } else if (negs[0] && !negs[1])
+      return true;
     return false;
   }
 
   // IMPL_FUNC_1_26_
-  t_bool ensure_(r_store_, t_n, R_store_) noexcept {
-    // XXX_17
-    return false;
+  t_n calc_bits_(t_n digits) noexcept {
+    t_double bits = get(digits) / 0.301029995;
+    return t_n{static_cast<t_n_>(bits) + 1};
+  }
+
+  // IMPL_FUNC_1_27_
+  t_n calc_digits_(t_n bits) noexcept {
+    t_double digits = get(bits) * 0.301029995;
+    return t_n{static_cast<t_n_>(digits)};
+  }
+
+  // IMPL_FUNC_1_28_
+  t_bool ensure_(r_store_ store, t_n n) noexcept {
+    if (get(n) > get(store.size)) {
+      t_bool neg = is_neg_(store);
+      t_n_   old = get(store.size);
+      if (store.ensure(n)) {
+        for (t_ix_ ix = old; ix < get(n); ++ix)
+          store.ptr[ix] = !neg ? BITS_ZERO_ : BITS_ALL_;
+      } else
+        return false;
+    }
+    return true;
+  }
+
+  // IMPL_FUNC_1_29_
+  t_bool ensure_(r_store_ store, R_store_ value) noexcept {
+    if (store.ensure(value))
+      assign_(store, value);
+    else
+      return false;
+    return true;
+  }
+
+  // IMPL_FUNC_1_30_
+  t_bool ensure_(r_store_ store, t_n n, R_store_ value) noexcept {
+    if (store.ensure(n, value))
+      assign_(store, value);
+    else
+      return false;
+    return true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  inline
+  T* malloc_(t_n n) noexcept {
+    return static_cast<T*>(::malloc(sizeof(T) * get(n)));
+  }
+
+  template<typename T>
+  inline
+  T* realloc_(T* p, t_n n) noexcept {
+    return static_cast<T*>(::realloc(p, sizeof(T) * get(n)));
+  }
+
+  template<typename T>
+  inline
+  t_void free_(T* ptr) noexcept {
+    ::free(ptr);
+  }
+
   ///////////////////////////////////////////////////////////////////////////
 
   t_buf_::t_buf_(t_n n) noexcept {
@@ -422,9 +761,8 @@ namespace impl_
   }
 
   t_buf_::~t_buf_() noexcept {
-    if (ptr && ptr != sso_) {
-      ::free(ptr);
-    }
+    if (ptr && ptr != sso_)
+      free_(ptr);
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -441,56 +779,59 @@ namespace impl_
 
 
   t_void t_buf_::steal(r_buf_ value) noexcept {
-    clear();
-    ptr  = base::reset(value.ptr); // indicate its a dead object.
+    reset();
+    ptr  = base::reset(value.ptr);
     size = base::reset(value.size);
   }
 
   ///////////////////////////////////////////////////////////////////////////
 
   t_bool t_buf_::ensure(t_n need) noexcept {
-    if (get(size) < get(need)) {
+    if (size < need) {
+      t_ix ix = mk<t_ix>(size);
       if (is_heap())
-        ptr = static_cast<p_pvalue_>(::realloc(ptr, get(need)));
+        ptr = realloc_(ptr, need);
       else {
-        ptr = static_cast<p_pvalue_>(::malloc(get(need)));
+        ptr = malloc_<t_pvalue_>(need);
         ptr[0] = sso_[0];
         ptr[1] = sso_[1];
       }
       size = need;
+      clear(ix);
     }
     return true;
   }
 
   t_bool t_buf_::ensure(R_buf_ value) noexcept {
-    if (get(size) < get(value.size)) {
+    if (size < value.size) {
       if (is_heap())
-        ptr = static_cast<p_pvalue_>(::realloc(ptr, get(value.size)));
+        ptr = realloc_(ptr, value.size);
       else
-        ptr = static_cast<p_pvalue_>(::malloc(get(value.size)));
+        ptr = malloc_<t_pvalue_>(value.size);
       size = value.size;
-    }
+    } else
+      clear(mk<t_ix>(value.size));
     copy_(ptr, value.ptr, value.size);
     return true;
   }
 
   t_bool t_buf_::ensure(t_n need, R_buf_ value) noexcept {
     need = max_of(need, value.size);
-    if (get(size) < get(need)) {
+    if (size < need) {
       if (is_heap()) {
-        ptr = static_cast<p_pvalue_>(::realloc(ptr, get(need)));
+        ptr = realloc_(ptr, need);
       } else
-        ptr = static_cast<p_pvalue_>(::malloc(get(need)));
+        ptr = malloc_<t_pvalue_>(need);
       size = need;
     }
     copy_(ptr, value.ptr, value.size);
+    clear(mk<t_ix>(value.size));
     return true;
   }
 
   t_bool t_buf_::ensure(x_buf_ value) noexcept {
     if (!value.is_heap() || get(value.size) < get(size))
       return ensure(value);
-
     steal(value);
     return true;
   }
@@ -499,32 +840,45 @@ namespace impl_
     if (!value.is_heap() || get(size) < get(need) ||
                             get(value.size) < get(need))
       return ensure(need, value);
-
     steal(value);
     return true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
 
+  t_void t_buf_::reset() noexcept {
+    if (is_heap()) {
+      sso_[0] = ptr[0];
+      sso_[1] = ptr[1];
+      free_(ptr);
+      ptr  = sso_;
+      size = t_n{2};
+    }
+  }
+
   t_bool t_buf_::reset(t_n need) noexcept {
-    if (get(need) != get(size)) {
+    if (need != size) {
       if (is_heap()) {
         if (get(need) <= t_n{2}) {
           size = t_n{2};
           sso_[0] = ptr[0];
           sso_[1] = ptr[1];
-          ::free (ptr);
+          free_(ptr);
           ptr     = sso_;
         } else {
+          ptr = realloc_(ptr, need);
+          t_ix ix = mk<t_ix>(size);
           size = need;
-          ptr = static_cast<p_pvalue_>(::realloc(ptr, get(need)));
+          if (size < need)
+            clear(ix);
         }
       } else {
-        if (2 < get(need)) { // XXX
+        if (2 < get(need)) { // XXX_REVISIT_5_
           size = need;
-          ptr = static_cast<p_pvalue_>(::malloc(get(need)));
+          ptr = malloc_<t_pvalue_>(need);
           ptr[0] = sso_[0];
           ptr[1] = sso_[1];
+          clear(2_ix);
         }
       }
     }
@@ -532,7 +886,7 @@ namespace impl_
   }
 
   t_bool t_buf_::reset(R_buf_ value) noexcept {
-    if (reset(value.size)) { // XXX might change it
+    if (reset(value.size)) {
       copy_(ptr, value.ptr, value.size);
       return true;
     }
@@ -540,7 +894,7 @@ namespace impl_
   }
 
   t_bool t_buf_::reset(t_n need, R_buf_ value) noexcept {
-    if (reset(need)) { // XXX might change it
+    if (reset(need)) {
       copy_(ptr, value.ptr, min_of(value.size, need));
       return true;
     }
@@ -550,7 +904,6 @@ namespace impl_
   t_bool t_buf_::reset(x_buf_ value) noexcept {
     if (!value.is_heap())
       return reset(value);
-
     steal(value);
     return true;
   }
@@ -571,12 +924,43 @@ namespace impl_
     return ptr != sso_;
   }
 
-  t_void t_buf_::clear() noexcept {
-    if (ptr != sso_) {
-      ::free(ptr);
-      ptr  = sso_;
-      size = t_n{2};
+  ///////////////////////////////////////////////////////////////////////////
+
+  p_pvalue_ t_buf_::begin() noexcept {
+    return ptr;
+  }
+
+  P_pvalue_ t_buf_::begin() const noexcept {
+    return ptr;
+  }
+
+  p_pvalue_ t_buf_::end() noexcept {
+    return ptr + get(size);
+  }
+
+  P_pvalue_ t_buf_::end() const noexcept {
+    return ptr + get(size);
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+
+  t_bool t_buf_::clear(t_ix pos) noexcept {
+    t_ix_ ix = get(pos), max = get(size);
+    if (ix < max) {
+      clear_(ptr + ix, t_n{max - ix});
+      return true;
     }
+    return false;
+  }
+
+  t_bool t_buf_::fill(t_pvalue_ value, t_ix pos) noexcept {
+    if (get(pos) < get(size)) {
+      t_ix_ max = get(size);
+      for (t_ix_ ix = get(pos); ix < max; ++ix)
+        ptr[ix] = value;
+      return true;
+    }
+    return false;
   }
 
   ///////////////////////////////////////////////////////////////////////////

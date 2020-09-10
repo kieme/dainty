@@ -45,28 +45,33 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
-  enum t_yes { YES };
-  template<typename...> using t_wellformed = t_yes; // void_t
-
+  enum t_none { };
   template<typename>      struct t_test;
   template<typename T, T> struct t_test_value;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> struct t_add_identity { using t_identity = T; };
-  template<typename T> struct t_add_result   { using t_result   = T; };
-  template<typename T> struct t_add_value    { using t_value    = T; };
+  enum t_yes  { YES };
+  template<typename...> using t_wellformed = t_yes;
 
-  template<typename T, T V> struct t_add_VALUE {
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>      struct t_add_identity { using t_identity = T; };
+  template<typename T>      struct t_add_result   { using t_result   = T; };
+  template<typename T>      struct t_add_value    { using t_value    = T; };
+  template<typename T, T V> struct t_add_VALUE    {
     constexpr static T VALUE = V;
   };
 
   /////////////////////////////////////////////////////////////////////////////
 
-  enum t_none { };
-
   template<typename T, T V, typename H = t_none>
-  struct t_constant : t_add_value<T>, t_add_VALUE<T, V>, t_add_identity<H> { };
+  struct t_constant : t_add_value<T>,
+                      t_add_VALUE<T, V>,
+                      t_add_identity<H> {
+  };
+
+  // t_constant_sequence
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -75,12 +80,16 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<t_bool> struct t_bool_result : t_false, t_add_result<t_false> { };
-  template<>
-  struct t_bool_result<true> : t_true, t_add_result<t_true> { };
+  template<t_bool>
+  struct t_bool_result       : t_false, t_add_result<t_false> { };
 
-  using t_result_true  = t_bool_result<true>;  // shorthand
-  using t_result_false = t_bool_result<false>; // shorthand
+  template<>
+  struct t_bool_result<true> : t_true,  t_add_result<t_true>  { };
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_result_true  = t_bool_result<true>;
+  using t_result_false = t_bool_result<false>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -120,7 +129,7 @@ namespace traits
     constexpr static t_size_ N = sizeof...(Args);
 
     template<template<typename...> class D>
-    using t_into = D<Args...>;
+    using t_pack_into = D<Args...>;
   };
 
   /////////////////////////////////////////////////////////////////////////////
@@ -139,15 +148,12 @@ namespace traits
   template<typename I, typename T>
   struct t_if_then : t_if_then<typename I::t_result, T> { };
 
-  template<typename T>
-  struct t_if_then<t_false, T> { };
-
-  template<typename T>
-  struct t_if_then<t_true, T> : t_add_value<T> { };
+  template<typename T> struct t_if_then<t_false, T> { };
+  template<typename T> struct t_if_then<t_true,  T> : t_add_value<T> { };
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename I> using t_if = t_value_of<t_if_then<I, t_yes>>; // enable_if
+  template<typename I> using t_if = t_value_of<t_if_then<I, t_yes>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -235,97 +241,25 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<template<typename...> class C, typename T, typename...Ts>
-  struct t_is_for_all_true : t_and<C<T>, C<Ts>...> { };
+  template<template<typename...> class C, typename T, typename... Ts>
+  struct t_each_is_true : t_and<C<T>, C<Ts>...> { };
 
   template<template<typename...> class C, typename T>
-  struct t_is_for_all_true<C, T> : C<T> { };
+  struct t_each_is_true<C, T> : C<T> { };
+
+  template<template<typename...> class C, typename...Ts>
+  using t_if_each_is_true = t_if<t_each_is_true<C, Ts...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  enum t_lvalue_tag      { LVALUE_TAG  };
-  enum t_xvalue_tag      { XVALUE_TAG  };
-  enum t_prvalue_tag     { PRVALUE_TAG };
-  enum t_not_lvalue_tag  { NOT_LVALUE_TAG  };
-  enum t_not_xvalue_tag  { NOT_XVALUE_TAG  };
-  enum t_not_prvalue_tag { NOT_PRVALUE_TAG };
+  template<template<typename...> class C, typename T, typename...Ts>
+  struct t_each_is_false : t_and<t_not<C<T>>, t_each_is_false<C, Ts...>> { };
 
-  template<typename> struct t_add_value_category_tag;
+  template<template<typename...> class C, typename T>
+  struct t_each_is_false<C, T> : t_not<C<T>> { };
 
-  template<>
-  struct t_add_value_category_tag<t_lvalue_tag> {
-    using t_tag        = t_lvalue_tag;
-    using t_is_lvalue  = t_result_true;
-    using t_is_xvalue  = t_result_false;
-    using t_is_prvalue = t_result_false;
-  };
-
-  template<>
-  struct t_add_value_category_tag<t_xvalue_tag> {
-    using t_tag        = t_xvalue_tag;
-    using t_is_lvalue  = t_result_false;
-    using t_is_xvalue  = t_result_true;
-    using t_is_prvalue = t_result_false;
-  };
-
-  template<>
-  struct t_add_value_category_tag<t_prvalue_tag> {
-    using t_tag        = t_prvalue_tag;
-    using t_is_lvalue  = t_result_false;
-    using t_is_xvalue  = t_result_false;
-    using t_is_prvalue = t_result_true;
-  };
-
-  template<typename T>
-  struct t_value_category      : t_add_value_category_tag<t_prvalue_tag> { };
-
-  template<typename T>
-  struct t_value_category<T&>  : t_add_value_category_tag<t_lvalue_tag>  { };
-
-  template<typename T>
-  struct t_value_category<T&&> : t_add_value_category_tag<t_xvalue_tag>  { };
-
-  template<typename T>
-  using t_is_lvalue  = typename t_value_category<T>::t_is_lvalue;
-
-  template<typename T>
-  using t_is_xvalue  = typename t_value_category<T>::t_is_xvalue;
-
-  template<typename T>
-  using t_is_prvalue = typename t_value_category<T>::t_is_prvalue;
-
-  template<typename T>
-  using t_is_not_lvalue  = t_not<t_is_lvalue<T>>;
-
-  template<typename T>
-  using t_is_not_xvalue  = t_not<t_is_xvalue<T>>;
-
-  template<typename T>
-  using t_is_not_prvalue = t_not<t_is_prvalue<T>>;
-
-  template<typename T>
-  using t_if_lvalue  = typename t_if_then<t_is_lvalue<T>,
-                                          t_lvalue_tag>::t_value;
-
-  template<typename T>
-  using t_if_xvalue  = typename t_if_then<t_is_xvalue<T>,
-                                          t_xvalue_tag>::t_value;
-
-  template<typename T>
-  using t_if_prvalue = typename t_if_then<t_is_prvalue<T>,
-                                          t_prvalue_tag>::t_value;
-
-  template<typename T>
-  using t_if_not_lvalue  = typename t_if_then<t_is_not_lvalue<T>,
-                                              t_not_lvalue_tag>::t_value;
-
-  template<typename T>
-  using t_if_not_xvalue  = typename t_if_then<t_is_not_xvalue<T>,
-                                              t_not_xvalue_tag>::t_value;
-
-  template<typename T>
-  using t_if_not_prvalue = typename t_if_then<t_is_not_prvalue<T>,
-                                              t_not_prvalue_tag>::t_value;
+  template<template<typename...> class C, typename...Ts>
+  using t_if_each_is_false = t_if<t_each_is_false<C, Ts...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -347,6 +281,36 @@ namespace traits
 
   template<typename T, typename T1, typename... Ts>
   using t_if_not_same = t_if<t_is_not_same<T, T1, Ts...>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  enum t_lvalue  { LVALUE  };
+  enum t_xvalue  { XVALUE  };
+  enum t_prvalue { PRVALUE };
+
+  template<class T> struct t_value_category      : t_add_value<t_prvalue> { };
+  template<class T> struct t_value_category<T&>  : t_add_value<t_lvalue>  { };
+  template<class T> struct t_value_category<T&&> : t_add_value<t_xvalue>  { };
+
+  template<typename T>
+  using t_is_lvalue  = t_is_same<typename t_value_category<T>::t_value, t_lvalue>;
+
+  template<typename T>
+  using t_is_xvalue  = t_is_same<typename t_value_category<T>::t_value, t_xvalue>;
+
+  template<typename T>
+  using t_is_prvalue = t_is_same<typename t_value_category<T>::t_value, t_prvalue>;
+
+  template<typename T> using t_is_not_lvalue  = t_not<t_is_lvalue<T>>;
+  template<typename T> using t_is_not_xvalue  = t_not<t_is_xvalue<T>>;
+  template<typename T> using t_is_not_prvalue = t_not<t_is_prvalue<T>>;
+
+  template<typename T> using t_if_lvalue      = t_if<t_is_lvalue<T>>;
+  template<typename T> using t_if_xvalue      = t_if<t_is_xvalue<T>>;
+  template<typename T> using t_if_prvalue     = t_if<t_is_prvalue<T>>;
+  template<typename T> using t_if_not_lvalue  = t_if<t_is_not_lvalue<T>>;
+  template<typename T> using t_if_not_xvalue  = t_if<t_is_not_xvalue<T>>;
+  template<typename T> using t_if_not_prvalue = t_if<t_is_not_prvalue<T>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
