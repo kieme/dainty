@@ -43,9 +43,14 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   using types::t_double;
-  using specific::mk;
 
   /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  constexpr
+  t_bool odd_(T value) noexcept {
+    return value & 1;
+  }
 
   t_void copy_(p_pvalue_ dst, P_pvalue_ src, t_n n) noexcept {
     P_pvalue_ end = src + get(n); // memcpy
@@ -99,7 +104,7 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   // IMPL_FUNC_1_2_
-  t_binfo_ bits_info_(R_store_ value) noexcept {
+  t_info_ bits_info_(R_store_ value) noexcept {
     t_n   max_bits = max_bits_(value);
     t_ix  last_ix  = last_ix_(value);
     t_ix_ ix       = get(last_ix);
@@ -130,46 +135,67 @@ namespace impl_
   // IMPL_FUNC_1_3_
   t_n free_bits_(R_store_ value) noexcept {
     if (!is_neg_(value)) {
-      auto max = max_bits_(value);
-      auto ix  = msb_on_bit_(value);
-      return max - bits_(ix);
+      t_n     max = max_bits_(value);
+      t_bpos_ pos = msb_on_bit_(value);
+      return max - bits_(pos);
     }
     return 0_n;
   }
 
   // IMPL_FUNC_1_4_
-  t_bpos_ msb_on_bit_(R_store_ value) noexcept {
-    t_ix_ ix  = get(last_ix_(value));
-    for (; ix && value.ptr[ix] == BITS_ZERO_; --ix);
+  t_n on_bits_(R_store_ value) noexcept {
+    t_ix_ end = get(value.size);
+    t_n_  n   = 0;
+    for (t_ix_ ix = 0; ix < end; ++ix) {
+      t_pvalue_ val = value.ptr[ix];
+      for (; val; val>>=1)
+        if (val & 1)
+          ++n;
+    }
+    return t_n{n};
+  }
 
-    if (!ix && value.ptr[0] == BITS_ZERO_)
+  // IMPL_FUNC_1_5_
+  t_bpos_ lsb_on_bit_(R_store_ value) noexcept {
+    t_ix_ end = get(value.size);
+    t_ix_ ix  = 0;
+    for (; ix < end && value.ptr[ix] == BITS_ZERO_; ++ix);
+    if (ix == end)
       return {};
-
     t_pvalue_ val = value.ptr[ix];
     t_n_ p = 0;
     for (; val; val>>=1)
       ++p;
-
-    return {t_ix{ix}, t_n{p}};
-  }
-
-  // IMPL_FUNC_1_5_
-  t_bpos_ msb_off_bit_(R_store_ value) noexcept {
-    t_ix_ ix  = get(last_ix_(value));
-    for (; ix && value.ptr[ix] == BITS_ALL_; --ix);
-
-    if (!ix && value.ptr[0] == BITS_ALL_)
-      return {};
-
-    t_pvalue_ val = value.ptr[ix];
-    t_n_ p = BITS_UNIT_;
-    for (t_pvalue_ mask = BITS_LAST_; mask && (mask & val); mask>>=1)
-      --p;
-
     return {t_ix{ix}, t_n{p}};
   }
 
   // IMPL_FUNC_1_6_
+  t_bpos_ msb_on_bit_(R_store_ value) noexcept {
+    t_ix_ ix  = get(last_ix_(value));
+    for (; ix && value.ptr[ix] == BITS_ZERO_; --ix);
+    if (!ix && value.ptr[0] == BITS_ZERO_)
+      return {};
+    t_pvalue_ val = value.ptr[ix];
+    t_n_ p = 0;
+    for (; val; val>>=1)
+      ++p;
+    return {t_ix{ix}, t_n{p}};
+  }
+
+  // IMPL_FUNC_1_7_
+  t_bpos_ msb_off_bit_(R_store_ value) noexcept {
+    t_ix_ ix  = get(last_ix_(value));
+    for (; ix && value.ptr[ix] == BITS_ALL_; --ix);
+    if (!ix && value.ptr[0] == BITS_ALL_)
+      return {};
+    t_pvalue_ val = value.ptr[ix];
+    t_n_ p = BITS_UNIT_;
+    for (t_pvalue_ mask = BITS_LAST_; mask && (mask & val); mask>>=1)
+      --p;
+    return {t_ix{ix}, t_n{p}};
+  }
+
+  // IMPL_FUNC_1_8_
   t_void ones_compl_(r_store_ value) noexcept {
     const auto last = get(last_ix_(value.size));
     for (t_ix_ ix = 0; ix < last; ++ix) {
@@ -180,7 +206,7 @@ namespace impl_
     entry = ~entry;
   }
 
-  // IMPL_FUNC_1_7_
+  // IMPL_FUNC_1_9_
   t_void twos_compl_(r_store_ value) noexcept {
     auto last  = get(last_ix_(value.size));
     auto carry = BITS_ONE_;
@@ -194,7 +220,7 @@ namespace impl_
     entry = ~entry + carry;
   }
 
-  // IMPL_FUNC_1_8_
+  // IMPL_FUNC_1_10_
   t_bool assign_(r_store_ store, R_store_ value) noexcept {
     if (store.ensure(value.size)) {
       t_ix_ max = get(value.size);
@@ -295,7 +321,7 @@ namespace impl_
     return t_n{ix + 1};
   }
 
-  // IMPL_FUNC_1_9_
+  // IMPL_FUNC_1_11_
   t_bool add_(r_store_ store, R_store_ value) noexcept {
     t_add_ctxt_ ctxt = add_ctxt_(store, value);
     if (store.ensure(calc_add_(ctxt, store, value))) {
@@ -330,43 +356,48 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  // IMPL_FUNC_1_10_
+  // IMPL_FUNC_1_12_
   t_bool minus_(r_store_ store, R_store_ value) noexcept {
     t_store_ tmp{value};
     twos_compl_(tmp);
     return add_(store, tmp);
   }
 
-  // IMPL_FUNC_1_11_
+  // IMPL_FUNC_1_13_
   t_bool multiply_(r_store_ store, R_store_ value) noexcept {
     if (!is_zero_(store) && !is_zero_(value)) {
-      t_store_ a{x_cast(store)};
+      t_store_ a{store};
       t_store_ b{value};
       assign_(store, BITS_ZERO_);
 
-      t_n_ sign = 0;
-      if (is_neg_(a)) {
-        sign = 1;
-        twos_compl_(a);
+      t_n_ sign = abs_(a) + (3 * abs_(b));
+
+      p_store_ x = &a;
+      p_store_ y = &b;
+      if (on_bits_(b) < on_bits_(a)) {
+        x = &b;
+        y = &a;
       }
 
-      if (is_neg_(b)) {
-        sign += 3;
-        twos_compl_(b);
-      }
+      if (!lsb_(*x))
+        shift_left_(*y, shift_next_(*x));
 
-      for (; !is_zero_(a); shift_left_(b), shift_right_(a))
-        if (lsb_(a))
-          add_(store, b);
+      t_n_ n = 0;
+      do {
+        add_(store, *y);
+        n = get(shift_next_(*x));
+        if (n)
+          shift_left_(*y, t_n{n});
+      } while (n);
 
-      if (sign & 1)
+      if (odd_(sign))
         twos_compl_(store);
     } else
       assign_(store, BITS_ZERO_);
     return true;
   }
 
-  // IMPL_FUNC_1_12_
+  // IMPL_FUNC_1_14_
   t_bool divide_(r_store_ store, R_store_ value) noexcept {
     if (!is_zero_(store)) {
       t_store_ var1{x_cast(store)};
@@ -402,7 +433,7 @@ namespace impl_
     return true;
   }
 
-  // IMPL_FUNC_1_13_
+  // IMPL_FUNC_1_15_
   t_bool and_(r_store_ store, R_store_ value) noexcept {
     auto ix = get(0_ix), min = get(min_of(store.size, value.size));
     for (; ix < min; ++ix)
@@ -420,7 +451,7 @@ namespace impl_
     return true;
   }
 
-  // IMPL_FUNC_1_14_
+  // IMPL_FUNC_1_16_
   t_bool or_(r_store_ store, R_store_ value) noexcept {
     auto ix = get(0_ix), min = get(min_of(store.size, value.size));
     for (; ix < min; ++ix)
@@ -435,7 +466,7 @@ namespace impl_
     return true;
   }
 
-  // IMPL_FUNC_1_15_
+  // IMPL_FUNC_1_17_
   t_bool xor_(r_store_ store, R_store_ value) noexcept {
     auto ix = get(0_ix), min = get(min_of(store.size, value.size));
     for (; ix < min; ++ix)
@@ -450,23 +481,23 @@ namespace impl_
     return true;
   }
 
-  // IMPL_FUNC_1_16_
+  // IMPL_FUNC_1_18_
   t_bool shift_left_(r_store_ store, t_n n) noexcept {
-    auto bpos = msb_on_bit_(store);
-    if (bpos && get(n) > 0) {
-      auto need = calc_size_(bits_(bpos) + n);
+    t_bpos_ bpos = msb_on_bit_(store);
+    if (bpos && 0_n < n) {
+      t_n need = calc_size_(bits_(bpos) + n);
       if (store.ensure(need)) {
-        auto k     = get(n) % BITS_UNIT_;
-        auto z     = BITS_UNIT_ - k;
-        auto ix    = get(bpos.ix);
-        auto to_ix = get(need) - 1;
+        t_pvalue_ k = get(n) % BITS_UNIT_;
+        t_pvalue_ z = BITS_UNIT_ - k;
+        t_ix_ ix    = get(bpos.ix);
+        t_ix_ to_ix = get(need) - 1;
         if (to_ix) {
           store.ptr[to_ix] = store.ptr[ix] >> z;
           if (store.ptr[to_ix])
             --to_ix;
           for (; ix; --ix)
-            store.ptr[to_ix--] =
-              BITS_MASK_ & (store.ptr[ix] << k | store.ptr[ix-1] >> z);
+            store.ptr[to_ix--] = BITS_MASK_ & (store.ptr[ix]  << k |
+                                              store.ptr[ix-1] >> z);
         }
         store.ptr[to_ix] = store.ptr[0] << k;
         for (ix = 0; ix < to_ix; ++ix)
@@ -477,18 +508,24 @@ namespace impl_
     return false;
   }
 
-  // IMPL_FUNC_1_17_
+  // IMPL_FUNC_1_19_
   t_bool shift_right_(r_store_ store, t_n n) noexcept {
-    if (!is_zero_(store) && (get(n) > 0)) {
-      auto last_ix = get(last_ix_(store));
-      auto k       = get(n) % BITS_UNIT_;
-      auto z       = BITS_UNIT_ - k;
-      auto ix      = get(calc_size_(n)) - 1;
-      auto to_ix   = get(0_ix);
-      for (; ix < last_ix; ++ix)
-        store.ptr[to_ix++] =
-          BITS_MASK_ & (store.ptr[ix] >> k | store.ptr[ix+1] << z);
-      store.ptr[to_ix++] = store.ptr[ix] >> (k ? k : BITS_UNIT_);
+    if (!is_zero_(store) && 0_n < n) {
+      t_pvalue_ k   = get(n) % BITS_UNIT_;
+      t_pvalue_ z   = BITS_UNIT_ - k;
+      t_ix_ last_ix = get(last_ix_(store));
+      t_ix_ ix      = get(calc_size_(n)) - 1;
+      t_ix_ to_ix   = 0;
+      if (k) { // XXX_REVISIT
+        for (; ix < last_ix; ++ix)
+          store.ptr[to_ix++] = BITS_MASK_ & (store.ptr[ix] >> k |
+                                             store.ptr[ix+1] << z);
+        store.ptr[to_ix++] = store.ptr[ix] >> k;
+      } else {
+        for (; ix < last_ix; ++ix)
+          store.ptr[to_ix++] = BITS_MASK_ & store.ptr[ix + 1];
+        store.ptr[to_ix++] = store.ptr[ix] >> BITS_UNIT_;
+      }
       for (; to_ix <= last_ix; ++to_ix)
         store.ptr[to_ix] = BITS_ZERO_;
       return true;
@@ -496,7 +533,29 @@ namespace impl_
     return false;
   }
 
-  // IMPL_FUNC_1_18_
+  // IMPL_FUNC_1_20_
+  t_n shift_next_(r_store_ value) noexcept {
+    t_ix_ ix  = 0;
+    if ((value.ptr[ix] & ~BITS_ONE_) == BITS_ZERO_) {
+      t_ix_ end = get(value.size);
+      for (++ix; ix < end && value.ptr[ix] == BITS_ZERO_; ++ix);
+      if (ix == end)
+        return 0_n;
+    }
+    t_n_      p   = 0;
+    t_pvalue_ val = value.ptr[ix];
+    if (!ix) {
+      val >>= 1;
+      ++p;
+    }
+    for (; val && !odd_(val); val >>= 1)
+      ++p;
+    t_n n = t_n{(ix * BITS_UNIT_) + p};
+    shift_right_(value, n);
+    return n;
+  }
+
+  // IMPL_FUNC_1_21_
   t_bool set_bit_(r_store_ store, t_ix ix, t_bool on) noexcept {
     auto bit = get(ix);
     auto max = get(max_bits_(store));
@@ -518,7 +577,7 @@ namespace impl_
     return false;
   }
 
-  // IMPL_FUNC_1_19_
+  // IMPL_FUNC_1_22_
   t_bool get_bit_(R_store_ store, t_ix ix) noexcept {
     t_ix_ bit = get(ix);
     t_ix_ max = get(max_bits_(store));
@@ -532,7 +591,7 @@ namespace impl_
     return false;
   }
 
-  // IMPL_FUNC_1_20_
+  // IMPL_FUNC_1_23_
   t_bool is_zero_(R_store_ store) noexcept {
     t_ix_ max = get(store.size);
     for (t_ix_ ix = 0; ix < max; ++ix) {
@@ -543,7 +602,7 @@ namespace impl_
     return true;
   }
 
-  // IMPL_FUNC_1_21_
+  // IMPL_FUNC_1_24_
   t_bool reset_(r_store_ store, R_store_ value) noexcept {
     if (store.reset(value.size)) {
       assign_(store, value); // XXX_FIXME_X_ need a truncate assign
@@ -552,7 +611,7 @@ namespace impl_
     return false;
   }
 
-  // IMPL_FUNC_1_22_
+  // IMPL_FUNC_1_25_
   t_bool reset_(r_store_ store, t_n n, R_store_ value) noexcept {
     if (store.reset(n)) {
       assign_(store, value); // XXX_FIXME_X_ need a truncate assign
@@ -561,7 +620,7 @@ namespace impl_
     return false;
   }
 
-  // IMPL_FUNC_1_23_
+  // IMPL_FUNC_1_26_
   t_bool is_equal_(R_store_ store, R_store_ value) noexcept {
     t_bool negs[2] = { is_neg_(store), is_neg_(value)};
     if (negs[0] == negs[1]) {
@@ -585,7 +644,7 @@ namespace impl_
     return false;
   }
 
-  // IMPL_FUNC_1_24_
+  // IMPL_FUNC_1_27_
   t_bool is_less_(R_store_ store, R_store_ value) noexcept {
     t_bool negs[2] = { is_neg_(store), is_neg_(value)};
     if (negs[0] == negs[1]) {
@@ -629,7 +688,7 @@ namespace impl_
     return false;
   }
 
-  // IMPL_FUNC_1_25_
+  // IMPL_FUNC_1_28_
   t_bool is_less_equal_(R_store_ store, R_store_ value) noexcept {
     t_bool negs[2] = { is_neg_(store), is_neg_(value)};
     if (negs[0] == negs[1]) {
@@ -673,19 +732,19 @@ namespace impl_
     return false;
   }
 
-  // IMPL_FUNC_1_26_
+  // IMPL_FUNC_1_29_
   t_n calc_bits_(t_n digits) noexcept {
     t_double bits = get(digits) / 0.301029995;
     return t_n{static_cast<t_n_>(bits) + 1};
   }
 
-  // IMPL_FUNC_1_27_
+  // IMPL_FUNC_1_30_
   t_n calc_digits_(t_n bits) noexcept {
     t_double digits = get(bits) * 0.301029995;
     return t_n{static_cast<t_n_>(digits)};
   }
 
-  // IMPL_FUNC_1_28_
+  // IMPL_FUNC_1_31_
   t_bool ensure_(r_store_ store, t_n n) noexcept {
     if (get(n) > get(store.size)) {
       t_bool neg = is_neg_(store);
@@ -699,7 +758,7 @@ namespace impl_
     return true;
   }
 
-  // IMPL_FUNC_1_29_
+  // IMPL_FUNC_1_32_
   t_bool ensure_(r_store_ store, R_store_ value) noexcept {
     if (store.ensure(value))
       assign_(store, value);
@@ -708,7 +767,7 @@ namespace impl_
     return true;
   }
 
-  // IMPL_FUNC_1_30_
+  // IMPL_FUNC_1_33_
   t_bool ensure_(r_store_ store, t_n n, R_store_ value) noexcept {
     if (store.ensure(n, value))
       assign_(store, value);

@@ -45,6 +45,7 @@ namespace impl_
 
   using types::t_void;
   using types::t_bool;
+  using specific::mk;
   using specific::max_of;
   using specific::min_of;
   using specific::t_n;
@@ -136,6 +137,7 @@ namespace impl_
   struct t_buf_;
   using  r_buf_ = types::t_prefix<t_buf_>::r_;
   using  x_buf_ = types::t_prefix<t_buf_>::x_;
+  using  p_buf_ = types::t_prefix<t_buf_>::p_;
   using  R_buf_ = types::t_prefix<t_buf_>::R_;
 
   // t_buf_ is actually t_buf
@@ -201,6 +203,7 @@ namespace impl_
 
   using  t_store_ = t_buf_;
   using  r_store_ = r_buf_;
+  using  p_store_ = p_buf_;
   using  x_store_ = x_buf_;
   using  R_store_ = R_buf_;
 
@@ -345,26 +348,30 @@ namespace impl_
 
     constexpr // IMPL_METHOD_2_2_
     operator t_bool() const noexcept;
+
+    template<typename T> // IMPL_METHOD_2_3_
+    constexpr
+    t_ix bit_ix(T) const noexcept;
   };
 
   /////////////////////////////////////////////////////////////////////////////
 
-  struct t_binfo_;
-  using  R_binfo_ = types::t_prefix<t_binfo_>::R_;
+  struct t_info_;
+  using  R_info_ = types::t_prefix<t_info_>::R_;
 
-  struct t_binfo_ {
+  struct t_info_ {
     t_bpos_ msb_on   = {};
     t_n     on_bits  = 0_n;
     t_n     max_bits = 0_n;
 
     constexpr // IMPL_METHOD_3_1_1_
-    t_binfo_() noexcept = default;
+    t_info_() noexcept = default;
 
     constexpr // IMPL_METHOD_3_1_2_
-    t_binfo_(t_n max_bits_) noexcept;
+    t_info_(t_n max_bits_) noexcept;
 
     constexpr // IMPL_METHOD_3_1_3_
-    t_binfo_(R_bpos_ msb_on_, t_n on_bits_, t_n max_bits_) noexcept;
+    t_info_(R_bpos_ msb_on_, t_n on_bits_, t_n max_bits_) noexcept;
 
     constexpr // IMPL_METHOD_3_2_
     operator t_bool() const noexcept;
@@ -378,36 +385,39 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  t_void   display_bits_ (R_store_, t_bool)        noexcept; // IMPL_FUNC_1_1_
-  t_binfo_ bits_info_    (R_store_)                noexcept; // IMPL_FUNC_1_2_
-  t_n      free_bits_    (R_store_)                noexcept; // IMPL_FUNC_1_3_
-  t_bpos_  msb_on_bit_   (R_store_)                noexcept; // IMPL_FUNC_1_4_
-  t_bpos_  msb_off_bit_  (R_store_)                noexcept; // IMPL_FUNC_1_5_
-  t_void   ones_compl_   (r_store_)                noexcept; // IMPL_FUNC_1_6_
-  t_void   twos_compl_   (r_store_)                noexcept; // IMPL_FUNC_1_7_
-  t_bool   assign_       (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_8_
-  t_bool   add_          (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_9_
-  t_bool   minus_        (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_10_
-  t_bool   multiply_     (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_11_
-  t_bool   divide_       (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_12_
-  t_bool   and_          (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_13_
-  t_bool   or_           (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_14_
-  t_bool   xor_          (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_15_
-  t_bool   shift_left_   (r_store_, t_n = 1_n)     noexcept; // IMPL_FUNC_1_16_
-  t_bool   shift_right_  (r_store_, t_n = 1_n)     noexcept; // IMPL_FUNC_1_17_
-  t_bool   set_bit_      (r_store_, t_ix, t_bool)  noexcept; // IMPL_FUNC_1_18_
-  t_bool   get_bit_      (R_store_, t_ix)          noexcept; // IMPL_FUNC_1_19_
-  t_bool   is_zero_      (R_store_)                noexcept; // IMPL_FUNC_1_20_
-  t_bool   reset_        (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_21_
-  t_bool   reset_        (r_store_, t_n, R_store_) noexcept; // IMPL_FUNC_1_22_
-  t_bool   is_equal_     (R_store_, R_store_)      noexcept; // IMPL_FUNC_1_23_
-  t_bool   is_less_      (R_store_, R_store_)      noexcept; // IMPL_FUNC_1_24_
-  t_bool   is_less_equal_(R_store_, R_store_)      noexcept; // IMPL_FUNC_1_25_
-  t_n      calc_bits_    (t_n)                     noexcept; // IMPL_FUNC_1_26_
-  t_n      calc_digits_  (t_n)                     noexcept; // IMPL_FUNC_1_27_
-  t_bool   ensure_       (r_store_, t_n)           noexcept; // IMPL_FUNC_1_28_
-  t_bool   ensure_       (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_29_
-  t_bool   ensure_       (r_store_, t_n, R_store_) noexcept; // IMPL_FUNC_1_30_
+  t_void   display_bits_  (R_store_, t_bool)        noexcept; // IMPL_FUNC_1_1_
+  t_info_  bits_info_     (R_store_)                noexcept; // IMPL_FUNC_1_2_
+  t_n      free_bits_     (R_store_)                noexcept; // IMPL_FUNC_1_3_
+  t_n      on_bits_       (R_store_)                noexcept; // IMPL_FUNC_1_4_
+  t_bpos_  lsb_on_bit_    (R_store_)                noexcept; // IMPL_FUNC_1_5_
+  t_bpos_  msb_on_bit_    (R_store_)                noexcept; // IMPL_FUNC_1_6_
+  t_bpos_  msb_off_bit_   (R_store_)                noexcept; // IMPL_FUNC_1_7_
+  t_void   ones_compl_    (r_store_)                noexcept; // IMPL_FUNC_1_8_
+  t_void   twos_compl_    (r_store_)                noexcept; // IMPL_FUNC_1_9_
+  t_bool   assign_        (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_10_
+  t_bool   add_           (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_11_
+  t_bool   minus_         (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_12_
+  t_bool   multiply_      (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_13_
+  t_bool   divide_        (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_14_
+  t_bool   and_           (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_15_
+  t_bool   or_            (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_16_
+  t_bool   xor_           (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_17_
+  t_bool   shift_left_    (r_store_, t_n = 1_n)     noexcept; // IMPL_FUNC_1_18_
+  t_bool   shift_right_   (r_store_, t_n = 1_n)     noexcept; // IMPL_FUNC_1_19_
+  t_n      shift_next_    (r_store_)                noexcept; // IMPL_FUNC_1_20_
+  t_bool   set_bit_       (r_store_, t_ix, t_bool)  noexcept; // IMPL_FUNC_1_21_
+  t_bool   get_bit_       (R_store_, t_ix)          noexcept; // IMPL_FUNC_1_22_
+  t_bool   is_zero_       (R_store_)                noexcept; // IMPL_FUNC_1_23_
+  t_bool   reset_         (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_24_
+  t_bool   reset_         (r_store_, t_n, R_store_) noexcept; // IMPL_FUNC_1_25_
+  t_bool   is_equal_      (R_store_, R_store_)      noexcept; // IMPL_FUNC_1_26_
+  t_bool   is_less_       (R_store_, R_store_)      noexcept; // IMPL_FUNC_1_27_
+  t_bool   is_less_equal_ (R_store_, R_store_)      noexcept; // IMPL_FUNC_1_28_
+  t_n      calc_bits_     (t_n)                     noexcept; // IMPL_FUNC_1_29_
+  t_n      calc_digits_   (t_n)                     noexcept; // IMPL_FUNC_1_30_
+  t_bool   ensure_        (r_store_, t_n)           noexcept; // IMPL_FUNC_1_31_
+  t_bool   ensure_        (r_store_, R_store_)      noexcept; // IMPL_FUNC_1_32_
+  t_bool   ensure_        (r_store_, t_n, R_store_) noexcept; // IMPL_FUNC_1_33_
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -469,39 +479,49 @@ namespace impl_
     return t_n{(get(value.size) * BITS_UNIT_) + 1};
   }
 
+  // IMPL_FUNC_2_9_
+  inline
+  t_bool abs_(r_store_ value) noexcept {
+    if (is_neg_(value)) {
+      twos_compl_(value);
+      return true;
+    }
+    return false;
+  }
+
   /////////////////////////////////////////////////////////////////////////////
 
-  // IMPL_FUNC_2_9_
+  // IMPL_FUNC_3_1_
   constexpr
   t_bool operator==(R_bpos_ lh, R_bpos_ rh) noexcept {
     return (lh.ix == rh.ix) && (lh.bit == rh.bit);
   }
 
-  // IMPL_FUNC_2_10_
+  // IMPL_FUNC_3_2_
   constexpr
   t_bool operator<(R_bpos_ lh, R_bpos_ rh) noexcept {
     return lh.ix < rh.ix || (lh.ix == rh.ix && lh.bit < rh.bit);
   }
 
-  // IMPL_FUNC_2_11_
+  // IMPL_FUNC_3_3_
   constexpr
   t_bool operator<=(R_bpos_ lh, R_bpos_ rh) noexcept {
     return  lh.ix < rh.ix || (lh.ix == rh.ix && lh.bit <= rh.bit);
   }
 
-  // IMPL_FUNC_2_12_
+  // IMPL_FUNC_3_4_
   constexpr
   t_bool operator!=(R_bpos_ lh, R_bpos_ rh) noexcept {
     return !(lh == rh);
   }
 
-  // IMPL_FUNC_2_13_
+  // IMPL_FUNC_3_5_
   constexpr
   t_bool operator>(R_bpos_ lh, R_bpos_ rh) noexcept {
     return rh < lh;
   }
 
-  // IMPL_FUNC_2_14_
+  // IMPL_FUNC_3_6_
   constexpr
   t_bool operator>=(R_bpos_ lh, R_bpos_ rh) noexcept {
     return rh <= lh;
@@ -509,7 +529,7 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  // IMPL_FUNC_2_15_
+  // IMPL_FUNC_4_1_
   inline
   t_void assign_(r_store_ store, t_pvalue_ value) noexcept {
     store.ptr[0] = value & BITS_MASK_;
@@ -517,7 +537,7 @@ namespace impl_
     store.fill(BITS_ZERO_, 2_ix);
   }
 
-  // IMPL_FUNC_2_16_
+  // IMPL_FUNC_4_2_
   inline
   t_void assign_(r_store_ store, t_nvalue_ value) noexcept {
     store.ptr[0] = value & BITS_MASK_;
@@ -526,7 +546,7 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  // IMPL_FUNC_2_17_
+  // IMPL_FUNC_5_1_
   template<typename T>
   inline
   t_bool add_(r_store_ store, T value) noexcept {
@@ -535,7 +555,7 @@ namespace impl_
     return add_(store, value_store);
   }
 
-  // IMPL_FUNC_2_18_
+  // IMPL_FUNC_5_2_
   template<typename T>
   inline
   t_bool minus_(r_store_ store, T value) noexcept {
@@ -544,7 +564,7 @@ namespace impl_
     return minus_(store, value_store);
   }
 
-  // IMPL_FUNC_2_19_
+  // IMPL_FUNC_5_3_
   template<typename T>
   inline
   t_bool multiply_(r_store_ store, T value) noexcept {
@@ -553,7 +573,7 @@ namespace impl_
     return multiply_(store, value_store);
   }
 
-  // IMPL_FUNC_2_20_
+  // IMPL_FUNC_5_4_
   template<typename T>
   inline
   t_bool divide_(r_store_ store, T value) noexcept {
@@ -562,7 +582,7 @@ namespace impl_
     return divide_(store, value_store);
   }
 
-  // IMPL_FUNC_2_21_
+  // IMPL_FUNC_5_5_
   template<typename T>
   inline
   t_void and_(r_store_ store, T value) noexcept {
@@ -571,7 +591,7 @@ namespace impl_
     and_(store, value_store);
   }
 
-  // IMPL_FUNC_2_22_
+  // IMPL_FUNC_5_6_
   template<typename T>
   inline
   t_void or_(r_store_ store, T value) noexcept {
@@ -580,7 +600,7 @@ namespace impl_
     or_(store, value_store);
   }
 
-  // IMPL_FUNC_2_23_
+  // IMPL_FUNC_5_7_
   template<typename T>
   inline
   t_void xor_(r_store_ store, T value) noexcept {
@@ -591,7 +611,7 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  // IMPL_FUNC_2_24_1_
+  // IMPL_FUNC_6_1_
   template<typename T>
   inline
   t_void reset_(r_store_ store, T value) noexcept {
@@ -600,7 +620,7 @@ namespace impl_
     reset_(store, value_store);
   }
 
-  // IMPL_FUNC_2_24_2_
+  // IMPL_FUNC_6_2_
   template<typename T>
   inline
   t_bool reset_(r_store_ store, t_n n, T value) noexcept {
@@ -611,7 +631,7 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  // IMPL_FUNC_2_25_
+  // IMPL_FUNC_7_1_
   template<typename T>
   inline
   t_bool is_equal_(R_store_ store, T value) noexcept {
@@ -620,7 +640,7 @@ namespace impl_
     return is_equal_(store, value_store);
   }
 
-  // IMPL_FUNC_2_26_
+  // IMPL_FUNC_7_2_
   template<typename T>
   inline
   t_bool is_less_(R_store_ store, T value) noexcept {
@@ -629,7 +649,7 @@ namespace impl_
     return is_less_(store, value_store);
   }
 
-  // IMPL_FUNC_2_27_
+  // IMPL_FUNC_7_3_
   template<typename T>
   inline
   t_bool is_less_equal_(R_store_ store, T value) noexcept {
@@ -1031,22 +1051,19 @@ namespace impl_
   // BIN_METHOD_1_27_
   inline
   t_ix t_impl_base_::first_on_bit(R_store_ store) const noexcept {
-    // XXX_TODO
-    return 0_ix;
+    return lsb_on_bit_(store).bit_ix(get_bits(store));
   }
 
   // BIN_METHOD_1_28_
   inline
   t_ix t_impl_base_::last_on_bit(R_store_ store) const noexcept {
-    // XXX_TODO
-    return 0_ix;
+    return msb_on_bit_(store).bit_ix(get_bits(store));
   }
 
   // BIN_METHOD_1_29_
   inline
   t_n t_impl_base_::on_bits(R_store_ store) const noexcept {
-    // XXX_TODO
-    return 0_n;
+    return on_bits_(store);
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -1062,34 +1079,42 @@ namespace impl_
     return get(bit);
   };
 
+  template<typename T> // IMPL_METHOD_2_3_
+  constexpr
+  t_ix t_bpos_::bit_ix(T value) const noexcept {
+    return get(bit) ? t_ix{get(bits_(*this)) - 1} : mk<t_ix>(value);
+  }
+
   /////////////////////////////////////////////////////////////////////////////
 
   // IMPL_METHOD_3_1_2_
   constexpr
-  t_binfo_::t_binfo_(t_n max_bits_) noexcept : max_bits{max_bits_} {
+  t_info_::t_info_(t_n max_bits_) noexcept : max_bits{max_bits_} {
   }
 
   // IMPL_METHOD_3_1_3_
   constexpr
-  t_binfo_::t_binfo_(R_bpos_ msb_on_, t_n on_bits_, t_n max_bits_) noexcept
+  t_info_::t_info_(R_bpos_ msb_on_, t_n on_bits_, t_n max_bits_) noexcept
     : msb_on{msb_on_}, on_bits{on_bits_}, max_bits{max_bits_} {
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
   // IMPL_METHOD_3_2_
   constexpr
-  t_binfo_::operator t_bool() const noexcept {
+  t_info_::operator t_bool() const noexcept {
     return get(on_bits);
   }
 
   // IMPL_METHOD_3_3_
   constexpr
-  t_n t_binfo_::free_bits() const noexcept {
+  t_n t_info_::free_bits() const noexcept {
     return t_n{get(max_bits) - get(bits_(msb_on))};
   }
 
   // IMPL_METHOD_3_4_
   constexpr
-  t_bool t_binfo_::is_neg() const noexcept {
+  t_bool t_info_::is_neg() const noexcept {
     return get(max_bits) == ((get(msb_on.ix)*BITS_UNIT_) + get(msb_on.bit));
   }
 
