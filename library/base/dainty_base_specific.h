@@ -202,6 +202,11 @@ namespace specific
 #endif
     }
 
+    constexpr
+    operator t_bool() const noexcept {
+      return value_;
+    }
+
     t_specific() = delete;                              // for clarity
     t_specific(const t_specific&) = default;            // for clarity
     t_specific& operator=(const t_specific&) = default; // for clarity
@@ -237,6 +242,11 @@ namespace specific
     t_specific& operator=(t_specific<T1, TAG, CHECK1> value) noexcept {
       value_ = value;
       return *this;
+    }
+
+    constexpr
+    operator t_bool() const noexcept {
+      return value_;
     }
 
     t_specific() = delete;                              // for clarity
@@ -536,6 +546,14 @@ namespace specific
   }
 
   /////////////////////////////////////////////////////////////////////////////
+
+  constexpr r_ix operator--(r_ix ix) noexcept {
+    return (ix = t_ix{get(ix) - 1});
+  }
+
+  constexpr r_ix operator++(r_ix ix) noexcept {
+    return (ix = t_ix{get(ix) + 1});
+  }
 
   constexpr t_bool operator< (t_ix lh, t_ix rh) noexcept {
     return get(lh) < get(rh);

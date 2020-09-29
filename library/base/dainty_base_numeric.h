@@ -35,14 +35,16 @@ namespace base
 {
 namespace numeric
 {
- //////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   using impl_::t_void;
   using impl_::t_bool;
-  using impl_::t_n;
-  using impl_::t_ix;
+  using impl_::t_bit;
+  using impl_::t_info;
+  using impl_::t_bits;
+  using impl_::t_digits;
 
- //////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<typename T> using t_if_neg = impl_::t_if_neg_<T>;
   template<typename T> using t_if_pos = impl_::t_if_pos_<T>;
@@ -57,23 +59,23 @@ namespace numeric
 
   class t_binary {
   public:
-    t_binary()              noexcept; // BIN_METHOD_1_1_
-    t_binary(t_n)           noexcept; // BIN_METHOD_1_2_
+    t_binary()                 noexcept; // BIN_METHOD_1_1_
+    t_binary(t_bits)           noexcept; // BIN_METHOD_1_2_
 
-    t_binary(     R_binary) noexcept; // BIN_METHOD_1_3_
-    t_binary(t_n, R_binary) noexcept; // BIN_METHOD_1_4_
-    t_binary(     x_binary) noexcept; // BIN_METHOD_1_5_
-    t_binary(t_n, x_binary) noexcept; // BIN_METHOD_1_6_
+    t_binary(        R_binary) noexcept; // BIN_METHOD_1_3_
+    t_binary(t_bits, R_binary) noexcept; // BIN_METHOD_1_4_
+    t_binary(        x_binary) noexcept; // BIN_METHOD_1_5_
+    t_binary(t_bits, x_binary) noexcept; // BIN_METHOD_1_6_
 
     template<typename T, t_if_neg<T> = traits::YES>
-    t_binary(     T)        noexcept; // BIN_METHOD_1_7_
+    t_binary(        T)        noexcept; // BIN_METHOD_1_7_
     template<typename T, t_if_neg<T> = traits::YES>
-    t_binary(t_n, T)        noexcept; // BIN_METHOD_1_8_
+    t_binary(t_bits, T)        noexcept; // BIN_METHOD_1_8_
 
     template<typename T, t_if_pos<T> = traits::YES>
-    t_binary(     T)        noexcept; // BIN_METHOD_1_9_
+    t_binary(        T)        noexcept; // BIN_METHOD_1_9_
     template<typename T, t_if_pos<T> = traits::YES>
-    t_binary(t_n, T)        noexcept; // BIN_METHOD_1_10_
+    t_binary(t_bits, T)        noexcept; // BIN_METHOD_1_10_
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -150,72 +152,74 @@ namespace numeric
 
     ///////////////////////////////////////////////////////////////////////////
 
-    t_binary operator-()     const noexcept; // BIN_METHOD_10_
-    t_binary operator~()     const noexcept; // BIN_METHOD_11_
-    r_binary operator>>=(t_n)      noexcept; // BIN_METHOD_12_
-    r_binary operator<<=(t_n)      noexcept; // BIN_METHOD_13_
+    t_binary operator-()         const noexcept; // BIN_METHOD_10_
+    t_binary operator~()         const noexcept; // BIN_METHOD_11_
+    r_binary operator>>=(t_bits)       noexcept; // BIN_METHOD_12_
+    r_binary operator<<=(t_bits)       noexcept; // BIN_METHOD_13_
 
-    r_binary ones_complement()     noexcept; // BIN_METHOD_14_
-    r_binary twos_complement()     noexcept; // BIN_METHOD_15_
+    r_binary ones_complement()         noexcept; // BIN_METHOD_14_
+    r_binary twos_complement()         noexcept; // BIN_METHOD_15_
 
-    r_binary shift_left(t_n)       noexcept; // BIN_METHOD_16_
-    r_binary shift_right(t_n)      noexcept; // BIN_METHOD_17_
+    r_binary shift_left(t_bits)        noexcept; // BIN_METHOD_16_
+    r_binary shift_right(t_bits)       noexcept; // BIN_METHOD_17_
 
-    t_bool   set_bit(t_ix, t_bool) noexcept; // BIN_METHOD_18_
-    t_bool   ensure_bits(t_n)      noexcept; // BIN_METHOD_19_
+    t_bool   set_bit(t_bit, t_bool)    noexcept; // BIN_METHOD_18_
+    t_bool   ensure_bits(t_bits)       noexcept; // BIN_METHOD_19_
 
-    operator t_bool    ()     const noexcept; // BIN_METHOD_20_
-    t_bool operator[]  (t_ix) const noexcept; // BIN_METHOD_21_
-    t_n    get_bits    ()     const noexcept; // BIN_METHOD_22_
-    t_bool is_negative ()     const noexcept; // BIN_METHOD_23_
-    t_void display     ()     const noexcept; // BIN_METHOD_24_
-    t_bool ms_bit      ()     const noexcept; // BIN_METHOD_25_
-    t_bool ls_bit      ()     const noexcept; // BIN_METHOD_26_
-    t_ix   first_on_bit()     const noexcept; // BIN_METHOD_27_
-    t_ix   last_on_bit ()     const noexcept; // BIN_METHOD_28_
-    t_n    on_bits     ()     const noexcept; // BIN_METHOD_29_
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    t_void reset()              noexcept; // BIN_METHOD_30_1_
-    t_bool reset(     R_binary) noexcept; // BIN_METHOD_30_2_
-    t_bool reset(t_n, R_binary) noexcept; // BIN_METHOD_30_3_
-
-    template<typename T, t_if_neg<T> = traits::YES>
-    t_void reset(     T)        noexcept; // BIN_METHOD_30_4_
-    template<typename T, t_if_neg<T> = traits::YES>
-    t_bool reset(t_n, T)        noexcept; // BIN_METHOD_30_5_
-    template<typename T, t_if_pos<T> = traits::YES>
-    t_void reset(     T)        noexcept; // BIN_METHOD_30_6_
-    template<typename T, t_if_pos<T> = traits::YES>
-    t_bool reset(t_n, T)        noexcept; // BIN_METHOD_30_7_
+    operator t_bool      ()      const noexcept; // BIN_METHOD_20_
+    t_bool   operator[]  (t_bit) const noexcept; // BIN_METHOD_21_
+    t_bool   get_bit     (t_bit) const noexcept; // BIN_METHOD_22_
+    t_bits   get_bits    ()      const noexcept; // BIN_METHOD_23_
+    t_bool   is_negative ()      const noexcept; // BIN_METHOD_24_
+    t_void   display     ()      const noexcept; // BIN_METHOD_25_
+    t_bool   ms_bit      ()      const noexcept; // BIN_METHOD_26_
+    t_bool   ls_bit      ()      const noexcept; // BIN_METHOD_27_
+    t_bit    first_on_bit()      const noexcept; // BIN_METHOD_28_
+    t_bit    last_on_bit ()      const noexcept; // BIN_METHOD_29_
+    t_bits   on_bits     ()      const noexcept; // BIN_METHOD_30_
+    t_info   get_info    ()      const noexcept; // BIN_METHOD_31_
 
     ///////////////////////////////////////////////////////////////////////////
 
-    t_bool is_equal(R_binary) const noexcept; // BIN_METHOD_31_1_
+    t_void reset()                 noexcept; // BIN_METHOD_32_1_
+    t_bool reset(        R_binary) noexcept; // BIN_METHOD_32_2_
+    t_bool reset(t_bits, R_binary) noexcept; // BIN_METHOD_32_3_
 
     template<typename T, t_if_neg<T> = traits::YES>
-    t_bool is_equal(T)        const noexcept; // BIN_METHOD_31_2_
+    t_void reset(        T)        noexcept; // BIN_METHOD_32_4_
+    template<typename T, t_if_neg<T> = traits::YES>
+    t_bool reset(t_bits, T)        noexcept; // BIN_METHOD_32_5_
     template<typename T, t_if_pos<T> = traits::YES>
-    t_bool is_equal(T)        const noexcept; // BIN_METHOD_31_3_
+    t_void reset(        T)        noexcept; // BIN_METHOD_32_6_
+    template<typename T, t_if_pos<T> = traits::YES>
+    t_bool reset(t_bits, T)        noexcept; // BIN_METHOD_32_7_
 
     ///////////////////////////////////////////////////////////////////////////
 
-    t_bool is_less(R_binary) const noexcept; // BIN_METHOD_32_1_
+    t_bool is_equal(R_binary) const noexcept; // BIN_METHOD_33_1_
 
     template<typename T, t_if_neg<T> = traits::YES>
-    t_bool is_less(T)        const noexcept; // BIN_METHOD_32_2_
+    t_bool is_equal(T)        const noexcept; // BIN_METHOD_33_2_
     template<typename T, t_if_pos<T> = traits::YES>
-    t_bool is_less(T)        const noexcept; // BIN_METHOD_32_3_
+    t_bool is_equal(T)        const noexcept; // BIN_METHOD_33_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
-    t_bool is_less_equal(R_binary) const noexcept; // BIN_METHOD_33_1_
+    t_bool is_less(R_binary) const noexcept; // BIN_METHOD_34_1_
 
     template<typename T, t_if_neg<T> = traits::YES>
-    t_bool is_less_equal(T)        const noexcept; // BIN_METHOD_33_2_
+    t_bool is_less(T)        const noexcept; // BIN_METHOD_34_2_
     template<typename T, t_if_pos<T> = traits::YES>
-    t_bool is_less_equal(T)        const noexcept; // BIN_METHOD_33_3_
+    t_bool is_less(T)        const noexcept; // BIN_METHOD_34_3_
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    t_bool is_less_equal(R_binary) const noexcept; // BIN_METHOD_35_1_
+
+    template<typename T, t_if_neg<T> = traits::YES>
+    t_bool is_less_equal(T)        const noexcept; // BIN_METHOD_35_2_
+    template<typename T, t_if_pos<T> = traits::YES>
+    t_bool is_less_equal(T)        const noexcept; // BIN_METHOD_35_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -240,23 +244,23 @@ namespace numeric
 
   class t_integer {
   public:
-    t_integer()               noexcept; // INT_METHOD_1_1_
-    t_integer(t_n)            noexcept; // INT_METHOD_1_2_
+    t_integer()                    noexcept; // INT_METHOD_1_1_
+    t_integer(t_digits)            noexcept; // INT_METHOD_1_2_
 
-    t_integer(     R_integer) noexcept; // INT_METHOD_1_3_
-    t_integer(t_n, R_integer) noexcept; // INT_METHOD_1_4_
-    t_integer(     x_integer) noexcept; // INT_METHOD_1_5_
-    t_integer(t_n, x_integer) noexcept; // INT_METHOD_1_6_
+    t_integer(          R_integer) noexcept; // INT_METHOD_1_3_
+    t_integer(t_digits, R_integer) noexcept; // INT_METHOD_1_4_
+    t_integer(          x_integer) noexcept; // INT_METHOD_1_5_
+    t_integer(t_digits, x_integer) noexcept; // INT_METHOD_1_6_
 
-    t_integer(     R_binary)  noexcept; // INT_METHOD_1_7_
-    t_integer(t_n, R_binary)  noexcept; // INT_METHOD_1_8_
-    t_integer(     x_binary)  noexcept; // INT_METHOD_1_9_
-    t_integer(t_n, x_binary)  noexcept; // INT_METHOD_1_10_
+    t_integer(          R_binary)  noexcept; // INT_METHOD_1_7_
+    t_integer(t_digits, R_binary)  noexcept; // INT_METHOD_1_8_
+    t_integer(          x_binary)  noexcept; // INT_METHOD_1_9_
+    t_integer(t_digits, x_binary)  noexcept; // INT_METHOD_1_10_
 
     template<typename T, t_if_int<T> = traits::YES>
-    t_integer(     T)         noexcept; // INT_METHOD_1_11_
+    t_integer(          T)         noexcept; // INT_METHOD_1_11_
     template<typename T, t_if_int<T> = traits::YES>
-    t_integer(t_n, T)         noexcept; // INT_METHOD_1_12_
+    t_integer(t_digits, T)         noexcept; // INT_METHOD_1_12_
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -303,10 +307,10 @@ namespace numeric
 
     ///////////////////////////////////////////////////////////////////////////
 
-    t_bool    ensure_digits(t_n)  noexcept; // INT_METHOD_7_
-    t_integer operator-()   const noexcept; // INT_METHOD_8_
-    t_n       get_digits()  const noexcept; // INT_METHOD_9_
-    t_bool    is_negative() const noexcept; // INT_METHOD_10_
+    t_bool    ensure_digits(t_digits)  noexcept; // INT_METHOD_7_
+    t_integer operator-    ()    const noexcept; // INT_METHOD_8_
+    t_digits  get_digits   ()    const noexcept; // INT_METHOD_9_
+    t_bool    is_negative  ()    const noexcept; // INT_METHOD_10_
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -316,16 +320,16 @@ namespace numeric
 
     ///////////////////////////////////////////////////////////////////////////
 
-    t_void reset()               noexcept; // INT_METHOD_12_1_
-    t_bool reset(     R_integer) noexcept; // INT_METHOD_12_2_
-    t_bool reset(t_n, R_integer) noexcept; // INT_METHOD_12_3_
-    t_bool reset(     R_binary)  noexcept; // INT_METHOD_12_4_
-    t_bool reset(t_n, R_binary)  noexcept; // INT_METHOD_12_5_
+    t_void reset()                    noexcept; // INT_METHOD_12_1_
+    t_bool reset(          R_integer) noexcept; // INT_METHOD_12_2_
+    t_bool reset(t_digits, R_integer) noexcept; // INT_METHOD_12_3_
+    t_bool reset(          R_binary)  noexcept; // INT_METHOD_12_4_
+    t_bool reset(t_digits, R_binary)  noexcept; // INT_METHOD_12_5_
 
     template<typename T, t_if_int<T> = traits::YES>
-    t_void reset(     T)         noexcept; // INT_METHOD_12_6_
+    t_void reset(          T)         noexcept; // INT_METHOD_12_6_
     template<typename T, t_if_int<T> = traits::YES>
-    t_bool reset(t_n, T)         noexcept; // INT_METHOD_12_7_
+    t_bool reset(t_digits, T)         noexcept; // INT_METHOD_12_7_
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -483,8 +487,8 @@ namespace numeric
 
   /////////////////////////////////////////////////////////////////////////////
 
-  t_binary operator>>(t_binary, t_n) noexcept; // BIN_FUNC_8_
-  t_binary operator<<(t_binary, t_n) noexcept; // BIN_FUNC_9_
+  t_binary operator>>(t_binary, t_bits) noexcept; // BIN_FUNC_8_
+  t_binary operator<<(t_binary, t_bits) noexcept; // BIN_FUNC_9_
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -668,8 +672,8 @@ namespace numeric
 
   // BIN_METHOD_1_2_
   inline
-  t_binary::t_binary(t_n n) noexcept
-    : store_{impl_::calc_size_(n)}, impl_{store_} {
+  t_binary::t_binary(t_bits max) noexcept
+    : store_{impl_::calc_size_(max)}, impl_{store_} {
   }
 
   // BIN_METHOD_1_3_
@@ -679,8 +683,8 @@ namespace numeric
 
   // BIN_METHOD_1_4_
   inline
-  t_binary::t_binary(t_n n, R_binary value) noexcept
-    : store_{max_of(impl_::calc_size_(n), value.store_.size)},
+  t_binary::t_binary(t_bits max, R_binary value) noexcept
+    : store_{max_of(impl_::calc_size_(max), value.store_.size)},
       impl_{store_, value.store_} {
   }
 
@@ -691,8 +695,8 @@ namespace numeric
 
   // BIN_METHOD_1_6_
   inline
-  t_binary::t_binary(t_n n, x_binary value) noexcept
-    : store_{impl_::calc_size_(n), x_cast(value.store_)},
+  t_binary::t_binary(t_bits max, x_binary value) noexcept
+    : store_{impl_::calc_size_(max), x_cast(value.store_)},
       impl_{store_, value.store_} {
   }
 
@@ -706,8 +710,8 @@ namespace numeric
   // BIN_METHOD_1_8_
   template<typename T, t_if_neg<T>>
   inline
-  t_binary::t_binary(t_n n, T value) noexcept
-    : store_{impl_::calc_size_(n)},
+  t_binary::t_binary(t_bits max, T value) noexcept
+    : store_{impl_::calc_size_(max)},
       impl_{store_, static_cast<impl_::t_nvalue_>(value)} {
   }
 
@@ -721,8 +725,8 @@ namespace numeric
   // BIN_METHOD_1_10_
   template<typename T, t_if_pos<T>>
   inline
-  t_binary::t_binary(t_n n, T value) noexcept
-    : store_{impl_::calc_size_(n)},
+  t_binary::t_binary(t_bits max, T value) noexcept
+    : store_{impl_::calc_size_(max)},
       impl_{store_, static_cast<impl_::t_pvalue_>(value)} {
   }
 
@@ -959,14 +963,14 @@ namespace numeric
 
   // BIN_METHOD_12_
   inline
-  r_binary t_binary::operator>>=(t_n n) noexcept {
+  r_binary t_binary::operator>>=(t_bits n) noexcept {
     impl_.shift_right(store_, n);
     return *this;
   }
 
   // BIN_METHOD_13_
   inline
-  r_binary t_binary::operator<<=(t_n n) noexcept {
+  r_binary t_binary::operator<<=(t_bits n) noexcept {
     impl_.shift_left(store_, n);
     return *this;
   }
@@ -987,28 +991,28 @@ namespace numeric
 
   // BIN_METHOD_16_
   inline
-  r_binary t_binary::shift_left(t_n n) noexcept {
+  r_binary t_binary::shift_left(t_bits n) noexcept {
     impl_.shift_left(store_, n);
     return *this;
   }
 
   // BIN_METHOD_17_
   inline
-  r_binary t_binary::shift_right(t_n n) noexcept {
+  r_binary t_binary::shift_right(t_bits n) noexcept {
     impl_.shift_right(store_, n);
     return *this;
   }
 
   // BIN_METHOD_18_
   inline
-  t_bool t_binary::set_bit(t_ix ix, t_bool on) noexcept {
-    return impl_.set_bit(store_, ix, on);
+  t_bool t_binary::set_bit(t_bit bit, t_bool on) noexcept {
+    return impl_.set_bit(store_, bit, on);
   }
 
   // BIN_METHOD_19_
   inline
-  t_bool t_binary::ensure_bits(t_n n) noexcept {
-    return impl_.ensure(store_, n);
+  t_bool t_binary::ensure_bits(t_bits max) noexcept {
+    return impl_.ensure(store_, max);
   }
 
   // BIN_METHOD_20_
@@ -1019,121 +1023,134 @@ namespace numeric
 
   // BIN_METHOD_21_
   inline
-  t_bool t_binary::operator[](t_ix ix) const noexcept {
-    return impl_.get_bit(store_, ix);
+  t_bool t_binary::operator[](t_bit bit) const noexcept {
+    return impl_.get_bit(store_, bit);
   }
 
   // BIN_METHOD_22_
   inline
-  t_n t_binary::get_bits() const noexcept {
-    return impl_.get_bits(store_);
+  t_bool t_binary::get_bit(t_bit bit) const noexcept {
+    return impl_.get_bit(store_, bit);
   }
 
   // BIN_METHOD_23_
+  inline
+  t_bits t_binary::get_bits() const noexcept {
+    return impl_.get_bits(store_);
+  }
+
+  // BIN_METHOD_24_
   inline
   t_bool t_binary::is_negative() const noexcept {
     return impl_.is_negative(store_);
   }
 
-  // BIN_METHOD_24_
+  // BIN_METHOD_25_
   inline
   t_void t_binary::display() const noexcept {
     impl_.display(store_);
   }
 
-  // BIN_METHOD_25_
+  // BIN_METHOD_26_
   inline
   t_bool t_binary::ms_bit() const noexcept {
     return impl_.ms_bit(store_);
   }
 
-  // BIN_METHOD_26_
+  // BIN_METHOD_27_
   inline
   t_bool t_binary::ls_bit() const noexcept {
     return impl_.ls_bit(store_);
   }
 
-  // BIN_METHOD_27_
-  t_ix t_binary::first_on_bit() const noexcept {
+  // BIN_METHOD_28_
+  inline
+  t_bit t_binary::first_on_bit() const noexcept {
     return impl_.first_on_bit(store_);
   }
 
-  // BIN_METHOD_28_
-  t_ix t_binary::last_on_bit() const noexcept {
+  // BIN_METHOD_29_
+  inline
+  t_bit t_binary::last_on_bit() const noexcept {
     return impl_.last_on_bit(store_);
   }
 
-  // BIN_METHOD_29_
-  t_n t_binary::on_bits() const noexcept {
+  // BIN_METHOD_30_
+  inline
+  t_bits t_binary::on_bits() const noexcept {
     return impl_.on_bits(store_);
+  }
+
+  // BIN_METHOD_31_
+  inline
+  t_info t_binary::get_info() const noexcept {
+    return impl_.get_info(store_);
   }
 
   /////////////////////////////////////////////////////////////////////////////
 
-  // BIN_METHOD_30_1_
+  // BIN_METHOD_32_1_
   inline
   t_void t_binary::reset() noexcept {
     impl_.reset(store_);
   }
 
-  // BIN_METHOD_30_2_
+  // BIN_METHOD_32_2_
   inline
   t_bool t_binary::reset(R_binary value) noexcept {
     return store_.reset(value.store_);
   }
 
-  // BIN_METHOD_30_3_
+  // BIN_METHOD_32_3_
   inline
-  t_bool t_binary::reset(t_n n, R_binary value) noexcept {
-    return store_.reset(impl_::calc_size_(n), value.store_);
+  t_bool t_binary::reset(t_bits max, R_binary value) noexcept {
+    return store_.reset(impl_::calc_size_(max), value.store_);
   }
 
-  // BIN_METHOD_30_4_
+  // BIN_METHOD_32_4_
   template<typename T, t_if_neg<T>>
   inline
   t_void t_binary::reset(T value) noexcept {
     impl_.reset(store_, static_cast<impl_::t_nvalue_>(value));
   }
 
-  // BIN_METHOD_30_5_
+  // BIN_METHOD_32_5_
   template<typename T, t_if_neg<T>>
   inline
-  t_bool t_binary::reset(t_n n, T value) noexcept {
-    return impl_.reset(store_, impl_::calc_size_(n),
-                       static_cast<impl_::t_nvalue_>(value));
+  t_bool t_binary::reset(t_bits max, T value) noexcept {
+    return impl_.reset(store_, max, static_cast<impl_::t_nvalue_>(value));
   }
 
-  // BIN_METHOD_30_6_
+  // BIN_METHOD_32_6_
   template<typename T, t_if_pos<T>>
   inline
   t_void t_binary::reset(T value) noexcept {
     impl_.reset(store_, static_cast<impl_::t_pvalue_>(value));
   }
 
-  // BIN_METHOD_30_7_
+  // BIN_METHOD_32_7_
   template<typename T, t_if_pos<T>>
   inline
-  t_bool t_binary::reset(t_n n, T value) noexcept {
-    return impl_.reset(store_, impl_::calc_size_(n),
-                       static_cast<impl_::t_pvalue_>(value));
+  t_bool t_binary::reset(t_bits max, T value) noexcept {
+    return impl_.reset(store_, max, static_cast<impl_::t_pvalue_>(value));
   }
 
   /////////////////////////////////////////////////////////////////////////////
 
-  // BIN_METHOD_31_1_
+  // BIN_METHOD_33_1_
   inline
   t_bool t_binary::is_equal(R_binary value) const noexcept {
     return impl_.is_equal(store_, value.store_);
   }
 
-  // BIN_METHOD_31_2_
+  // BIN_METHOD_33_2_
   template<typename T, t_if_neg<T>>
   inline
   t_bool t_binary::is_equal(T value) const noexcept {
     return impl_.is_equal(store_, static_cast<impl_::t_nvalue_>(value));
   }
 
-  // BIN_METHOD_31_3_
+  // BIN_METHOD_33_3_
   template<typename T, t_if_pos<T>>
   inline
   t_bool t_binary::is_equal(T value) const noexcept {
@@ -1142,20 +1159,20 @@ namespace numeric
 
   /////////////////////////////////////////////////////////////////////////////
 
-  // BIN_METHOD_32_1_
+  // BIN_METHOD_34_1_
   inline
   t_bool t_binary::is_less(R_binary value) const noexcept {
     return impl_.is_less(store_, value.store_);
   }
 
-  // BIN_METHOD_32_2_
+  // BIN_METHOD_34_2_
   template<typename T, t_if_neg<T>>
   inline
   t_bool t_binary::is_less(T value) const noexcept {
     return impl_.is_less(store_, static_cast<impl_::t_nvalue_>(value));
   }
 
-  // BIN_METHOD_32_3_
+  // BIN_METHOD_34_3_
   template<typename T, t_if_pos<T>>
   inline
   t_bool t_binary::is_less(T value) const noexcept {
@@ -1164,20 +1181,20 @@ namespace numeric
 
   /////////////////////////////////////////////////////////////////////////////
 
-  // BIN_METHOD_33_1_
+  // BIN_METHOD_35_1_
   inline
   t_bool t_binary::is_less_equal(R_binary value) const noexcept {
     return impl_.is_less_equal(store_, value.store_);
   }
 
-  // BIN_METHOD_33_2_
+  // BIN_METHOD_35_2_
   template<typename T, t_if_neg<T>>
   inline
   t_bool t_binary::is_less_equal(T value) const noexcept {
     return impl_.is_less_equal(store_, static_cast<impl_::t_nvalue_>(value));
   }
 
-  // BIN_METHOD_33_3_
+  // BIN_METHOD_35_3_
   template<typename T, t_if_pos<T>>
   inline
   t_bool t_binary::is_less_equal(T value) const noexcept {
@@ -1193,8 +1210,8 @@ namespace numeric
 
   // INT_METHOD_1_2_
   inline
-  t_integer::t_integer(t_n digits_max) noexcept
-    : bin_{impl_::calc_bits_(digits_max)} {
+  t_integer::t_integer(t_digits max) noexcept
+    : bin_{impl_::calc_bits_(max)} {
   }
 
   // INT_METHOD_1_3__
@@ -1204,8 +1221,8 @@ namespace numeric
 
   // INT_METHOD_1_4_
   inline
-  t_integer::t_integer(t_n digits_max, R_integer value) noexcept
-    : bin_{impl_::calc_bits_(digits_max), value} {
+  t_integer::t_integer(t_digits max, R_integer value) noexcept
+    : bin_{impl_::calc_bits_(max), value} {
   }
 
   // INT_METHOD_1_5_
@@ -1216,8 +1233,8 @@ namespace numeric
 
   // INT_METHOD_1_6_
   inline
-  t_integer::t_integer(t_n digits_max, x_integer value) noexcept
-    : bin_{impl_::calc_bits_(digits_max),
+  t_integer::t_integer(t_digits max, x_integer value) noexcept
+    : bin_{impl_::calc_bits_(max),
            static_cast<x_binary>(x_cast(value))} {
   }
 
@@ -1228,8 +1245,8 @@ namespace numeric
 
   // INT_METHOD_1_8_
   inline
-  t_integer::t_integer(t_n digits_max, R_binary value) noexcept
-    : bin_{impl_::calc_bits_(digits_max), value} {
+  t_integer::t_integer(t_digits max, R_binary value) noexcept
+    : bin_{impl_::calc_bits_(max), value} {
   }
 
   // INT_METHOD_1_9_
@@ -1240,8 +1257,8 @@ namespace numeric
 
   // INT_METHOD_1_10_
   inline
-  t_integer::t_integer(t_n digits_max, x_binary value) noexcept
-    : bin_{impl_::calc_bits_(digits_max), x_cast(value)} {
+  t_integer::t_integer(t_digits max, x_binary value) noexcept
+    : bin_{impl_::calc_bits_(max), x_cast(value)} {
   }
 
   // INT_METHOD_1_11_
@@ -1253,8 +1270,8 @@ namespace numeric
   // INT_METHOD_1_12_
   template<typename T, t_if_int<T>>
   inline
-  t_integer::t_integer(t_n digits_max, T value) noexcept
-    : bin_{impl_::calc_bits_(digits_max), value} {
+  t_integer::t_integer(t_digits max, T value) noexcept
+    : bin_{impl_::calc_bits_(max), value} {
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -1395,8 +1412,8 @@ namespace numeric
 
   // INT_METHOD_7_
   inline
-  t_bool t_integer::ensure_digits(t_n digits) noexcept {
-    return bin_.ensure_bits(impl_::calc_bits_(digits));
+  t_bool t_integer::ensure_digits(t_digits max) noexcept {
+    return bin_.ensure_bits(impl_::calc_bits_(max));
   }
 
   // INT_METHOD_8_
@@ -1407,7 +1424,7 @@ namespace numeric
 
   // INT_METHOD_9_
   inline
-  t_n t_integer::get_digits() const noexcept {
+  t_digits t_integer::get_digits() const noexcept {
     return impl_::calc_digits_(bin_.get_bits());
   }
 
@@ -1453,8 +1470,8 @@ namespace numeric
 
   // INT_METHOD_12_3_
   inline
-  t_bool t_integer::reset(t_n digits_max, R_integer value) noexcept {
-    return bin_.reset(impl_::calc_bits_(digits_max), value);
+  t_bool t_integer::reset(t_digits max, R_integer value) noexcept {
+    return bin_.reset(impl_::calc_bits_(max), value);
   }
 
   // INT_METHOD_12_4_
@@ -1465,8 +1482,8 @@ namespace numeric
 
   // INT_METHOD_12_5_
   inline
-  t_bool t_integer::reset(t_n digits_max, R_binary value) noexcept {
-    return bin_.reset(impl_::calc_bits_(digits_max), value);
+  t_bool t_integer::reset(t_digits max, R_binary value) noexcept {
+    return bin_.reset(impl_::calc_bits_(max), value);
   }
 
   // INT_METHOD_12_6_
@@ -1479,8 +1496,8 @@ namespace numeric
   // INT_METHOD_12_7_
   template<typename T, t_if_int<T>>
   inline
-  t_bool t_integer::reset(t_n digits_max, T value) noexcept {
-    return bin_.reset(impl_::calc_bits_(digits_max), value);
+  t_bool t_integer::reset(t_digits max, T value) noexcept {
+    return bin_.reset(impl_::calc_bits_(max), value);
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -1983,7 +2000,7 @@ namespace numeric
 
   // BIN_FUNC_8_
   inline
-  t_binary operator>>(t_binary lh, t_n n) noexcept {
+  t_binary operator>>(t_binary lh, t_bits n) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_T_(>>=, lh, n)
   }
 
@@ -1991,7 +2008,7 @@ namespace numeric
 
   // BIN_FUNC_9_
   inline
-  t_binary operator<<(t_binary lh, t_n n) noexcept {
+  t_binary operator<<(t_binary lh, t_bits n) noexcept {
     DAINTY_BASE_NUMERIC_OP_X_T_(<<=, lh, n)
   }
 
