@@ -391,16 +391,33 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename, typename...> struct t_is_one_of : t_result_false { };
+  namespace impl_
+  {
+    template<typename, typename...> struct t_is_one_of_;
+    template<typename, typename...> struct t_is_one_of_help_;
 
-  template<typename T, typename T1, typename... Ts>
-  struct t_is_one_of<T, T1, Ts...>
-    : t_if_then_else<t_is_same<T, T1>, t_result_true,
-                     t_is_one_of<T, Ts...>>::t_value {
-  };
+    template<typename... Ts>
+    struct t_is_one_of_help_<t_true, Ts...> : t_result_true {
+    };
 
-  template<typename T, typename T1>
-  struct t_is_one_of<T, T1> : t_is_same<T, T1> { };
+    template<typename T, typename... Ts>
+    struct t_is_one_of_help_<t_false, T, Ts...> : t_is_one_of_<T, Ts...> {
+    };
+
+    template<typename T, typename T1, typename... Ts>
+    struct t_is_one_of_<T, T1, Ts...>
+      : t_is_one_of_help_<typename t_is_same<T, T1>::t_result, T, Ts...> {
+    };
+
+    template<typename T, typename T1>
+    struct t_is_one_of_<T, T1> : t_is_same<T, T1> { };
+
+    template<typename T>
+    struct t_is_one_of_<T> : t_result_false { };
+  }
+
+  template<typename T, typename... Ts>
+  using t_is_one_of = impl_::t_is_one_of_<T, Ts...>;
 
   template<typename T, typename... Ts>
   using t_is_not_one_of = t_not<t_is_one_of<T, Ts...>>;
@@ -1642,14 +1659,27 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, typename... Ts>
-  struct t_is_unique : t_if_then_else<
-                         t_is_one_of<T, Ts...>,
-                           t_result_false,
-                           t_is_unique<Ts...>>::t_value {
-  };
+  namespace impl_ {
+    template<typename T, typename... Ts> struct t_is_unique_;
+    template<typename... Ts>             struct t_is_unique_help_;
 
-  template<typename T>    struct t_is_unique<T> : t_result_true { };
+    template<typename... Ts>
+    struct t_is_unique_help_<t_true, Ts...> : t_result_false {
+    };
+
+    template<typename... Ts>
+    struct t_is_unique_help_<t_false, Ts...> : t_is_unique_<Ts...> {
+    };
+
+    template<typename T, typename... Ts>
+    struct t_is_unique_
+      : t_is_unique_help_<typename t_is_one_of<T, Ts...>::t_result, Ts...> {
+    };
+
+    template<typename T> struct t_is_unique_<T> : t_result_true { };
+  }
+
+  template<typename... Ts> using t_is_unique = impl_::t_is_unique_<Ts...>;
   template<typename... Ts> using t_if_unique = t_if<t_is_unique<Ts...>>;
 
   template<typename... Ts> using t_is_not_unique = t_not<t_is_unique<Ts...>>;
@@ -1658,15 +1688,15 @@ namespace traits
   /////////////////////////////////////////////////////////////////////////////
 
   namespace impl_ {
-    template<t_n_, typename...> struct t_unique_pack_;
+    /* - like this more, but too many instances.
+    template<typename...> struct t_unique_pack_;
 
-    template<t_n_ N, typename... Ts, typename U, typename... Us>
-    struct t_unique_pack_<N, t_pack<Ts...>, t_pack<U, Us...>>
-      : t_if_then<t_bool_result<(N < 17)>,
-          t_if_then_else<
-            t_is_one_of<U, Ts...>,
-            typename t_unique_pack_<N+1, t_pack<Ts...>,    t_pack<Us...>>::t_value,
-            typename t_unique_pack_<N+1, t_pack<Ts..., U>, t_pack<Us...>>::t_value>
+    template<typename... Ts, typename U, typename... Us>
+    struct t_unique_pack_<t_pack<Ts...>, t_pack<U, Us...>>
+      : t_if_then_else<
+          t_is_one_of<U, Ts...>,
+          typename t_unique_pack_<N+1, t_pack<Ts...>,    t_pack<Us...>>::t_value,
+          typename t_unique_pack_<N+1, t_pack<Ts..., U>, t_pack<Us...>>::t_value
         > {
     };
 
@@ -1674,16 +1704,44 @@ namespace traits
     struct t_unique_pack_<N, t_pack<Ts...>, t_pack<>>
       : t_add_value<t_pack<Ts...>> {
     };
+    */
+
+    template<typename...> struct t_unique_pack_;
+    template<typename...> struct t_unique_pack_help_;
+
+    template<typename... Ts, typename U, typename... Us>
+    struct t_unique_pack_help_<t_false, t_pack<Ts...>, t_pack<U, Us...>>
+      : t_unique_pack_<t_pack<Ts..., U>, t_pack<Us...>> {
+    };
+
+    template<typename... Ts, typename U, typename... Us>
+    struct t_unique_pack_help_<t_true, t_pack<Ts...>, t_pack<U, Us...>>
+      : t_unique_pack_<t_pack<Ts...>, t_pack<Us...>> {
+    };
+
+    template<typename... Ts, typename U, typename... Us>
+    struct t_unique_pack_<t_pack<Ts...>,
+                          t_pack<U, Us...>>
+      : t_unique_pack_help_<typename t_is_one_of<U, Ts...>::t_result,
+                            t_pack<Ts...>, t_pack<U, Us...>> {
+    };
+
+    template<typename... Ts>
+    struct t_unique_pack_<t_pack<Ts...>, t_pack<>>
+      : t_add_value<t_pack<Ts...>> {
+    };
   }
 
   template<typename T, typename... Ts>
   struct t_unique_pack {
-    using t_value = typename impl_::t_unique_pack_<0, t_pack<T>, t_pack<Ts...>>::t_value;
+    using t_value = typename impl_::t_unique_pack_<t_pack<T>,
+                                                   t_pack<Ts...>>::t_value;
   };
 
   template<typename T, typename... Ts>
   struct t_unique_pack<t_pack<T, Ts...>> {
-    using t_value = typename impl_::t_unique_pack_<0, t_pack<T>, t_pack<Ts...>>::t_value;
+    using t_value = typename impl_::t_unique_pack_<t_pack<T>,
+                                                   t_pack<Ts...>>::t_value;
   };
 
   /////////////////////////////////////////////////////////////////////////////
@@ -1726,27 +1784,36 @@ namespace traits
 
   namespace impl_ {
     template<typename, typename> struct t_is_subset_of_pack_;
+    template<typename...>        struct t_is_subset_of_pack_help_;
 
-    template<typename T, typename... Ts, typename... Us>
-    struct t_is_subset_of_pack_<t_pack<T, Ts...>,
-                                t_pack<Us...>>
-      : t_if_then_else<t_is_one_of<T, Us...>,
-                       t_is_subset_of_pack_<t_pack<Ts...>,
-                                            t_pack<Us...>>,
-                       t_result_false>::t_value { };
+    template<typename... Ts, typename... Us>
+    struct t_is_subset_of_pack_help_<t_true, t_pack<Ts...>, t_pack<Us...>>
+      : t_is_subset_of_pack_<t_pack<Ts...>, t_pack<Us...>> {
+    };
+
+    template<typename... Ts>
+    struct t_is_subset_of_pack_help_<t_false, Ts...> : t_result_false { };
 
     template<typename... Us>
-    struct t_is_subset_of_pack_<t_pack<>, t_pack<Us...>> : t_result_true { };
+    struct t_is_subset_of_pack_help_<t_true, t_pack<>, t_pack<Us...>>
+      : t_result_true {
+    };
+
+    template<typename T, typename... Ts, typename... Us>
+    struct t_is_subset_of_pack_<t_pack<T, Ts...>, t_pack<Us...>>
+      : t_is_subset_of_pack_help_<typename t_is_one_of<T, Us...>::t_result,
+                                  t_pack<Ts...>, t_pack<Us...>> {
+    };
 
     template<typename... Ts>
     struct t_is_subset_of_pack_<t_pack<Ts...>, t_pack<>> : t_result_false { };
+
+    template<typename... Us>
+    struct t_is_subset_of_pack_<t_pack<>, t_pack<Us...>> : t_result_false { };
   }
 
   template<typename T, typename T1>
-  struct t_is_subset_of_pack : impl_::t_is_subset_of_pack_<T, T1> { };
-
-  template<typename... Us>
-  struct t_is_subset_of_pack<t_pack<>, t_pack<Us...>> : t_result_false { };
+  using t_is_subset_of_pack     = impl_::t_is_subset_of_pack_<T, T1>;
 
   template<typename T, typename T1>
   using t_is_not_subset_of_pack = t_not<t_is_subset_of_pack<T, T1>>;
@@ -1763,9 +1830,7 @@ namespace traits
   struct t_is_in_pack;
 
   template<typename T, typename... Ts>
-  struct t_is_in_pack<T, t_pack<Ts...>> {
-    using t_result = t_is_one_of<T, Ts...>;
-  };
+  struct t_is_in_pack<T, t_pack<Ts...>> : t_is_one_of<T, Ts...> { };
 
   /////////////////////////////////////////////////////////////////////////////
 
