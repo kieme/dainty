@@ -37,8 +37,6 @@ namespace traits
 {
 namespace impl_
 {
-  // RULE t_result must be t_true or t_false (or equivalent)
-
   /////////////////////////////////////////////////////////////////////////////
 
   using types::t_bool;

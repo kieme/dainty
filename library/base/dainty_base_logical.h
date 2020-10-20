@@ -48,6 +48,8 @@ namespace logical
   using traits::t_rfalse;
   using traits::t_rtrue;
   using traits::t_is_there;
+  using traits::t_if_there;
+  using traits::t_if_not_there;
   using traits::t_is_fundamental;
   using traits::t_is_ptr;
   using traits::t_least_one_is_true;
@@ -64,6 +66,12 @@ namespace logical
   using traits::t_and;
   using traits::t_or;
   using traits::t_dummy;
+  using traits::uneval;
+  using traits::YES;
+
+  // TODO left and right side for operations
+  // TODO check values
+  // TODO create impl_ file
 
   // RULE TAG can have t_value
   // RULE TAG can have t_ops
@@ -224,17 +232,44 @@ namespace logical
   using t_build_ops_ =
     impl_::t_build_ops_<TAG, t_is_there<impl_::t_has_ops_, TAG>::VALUE>;
 
-  template<typename TAG>
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  using t_has_check_ =
+    traits::t_if_same<decltype(uneval<T>().check(typename T::t_value())),
+                      typename T::t_value>;
+
+  template<typename TAG, t_if_there<t_has_check_, TAG> = YES>
   constexpr
   typename TAG::t_value check_(typename TAG::t_value value) noexcept {
     return TAG::check(value);
   }
 
-  template<typename TAG, typename... Ts>
+  template<typename TAG, typename T, t_if_not_there<t_has_check_, TAG> = YES>
   constexpr
-  typename TAG::t_value check_(typename TAG::t_value value) noexcept {
-    return check_<Ts...>(check_<TAG>(value));
+  T check_(T value) noexcept {
+    return value;
   }
+
+  template<typename> struct t_check_;
+
+  template<typename TAG, typename... TAGs>
+  struct t_check_<t_pack<TAG, TAGs...>> {
+    template<typename T>
+    static constexpr T call(T value) noexcept {
+      return t_check_<t_pack<TAGs...>>::call(check_<TAG>(value));
+    }
+  };
+
+  template<typename TAG>
+  struct t_check_<t_pack<TAG>> {
+    template<typename T>
+    static constexpr T call(T value) noexcept {
+      return check_<TAG>(value);
+    }
+  };
+
+  /////////////////////////////////////////////////////////////////////////////
 
   template<typename T, typename T1>
   using t_is_subset_of = t_is_subset_of_pack<T, T1>;
@@ -282,7 +317,8 @@ namespace logical
     using t_tags  = typename t_build_tags_<TAG, Ls...>::t_value;
 
     constexpr
-    explicit t_logical(t_value value) noexcept : value_{value} {
+    explicit t_logical(t_value value) noexcept
+      : value_{t_check_<t_tags>::call(value)} {
     }
 
     template<typename T1, typename... Ts>
