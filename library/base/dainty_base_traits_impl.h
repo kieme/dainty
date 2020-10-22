@@ -107,6 +107,7 @@ namespace impl_
   struct t_pack {
     constexpr static t_n_ N = sizeof...(As);
   };
+  using t_empty_pack = t_pack<>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1780,12 +1781,13 @@ namespace impl_
                                                    t_pack<U, Us...>> { };
 
     template<typename... Ts>
-    struct t_unique_pack_<t_pack<Ts...>, t_pack<>>
+    struct t_unique_pack_<t_pack<Ts...>, t_empty_pack>
       : t_add_value<t_pack<Ts...>> { };
   }
 
   template<typename P, typename... Ps>
-  using t_unique_pack = t_value_of<help_::t_unique_pack_<t_pack<>, P, Ps...>>;
+  using t_unique_pack
+    = t_value_of<help_::t_unique_pack_<t_empty_pack, P, Ps...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1801,12 +1803,13 @@ namespace impl_
       : t_flatten_pack_<t_pack<Ts..., U>, t_pack<Us...>> { };
 
     template<typename... Ts>
-    struct t_flatten_pack_<t_pack<Ts...>, t_pack<>>
+    struct t_flatten_pack_<t_pack<Ts...>, t_empty_pack>
       : t_add_value<t_pack<Ts...>> { };
   }
 
   template<typename P, typename... Ps>
-  using t_flatten_pack = t_value_of<help_::t_flatten_pack_<t_pack<>, P, Ps...>>;
+  using t_flatten_pack
+    = t_value_of<help_::t_flatten_pack_<t_empty_pack, P, Ps...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1828,7 +1831,7 @@ namespace impl_
     struct t_is_subset_of_pack_help_<t_false, Ts...> : t_rfalse { };
 
     template<typename... Us>
-    struct t_is_subset_of_pack_help_<t_true, t_pack<>, t_pack<Us...>>
+    struct t_is_subset_of_pack_help_<t_true, t_empty_pack, t_pack<Us...>>
       : t_rtrue {
     };
 
@@ -1839,10 +1842,10 @@ namespace impl_
     };
 
     template<typename... Ts>
-    struct t_is_subset_of_pack_<t_pack<Ts...>, t_pack<>> : t_rfalse { };
+    struct t_is_subset_of_pack_<t_pack<Ts...>, t_empty_pack> : t_rfalse { };
 
     template<typename... Us>
-    struct t_is_subset_of_pack_<t_pack<>, t_pack<Us...>> : t_rfalse { };
+    struct t_is_subset_of_pack_<t_empty_pack, t_pack<Us...>> : t_rfalse { };
   }
   template<typename P, typename P1>
   using t_is_subset_of_pack = t_result_of<help_::t_is_subset_of_pack_<P, P1>>;
@@ -1883,6 +1886,113 @@ namespace impl_
   }
   template<typename P, typename P1>
   using t_largest_pack = t_value_of<help_::t_largest_pack_<P, P1>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename U, typename P, typename... Ps>
+    struct t_union_pack_;
+
+    template<typename... Us, typename... Ps, typename... P1s>
+    struct t_union_pack_<t_pack<Us...>, t_pack<Ps...>, P1s...>
+      : t_union_pack_<t_pack<Us..., Ps...>, t_empty_pack, P1s...> { };
+
+    template<typename... Us, typename... Ps>
+    struct t_union_pack_<t_pack<Us...>, t_empty_pack, Ps...>
+      : t_union_pack_<t_pack<Us...>, Ps...> { };
+
+    template<typename... Us>
+    struct t_union_pack_<t_pack<Us...>, t_empty_pack>
+      : t_add_value<t_unique_pack<t_pack<Us...>>> { };
+  }
+
+  template<typename P, typename... Ps>
+  using t_union_pack = t_value_of<help_::t_union_pack_<t_empty_pack, P, Ps...>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename...> struct t_intersect_pack_help_;
+    template<typename...> struct t_intersect_pack_help1_;
+    template<typename...> struct t_intersect_pack_help2_;
+    template<typename...> struct t_intersect_pack_help3_;
+
+    template<typename... Us, typename... Ps, typename... P1s>
+    struct t_intersect_pack_help3_<t_pack<Us...>, t_pack<Ps...>, t_pack<P1s...>>
+      : t_intersect_pack_help1_<t_pack<Us...>, t_pack<Ps...>, t_pack<P1s...>> { };
+
+    template<typename... Us, typename... Ps>
+    struct t_intersect_pack_help3_<t_pack<Us...>, t_empty_pack, t_pack<Ps...>>
+      : t_add_value<t_pack<Us...>> { };
+
+    template<typename... Us, typename P, typename... Ps, typename... P1s>
+    struct t_intersect_pack_help2_<t_true, t_pack<Us...>, t_pack<P, Ps...>,
+                                   t_pack<P1s...>>
+      : t_intersect_pack_help3_<t_pack<Us..., P>, t_pack<Ps...>, t_pack<P1s...>> { };
+
+    template<typename... Us, typename P, typename... Ps, typename... P1s>
+    struct t_intersect_pack_help2_<t_false, t_pack<Us...>, t_pack<P, Ps...>,
+                                   t_pack<P1s...>>
+      : t_intersect_pack_help3_<t_pack<Us...>, t_pack<Ps...>, t_pack<P1s...>> { };
+
+    template<typename... Us, typename P, typename... Ps, typename... P1s>
+    struct t_intersect_pack_help1_<t_pack<Us...>, t_pack<P, Ps...>, t_pack<P1s...>>
+      : t_intersect_pack_help2_<t_is_one_of<P, P1s...>, t_pack<Us...>,
+                                t_pack<P, Ps...>, t_pack<P1s...>> { };
+
+
+    template<typename... Ps, typename... P1s, typename... P2s>
+    struct t_intersect_pack_help_<t_false, t_pack<Ps...>, t_pack<P1s...>,
+                                  P2s...>
+      : t_intersect_pack_help_<
+          t_false,
+          t_value_of<t_intersect_pack_help1_<t_empty_pack,
+                                             t_pack<Ps...>, t_pack<P1s...>>>,
+          P2s...> { };
+
+    template<typename... Ps, typename... P1s>
+    struct t_intersect_pack_help_<t_false, t_pack<Ps...>, t_pack<P1s...>>
+      : t_intersect_pack_help1_<t_empty_pack, t_pack<Ps...>, t_pack<P1s...>> { };
+
+    template<typename... Ps>
+    struct t_intersect_pack_help_<t_false, t_pack<Ps...>>
+      : t_add_value<t_pack<Ps...>> { };
+
+    template<typename... Ps>
+    struct t_intersect_pack_help_<t_true, Ps...>
+      : t_add_value<t_empty_pack> { };
+
+    template<typename P, typename... Ps>
+    struct t_intersect_pack_
+      : t_intersect_pack_help_<t_is_one_of<t_empty_pack, P, Ps...>, P,
+                               Ps...> { };
+  }
+
+  template<typename P, typename... Ps>
+  using t_intersect_pack = t_value_of<help_::t_intersect_pack_<P, Ps...>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ { // TODO -  need help_ class
+    template<typename U, typename P, typename... Ps>
+    struct t_diff_pack_;
+
+    template<typename... Us, typename... Ps, typename... P1s>
+    struct t_diff_pack_<t_pack<Us...>, t_pack<Ps...>, P1s...>
+      : t_diff_pack_<t_pack<Us..., Ps...>, t_empty_pack, P1s...> { };
+
+    template<typename... Us, typename... Ps>
+    struct t_diff_pack_<t_pack<Us...>, t_empty_pack, Ps...>
+      : t_diff_pack_<t_pack<Us...>, Ps...> { };
+
+    template<typename... Us>
+    struct t_diff_pack_<t_pack<Us...>, t_empty_pack>
+      : t_add_value<t_unique_pack<t_pack<Us...>>> { };
+  }
+
+  template<typename P, typename... Ps>
+  using t_diff_pack
+    = t_value_of<help_::t_diff_pack_<t_empty_pack, P, Ps...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 

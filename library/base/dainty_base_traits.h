@@ -47,6 +47,7 @@ namespace traits
   using impl_::t_undef_value;
   using impl_::t_yes;
   using impl_::t_wellformed;
+  using impl_::t_empty_pack;
   using impl_::YES;
   using impl_::uneval;
 
@@ -617,9 +618,15 @@ namespace traits
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T, typename P>
-  using t_is_in_pack   = impl_::t_is_in_pack<T, P>;
+  using t_is_in_pack     = impl_::t_is_in_pack<T, P>;
   template<typename P, typename P1>
-  using t_largest_pack = impl_::t_largest_pack<P, P1>;
+  using t_largest_pack   = impl_::t_largest_pack<P, P1>;
+  template<typename P, typename... Ps>
+  using t_union_pack     = impl_::t_union_pack<P, Ps...>;
+  template<typename P, typename... Ps>
+  using t_intersect_pack = impl_::t_intersect_pack<P, Ps...>;
+  template<typename P, typename... Ps>
+  using t_diff_pack     = impl_::t_diff_pack<P, Ps...>;
 
   /////////////////////////////////////////////////////////////////////////////
 

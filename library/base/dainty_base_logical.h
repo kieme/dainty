@@ -44,13 +44,21 @@ namespace logical
   using types::t_ix_;
   using types::t_int;
 
+  using traits::t_add_value;
   using traits::t_pack;
+  using traits::t_empty_pack;
+  using traits::t_false;
+  using traits::t_true;
   using traits::t_rfalse;
   using traits::t_rtrue;
   using traits::t_is_there;
   using traits::t_if_there;
+  using traits::t_if;
+  using traits::t_if_then;
   using traits::t_if_not_there;
+  using traits::t_if_subset_of_pack;
   using traits::t_is_fundamental;
+  using traits::t_is_one_of;
   using traits::t_is_ptr;
   using traits::t_least_one_is_true;
   using traits::t_add_result;
@@ -69,8 +77,7 @@ namespace logical
   using traits::uneval;
   using traits::YES;
 
-  // TODO left and right side for operations
-  // TODO check values
+  // TODO left and right side for operations - need many more operations
   // TODO create impl_ file
 
   // RULE TAG can have t_value
@@ -168,7 +175,7 @@ namespace logical
   {
     template<typename T, t_bool>
     struct t_build_ops_ {
-      using t_value = t_pack<>;
+      using t_value = t_empty_pack;
     };
 
     template<typename T>
@@ -179,7 +186,7 @@ namespace logical
     template<typename T>
     using t_has_ops_ = traits::t_if_pack<typename T::t_ops>;
 
-    ///
+  /////////////////////////////////////////////////////////////////////////////
 
     template<typename...>
     struct t_pack_tags_;
@@ -234,6 +241,23 @@ namespace logical
 
   /////////////////////////////////////////////////////////////////////////////
 
+  template<typename T, typename T1, t_if<t_true> = YES>
+  constexpr
+  T assign_(T1 value) noexcept {
+    return value;
+  }
+
+  /*
+  template<typename T, typename T1, t_if<t_false, bool> = true>
+  constexpr
+  T assign_(T1 value) noexcept {
+    // check if value can fit in 
+    return value;
+  }
+  */
+
+  /////////////////////////////////////////////////////////////////////////////
+
   template<typename T>
   using t_has_check_ =
     traits::t_if_same<decltype(uneval<T>().check(typename T::t_value())),
@@ -271,6 +295,34 @@ namespace logical
 
   /////////////////////////////////////////////////////////////////////////////
 
+  namespace impl_ {
+    template<typename... Ts> struct t_diff_;
+    template<typename... Ts> struct t_diff_help_;
+
+    template<typename... Us, typename T,  typename... Ts, typename... T1s>
+    struct t_diff_help_<t_false, t_pack<Us...>, t_pack<T, Ts...>, t_pack<T1s...>>
+      : t_diff_<t_pack<Us..., T>, t_pack<Ts...>, t_pack<T1s...>> { };
+
+    template<typename... Us, typename T,  typename... Ts, typename... T1s>
+    struct t_diff_help_<t_true, t_pack<Us...>, t_pack<T, Ts...>, t_pack<T1s...>>
+      : t_diff_<t_pack<Us...>, t_pack<Ts...>, t_pack<T1s...>> { };
+
+    template<typename... Us, typename T,  typename... Ts, typename... T1s>
+    struct t_diff_<t_pack<Us...>, t_pack<T, Ts...>, t_pack<T1s...>>
+      : t_diff_help_<t_is_one_of<T, T1s...>,
+                     t_pack<Us...>, t_pack<T, Ts...>, t_pack<T1s...>> { };
+
+    template<typename... Us, typename... Ts>
+    struct t_diff_<t_pack<Us...>, t_empty_pack, t_pack<Ts...>>
+      : t_add_value<t_pack<Us...>> { };
+
+    template<typename... Us, typename... Ts>
+    struct t_diff_<t_pack<Us...>, t_pack<Ts...>, t_empty_pack>
+      : t_add_value<t_pack<Us..., Ts...>> { };
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
   template<typename T, typename T1>
   using t_is_subset_of = t_is_subset_of_pack<T, T1>;
 
@@ -302,6 +354,19 @@ namespace logical
   constexpr
   t_logical<T, TAG, Ls...>& set(t_logical<T,  TAG,  Ls...>&,
                                 t_logical<T1, TAG1, Ls1...>) noexcept;
+
+  template<class T, class TAG, class... Ls>
+  constexpr
+  t_logical<T, TAG, Ls...>& set(t_logical<T, TAG, Ls...>&,
+                                t_logical<T, TAG, Ls...>) noexcept = delete;
+
+  template<class T, class TAG, class... Ls, class T1, class TAG1, class... Ls1,
+           t_if_subset_of_pack<typename t_logical<T,  TAG,  Ls...>::t_tags,
+                               typename t_logical<T1, TAG1, Ls1...>::t_tags>
+             = YES>
+  constexpr
+  t_logical<T, TAG, Ls...>& set(t_logical<T,  TAG,  Ls...>&,
+                                t_logical<T1, TAG1, Ls1...>) noexcept = delete;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -387,8 +452,14 @@ namespace logical
   constexpr
   t_logical<T, TAG, Ls...>& set(t_logical<T,  TAG,  Ls...>& logical,
                                 t_logical<T1, TAG1, Ls1...> value) noexcept {
-    return (logical = t_logical<T, TAG, Ls...>{get(value)});
-    // FIXME even if types are not exact - can reduce the checking
+    logical.value_
+      = t_check_<
+          t_value_of<
+            impl_::t_diff_<t_empty_pack,
+                           typename t_logical<T,  TAG,  Ls...>::t_tags,
+                           typename t_logical<T1, TAG1, Ls1...>::t_tags>>>
+              ::call(get(value));
+    return logical;
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -1207,14 +1278,40 @@ namespace logical
 
   /////////////////////////////////////////////////////////////////////////////
 
-  struct t_i_tag_ {
-    using t_ops = t_pack<t_ops_value_tag>;
-  };
-  using t_i8  = t_logical<types::t_int8,  t_i_tag_>;
-  using t_i16 = t_logical<types::t_int16, t_i_tag_>;
-  using t_i32 = t_logical<types::t_int32, t_i_tag_>;
-  using t_i64 = t_logical<types::t_int64, t_i_tag_>;
-  using t_i   = t_i64;
+  // TODO BELONGS IN TYPE
+  using t_u8_   = types::t_uint8;
+  using t_u16_  = types::t_uint16;
+  using t_u32_  = types::t_uint32;
+  using t_u64_  = types::t_uint64;
+  using t_u_    = t_u64_;
+
+  using t_i8_   = types::t_int8;
+  using t_i16_  = types::t_int16;
+  using t_i32_  = types::t_int32;
+  using t_i64_  = types::t_int64;
+  using t_i_    = t_i64_;
+
+  using t_n8_  = t_u8_;
+  using t_n16_ = t_u16_;
+  using t_n32_ = t_u32_;
+  using t_n64_ = t_u64_;
+  using t_n_   = t_n64_;
+
+  using t_n_i8_  = t_i8_;
+  using t_n_i16_ = t_i16_;
+  using t_n_i32_ = t_i32_;
+  using t_n_i64_ = t_i64_;
+
+  using t_ix8_  = t_u8_;
+  using t_ix16_ = t_u16_;
+  using t_ix32_ = t_u32_;
+  using t_ix64_ = t_u64_;
+  using t_ix_   = t_n64_;
+
+  using t_ix_i8_  = t_i8_;
+  using t_ix_i16_ = t_i16_;
+  using t_ix_i32_ = t_i32_;
+  using t_ix_i64_ = t_i64_;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1229,67 +1326,99 @@ namespace logical
 
   /////////////////////////////////////////////////////////////////////////////
 
-  // TODO BELONGS IN TYPE
-  using t_n8_  = types::t_uint8;
-  using t_n16_ = types::t_uint16;
-  using t_n32_ = types::t_uint32;
-  using t_n64_ = types::t_uint64;
-
-  using t_in8_  = types::t_int8;
-  using t_in16_ = types::t_int16;
-  using t_in32_ = types::t_int32;
-  using t_in64_ = types::t_int64;
-
-  struct t_n_tag_ : t_u_tag_ {
+  struct t_i_tag_ {
+    using t_ops = t_pack<t_ops_value_tag>;
   };
-  using t_n8       = t_logical<t_n8_,  t_n_tag_, t_u8>;
-  using t_n16      = t_logical<t_n16_, t_n_tag_, t_u16>;
-  using t_n32      = t_logical<t_n32_, t_n_tag_, t_u32>;
-  using t_n64      = t_logical<t_n64_, t_n_tag_, t_u64>;
-  using t_n        = t_n64;
-
-  using t_in8      = t_logical<t_in8_,  t_n_tag_>;
-  using t_in16     = t_logical<t_in16_, t_n_tag_>;
-  using t_in32     = t_logical<t_in32_, t_n_tag_>;
-  using t_in64     = t_logical<t_in64_, t_n_tag_>;
-  using t_in       = t_in64;
-
-  enum  t_max_n_tag_ {};
-  using t_max_n8   = t_logical<t_n8_,  t_n_tag_>;
-  using t_max_n16  = t_logical<t_n16_, t_n_tag_>;
-  using t_max_n32  = t_logical<t_n32_, t_n_tag_>;
-  using t_max_n64  = t_logical<t_n64_, t_n_tag_>;
-  using t_max_n    = t_n64;
-
-  using t_max_in8  = t_logical<t_in8_,  t_n_tag_>;
-  using t_max_in16 = t_logical<t_in16_, t_n_tag_>;
-  using t_max_in32 = t_logical<t_in32_, t_n_tag_>;
-  using t_max_in64 = t_logical<t_in64_, t_n_tag_>;
-  using t_max_in   = t_in64;
-
-  enum  t_min_n_tag_ {};
-  using t_min_n8   = t_logical<t_n8_,  t_n_tag_>;
-  using t_min_n16  = t_logical<t_n16_, t_n_tag_>;
-  using t_min_n32  = t_logical<t_n32_, t_n_tag_>;
-  using t_min_n64  = t_logical<t_n64_, t_n_tag_>;
-  using t_min_n    = t_n64;
-
-  using t_min_in8  = t_logical<t_in8_,  t_n_tag_>;
-  using t_min_in16 = t_logical<t_in16_, t_n_tag_>;
-  using t_min_in32 = t_logical<t_in32_, t_n_tag_>;
-  using t_min_in64 = t_logical<t_in64_, t_n_tag_>;
-  using t_max_in   = t_in64;
+  using t_i8  = t_logical<t_i8_,  t_i_tag_, t_u8>;
+  using t_i16 = t_logical<t_i16_, t_i_tag_, t_u16>;
+  using t_i32 = t_logical<t_i32_, t_i_tag_, t_u32>;
+  using t_i64 = t_logical<t_i64_, t_i_tag_, t_u64>;
+  using t_i   = t_i64;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  struct t_ix_tag_ : t_n_tag_ {
+  struct t_n_tag_ : t_u_tag_ {
   };
-  enum t_begin_ix_tag_ {};
-  enum t_end_ix_tag_   {};
+  using t_n8    = t_logical<t_n8_,  t_n_tag_, t_u8>;
+  using t_n16   = t_logical<t_n16_, t_n_tag_, t_u16>;
+  using t_n32   = t_logical<t_n32_, t_n_tag_, t_u32>;
+  using t_n64   = t_logical<t_n64_, t_n_tag_, t_u64>;
+  using t_n     = t_n64;
 
-  using t_ix       = t_logical<types::t_ix_,  t_ix_tag_,       t_n>;
-  using t_begin_ix = t_logical<types::t_ix_,  t_begin_ix_tag_, t_ix>;
-  using t_end_ix   = t_logical<types::t_ix_,  t_end_ix_tag_,   t_ix>;
+  using t_n_i8  = t_logical<t_n_i8_,  t_n_tag_, t_i8>;
+  using t_n_i16 = t_logical<t_n_i16_, t_n_tag_, t_i16>;
+  using t_n_i32 = t_logical<t_n_i32_, t_n_tag_, t_i32>;
+  using t_n_i64 = t_logical<t_n_i64_, t_n_tag_, t_i64>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  enum  t_max_n_tag_ {};
+  using t_max_n8   = t_logical<t_n8_,  t_max_n_tag_, t_n8>;
+  using t_max_n16  = t_logical<t_n16_, t_max_n_tag_, t_n16>;
+  using t_max_n32  = t_logical<t_n32_, t_max_n_tag_, t_n32>;
+  using t_max_n64  = t_logical<t_n64_, t_max_n_tag_, t_n64>;
+  using t_max_n    = t_max_n64;
+
+  using t_max_n_i8  = t_logical<t_n_i8_,  t_max_n_tag_, t_n_i8>;
+  using t_max_n_i16 = t_logical<t_n_i16_, t_max_n_tag_, t_n_i16>;
+  using t_max_n_i32 = t_logical<t_n_i32_, t_max_n_tag_, t_n_i32>;
+  using t_max_n_i64 = t_logical<t_n_i64_, t_max_n_tag_, t_n_i64>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  enum  t_min_n_tag_ {};
+  using t_min_n8  = t_logical<t_n8_,  t_min_n_tag_, t_n8>;
+  using t_min_n16 = t_logical<t_n16_, t_min_n_tag_, t_n16>;
+  using t_min_n32 = t_logical<t_n32_, t_min_n_tag_, t_n32>;
+  using t_min_n64 = t_logical<t_n64_, t_min_n_tag_, t_n64>;
+  using t_min_n   = t_min_n64;
+
+  using t_min_n_i8  = t_logical<t_n_i8_,  t_min_n_tag_, t_n_i8>;
+  using t_min_n_i16 = t_logical<t_n_i16_, t_min_n_tag_, t_n_i16>;
+  using t_min_n_i32 = t_logical<t_n_i32_, t_min_n_tag_, t_n_i32>;
+  using t_min_n_i64 = t_logical<t_n_i64_, t_min_n_tag_, t_n_i64>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  struct t_ix_tag_ : t_n_tag_ { };
+  using t_ix8  = t_logical<t_ix8_,  t_ix_tag_, t_n8>;
+  using t_ix16 = t_logical<t_ix16_, t_ix_tag_, t_n16>;
+  using t_ix32 = t_logical<t_ix32_, t_ix_tag_, t_n32>;
+  using t_ix64 = t_logical<t_ix64_, t_ix_tag_, t_n64>;
+  using t_ix   = t_ix64;
+
+  using t_ix_i8  = t_logical<t_ix_i8_,  t_ix_tag_, t_n_i8>;
+  using t_ix_i16 = t_logical<t_ix_i16_, t_ix_tag_, t_n_i16>;
+  using t_ix_i32 = t_logical<t_ix_i32_, t_ix_tag_, t_n_i32>;
+  using t_ix_i64 = t_logical<t_ix_i64_, t_ix_tag_, t_n_i64>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  struct t_begin_ix_tag_ : t_ix_tag_ { };
+  using t_begin_ix8  = t_logical<t_ix8_,  t_begin_ix_tag_, t_ix8>;
+  using t_begin_ix16 = t_logical<t_ix16_, t_begin_ix_tag_, t_ix16>;
+  using t_begin_ix32 = t_logical<t_ix32_, t_begin_ix_tag_, t_ix32>;
+  using t_begin_ix64 = t_logical<t_ix64_, t_begin_ix_tag_, t_ix64>;
+  using t_begin_ix   = t_begin_ix64;
+
+  using t_begin_ix_i8  = t_logical<t_ix_i8_,  t_begin_ix_tag_, t_ix_i8>;
+  using t_begin_ix_i16 = t_logical<t_ix_i16_, t_begin_ix_tag_, t_ix_i16>;
+  using t_begin_ix_i32 = t_logical<t_ix_i32_, t_begin_ix_tag_, t_ix_i32>;
+  using t_begin_ix_i64 = t_logical<t_ix_i64_, t_begin_ix_tag_, t_ix_i64>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  struct t_end_ix_tag_ : t_ix_tag_ { };
+  using t_end_ix8  = t_logical<t_ix8_,  t_end_ix_tag_, t_ix8>;
+  using t_end_ix16 = t_logical<t_ix16_, t_end_ix_tag_, t_ix16>;
+  using t_end_ix32 = t_logical<t_ix32_, t_end_ix_tag_, t_ix32>;
+  using t_end_ix64 = t_logical<t_ix64_, t_end_ix_tag_, t_ix64>;
+  using t_end_ix   = t_end_ix64;
+
+  using t_end_ix_i8  = t_logical<t_ix_i8_,  t_end_ix_tag_, t_ix_i8>;
+  using t_end_ix_i16 = t_logical<t_ix_i16_, t_end_ix_tag_, t_ix_i16>;
+  using t_end_ix_i32 = t_logical<t_ix_i32_, t_end_ix_tag_, t_ix_i32>;
+  using t_end_ix_i64 = t_logical<t_ix_i64_, t_end_ix_tag_, t_ix_i64>;
 
   /////////////////////////////////////////////////////////////////////////////
 
