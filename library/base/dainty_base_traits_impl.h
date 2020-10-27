@@ -40,20 +40,46 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   using types::t_bool;
-  using types::t_n_;
+  using types::t_char;
+  using types::t_schar;
+  using types::t_uchar;
   using types::t_void;
   using types::t_nullptr;
+  using types::t_pack;
+  using types::t_empty_pack;
+  using types::t_short;
+  using types::t_ushort;
+  using types::t_int;
+  using types::t_uint;
+  using types::t_long;
+  using types::t_ulong;
+  using types::t_llong;
+  using types::t_ullong;
+  using types::t_float;
+  using types::t_double;
+  using types::t_ldouble;
+  using types::t_n_;
 
   /////////////////////////////////////////////////////////////////////////////
 
   enum class t_dummy { DUMMY };
-  template<typename>      struct t_undef;
-  template<typename T, T> struct t_undef_value;
+  template<typename, typename...> struct t_undef;
+  template<typename T, T>         struct t_undef_value;
 
   /////////////////////////////////////////////////////////////////////////////
 
   enum t_yes  { YES };
   template<typename...> using t_wellformed = t_yes;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  enum t_opt1 { OPT1 };
+  enum t_opt2 { OPT2 };
+  enum t_opt3 { OPT3 };
+  enum t_opt4 { OPT4 };
+  enum t_opt5 { OPT5 };
+  enum t_opt6 { OPT6 };
+  enum t_opt7 { OPT7 };
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -88,6 +114,7 @@ namespace impl_
     template<t_bool> struct t_is_truth_       : t_add_value<t_false> { };
     template<>       struct t_is_truth_<true> : t_add_value<t_true>  { };
   }
+
   template<t_bool B> using t_is_truth = t_value_of<help_::t_is_truth_<B>>;
 
   /////////////////////////////////////////////////////////////////////////////
@@ -96,18 +123,11 @@ namespace impl_
     template<t_bool> struct t_set_result_       : t_add_result<t_false> { };
     template<>       struct t_set_result_<true> : t_add_result<t_true>  { };
   }
+
   template<t_bool B> using t_set_result = help_::t_set_result_<B>;
 
   using t_rtrue  = t_set_result<true>;
   using t_rfalse = t_set_result<false>;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename... As>
-  struct t_pack {
-    constexpr static t_n_ N = sizeof...(As);
-  };
-  using t_empty_pack = t_pack<>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -180,7 +200,7 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename I> using t_if = t_if_then<I, t_yes>;
+  template<typename I, typename R = t_yes> using t_if = t_if_then<I, R>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -191,22 +211,10 @@ namespace impl_
     template<> struct t_not_<t_false> : t_rtrue  { };
   }
 
-  template<typename T> using t_not    = t_result_of<help_::t_not_<T>>;
-  template<typename T> using t_if_not = t_if<t_not<T>>;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  namespace help_ {
-    template<typename> struct t_is_pack_ : t_rfalse { };
-
-    template<typename... Ts>
-    struct t_is_pack_<t_pack<Ts...>> : t_rtrue { };
-  }
-
-  template<typename T> using t_is_pack     = t_result_of<help_::t_is_pack_<T>>;
-  template<typename T> using t_is_not_pack = t_not<t_is_pack<T>>;
-  template<typename T> using t_if_pack     = t_if<t_is_pack<T>>;
-  template<typename T> using t_if_not_pack = t_if<t_is_not_pack<T>>;
+  template<typename T>
+  using t_not    = t_result_of<help_::t_not_<T>>;
+  template<typename T, typename R = t_yes>
+  using t_if_not = t_if<t_not<T>, R>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -232,11 +240,11 @@ namespace impl_
   template<template<typename> class Op, typename T>
   using t_is_not_there = t_not<t_is_there<Op, T>>;
 
-  template<template<typename> class Op, typename T>
-  using t_if_there     = t_if<t_is_there<Op, T>>;
+  template<template<typename> class Op, typename T, typename R = t_yes>
+  using t_if_there     = t_if<t_is_there<Op, T>, R>;
 
-  template<template<typename> class Op, typename T>
-  using t_if_not_there = t_if<t_is_not_there<Op, T>>;
+  template<template<typename> class Op, typename T, typename R = t_yes>
+  using t_if_not_there = t_if<t_is_not_there<Op, T>, t_yes>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -407,23 +415,32 @@ namespace impl_
     template<class T> struct t_category_<T&&> : t_add_value<t_xvalue_>  { };
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
   template<typename T>
   using t_is_lvalue  = t_is_same<t_value_of<help_::t_category_<T>>,
                                             help_:: t_lvalue_>;
+
   template<typename T> using t_is_not_lvalue  = t_not<t_is_lvalue<T>>;
   template<typename T> using t_if_lvalue      = t_if<t_is_lvalue<T>>;
   template<typename T> using t_if_not_lvalue  = t_if<t_is_not_lvalue<T>>;
 
+  /////////////////////////////////////////////////////////////////////////////
+
   template<typename T>
   using t_is_xvalue  = t_is_same<t_value_of<help_::t_category_<T>>,
                                             help_::t_xvalue_>;
+
   template<typename T> using t_is_not_xvalue  = t_not<t_is_xvalue<T>>;
   template<typename T> using t_if_xvalue      = t_if<t_is_xvalue<T>>;
   template<typename T> using t_if_not_xvalue  = t_if<t_is_not_xvalue<T>>;
 
+  /////////////////////////////////////////////////////////////////////////////
+
   template<typename T>
   using t_is_prvalue = t_is_same<t_value_of<help_::t_category_<T>>,
                                             help_::t_prvalue_>;
+
   template<typename T> using t_is_not_prvalue = t_not<t_is_prvalue<T>>;
   template<typename T> using t_if_prvalue     = t_if<t_is_prvalue<T>>;
   template<typename T> using t_if_not_prvalue = t_if<t_is_not_prvalue<T>>;
@@ -455,8 +472,9 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_is_result = t_least_one_is_true<T, t_is_true,
-                                                                  t_is_false>;
+  template<typename T>
+  using t_is_result = t_least_one_is_true<T, t_is_true, t_is_false>;
+
   template<typename T> using t_is_not_result = t_not<t_is_result<T>>;
   template<typename T> using t_if_result     = t_if<t_is_result<T>>;
   template<typename T> using t_if_not_result = t_if<t_is_not_result<T>>;
@@ -527,7 +545,9 @@ namespace impl_
     template<>         struct t_is_nullptr_<t_nullptr> : t_rtrue  { };
   }
 
-  template<typename T> using t_is_nullptr = t_result_of<help_::t_is_nullptr_<T>>;
+  template<typename T>
+  using t_is_nullptr = t_result_of<help_::t_is_nullptr_<T>>;
+
   template<typename T> using t_is_not_nullptr = t_not<t_is_nullptr<T>>;
   template<typename T> using t_if_nullptr     = t_if<t_is_nullptr<T>>;
   template<typename T> using t_if_not_nullptr = t_if<t_is_not_nullptr<T>>;
@@ -726,6 +746,7 @@ namespace impl_
 
   template<typename T>
   using t_is_lvalue_ref = t_result_of<help_::t_is_lvalue_ref_<T>>;
+
   template<typename T> using t_is_not_lvalue_ref = t_not<t_is_lvalue_ref<T>>;
   template<typename T> using t_if_lvalue_ref     = t_if<t_is_lvalue_ref<T>>;
   template<typename T> using t_if_not_lvalue_ref = t_if<t_is_not_lvalue_ref<T>>;
@@ -739,6 +760,7 @@ namespace impl_
 
   template<typename T>
   using t_is_rvalue_ref = t_result_of<help_::t_is_rvalue_ref_<T>>;
+
   template<typename T> using t_is_not_rvalue_ref = t_not<t_is_rvalue_ref<T>>;
   template<typename T> using t_if_rvalue_ref     = t_if<t_is_rvalue_ref<T>>;
   template<typename T> using t_if_not_rvalue_ref = t_if<t_is_not_rvalue_ref<T>>;
@@ -766,6 +788,7 @@ namespace impl_
 
   template<typename T>
   using t_is_free_func = t_result_of<help_::t_is_free_func_<T>>;
+
   template<typename T> using t_is_not_free_func = t_not<t_is_free_func<T>>;
   template<typename T> using t_if_free_func     = t_if<t_is_free_func<T>>;
   template<typename T> using t_if_not_free_func = t_if<t_is_not_free_func<T>>;
@@ -974,7 +997,7 @@ namespace impl_
                            R, As...> { };
 #endif
 
-    /////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
 
     template<typename R, typename... As>
     struct t_func_<R(As...) const>
@@ -1127,7 +1150,7 @@ namespace impl_
                            R, As...> { };
 #endif
 
-    /////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
 
     template<typename R, typename... As>
     struct t_func_<R(As...) volatile>
@@ -1279,7 +1302,7 @@ namespace impl_
                            R, As...> { };
 #endif
 
-    /////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
 
     template<typename R, typename... As>
     struct t_func_<R(As...) const volatile>
@@ -1447,6 +1470,7 @@ namespace impl_
 
   template<typename T>
   using t_is_object = t_none_is_true<T, t_is_func, t_is_ref, t_is_void>;
+
   template<typename T> using t_is_not_object = t_not<t_is_object<T>>;
   template<typename T> using t_if_object     = t_if<t_is_object<T>>;
   template<typename T> using t_if_not_object = t_if<t_is_not_object<T>>;
@@ -1476,6 +1500,7 @@ namespace impl_
 
   template<typename T>
   using t_is_ref_able = t_result_of<help_::t_is_ref_able_<T>>;
+
   template<typename T> using t_is_not_ref_able = t_not<t_is_ref_able<T>>;
   template<typename T> using t_if_ref_able     = t_if<t_is_ref_able<T>>;
   template<typename T> using t_if_not_ref_able = t_if<t_is_not_ref_able<T>>;
@@ -1495,6 +1520,7 @@ namespace impl_
     template<typename T>
     struct t_add_lvalue_ref_<T,   t_true> : t_add_value<T&> { };
   }
+
   template<typename T>
   using t_add_lvalue_ref = t_value_of<help_::t_add_lvalue_ref_<T>>;
 
@@ -1528,6 +1554,7 @@ namespace impl_
     template<typename T> struct t_remove_ref_<T&>  : t_add_value<T> { };
     template<typename T> struct t_remove_ref_<T&&> : t_add_value<T> { };
   }
+
   template<typename T>
   using t_remove_ref = t_value_of<help_::t_remove_ref_<T>>;
 
@@ -1537,6 +1564,7 @@ namespace impl_
     template<typename T> struct t_remove_const_          : t_add_value<T> { };
     template<typename T> struct t_remove_const_<const T> : t_add_value<T> { };
   }
+
   template<typename T>
   using t_remove_const = t_value_of<help_::t_remove_const_<T>>;
 
@@ -1548,6 +1576,7 @@ namespace impl_
     template<typename T>
     struct t_remove_volatile_<volatile T> : t_add_value<T> { };
   }
+
   template<typename T>
   using t_remove_volatile = t_value_of<help_::t_remove_volatile_<T>>;
 
@@ -1581,10 +1610,10 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  using t_is_integer = t_is_one_of<T, short,     unsigned short,
-                                      int,       unsigned int,
-                                      long,      unsigned long,
-                                      long long, unsigned long long>;
+  using t_is_integer = t_is_one_of<T, t_short, t_ushort,
+                                      t_int,   t_uint,
+                                      t_long,  t_ulong,
+                                      t_llong, t_ullong>;
 
   template<typename T> using t_is_not_integer = t_not<t_is_integer<T>>;
   template<typename T> using t_if_integer     = t_if<t_is_integer<T>>;
@@ -1593,12 +1622,12 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  using t_is_integral = t_is_one_of<T, bool,
-                                       char,      unsigned char, signed char,
-                                       short,     unsigned short,
-                                       int,       unsigned int,
-                                       long,      unsigned long,
-                                       long long, unsigned long long>;
+  using t_is_integral = t_is_one_of<T, t_bool,
+                                       t_char,  t_uchar, t_schar,
+                                       t_short, t_ushort,
+                                       t_int,   t_uint,
+                                       t_long,  t_ulong,
+                                       t_llong, t_ullong>;
 
   template<typename T> using t_is_not_integral = t_not<t_is_integral<T>>;
   template<typename T> using t_if_integral     = t_if<t_is_integral<T>>;
@@ -1607,11 +1636,11 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  using t_is_unsigned_integral = t_is_one_of<T, unsigned char,
-                                                unsigned short,
-                                                unsigned int,
-                                                unsigned long,
-                                                unsigned long long>;
+  using t_is_unsigned_integral = t_is_one_of<T, t_uchar,
+                                                t_ushort,
+                                                t_uint,
+                                                t_ulong,
+                                                t_ullong>;
 
   template<typename T>
   using t_is_not_unsigned_integral = t_not<t_is_unsigned_integral<T>>;
@@ -1625,11 +1654,11 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  using t_is_signed_integral = t_is_one_of<T, char, signed char,
-                                              short,
-                                              int,
-                                              long,
-                                              long long>;
+  using t_is_signed_integral = t_is_one_of<T, t_char, t_schar,
+                                              t_short,
+                                              t_int,
+                                              t_long,
+                                              t_llong>;
 
   template<typename T>
   using t_is_not_signed_integral = t_not<t_is_signed_integral<T>>;
@@ -1643,7 +1672,7 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  using t_is_precision = t_is_one_of<T, double, float, long double>;
+  using t_is_precision = t_is_one_of<T, t_double, t_float, t_ldouble>;
 
   template<typename T> using t_is_not_precision = t_not<t_is_precision<T>>;
   template<typename T> using t_if_precision     = t_if<t_is_precision<T>>;
@@ -1701,6 +1730,7 @@ namespace impl_
     template<typename T> struct t_is_const_          : t_rfalse { };
     template<typename T> struct t_is_const_<const T> : t_rtrue  { };
   }
+
   template<typename T>
   using t_is_const = t_result_of<help_::t_is_const_<T>>;
 
@@ -1714,6 +1744,7 @@ namespace impl_
     template<typename T> struct t_is_volatile_             : t_rfalse { };
     template<typename T> struct t_is_volatile_<volatile T> : t_rtrue  { };
   }
+
   template<typename T>
   using t_is_volatile = t_result_of<help_::t_is_volatile_<T>>;
 
@@ -1752,6 +1783,7 @@ namespace impl_
 
     template<typename T> struct t_is_unique_<T> : t_rtrue { };
   }
+
   template<typename T, typename... Ts>
   using t_is_unique = t_result_of<help_::t_is_unique_<T, Ts...>>;
   template<typename T, typename... Ts>
@@ -1764,52 +1796,86 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename, typename...> struct t_unique_pack_;
-    template<typename, typename...> struct t_unique_pack_help_;
-
-    template<typename... Ts, typename U, typename... Us>
-    struct t_unique_pack_help_<t_false, t_pack<Ts...>, t_pack<U, Us...>>
-      : t_unique_pack_<t_pack<Ts..., U>, t_pack<Us...>> { };
-
-    template<typename... Ts, typename U, typename... Us>
-    struct t_unique_pack_help_<t_true, t_pack<Ts...>, t_pack<U, Us...>>
-      : t_unique_pack_<t_pack<Ts...>, t_pack<Us...>> { };
-
-    template<typename... Ts, typename U, typename... Us>
-    struct t_unique_pack_<t_pack<Ts...>, t_pack<U, Us...>>
-      : t_unique_pack_help_<t_is_one_of<U, Ts...>, t_pack<Ts...>,
-                                                   t_pack<U, Us...>> { };
+    template<typename>
+    struct t_is_pack_help_ : t_rfalse { };
 
     template<typename... Ts>
-    struct t_unique_pack_<t_pack<Ts...>, t_empty_pack>
-      : t_add_value<t_pack<Ts...>> { };
+    struct t_is_pack_help_<t_pack<Ts...>> : t_rtrue { };
+
+    template<typename P, typename... Ps>
+    struct t_is_pack_ :
+      t_add_result<t_and<t_result_of<t_is_pack_help_<P>>,
+                                     t_result_of<t_is_pack_help_<Ps>>...>> { };
   }
 
   template<typename P, typename... Ps>
-  using t_unique_pack
-    = t_value_of<help_::t_unique_pack_<t_empty_pack, P, Ps...>>;
+  using t_is_pack     = t_result_of<help_::t_is_pack_<P, Ps...>>;
+  template<typename P, typename... Ps>
+  using t_is_not_pack = t_not<t_is_pack<P, Ps...>>;
+  template<typename P, typename... Ps>
+  using t_if_pack     = t_if<t_is_pack<P, Ps...>>;
+  template<typename P, typename... Ps>
+  using t_if_not_pack = t_if<t_is_not_pack<P, Ps...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename, typename...> struct t_flatten_pack_;
-
-    template<typename... Ts, typename... Hs, typename... Us>
-    struct t_flatten_pack_<t_pack<Ts...>, t_pack<t_pack<Hs...>, Us...>>
-      : t_flatten_pack_<t_pack<Ts...>, t_pack<Hs..., Us...>> { };
+    template<typename...> struct t_unique_pack_help_;
+    template<typename...> struct t_unique_pack_help1_;
 
     template<typename... Ts, typename U, typename... Us>
-    struct t_flatten_pack_<t_pack<Ts...>, t_pack<U, Us...>>
-      : t_flatten_pack_<t_pack<Ts..., U>, t_pack<Us...>> { };
+    struct t_unique_pack_help1_<t_false, t_pack<Ts...>, t_pack<U, Us...>>
+      : t_unique_pack_help_<t_pack<Ts..., U>, t_pack<Us...>> { };
+
+    template<typename... Ts, typename U, typename... Us>
+    struct t_unique_pack_help1_<t_true, t_pack<Ts...>, t_pack<U, Us...>>
+      : t_unique_pack_help_<t_pack<Ts...>, t_pack<Us...>> { };
+
+    template<typename... Ts, typename U, typename... Us>
+    struct t_unique_pack_help_<t_pack<Ts...>, t_pack<U, Us...>>
+      : t_unique_pack_help1_<t_is_one_of<U, Ts...>, t_pack<Ts...>,
+                                                    t_pack<U, Us...>> { };
 
     template<typename... Ts>
-    struct t_flatten_pack_<t_pack<Ts...>, t_empty_pack>
+    struct t_unique_pack_help_<t_pack<Ts...>, t_empty_pack>
       : t_add_value<t_pack<Ts...>> { };
+
+    template<typename P, typename... Ps>
+    struct t_unique_pack_ : t_unique_pack_help_<t_empty_pack, P, Ps...> {
+      static_assert(t_is_pack<P, Ps...>::VALUE,
+                     "template parameters must be of t_pack<...> type");
+    };
   }
 
   template<typename P, typename... Ps>
-  using t_flatten_pack
-    = t_value_of<help_::t_flatten_pack_<t_empty_pack, P, Ps...>>;
+  using t_unique_pack = t_value_of<help_::t_unique_pack_<P, Ps...>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename, typename...> struct t_flatten_pack_help_;
+
+    template<typename... Ts, typename... Hs, typename... Us>
+    struct t_flatten_pack_help_<t_pack<Ts...>, t_pack<t_pack<Hs...>, Us...>>
+      : t_flatten_pack_help_<t_pack<Ts...>, t_pack<Hs..., Us...>> { };
+
+    template<typename... Ts, typename U, typename... Us>
+    struct t_flatten_pack_help_<t_pack<Ts...>, t_pack<U, Us...>>
+      : t_flatten_pack_help_<t_pack<Ts..., U>, t_pack<Us...>> { };
+
+    template<typename... Ts>
+    struct t_flatten_pack_help_<t_pack<Ts...>, t_empty_pack>
+      : t_add_value<t_pack<Ts...>> { };
+
+    template<typename P, typename... Ps>
+    struct t_flatten_pack_ : t_flatten_pack_help_<t_empty_pack, P, Ps...> {
+      static_assert(t_is_pack<P, Ps...>::VALUE,
+                     "template parameters must be of t_pack<...> type");
+    };
+  }
+
+  template<typename P, typename... Ps>
+  using t_flatten_pack = t_value_of<help_::t_flatten_pack_<P, Ps...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1819,34 +1885,40 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename, typename> struct t_is_subset_of_pack_;
-    template<typename...>        struct t_is_subset_of_pack_help_;
+    template<typename...> struct t_is_subset_of_pack_help_;
+    template<typename...> struct t_is_subset_of_pack_help1_;
 
     template<typename... Ts, typename... Us>
-    struct t_is_subset_of_pack_help_<t_true, t_pack<Ts...>, t_pack<Us...>>
-      : t_is_subset_of_pack_<t_pack<Ts...>, t_pack<Us...>> {
-    };
+    struct t_is_subset_of_pack_help1_<t_true, t_pack<Ts...>, t_pack<Us...>>
+      : t_is_subset_of_pack_help_<t_pack<Ts...>, t_pack<Us...>> { };
 
     template<typename... Ts>
-    struct t_is_subset_of_pack_help_<t_false, Ts...> : t_rfalse { };
+    struct t_is_subset_of_pack_help1_<t_false, Ts...> : t_rfalse { };
 
     template<typename... Us>
-    struct t_is_subset_of_pack_help_<t_true, t_empty_pack, t_pack<Us...>>
-      : t_rtrue {
-    };
+    struct t_is_subset_of_pack_help1_<t_true, t_empty_pack, t_pack<Us...>>
+      : t_rtrue { };
 
     template<typename T, typename... Ts, typename... Us>
-    struct t_is_subset_of_pack_<t_pack<T, Ts...>, t_pack<Us...>>
-      : t_is_subset_of_pack_help_<t_is_one_of<T, Us...>, t_pack<Ts...>,
-                                                         t_pack<Us...>> {
-    };
+    struct t_is_subset_of_pack_help_<t_pack<T, Ts...>, t_pack<Us...>>
+      : t_is_subset_of_pack_help1_<t_is_one_of<T, Us...>, t_pack<Ts...>,
+                                                          t_pack<Us...>> { };
 
     template<typename... Ts>
-    struct t_is_subset_of_pack_<t_pack<Ts...>, t_empty_pack> : t_rfalse { };
+    struct t_is_subset_of_pack_help_<t_pack<Ts...>, t_empty_pack>
+      : t_rfalse { };
 
     template<typename... Us>
-    struct t_is_subset_of_pack_<t_empty_pack, t_pack<Us...>> : t_rfalse { };
+    struct t_is_subset_of_pack_help_<t_empty_pack, t_pack<Us...>>
+      : t_rfalse { };
+
+    template<typename P, typename... Ps>
+    struct t_is_subset_of_pack_ : t_is_subset_of_pack_help_<P, Ps...> {
+      static_assert(t_is_pack<P, Ps...>::VALUE,
+                     "template parameters must be of t_pack<...> type");
+    };
   }
+
   template<typename P, typename P1>
   using t_is_subset_of_pack = t_result_of<help_::t_is_subset_of_pack_<P, P1>>;
 
@@ -1862,52 +1934,132 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename...> struct t_is_in_pack_;
+    template<typename, typename> struct t_is_in_pack_help_;
 
     template<typename T, typename... Ts>
-    struct t_is_in_pack_<T, t_pack<Ts...>>
+    struct t_is_in_pack_help_<T, t_pack<Ts...>>
       : t_add_result<t_is_one_of<T, Ts...>> { };
+
+    template<typename T, typename P>
+    struct t_is_in_pack_ : t_is_in_pack_help_<T, P> {
+      static_assert(t_is_pack<P>::VALUE,
+                    "template parameter P must be of t_pack<...> type");
+    };
   }
+
   template<typename T, typename P>
   using t_is_in_pack = t_result_of<help_::t_is_in_pack_<T, P>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  namespace help_ { // make recursive
-    template<typename...> struct t_largest_pack_;
+  namespace help_ {
+    template<typename...> struct t_del_from_pack_help_;
+    template<typename...> struct t_del_from_pack_help1_;
+    template<typename...> struct t_del_from_pack_help2_;
 
-    template<typename... Ts, typename... Ts1>
-    struct t_largest_pack_<t_pack<Ts...>, t_pack<Ts1...>> {
-      using t_value =
-        t_if_then_else< // no recursion
-          t_is_truth<(sizeof...(Ts) > sizeof...(Ts1))>,
-          t_pack<Ts...>, t_pack<Ts1...>>;
+    template<typename... Us, typename... Ts, typename... T1s>
+    struct t_del_from_pack_help2_<t_pack<Us...>, t_pack<Ts...>,
+                                  t_pack<T1s...>>
+      : t_del_from_pack_help_<t_pack<Us...>, t_pack<Ts...>, t_pack<T1s...>> { };
+
+    template<typename... Us, typename... Ts>
+    struct t_del_from_pack_help2_<t_pack<Us...>, t_pack<>, t_pack<Ts...>>
+      : t_add_value<t_pack<Us...>> { };
+
+    template<typename... Us, typename T, typename... Ts, typename... T1s>
+    struct t_del_from_pack_help1_<t_true, t_pack<Us...>, t_pack<T, Ts...>,
+                                  t_pack<T1s...>>
+      : t_del_from_pack_help2_<t_pack<Us...>, t_pack<Ts...>,
+                               t_pack<T1s...>> { };
+
+    template<typename... Us, typename T, typename... Ts, typename... T1s>
+    struct t_del_from_pack_help1_<t_false, t_pack<Us...>, t_pack<T, Ts...>,
+                                  t_pack<T1s...>>
+      : t_del_from_pack_help2_<t_pack<Us..., T>, t_pack<Ts...>,
+                               t_pack<T1s...>> { };
+
+    template<typename... Us, typename T, typename... Ts, typename... T1s>
+    struct t_del_from_pack_help_<t_pack<Us...>, t_pack<T, Ts...>,
+                                                t_pack<T1s...>>
+      :  t_del_from_pack_help1_<t_is_in_pack<T, t_pack<T1s...>>, t_pack<Us...>,
+                                t_pack<T, Ts...>, t_pack<T1s...>> { };
+
+    template<typename... Us, typename... Ts>
+    struct t_del_from_pack_help_<t_pack<Us...>, t_empty_pack, t_pack<Ts...>>
+      :  t_add_value<t_empty_pack> { };
+
+    template<typename... Us, typename... Ts>
+    struct t_del_from_pack_help_<t_pack<Us...>, t_pack<Ts...>, t_empty_pack>
+      :  t_add_value<t_pack<Ts...>> { };
+
+    template<typename P, typename P1>
+    struct t_del_from_pack_ : t_del_from_pack_help_<t_empty_pack, P, P1> {
+      static_assert(t_is_pack<P, P1>::VALUE,
+                    "template parameter P and P1 must be of t_pack<...> type");
     };
   }
+
   template<typename P, typename P1>
-  using t_largest_pack = t_value_of<help_::t_largest_pack_<P, P1>>;
+  using t_del_from_pack = t_value_of<help_::t_del_from_pack_<P, P1>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ { // make recursive
+    template<typename...> struct t_largest_pack_help_;
+    template<typename...> struct t_largest_pack_help1_;
+
+    template<typename P, typename P1, typename... Ps>
+    struct t_largest_pack_help1_<t_true, P, P1, Ps...>
+      : t_largest_pack_help_<P, Ps...> { };
+
+    template<typename P, typename P1, typename... Ps>
+    struct t_largest_pack_help1_<t_false, P, P1, Ps...>
+      : t_largest_pack_help_<P1, Ps...> { };
+
+    template<typename P, typename P1, typename... Ps>
+    struct t_largest_pack_help_<P, P1, Ps...>
+      : t_largest_pack_help1_<t_is_truth<(P::N > P1::N)>, P, P1, Ps...> { };
+
+    template<typename P>
+    struct t_largest_pack_help_<P> : t_add_value<P> { };
+
+    template<typename P, typename... Ps>
+    struct t_largest_pack_ : t_largest_pack_help_<P, Ps...> {
+      static_assert(t_is_pack<P, Ps...>::VALUE,
+                     "template parameters must be of t_pack<...> type");
+    };
+  }
+
+  template<typename P, typename... Ps>
+  using t_largest_pack = t_value_of<help_::t_largest_pack_<P, Ps...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
     template<typename U, typename P, typename... Ps>
-    struct t_union_pack_;
+    struct t_union_pack_help_;
 
     template<typename... Us, typename... Ps, typename... P1s>
-    struct t_union_pack_<t_pack<Us...>, t_pack<Ps...>, P1s...>
-      : t_union_pack_<t_pack<Us..., Ps...>, t_empty_pack, P1s...> { };
+    struct t_union_pack_help_<t_pack<Us...>, t_pack<Ps...>, P1s...>
+      : t_union_pack_help_<t_pack<Us..., Ps...>, t_empty_pack, P1s...> { };
 
     template<typename... Us, typename... Ps>
-    struct t_union_pack_<t_pack<Us...>, t_empty_pack, Ps...>
-      : t_union_pack_<t_pack<Us...>, Ps...> { };
+    struct t_union_pack_help_<t_pack<Us...>, t_empty_pack, Ps...>
+      : t_union_pack_help_<t_pack<Us...>, Ps...> { };
 
     template<typename... Us>
-    struct t_union_pack_<t_pack<Us...>, t_empty_pack>
+    struct t_union_pack_help_<t_pack<Us...>, t_empty_pack>
       : t_add_value<t_unique_pack<t_pack<Us...>>> { };
+
+    template<typename P, typename... Ps>
+    struct t_union_pack_ : t_union_pack_help_<t_empty_pack, P, Ps...> {
+      static_assert(t_is_pack<P, Ps...>::VALUE,
+                     "template parameters must be of t_pack<...> type");
+    };
   }
 
   template<typename P, typename... Ps>
-  using t_union_pack = t_value_of<help_::t_union_pack_<t_empty_pack, P, Ps...>>;
+  using t_union_pack = t_value_of<help_::t_union_pack_<P, Ps...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1918,8 +2070,10 @@ namespace impl_
     template<typename...> struct t_intersect_pack_help3_;
 
     template<typename... Us, typename... Ps, typename... P1s>
-    struct t_intersect_pack_help3_<t_pack<Us...>, t_pack<Ps...>, t_pack<P1s...>>
-      : t_intersect_pack_help1_<t_pack<Us...>, t_pack<Ps...>, t_pack<P1s...>> { };
+    struct t_intersect_pack_help3_<t_pack<Us...>, t_pack<Ps...>,
+                                   t_pack<P1s...>>
+      : t_intersect_pack_help1_<t_pack<Us...>, t_pack<Ps...>,
+                                t_pack<P1s...>> { };
 
     template<typename... Us, typename... Ps>
     struct t_intersect_pack_help3_<t_pack<Us...>, t_empty_pack, t_pack<Ps...>>
@@ -1928,15 +2082,18 @@ namespace impl_
     template<typename... Us, typename P, typename... Ps, typename... P1s>
     struct t_intersect_pack_help2_<t_true, t_pack<Us...>, t_pack<P, Ps...>,
                                    t_pack<P1s...>>
-      : t_intersect_pack_help3_<t_pack<Us..., P>, t_pack<Ps...>, t_pack<P1s...>> { };
+      : t_intersect_pack_help3_<t_pack<Us..., P>, t_pack<Ps...>,
+                                t_pack<P1s...>> { };
 
     template<typename... Us, typename P, typename... Ps, typename... P1s>
     struct t_intersect_pack_help2_<t_false, t_pack<Us...>, t_pack<P, Ps...>,
                                    t_pack<P1s...>>
-      : t_intersect_pack_help3_<t_pack<Us...>, t_pack<Ps...>, t_pack<P1s...>> { };
+      : t_intersect_pack_help3_<t_pack<Us...>, t_pack<Ps...>,
+                                t_pack<P1s...>> { };
 
     template<typename... Us, typename P, typename... Ps, typename... P1s>
-    struct t_intersect_pack_help1_<t_pack<Us...>, t_pack<P, Ps...>, t_pack<P1s...>>
+    struct t_intersect_pack_help1_<t_pack<Us...>, t_pack<P, Ps...>,
+                                   t_pack<P1s...>>
       : t_intersect_pack_help2_<t_is_one_of<P, P1s...>, t_pack<Us...>,
                                 t_pack<P, Ps...>, t_pack<P1s...>> { };
 
@@ -1952,7 +2109,8 @@ namespace impl_
 
     template<typename... Ps, typename... P1s>
     struct t_intersect_pack_help_<t_false, t_pack<Ps...>, t_pack<P1s...>>
-      : t_intersect_pack_help1_<t_empty_pack, t_pack<Ps...>, t_pack<P1s...>> { };
+      : t_intersect_pack_help1_<t_empty_pack, t_pack<Ps...>,
+                                t_pack<P1s...>> { };
 
     template<typename... Ps>
     struct t_intersect_pack_help_<t_false, t_pack<Ps...>>
@@ -1964,8 +2122,10 @@ namespace impl_
 
     template<typename P, typename... Ps>
     struct t_intersect_pack_
-      : t_intersect_pack_help_<t_is_one_of<t_empty_pack, P, Ps...>, P,
-                               Ps...> { };
+      : t_intersect_pack_help_<t_is_one_of<t_empty_pack, P, Ps...>, P, Ps...> {
+      static_assert(t_is_pack<P, Ps...>::VALUE,
+                    "template parameters must be of t_pack<...> type");
+    };
   }
 
   template<typename P, typename... Ps>
@@ -1973,26 +2133,9 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  namespace help_ { // TODO -  need help_ class
-    template<typename U, typename P, typename... Ps>
-    struct t_diff_pack_;
-
-    template<typename... Us, typename... Ps, typename... P1s>
-    struct t_diff_pack_<t_pack<Us...>, t_pack<Ps...>, P1s...>
-      : t_diff_pack_<t_pack<Us..., Ps...>, t_empty_pack, P1s...> { };
-
-    template<typename... Us, typename... Ps>
-    struct t_diff_pack_<t_pack<Us...>, t_empty_pack, Ps...>
-      : t_diff_pack_<t_pack<Us...>, Ps...> { };
-
-    template<typename... Us>
-    struct t_diff_pack_<t_pack<Us...>, t_empty_pack>
-      : t_add_value<t_unique_pack<t_pack<Us...>>> { };
-  }
-
   template<typename P, typename... Ps>
   using t_diff_pack
-    = t_value_of<help_::t_diff_pack_<t_empty_pack, P, Ps...>>;
+    = t_del_from_pack<t_union_pack<P, Ps...>, t_intersect_pack<P, Ps...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2038,6 +2181,186 @@ namespace impl_
     constexpr static t_n_ SIZEOF    = help_::t_union_<Ts...>::SIZEOF_;
     constexpr static t_n_ ALIGNMENT = help_::t_union_<Ts...>::ALIGNMENT_;
   };
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename> struct t_int_rank_help_;
+    template<> struct t_int_rank_help_<t_bool>   : t_add_VALUE<t_uint, 1> { };
+    template<> struct t_int_rank_help_<t_char>   : t_add_VALUE<t_uint, 2> { };
+    template<> struct t_int_rank_help_<t_schar>  : t_add_VALUE<t_uint, 2> { };
+    template<> struct t_int_rank_help_<t_uchar>  : t_add_VALUE<t_uint, 2> { };
+    template<> struct t_int_rank_help_<t_short>  : t_add_VALUE<t_uint, 3> { };
+    template<> struct t_int_rank_help_<t_ushort> : t_add_VALUE<t_uint, 3> { };
+    template<> struct t_int_rank_help_<t_int>    : t_add_VALUE<t_uint, 4> { };
+    template<> struct t_int_rank_help_<t_uint>   : t_add_VALUE<t_uint, 4> { };
+    template<> struct t_int_rank_help_<t_long>   : t_add_VALUE<t_uint, 5> { };
+    template<> struct t_int_rank_help_<t_ulong>  : t_add_VALUE<t_uint, 5> { };
+    template<> struct t_int_rank_help_<t_llong>  : t_add_VALUE<t_uint, 6> { };
+    template<> struct t_int_rank_help_<t_ullong> : t_add_VALUE<t_uint, 6> { };
+
+    template<typename T>
+    struct t_int_rank_ : t_int_rank_help_<T> {
+      static_assert(t_is_integral<T>::VALUE,
+                    "template parameter must be a integral type");
+    };
+  }
+
+  template<typename T>
+  using t_int_rank = help_::t_int_rank_<T>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename, typename, typename...>
+    struct t_is_greater_int_rank_help_;
+    template<typename...>
+    struct t_is_greater_int_rank_help1_;
+
+    template<typename T, typename... Ts>
+    struct t_is_greater_int_rank_help1_<t_true, T, Ts...>
+      : t_is_greater_int_rank_help_<T, Ts...> { };
+
+    template<typename... Ts>
+    struct t_is_greater_int_rank_help1_<t_false, Ts...> : t_rfalse { };
+
+    template<typename T>
+    struct t_is_greater_int_rank_help1_<t_true, T> : t_rtrue { };
+
+    template<typename T, typename T1, typename... Ts>
+    struct t_is_greater_int_rank_help_
+      : t_is_greater_int_rank_help1_<
+          t_is_truth<(t_int_rank<T>::VALUE > t_int_rank<T1>::VALUE)>, T,
+          Ts...> { };
+
+    template<typename T, typename T1, typename... Ts>
+    struct t_is_greater_int_rank_ : t_is_greater_int_rank_help_<T, T1, Ts...> {
+      static_assert(t_each_is_true<t_is_integral, T, T1, Ts...>::VALUE,
+                    "template parameter must be a integral type");
+    };
+  }
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_greater_int_rank
+    = t_result_of<help_::t_is_greater_int_rank_<T, T1, Ts...>>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_not_greater_int_rank = t_not<t_is_greater_int_rank<T, T1, Ts...>>;
+  template<typename T, typename T1, typename... Ts>
+  using t_if_greater_int_rank     = t_if<t_is_greater_int_rank<T, T1, Ts...>>;
+  template<typename T, typename T1, typename... Ts>
+  using t_if_not_greater_int_rank = t_if<t_is_not_greater_int_rank<T, T1,
+                                                                   Ts...>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename, typename, typename...>
+    struct t_is_equal_int_rank_help_;
+    template<typename...>
+    struct t_is_equal_int_rank_help1_;
+
+    template<typename T, typename... Ts>
+    struct t_is_equal_int_rank_help1_<t_true, T, Ts...>
+      : t_is_equal_int_rank_help_<T, Ts...> { };
+
+    template<typename... Ts>
+    struct t_is_equal_int_rank_help1_<t_false, Ts...> : t_rfalse { };
+
+    template<typename T>
+    struct t_is_equal_int_rank_help1_<t_true, T> : t_rtrue { };
+
+    template<typename T, typename T1, typename... Ts>
+    struct t_is_equal_int_rank_help_
+      : t_is_equal_int_rank_help1_<
+          t_is_truth<(t_int_rank<T>::VALUE == t_int_rank<T1>::VALUE)>, T,
+          Ts...> { };
+
+    template<typename T, typename T1, typename... Ts>
+    struct t_is_equal_int_rank_ : t_is_equal_int_rank_help_<T, T1, Ts...> {
+      static_assert(t_each_is_true<t_is_integral, T, T1, Ts...>::VALUE,
+                    "template parameter must be a integral type");
+    };
+  };
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_equal_int_rank
+    = t_result_of<help_::t_is_equal_int_rank_<T, T1, Ts...>>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_not_equal_int_rank = t_not<t_is_equal_int_rank<T, T1, Ts...>>;
+  template<typename T, typename T1, typename... Ts>
+  using t_if_equal_int_rank     = t_if<t_is_equal_int_rank<T, T1, Ts...>>;
+  template<typename T, typename T1, typename... Ts>
+  using t_if_not_equal_int_rank = t_if<t_is_not_equal_int_rank<T, T1, Ts...>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_greater_equal_int_rank = t_or<t_is_equal_int_rank<T, T1, Ts...>,
+                                           t_is_greater_int_rank<T, T1, Ts...>>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_not_greater_equal_int_rank
+    = t_not<t_is_greater_equal_int_rank<T, T1, Ts...>>;
+  template<typename T, typename T1, typename... Ts>
+  using t_if_greater_equal_int_rank
+    = t_if<t_is_greater_equal_int_rank<T, T1, Ts...>>;
+  template<typename T, typename T1, typename... Ts>
+  using t_if_not_greater_equal_int_rank
+    = t_if<t_is_not_greater_equal_int_rank<T, T1, Ts...>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+
+    template<typename... Ts> struct t_is_same_integral_sign_help1_;
+    template<typename... Ts> struct t_is_same_integral_sign_help2_;
+    template<typename... Ts> struct t_is_same_integral_sign_help3_;
+
+    template<typename T, typename... Ts>
+    struct t_is_same_integral_sign_help3_<t_false, T, Ts...>
+      : t_is_same_integral_sign_help3_<t_is_signed<T>, Ts...> { };
+
+    template<typename... Ts>
+    struct t_is_same_integral_sign_help3_<t_true, Ts...> : t_rfalse { };
+
+    template<>
+    struct t_is_same_integral_sign_help3_<t_false> : t_rtrue { };
+
+    template<typename T, typename... Ts>
+    struct t_is_same_integral_sign_help2_<t_true, T, Ts...>
+      : t_is_same_integral_sign_help2_<t_is_signed<T>, Ts...> { };
+
+    template<typename... Ts>
+    struct t_is_same_integral_sign_help2_<t_false, Ts...> : t_rfalse { };
+
+    template<>
+    struct t_is_same_integral_sign_help2_<t_true> : t_rtrue { };
+
+    template<typename T, typename... Ts>
+    struct t_is_same_integral_sign_help1_<t_true, T, Ts...>
+      : t_is_same_integral_sign_help2_<t_is_signed<T>, Ts...> { };
+
+    template<typename T, typename... Ts>
+    struct t_is_same_integral_sign_help1_<t_false, T, Ts...>
+      : t_is_same_integral_sign_help3_<t_is_signed<T>, Ts...> { };
+
+    template<typename T, typename... Ts>
+    struct t_is_same_integral_sign_help_
+      : t_is_same_integral_sign_help1_<t_is_signed<T>, Ts...> { };
+
+    template<typename T, typename T1, typename... Ts>
+    struct t_is_same_integral_sign_
+      : t_is_same_integral_sign_help_<T, T1, Ts...> {
+      static_assert(t_each_is_true<t_is_integral, T, T1, Ts...>::VALUE,
+                    "template parameter must be a integral type");
+    };
+  };
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_same_integral_sign
+    = t_result_of<help_::t_is_same_integral_sign_<T, T1, Ts...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 }

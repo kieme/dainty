@@ -35,7 +35,7 @@ namespace base
 {
 namespace types
 {
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   struct t_prefix {
@@ -64,7 +64,7 @@ namespace types
   template<typename T> struct t_prefix<T&>;
   template<typename T> struct t_prefix<const T>;
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   using t_bool         = t_prefix<bool>::t_;
   using T_bool         = t_prefix<t_bool>::T_;
@@ -138,11 +138,23 @@ namespace types
   using p_ullong       = t_prefix<t_ullong>::p_;
   using P_ullong       = t_prefix<t_ullong>::P_;
 
+  using t_float        = t_prefix<float>::t_;
+  using T_float        = t_prefix<t_float>::T_;
+  using r_float        = t_prefix<t_float>::r_;
+  using p_float        = t_prefix<t_float>::p_;
+  using P_float        = t_prefix<t_float>::P_;
+
   using t_double       = t_prefix<double>::t_;
   using T_double       = t_prefix<t_double>::T_;
   using r_double       = t_prefix<t_double>::r_;
   using p_double       = t_prefix<t_double>::p_;
   using P_double       = t_prefix<t_double>::P_;
+
+  using t_ldouble      = t_prefix<long double>::t_;
+  using T_ldouble      = t_prefix<t_ldouble>::T_;
+  using r_ldouble      = t_prefix<t_ldouble>::r_;
+  using p_ldouble      = t_prefix<t_ldouble>::p_;
+  using P_ldouble      = t_prefix<t_ldouble>::P_;
 
   using t_void         = t_prefix<void>::t_;
   using p_void         = t_prefix<t_void>::p_;
@@ -300,33 +312,47 @@ namespace types
   using p_uintptr      = t_prefix<t_uintptr>::p_;
   using P_uintptr      = t_prefix<t_uintptr>::P_;
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
-  enum  t_size_tag_       {};
-  enum  t_min_size_tag_   {};
-  enum  t_max_size_tag_   {};
-  enum  t_byte_tag_       {};
-  enum  t_fd_tag_         {};
-  enum  t_cnt_tag_        {};
-  enum  t_n_tag_          {};
-  enum  t_min_n_tag_      {};
-  enum  t_max_n_tag_      {};
-  enum  t_ix_tag_         {};
-  enum  t_begin_ix_tag_   {};
-  enum  t_end_ix_tag_     {};
-  enum  t_validity_tag_   {};
-  enum  t_cstr_tag_       {};
-  enum  t_percentage_tag_ {};
-  enum  t_seq_no_tag_     {};
-  enum  t_nsec_tag_       {};
-  enum  t_usec_tag_       {};
-  enum  t_msec_tag_       {};
-  enum  t_sec_tag_        {};
-  enum  t_min_tag_        {};
-  enum  t_ticks_tag_      {};
-  enum  t_errn_tag_       {};
+  enum  t_size_tag_       { };
+  enum  t_min_size_tag_   { };
+  enum  t_max_size_tag_   { };
+  enum  t_byte_tag_       { };
+  enum  t_fd_tag_         { };
+  enum  t_cnt_tag_        { };
+  enum  t_n_tag_          { };
+  enum  t_min_n_tag_      { };
+  enum  t_max_n_tag_      { };
+  enum  t_ix_tag_         { };
+  enum  t_begin_ix_tag_   { };
+  enum  t_end_ix_tag_     { };
+  enum  t_validity_tag_   { };
+  enum  t_cstr_tag_       { };
+  enum  t_percentage_tag_ { };
+  enum  t_seq_no_tag_     { };
+  enum  t_nsec_tag_       { };
+  enum  t_usec_tag_       { };
+  enum  t_msec_tag_       { };
+  enum  t_sec_tag_        { };
+  enum  t_min_tag_        { };
+  enum  t_ticks_tag_      { };
+  enum  t_errn_tag_       { };
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_8u_   = t_uint8;
+  using t_16u_  = t_uint16;
+  using t_32u_  = t_uint32;
+  using t_64u_  = t_uint64;
+  using t_u_    = t_64u_;
+
+  using t_8i_   = t_int8;
+  using t_16i_  = t_int16;
+  using t_32i_  = t_int32;
+  using t_64i_  = t_int64;
+  using t_i_    = t_64i_;
+
+  /////////////////////////////////////////////////////////////////////////////
 
   using t_size_        = __SIZE_TYPE__;
   using T_size_        = t_prefix<t_size_>::T_;
@@ -336,7 +362,7 @@ namespace types
 
   using t_nullptr      = decltype(nullptr);
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   using t_byte_        = t_uchar;
   using T_byte_        = t_prefix<t_byte_>::T_;
@@ -428,14 +454,14 @@ namespace types
   using p_ticks_       = t_prefix<t_ticks_>::p_;
   using P_ticks_       = t_prefix<t_ticks_>::P_;
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   using p_cstr_        = p_char;
   using P_cstr_        = P_char;
   using t_cstr_ptr_    = p_cstr_;
   using t_cstr_cptr_   = P_cstr_;
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   constexpr t_validity_    VALID_ = true;
   constexpr t_validity_  INVALID_ = false;
@@ -447,7 +473,98 @@ namespace types
   constexpr t_errn_      NO_ERRN_  =  0;
   constexpr t_errn_      BAD_ERRN_ = -1;
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename... As>
+  struct t_pack {
+    constexpr static t_n_ N = sizeof...(As);
+  };
+
+  using t_empty_pack = t_pack<>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  enum t_op_less_tag            { }; // X <
+  enum t_op_less_equal_tag      { }; // X <=
+  enum t_op_larger_tag          { }; // X >
+  enum t_op_larger_equal_tag    { }; // X >=
+  enum t_op_equal_tag           { }; // X ==
+  enum t_op_not_equal_tag       { }; // X !=
+  enum t_op_plus_tag            { }; // X + or + X
+  enum t_op_minus_tag           { }; // X - or - X
+  enum t_op_multiply_tag        { }; // X * or * X
+  enum t_op_divide_tag          { }; // X / or / X
+  enum t_op_mod_tag             { }; // X % or % X
+  enum t_op_self_plus_tag       { }; // X +=
+  enum t_op_self_minus_tag      { }; // X -=
+  enum t_op_self_multiply_tag   { }; // X *=
+  enum t_op_self_divide_tag     { }; // X /=
+  enum t_op_self_mod_tag        { }; // X %=
+  enum t_op_and_tag             { }; // X && or && X
+  enum t_op_or_tag              { }; // X || or || X
+  enum t_op_not_tag             { }; // !X -- FIXME NOT SURE
+  enum t_op_negate_tag          { }; // -X
+  enum t_op_incr_tag            { }; // ++X
+  enum t_op_decr_tag            { }; // --X
+  enum t_op_post_incr_tag       { }; // X++
+  enum t_op_post_decr_tag       { }; // X--
+  enum t_op_bin_xor_tag         { }; // X ^ or ^ X
+  enum t_op_bin_and_tag         { }; // X & or & X
+  enum t_op_bin_ior_tag         { }; // X | or | X
+  enum t_op_bin_lshift_tag      { }; // X << or << X
+  enum t_op_bin_rshift_tag      { }; // X >> or >> X
+  enum t_op_bin_self_xor_tag    { }; // X ^=
+  enum t_op_bin_self_and_tag    { }; // X &=
+  enum t_op_bin_self_ior_tag    { }; // X |=
+  enum t_op_bin_self_lshift_tag { }; // X <<= or <<= X
+  enum t_op_bin_self_rshift_tag { }; // X >>= or >>= X
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_ops_compare_tag = t_pack<t_op_less_tag,
+                                   t_op_less_equal_tag,
+                                   t_op_larger_tag,
+                                   t_op_larger_equal_tag,
+                                   t_op_equal_tag,
+                                   t_op_not_equal_tag>;
+
+  using t_ops_arithmetic_tag = t_pack<t_op_plus_tag,
+                                      t_op_minus_tag,
+                                      t_op_multiply_tag,
+                                      t_op_divide_tag,
+                                      t_op_mod_tag>;
+
+  using t_ops_arithmetic_self_tag = t_pack<t_op_self_plus_tag,
+                                           t_op_self_minus_tag,
+                                           t_op_self_multiply_tag,
+                                           t_op_self_divide_tag,
+                                           t_op_self_mod_tag>;
+
+  using t_ops_or_and_tag = t_pack<t_op_and_tag,
+                                  t_op_or_tag>;
+
+  using t_ops_bin_tag = t_pack<t_op_bin_xor_tag,
+                               t_op_bin_and_tag,
+                               t_op_bin_ior_tag,
+                               t_op_bin_lshift_tag,
+                               t_op_bin_rshift_tag,
+                               t_op_bin_self_xor_tag,
+                               t_op_bin_self_and_tag,
+                               t_op_bin_self_ior_tag,
+                               t_op_bin_self_lshift_tag,
+                               t_op_bin_self_rshift_tag>;
+
+  using t_ops_value_tag = t_pack<t_ops_compare_tag,
+                                 t_ops_arithmetic_tag,
+                                 t_ops_arithmetic_self_tag,
+                                 t_ops_bin_tag,
+                                 t_op_negate_tag, // FIXME
+                                 t_op_incr_tag,
+                                 t_op_decr_tag,
+                                 t_op_post_incr_tag,
+                                 t_op_post_decr_tag>;
+
+  /////////////////////////////////////////////////////////////////////////////
 }
 }
 }

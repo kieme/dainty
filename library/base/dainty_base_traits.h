@@ -40,16 +40,30 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
+  using impl_::t_pack;
   using impl_::t_bool;
-  using impl_::t_n_;
   using impl_::t_dummy;
   using impl_::t_undef;
   using impl_::t_undef_value;
   using impl_::t_yes;
   using impl_::t_wellformed;
   using impl_::t_empty_pack;
-  using impl_::YES;
+  using impl_::t_opt1;
+  using impl_::t_opt2;
+  using impl_::t_opt3;
+  using impl_::t_opt4;
+  using impl_::t_opt5;
+  using impl_::t_opt6;
+  using impl_::t_opt7;
   using impl_::uneval;
+  using impl_::YES;
+  using impl_::OPT1;
+  using impl_::OPT2;
+  using impl_::OPT3;
+  using impl_::OPT4;
+  using impl_::OPT5;
+  using impl_::OPT6;
+  using impl_::OPT7;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -82,7 +96,6 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename... As> using t_pack = impl_::t_pack<As...>;
 
   template<template<typename...> class D, typename... As>
   using t_pack_into    = impl_::t_pack_into<D, As...>;
@@ -95,14 +108,17 @@ namespace traits
 
   template<typename I, typename T, typename U>
   using t_if_then_else = impl_::t_if_then_else<I, T, U>;
-
-  template<typename I, typename T> using t_if_then = impl_::t_if_then<I, T>;
-  template<typename I>             using t_if      = impl_::t_if<I>;
+  template<typename I, typename T>
+  using t_if_then      = impl_::t_if_then<I, T>;
+  template<typename I, typename R = t_yes>
+  using t_if           = impl_::t_if<I, R>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_not    = impl_::t_not<T>;
-  template<typename T> using t_if_not = impl_::t_if_not<T>;
+  template<typename T>
+  using t_not    = impl_::t_not<T>;
+  template<typename T, typename R = t_yes>
+  using t_if_not = impl_::t_if_not<T, R>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -121,10 +137,10 @@ namespace traits
   using t_is_there     = impl_::t_is_there<Op, T>;
   template<template<typename> class Op, typename T>
   using t_is_not_there = impl_::t_is_not_there<Op, T>;
-  template<template<typename> class Op, typename T>
-  using t_if_there     = impl_::t_if_there<Op, T>;
-  template<template<typename> class Op, typename T>
-  using t_if_not_there = impl_::t_if_not_there<Op, T>;
+  template<template<typename> class Op, typename T, typename R = t_yes>
+  using t_if_there     = impl_::t_if_there<Op, T, R>;
+  template<template<typename> class Op, typename T, typename R = t_yes>
+  using t_if_not_there = impl_::t_if_not_there<Op, T, R>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -631,6 +647,50 @@ namespace traits
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename... Ts> using t_union = impl_::t_union<Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> using t_int_rank = impl_::t_int_rank<T>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_equal_int_rank = impl_::t_is_equal_int_rank<T, T1, Ts...>;
+  template<typename T, typename T1, typename... Ts>
+  using t_is_not_equal_int_rank = impl_::t_is_not_equal_int_rank<T, T1, Ts...>;
+  template<typename T, typename T1, typename... Ts>
+  using t_if_equal_int_rank = impl_::t_if_equal_int_rank<T, T1, Ts...>;
+  template<typename T, typename T1, typename... Ts>
+  using t_if_not_equal_int_rank = impl_::t_if_not_equal_int_rank<T, T1, Ts...>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_greater_int_rank
+    = impl_::t_is_greater_int_rank<T, T1, Ts...>;
+  template<typename T, typename T1, typename... Ts>
+  using t_is_not_greater_int_rank
+    = impl_::t_is_not_greater_int_rank<T, T1, Ts...>;
+  template<typename T, typename T1, typename... Ts>
+  using t_if_greater_int_rank
+    = impl_::t_if_greater_int_rank<T, T1, Ts...>;
+  template<typename T, typename T1, typename... Ts>
+  using t_if_not_greater_int_rank
+    = impl_::t_if_not_greater_int_rank<T, T1, Ts...>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_greater_equal_int_rank
+    = impl_::t_is_greater_equal_int_rank<T, T1, Ts...>;
+  template<typename T, typename T1, typename... Ts>
+  using t_is_not_greater_equal_int_rank
+    = impl_::t_is_not_greater_equal_int_rank<T, T1, Ts...>;
+  template<typename T, typename T1, typename... Ts>
+  using t_if_greater_equal_int_rank
+    = impl_::t_if_greater_equal_int_rank<T, T1, Ts...>;
+  template<typename T, typename T1, typename... Ts>
+  using t_if_not_greater_equal_int_rank
+    = impl_::t_if_not_greater_equal_int_rank<T, T1, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_same_integral_sign = impl_::t_is_same_integral_sign<T, T1, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 }
