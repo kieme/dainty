@@ -52,6 +52,7 @@ namespace logical
   using types::t_int;
   using types::t_pack;
   using types::t_bool;
+  using types::t_void;
 
   using types::t_op_less_tag;
   using types::t_op_less_equal_tag;
@@ -93,6 +94,8 @@ namespace logical
   using types::t_ops_or_and_tag;
   using types::t_ops_bin_tag;
   using types::t_ops_value_tag;
+
+  using traits::t_nlimits;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -136,15 +139,7 @@ namespace logical
 
   /////////////////////////////////////////////////////////////////////////////
 
-  struct t_u_tag_ {
-    using t_ops = t_ops_value_tag;
-  };
-  using t_8u  = t_logical<t_8u_,  t_u_tag_>;
-  using t_16u = t_logical<t_16u_, t_u_tag_>;
-  using t_32u = t_logical<t_32u_, t_u_tag_>;
-  using t_64u = t_logical<t_64u_, t_u_tag_>;
-
-  using t_u   = t_64u;
+  t_void undef_func(); // not constexpr and no definition
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -152,11 +147,35 @@ namespace logical
     using t_ops = t_ops_value_tag;
   };
   using t_8i  = t_logical<t_8i_,  t_i_tag_>;
-  using t_16i = t_logical<t_16i_, t_i_tag_, t_8u>;
-  using t_32i = t_logical<t_32i_, t_i_tag_, t_16u>;
-  using t_64i = t_logical<t_64i_, t_i_tag_, t_32u>;
+  using t_16i = t_logical<t_16i_, t_i_tag_>;
+  using t_32i = t_logical<t_32i_, t_i_tag_>;
+  using t_64i = t_logical<t_64i_, t_i_tag_>;
 
   using t_i   = t_64i;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  struct t_u_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+  using t_8u  = t_logical<t_8u_,  t_u_tag_, t_16i>;
+  using t_16u = t_logical<t_16u_, t_u_tag_, t_32i>;
+  using t_32u = t_logical<t_32u_, t_u_tag_, t_64i>;
+  using t_64u = t_logical<t_64u_, t_u_tag_>;
+
+  using t_u   = t_64u;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  struct t_b_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+  using t_8b  = t_logical<t_8u_,  t_b_tag_, t_8u>;
+  using t_16b = t_logical<t_16u_, t_b_tag_, t_16u>;
+  using t_32b = t_logical<t_32u_, t_b_tag_, t_32u>;
+  using t_64b = t_logical<t_64u_, t_b_tag_, t_64u>;
+
+  using t_b   = t_64b;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -266,6 +285,34 @@ namespace logical
   // min_of
   // avg_of
 
+  /*
+  /////////////////////////////////////////////////////////////////////////////
+
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  constexpr
+  t_u operator""_u(unsigned long long value) noexcept {
+    return t_u{value};
+  }
+
+  constexpr
+  t_64u operator""_64u(unsigned long long value) noexcept {
+    return t_64u{value};
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  constexpr
+  t_b operator""_b(unsigned long long value) noexcept {
+    return t_b{value};
+  }
+
+  constexpr
+  t_64b operator""_64b(unsigned long long value) noexcept {
+    return t_64b{value};
+  }
+
   /////////////////////////////////////////////////////////////////////////////
 
   constexpr
@@ -283,6 +330,8 @@ namespace logical
     return t_n_max{value};
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
   constexpr
   t_ix operator""_ix(unsigned long long value) noexcept {
     return t_ix{value};
@@ -297,6 +346,18 @@ namespace logical
   t_ix_end operator""_ix_end(unsigned long long value) noexcept {
     return t_ix_end{value};
   }
+
+  /////////////////////////////////////////////////////////////////////////////
+  */
+
+  constexpr t_n_min N_MIN   = t_n_min{t_nlimits<t_n_min::t_value>::MIN};
+  constexpr t_n_max N_MAX   = t_n_max{t_nlimits<t_n_max::t_value>::MAX};
+
+  constexpr t_n_min U8_N_MIN = t_n_min{t_nlimits<t_8u_n_min::t_value>::MIN};
+  constexpr t_n_min U8_N_MAX = t_n_min{t_nlimits<t_8u_n_min::t_value>::MIN};
+
+  constexpr t_ix_begin IX_BEGIN = t_ix_begin{t_nlimits<t_ix_begin::t_value>::MIN};
+  constexpr t_ix_end   IX_END   = t_ix_end  {t_nlimits<t_ix_end::t_value>::MAX};
 
   /////////////////////////////////////////////////////////////////////////////
 

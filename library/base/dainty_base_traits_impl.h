@@ -59,6 +59,7 @@ namespace impl_
   using types::t_double;
   using types::t_ldouble;
   using types::t_n_;
+  using types::t_size_;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -91,9 +92,45 @@ namespace impl_
   template<typename T> using t_result_of   = typename T::t_result;
   template<typename T> using t_value_of    = typename T::t_value;
 
+  /////////////////////////////////////////////////////////////////////////////
+
   template<typename T, T V> struct t_add_VALUE {
     constexpr static T VALUE = V;
   };
+
+  template<typename T> constexpr auto VALUE_of = T::VALUE;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, T V> struct t_add_MAX {
+    constexpr static T MAX = V;
+  };
+
+  template<typename T> constexpr auto MAX_of = T::MAX;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, T V> struct t_add_MIN {
+    constexpr static T MIN = V;
+  };
+
+  template<typename T> constexpr auto MIN_of = T::MIN;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T> struct t_add_SIZEOF {
+    constexpr static t_size_ SIZEOF = sizeof(T);
+  };
+
+  template<typename T> constexpr auto SIZEOF_of = T::SIZEOF;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<t_size_ B> struct t_add_BITS {
+    constexpr static t_size_ BITS = B;
+  };
+
+  template<typename T> constexpr auto BITS_of = T::BITS;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2361,6 +2398,125 @@ namespace impl_
   template<typename T, typename T1, typename... Ts>
   using t_is_same_integral_sign
     = t_result_of<help_::t_is_same_integral_sign_<T, T1, Ts...>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename T> struct t_sign_max_;
+
+    template<>
+    struct t_sign_max_<t_char>  : t_add_VALUE<t_char, __SCHAR_MAX__> {};
+
+    template<>
+    struct t_sign_max_<t_schar> : t_add_VALUE<t_schar, __SCHAR_MAX__> {};
+
+    template<>
+    struct t_sign_max_<t_short> : t_add_VALUE<t_short, 32767> {};
+
+    template<>
+    struct t_sign_max_<t_int> : t_add_VALUE<t_int, __INT_MAX__> {};
+
+    template<>
+    struct t_sign_max_<t_long> : t_add_VALUE<t_long, __LONG_MAX__> {};
+
+    template<>
+    struct t_sign_max_<t_llong> : t_add_VALUE<t_llong, __LONG_LONG_MAX__> {};
+
+    template<typename T>
+    constexpr auto CALC_MAX_ = VALUE_of<help_::t_sign_max_<T>>;
+
+    template<typename T>
+    constexpr auto CALC_MIN_  = -CALC_MAX_<T> - 1;
+
+    template<typename T, typename T1>
+    constexpr auto CALC_UMAX_ = (CALC_MAX_<T1> * (T)2) + 1;
+  }
+
+  template<typename T> struct t_numeric_limits;
+
+  template<> struct t_numeric_limits<t_char>
+      : t_add_value <t_char>,
+        t_add_SIZEOF<t_char>,
+        t_add_MIN   <t_char, help_::CALC_MIN_<t_char>>,
+        t_add_MAX   <t_char, help_::CALC_MAX_<t_char>> { };
+
+  template<> struct t_numeric_limits<t_schar>
+      : t_add_value <t_schar>,
+        t_add_SIZEOF<t_schar>,
+        t_add_MIN   <t_schar, help_::CALC_MIN_<t_schar>>,
+        t_add_MAX   <t_schar, help_::CALC_MAX_<t_schar>> { };
+
+  template<> struct t_numeric_limits<t_uchar>
+      : t_add_value <t_uchar>,
+        t_add_SIZEOF<t_uchar>,
+        t_add_MIN   <t_uchar, 0>,
+        t_add_MAX   <t_uchar, help_::CALC_UMAX_<t_uchar, t_schar>> { };
+
+  template<> struct t_numeric_limits<t_short>
+      : t_add_value <t_short>,
+        t_add_SIZEOF<t_short>,
+        t_add_MIN   <t_short, help_::CALC_MIN_<t_short>>,
+        t_add_MAX   <t_short, help_::CALC_MAX_<t_short>> { };
+
+  template<> struct t_numeric_limits<t_ushort>
+      : t_add_value <t_ushort>,
+        t_add_SIZEOF<t_ushort>,
+        t_add_MIN   <t_ushort, 0>,
+        t_add_MAX   <t_ushort, help_::CALC_UMAX_<t_ushort, t_short>> { };
+
+  template<> struct t_numeric_limits<t_int>
+      : t_add_value <t_int>,
+        t_add_SIZEOF<t_int>,
+        t_add_MIN   <t_int, help_::CALC_MIN_<t_int>>,
+        t_add_MAX   <t_int, help_::CALC_MAX_<t_int>> { };
+
+  template<> struct t_numeric_limits<t_uint>
+      : t_add_value <t_uint>,
+        t_add_SIZEOF<t_uint>,
+        t_add_MIN   <t_uint, 0>,
+        t_add_MAX   <t_uint, help_::CALC_UMAX_<t_uint, t_int>> { };
+
+  template<> struct t_numeric_limits<t_long>
+      : t_add_value <t_long>,
+        t_add_SIZEOF<t_long>,
+        t_add_MIN   <t_long, help_::CALC_MIN_<t_long>>,
+        t_add_MAX   <t_long, help_::CALC_MAX_<t_long>> { };
+
+  template<> struct t_numeric_limits<t_ulong>
+      : t_add_value <t_ulong>,
+        t_add_SIZEOF<t_ulong>,
+        t_add_MIN   <t_ulong, 0>,
+        t_add_MAX   <t_ulong, help_::CALC_UMAX_<t_ulong, t_long>> { };
+
+  template<> struct t_numeric_limits<t_llong>
+      : t_add_value <t_llong>,
+        t_add_SIZEOF<t_llong>,
+        t_add_MIN   <t_llong, help_::CALC_MIN_<t_llong>>,
+        t_add_MAX   <t_llong, help_::CALC_MAX_<t_llong>> { };
+
+  template<> struct t_numeric_limits<t_ullong>
+      : t_add_value <t_ullong>,
+        t_add_SIZEOF<t_ullong>,
+        t_add_MIN   <t_ullong, 0>,
+        t_add_MAX   <t_ullong, help_::CALC_UMAX_<t_ullong, t_llong>> { };
+
+  template<> struct t_numeric_limits<t_float>
+      : t_add_value<t_float>, t_add_SIZEOF<t_float> {
+    constexpr static t_float MIN = __FLT_MIN__;
+    constexpr static t_float MAX = __FLT_MAX__;
+  };
+
+  template<> struct t_numeric_limits<t_double>
+      : t_add_value<t_double>, t_add_SIZEOF<t_double> {
+    constexpr static t_double MIN = __DBL_MIN__;
+    constexpr static t_double MAX = __DBL_MAX__;
+  };
+
+  template<> struct t_numeric_limits<t_ldouble>
+      : t_add_value<t_ldouble>, t_add_SIZEOF<t_ldouble> {
+    constexpr static t_ldouble MIN = __LDBL_MIN__;
+    constexpr static t_ldouble MAX = __LDBL_MAX__;
+  };
 
   /////////////////////////////////////////////////////////////////////////////
 }

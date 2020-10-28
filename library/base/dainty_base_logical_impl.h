@@ -40,6 +40,7 @@ namespace impl_
 {
   /////////////////////////////////////////////////////////////////////////////
 
+  using types::t_void;
   using types::t_bool;
   using types::t_int;
   using types::t_pack;
@@ -66,6 +67,7 @@ namespace impl_
   using traits::t_if;
   using traits::t_if_then_else;
   using traits::t_if_same;
+  using traits::t_if_not_same;
   using traits::t_if_pack;
   using traits::t_if_not_there;
   using traits::t_if_subset_of_pack;
@@ -225,23 +227,6 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, typename T1, t_if<t_true> = YES>
-  constexpr
-  T assign_(T1 value) noexcept {
-    return value;
-  }
-
-  /*
-  template<typename T, typename T1, t_if<t_false, bool> = true>
-  constexpr
-  T assign_(T1 value) noexcept {
-    // check if value can fit in 
-    return value;
-  }
-  */
-
-  /////////////////////////////////////////////////////////////////////////////
-
   namespace help_ {
     template<typename T>
     using t_has_check_ =
@@ -249,7 +234,7 @@ namespace impl_
                 typename T::t_value>;
 
     template<typename TAG, typename T, t_if_there<t_has_check_, TAG> = YES>
-    constexpr
+    constexpr // TDOD - no t_value testing
     typename TAG::t_value check_(T value) noexcept {
       return TAG::check(value);
     }
@@ -333,9 +318,17 @@ namespace impl_
     using t_ops   = t_get_ops_<TAG>;
     using t_tags  = t_get_tags_<TAG, Ls...>;
 
+    template<typename T1, t_if_same<T, T1> = YES>
     constexpr
-    explicit t_logical(t_value value) noexcept
+    explicit t_logical(T1 value) noexcept
       : value_{t_check_<t_tags>::call(value)} {
+    }
+
+    template<typename T1, t_if_not_same<T, T1> = YES>
+    constexpr
+    explicit t_logical(T1 value) noexcept
+        // TODO - dont want things to narrow
+      : value_(t_check_<t_tags>::call(value)) {
     }
 
     template<typename T1, typename TAG1, typename... L1s>
@@ -374,7 +367,7 @@ namespace impl_
     t_logical& operator=(const t_logical&) noexcept = default; // for clarity
 
     constexpr
-    operator t_bool() const noexcept { return value_; }
+    explicit operator t_bool() const noexcept { return value_; }
 
   private:
     template<typename, typename, typename...> friend class t_logical;
@@ -395,6 +388,42 @@ namespace impl_
                                       t_logical<T2, TAG2, Ls2...>) noexcept;
 
     t_value value_;
+  };
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename TAG, typename... Ls>
+  class t_logical<t_void, TAG, Ls...> {
+  public:
+    static_assert(t_logical_test_<Ls...>::VALUE,
+                  "Ls... must be logical<...> types");
+
+    using t_value = t_void;
+    using t_tag   = TAG;
+    using t_ops   = t_get_ops_<TAG>;
+    using t_tags  = t_get_tags_<TAG, Ls...>;
+
+    constexpr t_logical() noexcept = default;
+
+    template<typename TAG1, typename... L1s>
+    constexpr
+    t_logical(t_logical<t_void, TAG1, L1s...> logical) noexcept {
+      static_assert(t_is_subset_of_<t_tags,
+                      t_tags_of<t_logical<t_void, TAG1, L1s...>>>::VALUE,
+                    "cannot copy type. types don't give permission.");
+    }
+
+    template<typename TAG1, typename... L1s>
+    constexpr
+    t_logical& operator=(t_logical<t_void, TAG1, L1s...> logical) noexcept {
+      static_assert(t_is_subset_of_<t_tags,
+                      t_tags_of<t_logical<t_void, TAG1, L1s...>>>::VALUE,
+                     "cannot copy type. types don't give permission.");
+      return *this;
+    }
+
+    t_logical(const t_logical&)            noexcept = default; // for clarity
+    t_logical& operator=(const t_logical&) noexcept = default; // for clarity
   };
 
   /////////////////////////////////////////////////////////////////////////////
