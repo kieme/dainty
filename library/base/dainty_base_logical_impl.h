@@ -46,6 +46,9 @@ namespace impl_
   using types::t_pack;
   using types::t_empty_pack;
 
+  using traits::t_opt1;
+  using traits::t_opt2;
+  using traits::t_opt3;
   using traits::t_undef;
   using traits::t_and;
   using traits::t_or;
@@ -71,7 +74,9 @@ namespace impl_
   using traits::t_if_pack;
   using traits::t_if_not_there;
   using traits::t_if_subset_of_pack;
-  using traits::t_is_fundamental;
+  using traits::t_is_integral;
+  using traits::t_is_arithmetic;
+  using traits::t_is_precision;
   using traits::t_is_ptr;
   using traits::t_is_signed;
   using traits::t_is_same;
@@ -83,8 +88,12 @@ namespace impl_
   using traits::t_is_greater_equal_int_rank;
   using traits::t_is_greater_int_rank;
   using traits::t_is_truth;
+  using traits::t_property;
   using traits::uneval;
   using traits::YES;
+  using traits::OPT1;
+  using traits::OPT2;
+  using traits::OPT3;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -228,14 +237,64 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
+    template<typename...> struct t_is_logical_data_help_;
+    template<typename...> struct t_is_logical_data_help1_;
+    template<typename...> struct t_is_logical_data_help2_;
+
+    template<typename T, typename T1>
+    struct t_is_logical_data_help2_<t_false, T, T1> : t_rfalse { };
+
+    template<typename T, typename T1>
+    struct t_is_logical_data_help2_<t_true, T, T1>
+      : t_add_result<t_is_truth<(t_property<T> ::SIZEOF >=
+                                 t_property<T1>::SIZEOF)>> { };
+
+    template<typename T, typename T1>
+    struct t_is_logical_data_help1_<t_false, T, T1>
+      : t_is_logical_data_help2_<t_and<t_is_precision<T>,
+                                       t_is_precision<T1>>, T, T1> { };
+
+    template<typename T, typename T1>
+    struct t_is_logical_data_help1_<t_true, T, T1> : t_rtrue { };
+
+    template<typename T, typename T1>
+    struct t_is_logical_data_help_<t_false, T, T1>
+      : t_is_logical_data_help1_<t_is_ptr<T, T1>, T, T1> { };
+
+    template<typename T, typename T1>
+    struct t_is_logical_data_help_<t_true, T, T1>
+      : t_add_result<t_or<t_and<t_is_same_integral_sign<T, T1>,
+                                t_is_greater_equal_int_rank<T, T1>>,
+                          t_and<t_is_signed<T>,
+                                t_is_greater_int_rank<T, T1>>>> { };
+
+    template<typename T, typename T1>
+    struct t_is_logical_data_
+      : t_is_logical_data_help_<t_is_integral<T, T1>, T, T1> { };
+  }
+
+  template<typename T, typename T1>
+  using t_is_logical_data = t_result_of<help_::t_is_logical_data_<T, T1>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename T1>
+  constexpr T mk_(T1 value) noexcept {
+    return (T)value;
+  }
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
     template<typename T>
     using t_has_check_ =
       t_if_same<decltype(uneval<T>().check(typename T::t_value())),
                 typename T::t_value>;
 
     template<typename TAG, typename T, t_if_there<t_has_check_, TAG> = YES>
-    constexpr // TDOD - no t_value testing
+    constexpr
     typename TAG::t_value check_(T value) noexcept {
+      static_assert(t_is_logical_data<typename TAG::t_value, T>::VALUE,
+                    "check type can overflow on value");
       return TAG::check(value);
     }
 
@@ -288,26 +347,12 @@ namespace impl_
   t_logical<T, TAG, Ls...>& set_(t_logical<T,  TAG,  Ls...>&,
                                  t_logical<T1, TAG1, Ls1...>) noexcept;
 
-  template<typename T, typename TAG, typename... Ls>
-  constexpr
-  t_logical<T, TAG, Ls...>& set_(t_logical<T, TAG, Ls...>&,
-                                 t_logical<T, TAG, Ls...>) noexcept = delete;
-
-  template<typename T,  typename TAG,  typename... Ls,
-           typename T1, typename TAG1, typename... Ls1,
-           t_if_subset_of_pack<t_tags_of<t_logical<T,  TAG,  Ls...>>,
-                               t_tags_of<t_logical<T1, TAG1, Ls1...>>>
-             = YES>
-  constexpr
-  t_logical<T, TAG, Ls...>& set_(t_logical<T,  TAG,  Ls...>&,
-                                 t_logical<T1, TAG1, Ls1...>) noexcept = delete;
-
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T, typename TAG, typename... Ls>
   class t_logical {
   public:
-    static_assert(t_least_one_is_true<T, t_is_fundamental, t_is_ptr>::VALUE,
+    static_assert(t_least_one_is_true<T, t_is_arithmetic, t_is_ptr>::VALUE,
                   "wrong data type");
 
     static_assert(t_logical_test_<Ls...>::VALUE,
@@ -327,8 +372,9 @@ namespace impl_
     template<typename T1, t_if_not_same<T, T1> = YES>
     constexpr
     explicit t_logical(T1 value) noexcept
-        // TODO - dont want things to narrow
-      : value_(t_check_<t_tags>::call(value)) {
+      : value_{t_check_<t_tags>::call(mk_<T>(value))} {
+  //    static_assert(t_is_logical_data<T, T1>::VALUE,
+  //                  "cannot copy type. data too large or wrong sign");
     }
 
     template<typename T1, typename TAG1, typename... L1s>
@@ -338,11 +384,7 @@ namespace impl_
       static_assert(t_is_subset_of_<t_tags,
                       t_tags_of<t_logical<T1, TAG1, L1s...>>>::VALUE,
                     "cannot copy type. types don't give permission.");
-      static_assert(t_or<t_and<t_is_same_integral_sign<T, T1>,
-                               t_is_greater_equal_int_rank<T, T1>>,
-                         t_and<t_is_signed<T>,
-                               t_is_greater_int_rank<T, T1>>
-                        >::VALUE,
+      static_assert(t_is_logical_data<T, T1>::VALUE,
                     "cannot copy type. data too large or wrong sign");
     }
 
@@ -352,11 +394,7 @@ namespace impl_
       static_assert(t_is_subset_of_<t_tags,
                       t_tags_of<t_logical<T1, TAG1, L1s...>>>::VALUE,
                      "cannot copy type. types don't give permission.");
-      static_assert(t_or<t_and<t_is_same_integral_sign<T, T1>,
-                               t_is_greater_equal_int_rank<T, T1>>,
-                         t_and<t_is_signed<T>,
-                               t_is_greater_int_rank<T, T1>>
-                        >::VALUE,
+      static_assert(t_is_logical_data<T, T1>::VALUE,
                     "cannot copy type. data too large or wrong sign");
       value_ = logical.value_;
       return *this;
@@ -407,7 +445,7 @@ namespace impl_
 
     template<typename TAG1, typename... L1s>
     constexpr
-    t_logical(t_logical<t_void, TAG1, L1s...> logical) noexcept {
+    t_logical(t_logical<t_void, TAG1, L1s...>) noexcept {
       static_assert(t_is_subset_of_<t_tags,
                       t_tags_of<t_logical<t_void, TAG1, L1s...>>>::VALUE,
                     "cannot copy type. types don't give permission.");
@@ -415,7 +453,7 @@ namespace impl_
 
     template<typename TAG1, typename... L1s>
     constexpr
-    t_logical& operator=(t_logical<t_void, TAG1, L1s...> logical) noexcept {
+    t_logical& operator=(t_logical<t_void, TAG1, L1s...>) noexcept {
       static_assert(t_is_subset_of_<t_tags,
                       t_tags_of<t_logical<t_void, TAG1, L1s...>>>::VALUE,
                      "cannot copy type. types don't give permission.");
@@ -446,11 +484,11 @@ namespace impl_
   constexpr
   t_logical<T, TAG, Ls...>& set_(t_logical<T,  TAG,  Ls...>& logical,
                                  t_logical<T1, TAG1, Ls1...> value) noexcept {
-    static_assert(t_or<t_and<t_is_same_integral_sign<T, T1>,
-                             t_is_greater_equal_int_rank<T, T1>>,
-                       t_and<t_is_signed<T>,
-                             t_is_greater_int_rank<T, T1>>
-                      >::VALUE,
+    static_assert(!t_is_subset_of_pack<
+                     t_tags_of<t_logical<T,  TAG,  Ls...>>,
+                     t_tags_of<t_logical<T1, TAG1, Ls1...>>>::VALUE,
+                  "Do not set, when you can just assign");
+    static_assert(t_is_logical_data<T, T1>::VALUE,
                   "cannot copy type. data too large or wrong sign");
     logical.value_
       = t_check_<t_diff_pack<t_tags_of<t_logical<T,  TAG,  Ls...>>,

@@ -95,7 +95,7 @@ namespace logical
   using types::t_ops_bin_tag;
   using types::t_ops_value_tag;
 
-  using traits::t_nlimits;
+  using traits::t_property;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -139,7 +139,7 @@ namespace logical
 
   /////////////////////////////////////////////////////////////////////////////
 
-  t_void undef_func(); // not constexpr and no definition
+  t_void undef_func() noexcept; // not constexpr and no definition
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -348,16 +348,17 @@ namespace logical
   }
 
   /////////////////////////////////////////////////////////////////////////////
+
+  constexpr t_n_min N_MIN   = t_n_min{t_property<t_n_min::t_value>::MIN};
+  constexpr t_n_max N_MAX   = t_n_max{t_property<t_n_max::t_value>::MAX};
+
+  constexpr t_n_min U8_N_MIN = t_n_min{t_property<t_8u_n_min::t_value>::MIN};
+  constexpr t_n_min U8_N_MAX = t_n_min{t_property<t_8u_n_min::t_value>::MIN};
+
+  constexpr t_ix_begin IX_BEGIN = t_ix_begin{t_property<t_ix_begin::t_value>::MIN};
+  constexpr t_ix_end   IX_END   = t_ix_end  {t_property<t_ix_end::t_value>::MAX};
+
   */
-
-  constexpr t_n_min N_MIN   = t_n_min{t_nlimits<t_n_min::t_value>::MIN};
-  constexpr t_n_max N_MAX   = t_n_max{t_nlimits<t_n_max::t_value>::MAX};
-
-  constexpr t_n_min U8_N_MIN = t_n_min{t_nlimits<t_8u_n_min::t_value>::MIN};
-  constexpr t_n_min U8_N_MAX = t_n_min{t_nlimits<t_8u_n_min::t_value>::MIN};
-
-  constexpr t_ix_begin IX_BEGIN = t_ix_begin{t_nlimits<t_ix_begin::t_value>::MIN};
-  constexpr t_ix_end   IX_END   = t_ix_end  {t_nlimits<t_ix_end::t_value>::MAX};
 
   /////////////////////////////////////////////////////////////////////////////
 
