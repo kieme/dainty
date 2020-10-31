@@ -178,8 +178,7 @@ namespace impl_
                              t_is_subset_of_<t_tags_of<T1>, t_tags_of<T>>>;
 
   template<typename O, typename T, typename T1 = t_dummy>
-  struct t_is_op_ : t_and<t_is_in_pack<O, t_ops_of<T>>,
-                          t_is_in_pack<O, t_ops_of<T1>>,
+  struct t_is_op_ : t_and<t_is_in_pack<O, t_ops_of<T>, t_ops_of<T1>>,
                           t_is_related_<T, T1>> { };
 
   template<typename O, typename T>
@@ -251,8 +250,7 @@ namespace impl_
 
     template<typename T, typename T1>
     struct t_is_logical_data_help1_<t_false, T, T1>
-      : t_is_logical_data_help2_<t_and<t_is_precision<T>,
-                                       t_is_precision<T1>>, T, T1> { };
+      : t_is_logical_data_help2_<t_is_precision<T, T1>, T, T1> { };
 
     template<typename T, typename T1>
     struct t_is_logical_data_help1_<t_true, T, T1> : t_rtrue { };

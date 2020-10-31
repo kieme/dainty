@@ -583,10 +583,23 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_is_precision     = impl_::t_is_precision<T>;
-  template<typename T> using t_is_not_precision = impl_::t_is_not_precision<T>;
-  template<typename T> using t_if_precision     = impl_::t_if_precision<T>;
-  template<typename T> using t_if_not_precision = impl_::t_if_not_precision<T>;
+  template<typename T, typename... Ts>
+  using t_is_precision         = impl_::t_is_precision<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_precision     = impl_::t_is_not_precision<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_precision     = impl_::t_opt_if_precision<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_precision = impl_::t_opt_if_not_precision<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_precision         = impl_::t_if_precision<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_precision     = impl_::t_if_not_precision<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -674,10 +687,10 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, typename P>
+  template<typename T, typename P, typename... Ps>
   using t_is_in_pack     = impl_::t_is_in_pack<T, P>;
-  template<typename P, typename P1>
-  using t_largest_pack   = impl_::t_largest_pack<P, P1>;
+  template<typename P, typename... Ps>
+  using t_largest_pack   = impl_::t_largest_pack<P, Ps...>;
   template<typename P, typename... Ps>
   using t_union_pack     = impl_::t_union_pack<P, Ps...>;
   template<typename P, typename... Ps>

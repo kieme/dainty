@@ -331,7 +331,7 @@ namespace impl_
                          template<typename, typename...> class... Cs>
     struct t_all_is_true_ : t_add_result<t_and<C<T>, Cs<T>...>> { };
 
-    template<typename T, template<typename...> class C>
+    template<typename T, template<typename, typename...> class C>
     struct t_all_is_true_<T, C> : t_add_result<C<T>> { };
   }
 
@@ -2296,133 +2296,288 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T>
-  using t_is_unsigned_integral = t_is_one_of<T, t_uchar,
-                                                t_ushort,
-                                                t_uint,
-                                                t_ulong,
-                                                t_ullong>;
+  namespace help_ {
+    template<typename T>
+    using t_is_unsigned_integral_ = t_is_one_of<T, t_uchar,
+                                                   t_ushort,
+                                                   t_uint,
+                                                   t_ulong,
+                                                   t_ullong>;
+  }
 
-  template<typename T>
-  using t_is_not_unsigned_integral = t_not<t_is_unsigned_integral<T>>;
+  template<typename T, typename... Ts>
+  using t_is_unsigned_integral
+    = t_each_is_true<help_::t_is_unsigned_integral_, T, Ts...>;
 
-  template<typename T>
-  using t_if_unsigned_integral     = t_if<t_is_unsigned_integral<T>>;
+  template<typename T, typename... Ts>
+  using t_is_not_unsigned_integral
+    = t_not<t_is_unsigned_integral<T, Ts...>>;
 
-  template<typename T>
-  using t_if_not_unsigned_integral = t_if<t_is_not_unsigned_integral<T>>;
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_unsigned_integral
+    = t_opt_if<O, t_is_unsigned_integral<T, Ts...>>;
 
-  /////////////////////////////////////////////////////////////////////////////
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_unsigned_integral
+    = t_opt_if<O, t_is_not_unsigned_integral<T, Ts...>>;
 
-  template<typename T>
-  using t_is_signed_integral = t_is_one_of<T, t_char, t_schar,
-                                              t_short,
-                                              t_int,
-                                              t_long,
-                                              t_llong>;
+  template<typename T, typename... Ts>
+  using t_if_unsigned_integral
+    = t_opt_if_unsigned_integral<t_yes, T, Ts...>;
 
-  template<typename T>
-  using t_is_not_signed_integral = t_not<t_is_signed_integral<T>>;
-
-  template<typename T>
-  using t_if_signed_integral     = t_if<t_is_signed_integral<T>>;
-
-  template<typename T>
-  using t_if_not_signed_integral = t_if<t_is_not_signed_integral<T>>;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T>
-  using t_is_precision = t_is_one_of<T, t_double, t_float, t_ldouble>;
-
-  template<typename T> using t_is_not_precision = t_not<t_is_precision<T>>;
-  template<typename T> using t_if_precision     = t_if<t_is_precision<T>>;
-  template<typename T> using t_if_not_precision = t_if<t_is_not_precision<T>>;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T>
-  using t_is_arithmetic = t_least_one_is_true<T, t_is_integral,
-                                                 t_is_precision>;
-
-  template<typename T> using t_is_not_arithmetic = t_not<t_is_arithmetic<T>>;
-  template<typename T> using t_if_arithmetic     = t_if<t_is_arithmetic<T>>;
-  template<typename T> using t_if_not_arithmetic = t_if<t_is_not_arithmetic<T>>;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T>
-  using t_is_fundamental = t_least_one_is_true<T, t_is_arithmetic,
-                                                  t_is_void,
-                                                  t_is_nullptr>;
-
-  template<typename T>
-  using t_is_not_fundamental = t_not<t_is_fundamental<T>>;
-  template<typename T>
-  using t_if_fundamental     = t_if<t_is_fundamental<T>>;
-  template<typename T>
-  using t_if_not_fundamental = t_if<t_is_not_fundamental<T>>;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T>
-  using t_is_scalar = t_least_one_is_true<T, t_is_arithmetic,
-                                             t_is_enum,
-                                             t_is_ptr,
-                                             t_is_member_ptr,
-                                             t_is_nullptr>;
-
-  template<typename T> using t_is_not_scalar = t_not<t_is_scalar<T>>;
-  template<typename T> using t_if_scalar     = t_if<t_is_scalar<T>>;
-  template<typename T> using t_if_not_scalar = t_if<t_is_not_scalar<T>>;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T>
-  using t_is_compound = t_none_is_true<T, t_is_fundamental>;
-
-  template<typename T> using t_is_not_compound = t_not<t_is_compound<T>>;
-  template<typename T> using t_if_compound     = t_if<t_is_compound<T>>;
-  template<typename T> using t_if_not_compound = t_if<t_is_not_compound<T>>;
+  template<typename T, typename... Ts>
+  using t_if_not_unsigned_integral
+    = t_opt_if_not_unsigned_integral<t_yes, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename T> struct t_is_const_          : t_rfalse { };
-    template<typename T> struct t_is_const_<const T> : t_rtrue  { };
+    template<typename T>
+    using t_is_signed_integral_ = t_is_one_of<T, t_char, t_schar,
+                                                 t_short,
+                                                 t_int,
+                                                 t_long,
+                                                 t_llong>;
   }
 
-  template<typename T>
-  using t_is_const = t_result_of<help_::t_is_const_<T>>;
+  template<typename T, typename... Ts>
+  using t_is_signed_integral
+    = t_each_is_true<help_::t_is_signed_integral_, T, Ts...>;
 
-  template<typename T> using t_is_not_const = t_not<t_is_const<T>>;
-  template<typename T> using t_if_const     = t_if<t_is_const<T>>;
-  template<typename T> using t_if_not_const = t_if<t_is_not_const<T>>;
+  template<typename T, typename... Ts>
+  using t_is_not_signed_integral
+    = t_not<t_is_signed_integral<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_signed_integral
+    = t_opt_if<O, t_is_signed_integral<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_signed_integral
+    = t_opt_if<O, t_is_not_signed_integral<T, Ts...>>;
+
+  template<typename T, typename... Ts>
+  using t_if_signed_integral
+    = t_opt_if_signed_integral<t_yes, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_signed_integral
+    = t_opt_if_not_signed_integral<t_yes, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename T> struct t_is_volatile_             : t_rfalse { };
-    template<typename T> struct t_is_volatile_<volatile T> : t_rtrue  { };
+    template<typename T>
+    using t_is_precision_ = t_is_one_of<T, t_double, t_float, t_ldouble>;
   }
 
-  template<typename T>
-  using t_is_volatile = t_result_of<help_::t_is_volatile_<T>>;
+  template<typename T, typename... Ts>
+  using t_is_precision = t_each_is_true<help_::t_is_precision_, T, Ts...>;
 
-  template<typename T> using t_is_not_volatile = t_not<t_is_volatile<T>>;
-  template<typename T> using t_if_volatile     = t_if<t_is_volatile<T>>;
-  template<typename T> using t_if_not_volatile = t_if<t_is_not_volatile<T>>;
+  template<typename T, typename... Ts>
+  using t_is_not_precision     = t_not<t_is_precision<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_precision     = t_opt_if<O, t_is_precision<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_precision = t_opt_if<O, t_is_not_precision<T, Ts...>>;
+
+  template<typename T, typename... Ts>
+  using t_if_precision         = t_opt_if_precision<t_yes, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_precision     = t_opt_if_not_precision<t_yes, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T>
-  using t_is_signed = t_all_is_true<T, t_is_arithmetic,
-                                       t_is_not_unsigned_integral,
-                                       t_is_not_bool>;
+  namespace help_ {
+    template<typename T>
+    using t_is_arithmetic_ = t_least_one_is_true<T, t_is_integral,
+                                                    t_is_precision>;
+  }
 
-  template<typename T> using t_is_not_signed = t_not<t_is_signed<T>>;
-  template<typename T> using t_if_signed     = t_if<t_is_signed<T>>;
-  template<typename T> using t_if_not_signed = t_if<t_is_not_signed<T>>;
+  template<typename T, typename... Ts>
+  using t_is_arithmetic = t_each_is_true<help_::t_is_arithmetic_, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_arithmetic     = t_not<t_is_arithmetic<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_arithmetic     = t_opt_if<O, t_is_arithmetic<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_arithmetic = t_opt_if<O, t_is_not_arithmetic<T, Ts...>>;
+
+  template<typename T, typename... Ts>
+  using t_if_arithmetic         = t_opt_if_arithmetic<t_yes, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_arithmetic     = t_opt_if_not_arithmetic<t_yes, T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename T>
+    using t_is_fundamental_ = t_least_one_is_true<T, t_is_arithmetic,
+                                                     t_is_void,
+                                                     t_is_nullptr>;
+  }
+
+  template<typename T, typename... Ts>
+  using t_is_fundamental = t_each_is_true<help_::t_is_fundamental_, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_fundamental     = t_not<t_is_fundamental<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_fundamental     = t_opt_if<O, t_is_fundamental<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_fundamental = t_opt_if<O, t_is_not_fundamental<T, Ts...>>;
+
+  template<typename T, typename... Ts>
+  using t_if_fundamental         = t_opt_if_fundamental<t_yes, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_fundamental     = t_opt_if_not_fundamental<t_yes, T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename T>
+    using t_is_scalar_ = t_least_one_is_true<T, t_is_arithmetic,
+                                                t_is_enum,
+                                                t_is_ptr,
+                                                t_is_member_ptr,
+                                                t_is_nullptr>;
+  }
+
+  template<typename T, typename... Ts>
+  using t_is_scalar         = t_each_is_true<help_::t_is_scalar_, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_scalar     = t_not<t_is_scalar<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_scalar     = t_opt_if<O, t_is_scalar<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_scalar = t_opt_if<O, t_is_not_scalar<T, Ts...>>;
+
+  template<typename T, typename... Ts>
+  using t_if_scalar         = t_opt_if_scalar<t_yes, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_scalar     = t_opt_if_not_scalar<t_yes, T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename T>
+    using t_is_compound_ = t_is_not_fundamental<T>; // REVISIT
+  }
+
+  template<typename T, typename... Ts>
+  using t_is_compound = t_each_is_true<help_::t_is_compound_, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_compound     = t_not<t_is_compound<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_compound     = t_opt_if<O, t_is_compound<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_compound = t_opt_if<O, t_is_not_compound<T, Ts...>>;
+
+  template<typename T, typename... Ts>
+  using t_if_compound         = t_opt_if_compound<t_yes, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_compound     = t_opt_if_not_compound<t_yes, T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename T> struct t_is_const_help_          : t_rfalse { };
+    template<typename T> struct t_is_const_help_<const T> : t_rtrue  { };
+
+    template<typename T>
+    using t_is_const_ = t_result_of<help_::t_is_const_help_<T>>;
+  }
+
+  template<typename T, typename... Ts>
+  using t_is_const         = t_each_is_true<help_::t_is_const_, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_const     = t_not<t_is_const<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_const     = t_opt_if<O, t_is_const<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_const = t_opt_if<O, t_is_not_const<T, Ts...>>;
+
+  template<typename T, typename... Ts>
+  using t_if_const         = t_opt_if_const<t_yes, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_const     = t_opt_if_not_const<t_yes, T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename T> struct t_is_volatile_help_             : t_rfalse { };
+    template<typename T> struct t_is_volatile_help_<volatile T> : t_rtrue  { };
+
+    template<typename T>
+    using t_is_volatile_ = t_result_of<help_::t_is_volatile_help_<T>>;
+  }
+
+  template<typename T, typename... Ts>
+  using t_is_volatile = t_each_is_true<help_::t_is_volatile_, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_volatile     = t_not<t_is_volatile<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_volatile     = t_opt_if<O, t_is_volatile<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_volatile = t_opt_if<O, t_is_not_volatile<T, Ts...>>;
+
+  template<typename T, typename... Ts>
+  using t_if_volatile         = t_opt_if_volatile<t_yes, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_volatile     = t_opt_if_not_volatile<t_yes, T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename T>
+    using t_is_signed_ = t_all_is_true<T, t_is_arithmetic,
+                                          t_is_not_unsigned_integral,
+                                          t_is_not_bool>;
+  }
+
+  template<typename T, typename... Ts>
+  using t_is_signed         = t_each_is_true<help_::t_is_signed_, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_signed     = t_not<t_is_signed<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_signed     = t_opt_if<O, t_is_signed<T, Ts...>>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_signed = t_opt_if<O, t_is_not_signed<T, Ts...>>;
+
+  template<typename T, typename... Ts>
+  using t_if_signed         = t_opt_if_signed<t_yes, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_signed     = t_opt_if_not_signed<t_yes, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2562,70 +2717,105 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename...> struct t_is_subset_of_pack_help_;
     template<typename...> struct t_is_subset_of_pack_help1_;
+    template<typename...> struct t_is_subset_of_pack_help2_;
 
     template<typename... Ts, typename... Us>
-    struct t_is_subset_of_pack_help1_<t_true, t_pack<Ts...>, t_pack<Us...>>
-      : t_is_subset_of_pack_help_<t_pack<Ts...>, t_pack<Us...>> { };
+    struct t_is_subset_of_pack_help2_<t_true, t_pack<Ts...>, t_pack<Us...>>
+      : t_is_subset_of_pack_help1_<t_pack<Ts...>, t_pack<Us...>> { };
 
     template<typename... Ts>
-    struct t_is_subset_of_pack_help1_<t_false, Ts...> : t_rfalse { };
+    struct t_is_subset_of_pack_help2_<t_false, Ts...> : t_rfalse { };
 
     template<typename... Us>
-    struct t_is_subset_of_pack_help1_<t_true, t_empty_pack, t_pack<Us...>>
+    struct t_is_subset_of_pack_help2_<t_true, t_empty_pack, t_pack<Us...>>
       : t_rtrue { };
 
     template<typename T, typename... Ts, typename... Us>
-    struct t_is_subset_of_pack_help_<t_pack<T, Ts...>, t_pack<Us...>>
-      : t_is_subset_of_pack_help1_<t_is_one_of<T, Us...>, t_pack<Ts...>,
+    struct t_is_subset_of_pack_help1_<t_pack<T, Ts...>, t_pack<Us...>>
+      : t_is_subset_of_pack_help2_<t_is_one_of<T, Us...>, t_pack<Ts...>,
                                                           t_pack<Us...>> { };
 
     template<typename... Ts>
-    struct t_is_subset_of_pack_help_<t_pack<Ts...>, t_empty_pack>
+    struct t_is_subset_of_pack_help1_<t_pack<Ts...>, t_empty_pack>
       : t_rfalse { };
 
     template<typename... Us>
-    struct t_is_subset_of_pack_help_<t_empty_pack, t_pack<Us...>>
+    struct t_is_subset_of_pack_help1_<t_empty_pack, t_pack<Us...>>
       : t_rfalse { };
 
     template<typename P, typename... Ps>
-    struct t_is_subset_of_pack_ : t_is_subset_of_pack_help_<P, Ps...> {
+    struct t_is_subset_of_pack_help_ : t_is_subset_of_pack_help1_<P, Ps...> {
       static_assert(t_is_pack<P, Ps...>::VALUE,
                      "template parameters must be of t_pack<...> type");
     };
+
+    template<typename P, typename P1>
+    using t_is_subset_of_pack_ = t_result_of<t_is_subset_of_pack_help_<P, P1>>;
   }
 
-  template<typename P, typename P1>
-  using t_is_subset_of_pack = t_result_of<help_::t_is_subset_of_pack_<P, P1>>;
+  template<typename P, typename P1, typename... Ps>
+  using t_is_subset_of_pack = t_and<help_::t_is_subset_of_pack_<P, P1>,
+                                    help_::t_is_subset_of_pack_<P, Ps>...>;
 
-  template<typename P, typename P1>
-  using t_is_not_subset_of_pack = t_not<t_is_subset_of_pack<P, P1>>;
+  template<typename P, typename P1, typename... Ps>
+  using t_is_not_subset_of_pack
+    = t_not<t_is_subset_of_pack<P, P1, Ps...>>;
 
-  template<typename P, typename P1>
-  using t_if_subset_of_pack = t_if<t_is_subset_of_pack<P, P1>>;
+  template<typename O, typename P, typename P1, typename... Ps>
+  using t_opt_if_subset_of_pack
+    = t_opt_if<O, t_is_subset_of_pack<P, P1, Ps...>>;
 
-  template<typename P, typename P1>
-  using t_if_not_subset_of_pack = t_if<t_is_not_subset_of_pack<P, P1>>;
+  template<typename O, typename P, typename P1, typename... Ps>
+  using t_opt_if_not_subset_of_pack
+    = t_opt_if<O, t_is_not_subset_of_pack<P, P1, Ps...>>;
+
+  template<typename P, typename P1, typename... Ps>
+  using t_if_subset_of_pack
+    = t_opt_if_subset_of_pack<t_yes, P, P1, Ps...>;
+
+  template<typename P, typename P1, typename... Ps>
+  using t_if_not_subset_of_pack
+    = t_opt_if_not_subset_of_pack<t_yes, P, P1, Ps...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename, typename> struct t_is_in_pack_help_;
+    template<typename, typename> struct t_is_in_pack_help1_;
 
     template<typename T, typename... Ts>
-    struct t_is_in_pack_help_<T, t_pack<Ts...>>
+    struct t_is_in_pack_help1_<T, t_pack<Ts...>>
       : t_add_result<t_is_one_of<T, Ts...>> { };
 
     template<typename T, typename P>
-    struct t_is_in_pack_ : t_is_in_pack_help_<T, P> {
+    struct t_is_in_pack_help_ : t_is_in_pack_help1_<T, P> {
       static_assert(t_is_pack<P>::VALUE,
                     "template parameter P must be of t_pack<...> type");
     };
+
+    template<typename T, typename P>
+    using t_is_in_pack_ = t_result_of<help_::t_is_in_pack_help_<T, P>>;
   }
 
-  template<typename T, typename P>
-  using t_is_in_pack = t_result_of<help_::t_is_in_pack_<T, P>>;
+  template<typename T, typename P, typename... Ps>
+  using t_is_in_pack = t_and<help_::t_is_in_pack_<T, P>,
+                             help_::t_is_in_pack_<T, Ps>...>;
+
+
+  template<typename T, typename P, typename... Ps>
+  using t_is_not_in_pack     = t_not<t_is_in_pack<T, P, Ps...>>;
+
+  template<typename O, typename T, typename P, typename... Ps>
+  using t_opt_if_in_pack     = t_opt_if<O, t_is_in_pack<T, P, Ps...>>;
+
+  template<typename O, typename T, typename P, typename... Ps>
+  using t_opt_if_not_in_pack = t_opt_if<O, t_is_not_in_pack<T, P, Ps...>>;
+
+  template<typename T, typename P, typename... Ps>
+  using t_if_in_pack         = t_opt_if_in_pack<t_yes, T, P, Ps...>;
+
+  template<typename T, typename P, typename... Ps>
+  using t_if_not_in_pack     = t_opt_if_not_in_pack<t_yes, T, P, Ps...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2681,7 +2871,7 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  namespace help_ { // make recursive
+  namespace help_ {
     template<typename...> struct t_largest_pack_help_;
     template<typename...> struct t_largest_pack_help1_;
 
@@ -2889,7 +3079,7 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename, typename, typename...>
+    template<typename, typename, typename...> // REVISIT
     struct t_is_greater_int_rank_help_;
     template<typename...>
     struct t_is_greater_int_rank_help1_;
@@ -2922,17 +3112,29 @@ namespace impl_
     = t_result_of<help_::t_is_greater_int_rank_<T, T1, Ts...>>;
 
   template<typename T, typename T1, typename... Ts>
-  using t_is_not_greater_int_rank = t_not<t_is_greater_int_rank<T, T1, Ts...>>;
+  using t_is_not_greater_int_rank
+    = t_not<t_is_greater_int_rank<T, T1, Ts...>>;
+
+  template<typename O, typename T, typename T1, typename... Ts>
+  using t_opt_if_greater_int_rank
+    = t_opt_if<O, t_is_greater_int_rank<T, T1, Ts...>>;
+
+  template<typename O, typename T, typename T1, typename... Ts>
+  using t_opt_if_not_greater_int_rank
+    = t_opt_if<O, t_is_not_greater_int_rank<T, T1, Ts...>>;
+
   template<typename T, typename T1, typename... Ts>
-  using t_if_greater_int_rank     = t_if<t_is_greater_int_rank<T, T1, Ts...>>;
+  using t_if_greater_int_rank
+    = t_opt_if_greater_int_rank<t_yes, T, T1, Ts...>;
+
   template<typename T, typename T1, typename... Ts>
-  using t_if_not_greater_int_rank = t_if<t_is_not_greater_int_rank<T, T1,
-                                                                   Ts...>>;
+  using t_if_not_greater_int_rank
+    = t_opt_if_not_greater_int_rank<t_yes, T, T1, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename, typename, typename...>
+    template<typename, typename, typename...> // REVISIT
     struct t_is_equal_int_rank_help_;
     template<typename...>
     struct t_is_equal_int_rank_help1_;
@@ -2965,11 +3167,24 @@ namespace impl_
     = t_result_of<help_::t_is_equal_int_rank_<T, T1, Ts...>>;
 
   template<typename T, typename T1, typename... Ts>
-  using t_is_not_equal_int_rank = t_not<t_is_equal_int_rank<T, T1, Ts...>>;
+  using t_is_not_equal_int_rank
+    = t_not<t_is_equal_int_rank<T, T1, Ts...>>;
+
+  template<typename O, typename T, typename T1, typename... Ts>
+  using t_opt_if_equal_int_rank
+    = t_opt_if<O, t_is_equal_int_rank<T, T1, Ts...>>;
+
+  template<typename O, typename T, typename T1, typename... Ts>
+  using t_opt_if_not_equal_int_rank
+    = t_opt_if<O, t_is_not_equal_int_rank<T, T1, Ts...>>;
+
   template<typename T, typename T1, typename... Ts>
-  using t_if_equal_int_rank     = t_if<t_is_equal_int_rank<T, T1, Ts...>>;
+  using t_if_equal_int_rank
+    = t_opt_if_equal_int_rank<t_yes, T, T1, Ts...>;
+
   template<typename T, typename T1, typename... Ts>
-  using t_if_not_equal_int_rank = t_if<t_is_not_equal_int_rank<T, T1, Ts...>>;
+  using t_if_not_equal_int_rank
+    = t_opt_if_not_equal_int_rank<t_yes, T, T1, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2980,17 +3195,26 @@ namespace impl_
   template<typename T, typename T1, typename... Ts>
   using t_is_not_greater_equal_int_rank
     = t_not<t_is_greater_equal_int_rank<T, T1, Ts...>>;
+
+  template<typename O, typename T, typename T1, typename... Ts>
+  using t_opt_if_greater_equal_int_rank
+    = t_opt_if<O, t_is_greater_equal_int_rank<T, T1, Ts...>>;
+
+  template<typename O, typename T, typename T1, typename... Ts>
+  using t_opt_if_not_greater_equal_int_rank
+    = t_opt_if<O, t_is_not_greater_equal_int_rank<T, T1, Ts...>>;
+
   template<typename T, typename T1, typename... Ts>
   using t_if_greater_equal_int_rank
-    = t_if<t_is_greater_equal_int_rank<T, T1, Ts...>>;
+    = t_opt_if_greater_equal_int_rank<t_yes, T, T1, Ts...>;
+
   template<typename T, typename T1, typename... Ts>
   using t_if_not_greater_equal_int_rank
-    = t_if<t_is_not_greater_equal_int_rank<T, T1, Ts...>>;
+    = t_opt_if_not_greater_equal_int_rank<t_yes, T, T1, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  namespace help_ {
-
+  namespace help_ { // REVISIT
     template<typename... Ts> struct t_is_same_integral_sign_help1_;
     template<typename... Ts> struct t_is_same_integral_sign_help2_;
     template<typename... Ts> struct t_is_same_integral_sign_help3_;
@@ -3038,6 +3262,26 @@ namespace impl_
   template<typename T, typename T1, typename... Ts>
   using t_is_same_integral_sign
     = t_result_of<help_::t_is_same_integral_sign_<T, T1, Ts...>>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_not_same_integral_sign
+    = t_not<t_is_same_integral_sign<T, T1, Ts...>>;
+
+  template<typename O, typename T, typename T1, typename... Ts>
+  using t_opt_if_same_integral_sign
+    = t_opt_if<O, t_is_same_integral_sign<T, T1, Ts...>>;
+
+  template<typename O, typename T, typename T1, typename... Ts>
+  using t_opt_if_not_same_integral_sign
+    = t_opt_if<O, t_is_not_same_integral_sign<T, T1, Ts...>>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_if_same_integral_sign
+    = t_opt_if_same_integral_sign<t_yes, T, T1, Ts...>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_if_not_same_integral_sign
+    = t_opt_if_not_same_integral_sign<t_yes, T, T1, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
