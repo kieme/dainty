@@ -2475,7 +2475,7 @@ namespace impl_
 
   namespace help_ {
     template<typename T>
-    using t_is_compound_ = t_is_not_fundamental<T>; // REVISIT
+    using t_is_compound_ = t_is_not_fundamental<T>;
   }
 
   template<typename T, typename... Ts>

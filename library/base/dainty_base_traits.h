@@ -488,10 +488,17 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_is_free_func     = impl_::t_is_free_func<T>;
-  template<typename T> using t_is_not_free_func = impl_::t_is_not_free_func<T>;
-  template<typename T> using t_if_free_func     = impl_::t_if_free_func<T>;
-  template<typename T> using t_if_not_free_func = impl_::t_if_not_free_func<T>;
+  template<typename T, typename... Ts>
+  using t_is_free_func     = impl_::t_is_free_func<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_free_func = impl_::t_is_not_free_func<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_free_func     = impl_::t_if_free_func<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_free_func = impl_::t_if_not_free_func<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
