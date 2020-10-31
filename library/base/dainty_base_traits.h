@@ -48,6 +48,7 @@ namespace traits
   using impl_::t_yes;
   using impl_::t_wellformed;
   using impl_::t_empty_pack;
+  using impl_::t_opt;
   using impl_::t_opt1;
   using impl_::t_opt2;
   using impl_::t_opt3;
@@ -77,7 +78,19 @@ namespace traits
   template<typename T>      using t_value_of     = impl_::t_value_of<T>;
 
   template<typename T, T V> using t_add_VALUE    = impl_::t_add_VALUE<T, V>;
-  template<typename T>  constexpr auto VALUE_of  = impl_::VALUE_of<T>;
+  template<typename T> constexpr auto VALUE_of   = impl_::VALUE_of<T>;
+
+  template<typename T, T V> using t_add_MAX      = impl_::t_add_MAX<T, V>;
+  template<typename T> constexpr auto MAX_of     = impl_::MAX_of<T>;
+
+  template<typename T, T V> using t_add_MIN      = impl_::t_add_MIN<T, V>;
+  template<typename T> constexpr auto MIN_of     = impl_::MIN_of<T>;
+
+  template<typename T>      using t_add_SIZEOF   = impl_::t_add_SIZEOF<T>;
+  template<typename T> constexpr auto SIZEOF_of  = impl_::SIZEOF_of<T>;
+
+  template<typename T>      using t_add_BITS     = impl_::t_add_BITS<T>;
+  template<typename T> constexpr auto BITS_of    = impl_::BITS_of<T>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -123,10 +136,10 @@ namespace traits
   template<typename I> using t_if     = impl_::t_if<I>;
   template<typename I> using t_if_not = impl_::t_if_not<I>;
 
-  template<typename O, typename T>
-  using t_opt_if     = impl_::t_opt_if<O, T>;
-  template<typename O, typename T>
-  using t_opt_if_not = impl_::t_opt_if_not<O, T>;
+  template<typename O, typename I>
+  using t_opt_if     = impl_::t_opt_if<O, I>;
+  template<typename O, typename I>
+  using t_opt_if_not = impl_::t_opt_if_not<O, I>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -162,55 +175,224 @@ namespace traits
 
   template<typename T, template<typename, typename...> class C,
                        template<typename, typename...> class... Cs>
-  using t_all_is_true     = impl_::t_all_is_true<T, C, Cs...>;
+  using t_all_is_true         = impl_::t_all_is_true<T, C, Cs...>;
 
   template<typename T, template<typename, typename...> class C,
                        template<typename, typename...> class... Cs>
-  using t_all_is_not_true = impl_::t_all_is_not_true<T, C, Cs...>;
+  using t_all_is_not_true     = impl_::t_all_is_not_true<T, C, Cs...>;
+
+  template<typename O, typename T, template<typename, typename...> class C,
+                                   template<typename, typename...> class... Cs>
+  using t_opt_if_all_true     = impl_::t_opt_if_all_true<O, T, C, Cs...>;
+
+  template<typename O, typename T, template<typename, typename...> class C,
+                                   template<typename, typename...> class... Cs>
+  using t_opt_if_all_not_true = impl_::t_opt_if_all_not_true<O, T, C, Cs...>;
 
   template<typename T, template<typename, typename...> class C,
                        template<typename, typename...> class... Cs>
-  using t_if_all_true     = impl_::t_if_all_true<T, C, Cs...>;
+  using t_if_all_true         = impl_::t_if_all_true<T, C, Cs...>;
 
   template<typename T, template<typename, typename...> class C,
                        template<typename, typename...> class... Cs>
-  using t_if_all_not_true = impl_::t_if_all_not_true<T, C, Cs...>;
+  using t_if_all_not_true     = impl_::t_if_all_not_true<T, C, Cs...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T, template<typename, typename...> class C,
                        template<typename, typename...> class... Cs>
-  using t_none_is_true = impl_::t_none_is_true<T, C, Cs...>;
+  using t_none_is_true     = impl_::t_none_is_true<T, C, Cs...>;
+
+  template<typename O, typename T, template<typename, typename...> class C,
+                                   template<typename, typename...> class... Cs>
+  using t_opt_if_none_true = impl_::t_opt_if_none_true<O, T, C, Cs...>;
 
   template<typename T, template<typename, typename...> class C,
                        template<typename, typename...> class... Cs>
-  using t_if_none_true = impl_::t_if_none_true<T, C, Cs...>;
+  using t_if_none_true     = impl_::t_if_none_true<T, C, Cs...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T, template<typename, typename...> class C,
                        template<typename, typename...> class... Cs>
-  using t_least_one_is_true = impl_::t_least_one_is_true<T, C, Cs...>;
+  using t_least_one_is_true
+    = impl_::t_least_one_is_true<T, C, Cs...>;
+
+  template<typename O, typename T, template<typename, typename...> class C,
+                                   template<typename, typename...> class... Cs>
+  using t_opt_if_least_one_true
+    = impl_::t_opt_if_least_one_true<O, T, C, Cs...>;
 
   template<typename T, template<typename, typename...> class C,
                        template<typename, typename...> class... Cs>
-  using t_if_least_one_true = impl_::t_if_least_one_true<T, C, Cs...>;
+  using t_if_least_one_true
+    = impl_::t_if_least_one_true<T, C, Cs...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   template<template<typename, typename...> class C, typename T, typename... Ts>
-  using t_each_is_true = impl_::t_each_is_true<C, T, Ts...>;
+  using t_each_is_true     = impl_::t_each_is_true<C, T, Ts...>;
 
-  template<template<typename, typename...> class C, typename T, typename...Ts>
-  using t_if_each_true = impl_::t_if_each_true<C, T, Ts...>;
+  template<typename O, template<typename, typename...> class C,
+                       typename T, typename...Ts>
+  using t_opt_if_each_true = impl_::t_opt_if_each_true<O, C, T, Ts...>;
+
+  template<template<typename, typename...> class C, typename T, typename... Ts>
+  using t_if_each_true     = impl_::t_if_each_true<C, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<template<typename, typename...> class C, typename T, typename...Ts>
-  using t_each_is_false = impl_::t_each_is_false<C, T, Ts...>;
+  template<template<typename, typename...> class C, typename T, typename... Ts>
+  using t_each_is_false     = impl_::t_each_is_false<C, T, Ts...>;
 
-  template<template<typename, typename...> class C, typename T, typename...Ts>
-  using t_if_each_false = impl_::t_if_each_false<C, T, Ts...>;
+  template<typename O, template<typename, typename...> class C,
+                       typename T, typename...Ts>
+  using t_opt_if_each_false = impl_::t_opt_if_each_false<O, C, T, Ts...>;
+
+  template<template<typename, typename...> class C, typename T, typename... Ts>
+  using t_if_each_false     = impl_::t_if_each_false<C, T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename... Ts>
+  using t_is_true     = impl_::t_is_true<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_true = impl_::t_opt_if_true<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_true     = impl_::t_if_true<T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename... Ts>
+  using t_is_false     = impl_::t_is_false<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_false = impl_::t_opt_if_false<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_false     = impl_::t_if_false<T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_same         = impl_::t_is_same<T, T1, Ts...>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_not_same     = impl_::t_is_not_same<T, T1, Ts...>;
+
+  template<typename O, typename T, typename T1, typename... Ts>
+  using t_opt_if_same     = impl_::t_opt_if_same<O, T, T1, Ts...>;
+
+  template<typename O, typename T, typename T1, typename... Ts>
+  using t_opt_if_not_same = impl_::t_opt_if_not_same<O, T, T1, Ts...>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_if_same         = impl_::t_if_same<T, T1, Ts...>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_if_not_same     = impl_::t_if_not_same<T, T1, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename... Ts>
+  using t_is_one_of         = impl_::t_is_one_of<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_one_of     = impl_::t_is_not_one_of<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_one_of     = impl_::t_opt_if_one_of<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_one_of = impl_::t_opt_if_not_one_of<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_one_of         = impl_::t_if_one_of<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_one_of     = impl_::t_if_not_one_of<T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename... Ts>
+  using t_is_lvalue         = impl_::t_is_lvalue<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_lvalue     = impl_::t_is_not_lvalue<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_lvalue     = impl_::t_opt_if_lvalue<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_lvalue = impl_::t_opt_if_not_lvalue<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_lvalue         = impl_::t_if_lvalue<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_lvalue     = impl_::t_if_not_lvalue<T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename... Ts>
+  using t_is_xvalue         = impl_::t_is_xvalue<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_xvalue     = impl_::t_is_not_xvalue<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_xvalue     = impl_::t_opt_if_xvalue<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_xvalue = impl_::t_opt_if_not_xvalue<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_xvalue         = impl_::t_if_xvalue<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_xvalue     = impl_::t_if_not_xvalue<T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename... Ts>
+  using t_is_prvalue         = impl_::t_is_prvalue<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_prvalue     = impl_::t_is_not_prvalue<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_prvalue     = impl_::t_opt_if_prvalue<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_prvalue = impl_::t_opt_if_not_prvalue<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_prvalue         = impl_::t_if_prvalue<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_prvalue     = impl_::t_if_not_prvalue<T, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename... Ts>
+  using t_is_result         = impl_::t_is_result<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_result     = impl_::t_is_not_result<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_result     = impl_::t_opt_if_result<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_result = impl_::t_opt_if_not_result<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_result         = impl_::t_if_result<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_result     = impl_::t_if_not_result<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -221,151 +403,249 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, typename T1, typename... Ts>
-  using t_is_same     = impl_::t_is_same<T, T1, Ts...>;
-  template<typename T, typename T1, typename... Ts>
-  using t_is_not_same = impl_::t_is_not_same<T, T1, Ts...>;
-  template<typename T, typename T1, typename... Ts>
-  using t_if_same     = impl_::t_if_same<T, T1, Ts...>;
-  template<typename T, typename T1, typename... Ts>
-  using t_if_not_same = impl_::t_if_not_same<T, T1, Ts...>;
+  template<typename T, typename... Ts>
+  using t_is_bool         = impl_::t_is_bool<T, Ts...>;
 
-  /////////////////////////////////////////////////////////////////////////////
+  template<typename T, typename... Ts>
+  using t_is_not_bool     = impl_::t_is_not_bool<T, Ts...>;
 
-  template<typename T> using t_is_lvalue      = impl_::t_is_lvalue<T>;
-  template<typename T> using t_is_not_lvalue  = impl_::t_is_not_lvalue<T>;
-  template<typename T> using t_if_lvalue      = impl_::t_if_lvalue<T>;
-  template<typename T> using t_if_not_lvalue  = impl_::t_if_not_lvalue<T>;
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_bool     = impl_::t_opt_if_bool<O, T, Ts...>;
 
-  template<typename T> using t_is_xvalue      = impl_::t_is_xvalue<T>;
-  template<typename T> using t_is_not_xvalue  = impl_::t_is_not_xvalue<T>;
-  template<typename T> using t_if_xvalue      = impl_::t_if_xvalue<T>;
-  template<typename T> using t_if_not_xvalue  = impl_::t_if_not_xvalue<T>;
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_bool = impl_::t_opt_if_not_bool<O, T, Ts...>;
 
-  template<typename T> using t_is_prvalue     = impl_::t_is_prvalue<T>;
-  template<typename T> using t_is_not_prvalue = impl_::t_is_not_prvalue<T>;
-  template<typename T> using t_if_prvalue     = impl_::t_if_prvalue<T>;
-  template<typename T> using t_if_not_prvalue = impl_::t_if_not_prvalue<T>;
+  template<typename T, typename... Ts>
+  using t_if_bool         = impl_::t_if_bool<T, Ts...>;
 
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T> using t_is_true = impl_::t_is_true<T>;
-  template<typename T> using t_if_true = impl_::t_if_true<T>;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T> using t_is_false = impl_::t_is_false<T>;
-  template<typename T> using t_if_false = impl_::t_if_false<T>;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T> using t_is_result     = impl_::t_is_result<T>;
-  template<typename T> using t_is_not_result = impl_::t_is_not_result<T>;
-  template<typename T> using t_if_result     = impl_::t_if_result<T>;
-  template<typename T> using t_if_not_result = impl_::t_if_not_result<T>;
+  template<typename T, typename... Ts>
+  using t_if_not_bool     = impl_::t_if_not_bool<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T, typename... Ts>
-  using t_is_one_of     = impl_::t_is_one_of<T, Ts...>;
+  using t_is_void         = impl_::t_is_void<T, Ts...>;
+
   template<typename T, typename... Ts>
-  using t_is_not_one_of = impl_::t_is_not_one_of<T, Ts...>;
+  using t_is_not_void     = impl_::t_is_not_void<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_void     = impl_::t_opt_if_void<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_void = impl_::t_opt_if_not_void<O, T, Ts...>;
+
   template<typename T, typename... Ts>
-  using t_if_one_of     = impl_::t_if_one_of<T, Ts...>;
+  using t_if_void         = impl_::t_if_void<T, Ts...>;
+
   template<typename T, typename... Ts>
-  using t_if_not_one_of = impl_::t_if_not_one_of<T, Ts...>;
+  using t_if_not_void     = impl_::t_if_not_void<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_is_bool     = impl_::t_is_bool<T>;
-  template<typename T> using t_is_not_bool = impl_::t_is_not_bool<T>;
-  template<typename T> using t_if_bool     = impl_::t_if_bool<T>;
-  template<typename T> using t_if_not_bool = impl_::t_if_not_bool<T>;
+  template<typename T, typename... Ts>
+  using t_is_nullptr         = impl_::t_is_nullptr<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_nullptr     = impl_::t_is_not_nullptr<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_nullptr     = impl_::t_opt_if_nullptr<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_nullptr = impl_::t_opt_if_not_nullptr<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_nullptr         = impl_::t_if_nullptr<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_nullptr     = impl_::t_if_not_nullptr<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_is_void     = impl_::t_is_void<T>;
-  template<typename T> using t_is_not_void = impl_::t_is_not_void<T>;
-  template<typename T> using t_if_void     = impl_::t_if_void<T>;
-  template<typename T> using t_if_not_void = impl_::t_if_not_void<T>;
+  template<typename T, typename... Ts>
+  using t_is_enum         = impl_::t_is_enum<T, Ts...>;
 
-  /////////////////////////////////////////////////////////////////////////////
+  template<typename T, typename... Ts>
+  using t_is_not_enum     = impl_::t_is_not_enum<T, Ts...>;
 
-  template<typename T> using t_is_nullptr     = impl_::t_is_nullptr<T>;
-  template<typename T> using t_is_not_nullptr = impl_::t_is_not_nullptr<T>;
-  template<typename T> using t_if_nullptr     = impl_::t_if_nullptr<T>;
-  template<typename T> using t_if_not_nullptr = impl_::t_if_not_nullptr<T>;
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_enum     = impl_::t_opt_if_enum<O, T, Ts...>;
 
-  /////////////////////////////////////////////////////////////////////////////
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_enum = impl_::t_opt_if_not_enum<O, T, Ts...>;
 
-  template<typename T> using t_is_enum     = impl_::t_is_enum<T>;
-  template<typename T> using t_is_not_enum = impl_::t_is_not_enum<T>;
-  template<typename T> using t_if_enum     = impl_::t_if_enum<T>;
-  template<typename T> using t_if_not_enum = impl_::t_if_not_enum<T>;
+  template<typename T, typename... Ts>
+  using t_if_enum         = impl_::t_if_enum<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_enum     = impl_::t_if_not_enum<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename B, typename D, typename... Ds>
-  using t_is_base_of     = impl_::t_is_base_of<B, D, Ds...>;
+  using t_is_base_of         = impl_::t_is_base_of<B, D, Ds...>;
+
   template<typename B, typename D, typename... Ds>
-  using t_is_not_base_of = impl_::t_is_not_base_of<B, D, Ds...>;
+  using t_is_not_base_of     = impl_::t_is_not_base_of<B, D, Ds...>;
+
+  template<typename O, typename B, typename D, typename... Ds>
+  using t_opt_if_base_of     = impl_::t_opt_if_base_of<O, B, D, Ds...>;
+
+  template<typename O, typename B, typename D, typename... Ds>
+  using t_opt_if_not_base_of = impl_::t_opt_if_not_base_of<O, B, D, Ds...>;
+
   template<typename B, typename D, typename... Ds>
-  using t_if_base_of     = impl_::t_if_base_of<B, D, Ds...>;
+  using t_if_base_of         = impl_::t_if_base_of<B, D, Ds...>;
+
   template<typename B, typename D, typename... Ds>
-  using t_if_not_base_of = impl_::t_if_not_base_of<B, D, Ds...>;
+  using t_if_not_base_of     = impl_::t_if_not_base_of<B, D, Ds...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename D, typename B, typename... Bs>
-  using t_is_derived_from     = impl_::t_is_derived_from<D, B, Bs...>;
+  using t_is_derived_from
+    = impl_::t_is_derived_from<D, B, Bs...>;
+
   template<typename D, typename B, typename... Bs>
-  using t_is_not_derived_from = impl_::t_is_not_derived_from<D, B, Bs...>;
+  using t_is_not_derived_from
+   = impl_::t_is_not_derived_from<D, B, Bs...>;
+
+  template<typename O, typename D, typename B, typename... Bs>
+  using t_opt_if_derived_from
+    = impl_::t_opt_if_derived_from<O, D, B, Bs...>;
+
+  template<typename O, typename D, typename B, typename... Bs>
+  using t_opt_if_not_derived_from
+    = impl_::t_opt_if_not_derived_from<O, D, B, Bs...>;
+
   template<typename D, typename B, typename... Bs>
-  using t_if_derived_from     = impl_::t_if_derived_from<D, B, Bs...>;
+  using t_if_derived_from
+    = impl_::t_if_derived_from<D, B, Bs...>;
+
   template<typename D, typename B, typename... Bs>
-  using t_if_not_derived_from = impl_::t_if_not_derived_from<D, B, Bs...>;
+  using t_if_not_derived_from
+    = impl_::t_if_not_derived_from<D, B, Bs...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_is_union     = impl_::t_is_union<T>;
-  template<typename T> using t_is_not_union = impl_::t_is_not_union<T>;
-  template<typename T> using t_if_union     = impl_::t_if_union<T>;
-  template<typename T> using t_if_not_union = impl_::t_if_not_union<T>;
+  template<typename T, typename... Ts>
+  using t_is_union         = impl_::t_is_union<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_union     = impl_::t_is_not_union<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_union     = impl_::t_opt_if_union<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_union = impl_::t_opt_if_not_union<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_union         = impl_::t_if_union<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_union     = impl_::t_if_not_union<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_is_class     = impl_::t_is_class<T>;
-  template<typename T> using t_is_not_class = impl_::t_is_not_class<T>;
-  template<typename T> using t_if_class     = impl_::t_if_class<T>;
-  template<typename T> using t_if_not_class = impl_::t_if_not_class<T>;
+  template<typename T, typename... Ts>
+  using t_is_class         = impl_::t_is_class<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_class     = impl_::t_is_not_class<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_class     = impl_::t_opt_if_class<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_class = impl_::t_opt_if_not_class<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_class         = impl_::t_if_class<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_class     = impl_::t_if_not_class<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_is_trivial     = impl_::t_is_trivial<T>;
-  template<typename T> using t_is_not_trivial = impl_::t_is_not_trivial<T>;
-  template<typename T> using t_if_trivial     = impl_::t_if_trivial<T>;
-  template<typename T> using t_if_not_trivial = impl_::t_if_not_trivial<T>;
+  template<typename T, typename... Ts>
+  using t_is_trivial         = impl_::t_is_trivial<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_trivial     = impl_::t_is_not_trivial<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_trivial     = impl_::t_opt_if_trivial<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_trivial = impl_::t_opt_if_not_trivial<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_trivial         = impl_::t_if_trivial<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_trivial     = impl_::t_if_not_trivial<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_is_pod     = impl_::t_is_pod<T>;
-  template<typename T> using t_is_not_pod = impl_::t_is_not_pod<T>;
-  template<typename T> using t_if_pod     = impl_::t_if_pod<T>;
-  template<typename T> using t_if_not_pod = impl_::t_if_not_pod<T>;
+  template<typename T, typename... Ts>
+  using t_is_pod         = impl_::t_is_pod<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_pod     = impl_::t_is_not_pod<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_pod     = impl_::t_opt_if_pod<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_pod = impl_::t_opt_if_not_pod<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_pod         = impl_::t_if_pod<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_pod     = impl_::t_if_not_pod<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_is_literal     = impl_::t_is_literal<T>;
-  template<typename T> using t_is_not_literal = impl_::t_is_not_literal<T>;
-  template<typename T> using t_if_literal     = impl_::t_if_literal<T>;
-  template<typename T> using t_if_not_literal = impl_::t_if_not_literal<T>;
+  template<typename T, typename... Ts>
+  using t_is_literal         = impl_::t_is_literal<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_literal     = impl_::t_is_not_literal<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_literal     = impl_::t_opt_if_literal<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_literal = impl_::t_opt_if_not_literal<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_literal         = impl_::t_if_literal<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_literal     = impl_::t_if_not_literal<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> using t_is_empty     = impl_::t_is_empty<T>;
-  template<typename T> using t_is_not_empty = impl_::t_is_not_empty<T>;
-  template<typename T> using t_if_empty     = impl_::t_if_empty<T>;
-  template<typename T> using t_if_not_empty = impl_::t_if_not_empty<T>;
+  template<typename T, typename... Ts>
+  using t_is_empty         = impl_::t_is_empty<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_empty     = impl_::t_is_not_empty<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_empty     = impl_::t_opt_if_empty<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_empty = impl_::t_opt_if_not_empty<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_empty         = impl_::t_if_empty<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_empty     = impl_::t_if_not_empty<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -713,37 +993,52 @@ namespace traits
 
   template<typename T> using t_int_rank = impl_::t_int_rank<T>;
 
+  /////////////////////////////////////////////////////////////////////////////
+
   template<typename T, typename T1, typename... Ts>
   using t_is_equal_int_rank = impl_::t_is_equal_int_rank<T, T1, Ts...>;
+
   template<typename T, typename T1, typename... Ts>
   using t_is_not_equal_int_rank = impl_::t_is_not_equal_int_rank<T, T1, Ts...>;
+
   template<typename T, typename T1, typename... Ts>
   using t_if_equal_int_rank = impl_::t_if_equal_int_rank<T, T1, Ts...>;
+
   template<typename T, typename T1, typename... Ts>
   using t_if_not_equal_int_rank = impl_::t_if_not_equal_int_rank<T, T1, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
 
   template<typename T, typename T1, typename... Ts>
   using t_is_greater_int_rank
     = impl_::t_is_greater_int_rank<T, T1, Ts...>;
+
   template<typename T, typename T1, typename... Ts>
   using t_is_not_greater_int_rank
     = impl_::t_is_not_greater_int_rank<T, T1, Ts...>;
+
   template<typename T, typename T1, typename... Ts>
   using t_if_greater_int_rank
     = impl_::t_if_greater_int_rank<T, T1, Ts...>;
+
   template<typename T, typename T1, typename... Ts>
   using t_if_not_greater_int_rank
     = impl_::t_if_not_greater_int_rank<T, T1, Ts...>;
 
+  /////////////////////////////////////////////////////////////////////////////
+
   template<typename T, typename T1, typename... Ts>
   using t_is_greater_equal_int_rank
     = impl_::t_is_greater_equal_int_rank<T, T1, Ts...>;
+
   template<typename T, typename T1, typename... Ts>
   using t_is_not_greater_equal_int_rank
     = impl_::t_is_not_greater_equal_int_rank<T, T1, Ts...>;
+
   template<typename T, typename T1, typename... Ts>
   using t_if_greater_equal_int_rank
     = impl_::t_if_greater_equal_int_rank<T, T1, Ts...>;
+
   template<typename T, typename T1, typename... Ts>
   using t_if_not_greater_equal_int_rank
     = impl_::t_if_not_greater_equal_int_rank<T, T1, Ts...>;

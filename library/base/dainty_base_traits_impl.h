@@ -74,13 +74,14 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  enum t_opt1 { OPT1 };
-  enum t_opt2 { OPT2 };
-  enum t_opt3 { OPT3 };
-  enum t_opt4 { OPT4 };
-  enum t_opt5 { OPT5 };
-  enum t_opt6 { OPT6 };
-  enum t_opt7 { OPT7 };
+  using t_opt = t_yes;
+  enum  t_opt1 { OPT1 };
+  enum  t_opt2 { OPT2 };
+  enum  t_opt3 { OPT3 };
+  enum  t_opt4 { OPT4 };
+  enum  t_opt5 { OPT5 };
+  enum  t_opt6 { OPT6 };
+  enum  t_opt7 { OPT7 };
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -249,10 +250,10 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename O, typename I> using t_opt_if = t_if_then<I, O>;
-  template<typename I>             using t_if     = t_opt_if<t_yes, I>;
+  template<typename I>             using t_if     = t_opt_if<t_opt, I>;
 
   template<typename O, typename I> using t_opt_if_not = t_opt_if<O, t_not<I>>;
-  template<typename I>             using t_if_not     = t_opt_if_not<t_yes, I>;
+  template<typename I>             using t_if_not     = t_opt_if_not<t_opt, I>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -285,10 +286,10 @@ namespace impl_
   using t_opt_if_not_there = t_opt_if<O, t_is_not_there<Op, T>>;
 
   template<template<typename> class Op, typename T>
-  using t_if_there         = t_opt_if_there<t_yes, Op, T>;
+  using t_if_there         = t_opt_if_there<t_opt, Op, T>;
 
   template<template<typename> class Op, typename T>
-  using t_if_not_there     = t_opt_if_not_there<t_yes, Op, T>;
+  using t_if_not_there     = t_opt_if_not_there<t_opt, Op, T>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -353,11 +354,11 @@ namespace impl_
 
   template<typename T, template<typename, typename...> class C,
                        template<typename, typename...> class... Cs>
-  using t_if_all_true         = t_opt_if_all_true<t_yes, T, C, Cs...>;
+  using t_if_all_true         = t_opt_if_all_true<t_opt, T, C, Cs...>;
 
   template<typename T, template<typename, typename...> class C,
                        template<typename, typename...> class... Cs>
-  using t_if_all_not_true     = t_opt_if_all_not_true<t_yes, T, C, Cs...>;
+  using t_if_all_not_true     = t_opt_if_all_not_true<t_opt, T, C, Cs...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -381,7 +382,7 @@ namespace impl_
 
   template<typename T, template<typename, typename...> class C,
                        template<typename, typename...> class... Cs>
-  using t_if_none_true  = t_opt_if_none_true<t_yes, T, C, Cs...>;
+  using t_if_none_true  = t_opt_if_none_true<t_opt, T, C, Cs...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -405,7 +406,7 @@ namespace impl_
 
   template<typename T, template<typename, typename...> class C,
                        template<typename, typename...> class... Cs>
-  using t_if_least_one_true = t_opt_if_least_one_true<t_yes, T, C, Cs...>;
+  using t_if_least_one_true = t_opt_if_least_one_true<t_opt, T, C, Cs...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -427,7 +428,7 @@ namespace impl_
   using t_opt_if_each_true = t_opt_if<O, t_each_is_true<C, T, Ts...>>;
 
   template<template<typename, typename...> class C, typename T, typename... Ts>
-  using t_if_each_true     = t_opt_if_each_true<t_yes, C, T, Ts...>;
+  using t_if_each_true     = t_opt_if_each_true<t_opt, C, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -449,7 +450,7 @@ namespace impl_
   using t_opt_if_each_false = t_opt_if<O, t_each_is_false<C, T, Ts...>>;
 
   template<template<typename, typename...> class C, typename T, typename...Ts>
-  using t_if_each_false     = t_opt_if_each_false<t_yes, C, T, Ts...>;
+  using t_if_each_false     = t_opt_if_each_false<t_opt, C, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -468,7 +469,7 @@ namespace impl_
   using t_opt_if_true = t_opt_if<O, t_is_true<T>>;
 
   template<typename T, typename... Ts>
-  using t_if_true     = t_opt_if_true<t_yes, T, Ts...>;
+  using t_if_true     = t_opt_if_true<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -487,7 +488,7 @@ namespace impl_
   using t_opt_if_false = t_opt_if<O, t_is_false<T>>;
 
   template<typename T, typename... Ts>
-  using t_if_false     = t_opt_if_false<t_yes, T, Ts...>;
+  using t_if_false     = t_opt_if_false<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -513,10 +514,10 @@ namespace impl_
   using t_opt_if_not_same = t_opt_if<O, t_is_not_same<T, T1, Ts...>>;
 
   template<typename T, typename T1, typename... Ts>
-  using t_if_same         = t_opt_if_same<t_yes, T, T1, Ts...>;
+  using t_if_same         = t_opt_if_same<t_opt, T, T1, Ts...>;
 
   template<typename T, typename T1, typename... Ts>
-  using t_if_not_same     = t_opt_if_not_same<t_yes, T, T1, Ts...>;
+  using t_if_not_same     = t_opt_if_not_same<t_opt, T, T1, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -554,10 +555,10 @@ namespace impl_
   using t_opt_if_not_one_of = t_opt_if<O, t_is_not_one_of<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_one_of         = t_opt_if_one_of<t_yes, T, Ts...>;
+  using t_if_one_of         = t_opt_if_one_of<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_one_of     = t_opt_if_not_one_of<t_yes, T, Ts...>;
+  using t_if_not_one_of     = t_opt_if_not_one_of<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -592,10 +593,10 @@ namespace impl_
   using t_opt_if_not_lvalue = t_opt_if<O, t_is_not_lvalue<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_lvalue         = t_opt_if_lvalue<t_yes, T, Ts...>;
+  using t_if_lvalue         = t_opt_if_lvalue<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_lvalue     = t_opt_if_not_lvalue<t_yes, T, Ts...>;
+  using t_if_not_lvalue     = t_opt_if_not_lvalue<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -618,10 +619,10 @@ namespace impl_
   using t_opt_if_not_xvalue  = t_opt_if<O, t_is_not_xvalue<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_xvalue          = t_opt_if_xvalue<t_yes, T, Ts...>;
+  using t_if_xvalue          = t_opt_if_xvalue<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_xvalue      = t_opt_if_not_xvalue<t_yes, T, Ts...>;
+  using t_if_not_xvalue      = t_opt_if_not_xvalue<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -644,10 +645,10 @@ namespace impl_
   using t_opt_if_not_prvalue  = t_opt_if<O, t_is_not_prvalue<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_prvalue          = t_opt_if_prvalue<t_yes, T, Ts...>;
+  using t_if_prvalue          = t_opt_if_prvalue<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_prvalue      = t_opt_if_not_prvalue<t_yes, T, Ts...>;
+  using t_if_not_prvalue      = t_opt_if_not_prvalue<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -669,10 +670,10 @@ namespace impl_
   using t_opt_if_not_result = t_opt_if<O, t_is_not_result<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_result         = t_opt_if_result<t_yes, T, Ts...>;
+  using t_if_result         = t_opt_if_result<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_result     = t_opt_if_not_result<t_yes, T, Ts...>;
+  using t_if_not_result     = t_opt_if_not_result<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -697,10 +698,10 @@ namespace impl_
   using t_opt_if_not_bool = t_opt_if<O, t_is_not_bool<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_bool         = t_opt_if_bool<t_yes, T, Ts...>;
+  using t_if_bool         = t_opt_if_bool<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_bool     = t_opt_if_not_bool<t_yes, T, Ts...>;
+  using t_if_not_bool     = t_opt_if_not_bool<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -724,10 +725,10 @@ namespace impl_
   using t_opt_if_not_void = t_opt_if<O, t_is_not_void<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_void         = t_opt_if_void<t_yes, T, Ts...>;
+  using t_if_void         = t_opt_if_void<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_void     = t_opt_if_not_void<t_yes, T, Ts...>;
+  using t_if_not_void     = t_opt_if_not_void<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -752,10 +753,10 @@ namespace impl_
   using t_opt_if_not_nullptr = t_opt_if<O, t_is_not_nullptr<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_nullptr         = t_opt_if_nullptr<t_yes, T, Ts...>;
+  using t_if_nullptr         = t_opt_if_nullptr<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_nullptr     = t_opt_if_not_nullptr<t_yes, T, Ts...>;
+  using t_if_not_nullptr     = t_opt_if_not_nullptr<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -776,10 +777,10 @@ namespace impl_
   using t_opt_if_not_enum = t_opt_if<O, t_is_not_enum<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_enum         = t_opt_if_enum<t_yes, T, Ts...>;
+  using t_if_enum         = t_opt_if_enum<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_enum     = t_opt_if_not_enum<t_yes, T, Ts...>;
+  using t_if_not_enum     = t_opt_if_not_enum<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -802,10 +803,10 @@ namespace impl_
   using t_opt_if_not_base_of = t_opt_if<O, t_is_not_base_of<B, D, Ds...>>;
 
   template<typename B, typename D, typename... Ds>
-  using t_if_base_of         = t_opt_if_base_of<t_yes, B, D, Ds...>;
+  using t_if_base_of         = t_opt_if_base_of<t_opt, B, D, Ds...>;
 
   template<typename B, typename D, typename... Ds>
-  using t_if_not_base_of     = t_opt_if_not_base_of<t_yes, B, D, Ds...>;
+  using t_if_not_base_of     = t_opt_if_not_base_of<t_opt, B, D, Ds...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -824,10 +825,10 @@ namespace impl_
     = t_opt_if<O, t_is_not_derived_from<D, B, Bs...>>;
 
   template<typename D, typename B, typename... Bs>
-  using t_if_derived_from         = t_opt_if_derived_from<t_yes, D, B, Bs...>;
+  using t_if_derived_from         = t_opt_if_derived_from<t_opt, D, B, Bs...>;
 
   template<typename D, typename B, typename... Bs>
-  using t_if_not_derived_from     = t_opt_if_not_derived_from<t_yes, D, B, Bs...>;
+  using t_if_not_derived_from     = t_opt_if_not_derived_from<t_opt, D, B, Bs...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -848,10 +849,10 @@ namespace impl_
   using t_opt_if_not_union = t_opt_if<O, t_is_not_union<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_union         = t_opt_if_union<t_yes, T, Ts...>;
+  using t_if_union         = t_opt_if_union<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_union     = t_opt_if_not_union<t_yes, T, Ts...>;
+  using t_if_not_union     = t_opt_if_not_union<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -872,10 +873,10 @@ namespace impl_
   using t_opt_if_not_class = t_opt_if<O, t_is_not_class<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_class         = t_opt_if_class<t_yes, T, Ts...>;
+  using t_if_class         = t_opt_if_class<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_class     = t_opt_if_not_class<t_yes, T, Ts...>;
+  using t_if_not_class     = t_opt_if_not_class<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -896,10 +897,10 @@ namespace impl_
   using t_opt_if_not_trivial = t_opt_if<O, t_is_not_trivial<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_trivial         = t_opt_if_trivial<t_yes, T, Ts...>;
+  using t_if_trivial         = t_opt_if_trivial<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_trivial     = t_opt_if_not_trivial<t_yes, T, Ts...>;
+  using t_if_not_trivial     = t_opt_if_not_trivial<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -920,10 +921,10 @@ namespace impl_
   using t_opt_if_not_pod = t_opt_if<O, t_is_not_pod<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_pod         = t_opt_if_pod<t_yes, T, Ts...>;
+  using t_if_pod         = t_opt_if_pod<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_pod     = t_opt_if_not_pod<t_yes, T, Ts...>;
+  using t_if_not_pod     = t_opt_if_not_pod<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -945,10 +946,10 @@ namespace impl_
   using t_opt_if_not_literal = t_opt_if<O, t_is_not_literal<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_literal         = t_opt_if_literal<t_yes, T, Ts...>;
+  using t_if_literal         = t_opt_if_literal<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_literal     = t_opt_if_not_literal<t_yes, T, Ts...>;
+  using t_if_not_literal     = t_opt_if_not_literal<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -969,10 +970,10 @@ namespace impl_
   using t_opt_if_not_empty = t_opt_if<O, t_is_not_empty<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_empty         = t_opt_if_empty<t_yes, T, Ts...>;
+  using t_if_empty         = t_opt_if_empty<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_empty     = t_opt_if_not_empty<t_yes, T, Ts...>;
+  using t_if_not_empty     = t_opt_if_not_empty<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -994,10 +995,10 @@ namespace impl_
   using t_opt_if_not_polymorphic = t_opt_if<O, t_is_not_polymorphic<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_polymorphic         = t_opt_if_polymorphic<t_yes, T, Ts...>;
+  using t_if_polymorphic         = t_opt_if_polymorphic<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_polymorphic     = t_opt_if_not_polymorphic<t_yes, T, Ts...>;
+  using t_if_not_polymorphic     = t_opt_if_not_polymorphic<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1018,10 +1019,10 @@ namespace impl_
   using t_opt_if_not_final = t_opt_if<O, t_is_not_final<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_final         = t_opt_if_final<t_yes, T, Ts...>;
+  using t_if_final         = t_opt_if_final<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_final     = t_opt_if_not_final<t_yes, T, Ts...>;
+  using t_if_not_final     = t_opt_if_not_final<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1042,10 +1043,10 @@ namespace impl_
   using t_opt_if_not_abstract = t_opt_if<O, t_is_not_abstract<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_abstract         = t_opt_if_abstract<t_yes, T, Ts...>;
+  using t_if_abstract         = t_opt_if_abstract<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_abstract     = t_opt_if_not_abstract<t_yes, T, Ts...>;
+  using t_if_not_abstract     = t_opt_if_not_abstract<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1072,11 +1073,11 @@ namespace impl_
 
   template<typename T, typename... Ts>
   using t_if_trivially_copyable
-    = t_opt_if_trivially_copyable<t_yes, T, Ts...>;
+    = t_opt_if_trivially_copyable<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
   using t_if_not_trivially_copyable
-    = t_opt_if_not_trivially_copyable<t_yes, T, Ts...>;
+    = t_opt_if_not_trivially_copyable<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1103,11 +1104,11 @@ namespace impl_
 
   template<typename T, typename... Ts>
   using t_if_standard_layout
-    = t_opt_if_standard_layout<t_yes, T, Ts...>;
+    = t_opt_if_standard_layout<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
   using t_if_not_standard_layout
-    = t_opt_if_not_standard_layout<t_yes, T, Ts...>;
+    = t_opt_if_not_standard_layout<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1140,11 +1141,11 @@ namespace impl_
 
   template<typename T, typename... Ts>
   using t_if_bounded_array
-    = t_opt_if_bounded_array<t_yes, T, Ts...>;
+    = t_opt_if_bounded_array<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
   using t_if_not_bounded_array
-    = t_opt_if_not_bounded_array<t_yes, T, Ts...>;
+    = t_opt_if_not_bounded_array<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1174,11 +1175,11 @@ namespace impl_
 
   template<typename T, typename... Ts>
   using t_if_unbounded_array
-    = t_opt_if_unbounded_array<t_yes, T, Ts...>;
+    = t_opt_if_unbounded_array<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
   using t_if_not_unbounded_array
-    = t_opt_if_not_unbounded_array<t_yes, T, Ts...>;
+    = t_opt_if_not_unbounded_array<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1201,10 +1202,10 @@ namespace impl_
   using t_opt_if_not_array = t_opt_if<O, t_is_not_array<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_array         = t_opt_if_array<t_yes, T, Ts...>;
+  using t_if_array         = t_opt_if_array<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_array     = t_opt_if_not_array<t_yes, T, Ts...>;
+  using t_if_not_array     = t_opt_if_not_array<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1229,10 +1230,10 @@ namespace impl_
   using t_opt_if_not_ptr = t_opt_if<O, t_is_not_ptr<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_ptr         = t_opt_if_ptr<t_yes, T, Ts...>;
+  using t_if_ptr         = t_opt_if_ptr<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_ptr     = t_opt_if_not_ptr<t_yes, T, Ts...>;
+  using t_if_not_ptr     = t_opt_if_not_ptr<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1257,10 +1258,10 @@ namespace impl_
   using t_opt_if_not_ref = t_opt_if<O, t_is_not_ref<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_ref         = t_opt_if_ref<t_yes, T, Ts...>;
+  using t_if_ref         = t_opt_if_ref<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_ref     = t_opt_if_not_ref<t_yes, T, Ts...>;
+  using t_if_not_ref     = t_opt_if_not_ref<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1286,10 +1287,10 @@ namespace impl_
   using t_opt_if_not_lvalue_ref = t_opt_if<O, t_is_not_lvalue_ref<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_lvalue_ref         = t_opt_if_lvalue_ref<t_yes, T, Ts...>;
+  using t_if_lvalue_ref         = t_opt_if_lvalue_ref<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_lvalue_ref     = t_opt_if_not_lvalue_ref<t_yes, T, Ts...>;
+  using t_if_not_lvalue_ref     = t_opt_if_not_lvalue_ref<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1314,10 +1315,10 @@ namespace impl_
    using t_opt_if_not_rvalue_ref = t_opt_if<O, t_is_not_rvalue_ref<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_rvalue_ref          = t_opt_if_rvalue_ref<t_yes, T, Ts...>;
+  using t_if_rvalue_ref          = t_opt_if_rvalue_ref<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_rvalue_ref      = t_opt_if_not_rvalue_ref<t_yes, T, Ts...>;
+  using t_if_not_rvalue_ref      = t_opt_if_not_rvalue_ref<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1356,10 +1357,10 @@ namespace impl_
   using t_opt_if_not_free_func = t_opt_if<O, t_is_not_free_func<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_free_func         = t_opt_if_free_func<t_yes, T, Ts...>;
+  using t_if_free_func         = t_opt_if_free_func<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_free_func     = t_opt_if_not_free_func<t_yes, T, Ts...>;
+  using t_if_not_free_func     = t_opt_if_not_free_func<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2046,10 +2047,10 @@ namespace impl_
   using t_opt_if_not_func = t_opt_if<O, t_is_not_func<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_func         = t_opt_if_func<t_yes, T, Ts...>;
+  using t_if_func         = t_opt_if_func<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_func     = t_opt_if_not_func<t_yes, T, Ts...>;
+  using t_if_not_func     = t_opt_if_not_func<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2071,10 +2072,10 @@ namespace impl_
   using t_opt_if_not_object = t_opt_if<O, t_is_not_object<T>>;
 
   template<typename T, typename... Ts>
-  using t_if_object         = t_opt_if_object<t_yes, T, Ts...>;
+  using t_if_object         = t_opt_if_object<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_object     = t_opt_if_not_object<t_yes, T, Ts...>;
+  using t_if_not_object     = t_opt_if_not_object<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2115,10 +2116,10 @@ namespace impl_
   using t_opt_if_not_ref_able = t_opt_if<O, t_is_not_ref_able<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_ref_able         = t_opt_if_ref_able<t_yes, T, Ts...>;
+  using t_if_ref_able         = t_opt_if_ref_able<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_ref_able     = t_opt_if_not_ref_able<t_yes, T, Ts...>;
+  using t_if_not_ref_able     = t_opt_if_not_ref_able<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2231,10 +2232,10 @@ namespace impl_
   using t_opt_if_not_member_ptr = t_opt_if<O, t_is_not_member_ptr<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_member_ptr         = t_opt_if_member_ptr<t_yes, T, Ts...>;
+  using t_if_member_ptr         = t_opt_if_member_ptr<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_member_ptr     = t_opt_if_not_member_ptr<t_yes, T, Ts...>;
+  using t_if_not_member_ptr     = t_opt_if_not_member_ptr<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2259,10 +2260,10 @@ namespace impl_
   using t_opt_if_not_integer = t_opt_if<O, t_is_not_integer<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_integer         = t_opt_if_integer<t_yes, T, Ts...>;
+  using t_if_integer         = t_opt_if_integer<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_integer     = t_opt_if_not_integer<t_yes, T, Ts...>;
+  using t_if_not_integer     = t_opt_if_not_integer<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2289,10 +2290,10 @@ namespace impl_
   using t_opt_if_not_integral = t_opt_if<O, t_is_not_integral<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_integral         = t_opt_if_integral<t_yes, T, Ts...>;
+  using t_if_integral         = t_opt_if_integral<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_integral     = t_opt_if_not_integral<t_yes, T, Ts...>;
+  using t_if_not_integral     = t_opt_if_not_integral<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2323,11 +2324,11 @@ namespace impl_
 
   template<typename T, typename... Ts>
   using t_if_unsigned_integral
-    = t_opt_if_unsigned_integral<t_yes, T, Ts...>;
+    = t_opt_if_unsigned_integral<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
   using t_if_not_unsigned_integral
-    = t_opt_if_not_unsigned_integral<t_yes, T, Ts...>;
+    = t_opt_if_not_unsigned_integral<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2358,11 +2359,11 @@ namespace impl_
 
   template<typename T, typename... Ts>
   using t_if_signed_integral
-    = t_opt_if_signed_integral<t_yes, T, Ts...>;
+    = t_opt_if_signed_integral<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
   using t_if_not_signed_integral
-    = t_opt_if_not_signed_integral<t_yes, T, Ts...>;
+    = t_opt_if_not_signed_integral<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2384,10 +2385,10 @@ namespace impl_
   using t_opt_if_not_precision = t_opt_if<O, t_is_not_precision<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_precision         = t_opt_if_precision<t_yes, T, Ts...>;
+  using t_if_precision         = t_opt_if_precision<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_precision     = t_opt_if_not_precision<t_yes, T, Ts...>;
+  using t_if_not_precision     = t_opt_if_not_precision<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2410,10 +2411,10 @@ namespace impl_
   using t_opt_if_not_arithmetic = t_opt_if<O, t_is_not_arithmetic<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_arithmetic         = t_opt_if_arithmetic<t_yes, T, Ts...>;
+  using t_if_arithmetic         = t_opt_if_arithmetic<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_arithmetic     = t_opt_if_not_arithmetic<t_yes, T, Ts...>;
+  using t_if_not_arithmetic     = t_opt_if_not_arithmetic<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2437,10 +2438,10 @@ namespace impl_
   using t_opt_if_not_fundamental = t_opt_if<O, t_is_not_fundamental<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_fundamental         = t_opt_if_fundamental<t_yes, T, Ts...>;
+  using t_if_fundamental         = t_opt_if_fundamental<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_fundamental     = t_opt_if_not_fundamental<t_yes, T, Ts...>;
+  using t_if_not_fundamental     = t_opt_if_not_fundamental<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2466,10 +2467,10 @@ namespace impl_
   using t_opt_if_not_scalar = t_opt_if<O, t_is_not_scalar<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_scalar         = t_opt_if_scalar<t_yes, T, Ts...>;
+  using t_if_scalar         = t_opt_if_scalar<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_scalar     = t_opt_if_not_scalar<t_yes, T, Ts...>;
+  using t_if_not_scalar     = t_opt_if_not_scalar<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2491,10 +2492,10 @@ namespace impl_
   using t_opt_if_not_compound = t_opt_if<O, t_is_not_compound<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_compound         = t_opt_if_compound<t_yes, T, Ts...>;
+  using t_if_compound         = t_opt_if_compound<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_compound     = t_opt_if_not_compound<t_yes, T, Ts...>;
+  using t_if_not_compound     = t_opt_if_not_compound<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2519,10 +2520,10 @@ namespace impl_
   using t_opt_if_not_const = t_opt_if<O, t_is_not_const<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_const         = t_opt_if_const<t_yes, T, Ts...>;
+  using t_if_const         = t_opt_if_const<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_const     = t_opt_if_not_const<t_yes, T, Ts...>;
+  using t_if_not_const     = t_opt_if_not_const<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2547,10 +2548,10 @@ namespace impl_
   using t_opt_if_not_volatile = t_opt_if<O, t_is_not_volatile<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_volatile         = t_opt_if_volatile<t_yes, T, Ts...>;
+  using t_if_volatile         = t_opt_if_volatile<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_volatile     = t_opt_if_not_volatile<t_yes, T, Ts...>;
+  using t_if_not_volatile     = t_opt_if_not_volatile<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2574,10 +2575,10 @@ namespace impl_
   using t_opt_if_not_signed = t_opt_if<O, t_is_not_signed<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_signed         = t_opt_if_signed<t_yes, T, Ts...>;
+  using t_if_signed         = t_opt_if_signed<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_signed     = t_opt_if_not_signed<t_yes, T, Ts...>;
+  using t_if_not_signed     = t_opt_if_not_signed<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2613,10 +2614,10 @@ namespace impl_
   using t_opt_if_not_unique = t_opt_if<O, t_is_not_unique<T, Ts...>>;
 
   template<typename T, typename... Ts>
-  using t_if_unique         = t_opt_if_unique<t_yes, T, Ts...>;
+  using t_if_unique         = t_opt_if_unique<t_opt, T, Ts...>;
 
   template<typename T, typename... Ts>
-  using t_if_not_unique     = t_opt_if_not_unique<t_yes, T, Ts...>;
+  using t_if_not_unique     = t_opt_if_not_unique<t_opt, T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2644,10 +2645,10 @@ namespace impl_
   using t_opt_if_not_pack = t_opt_if<O, t_is_not_pack<P, Ps...>>;
 
   template<typename P, typename... Ps>
-  using t_if_pack         = t_opt_if_pack<t_yes, P, Ps...>;
+  using t_if_pack         = t_opt_if_pack<t_opt, P, Ps...>;
 
   template<typename P, typename... Ps>
-  using t_if_not_pack     = t_opt_if_not_pack<t_yes, P, Ps...>;
+  using t_if_not_pack     = t_opt_if_not_pack<t_opt, P, Ps...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2772,11 +2773,11 @@ namespace impl_
 
   template<typename P, typename P1, typename... Ps>
   using t_if_subset_of_pack
-    = t_opt_if_subset_of_pack<t_yes, P, P1, Ps...>;
+    = t_opt_if_subset_of_pack<t_opt, P, P1, Ps...>;
 
   template<typename P, typename P1, typename... Ps>
   using t_if_not_subset_of_pack
-    = t_opt_if_not_subset_of_pack<t_yes, P, P1, Ps...>;
+    = t_opt_if_not_subset_of_pack<t_opt, P, P1, Ps...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2812,10 +2813,10 @@ namespace impl_
   using t_opt_if_not_in_pack = t_opt_if<O, t_is_not_in_pack<T, P, Ps...>>;
 
   template<typename T, typename P, typename... Ps>
-  using t_if_in_pack         = t_opt_if_in_pack<t_yes, T, P, Ps...>;
+  using t_if_in_pack         = t_opt_if_in_pack<t_opt, T, P, Ps...>;
 
   template<typename T, typename P, typename... Ps>
-  using t_if_not_in_pack     = t_opt_if_not_in_pack<t_yes, T, P, Ps...>;
+  using t_if_not_in_pack     = t_opt_if_not_in_pack<t_opt, T, P, Ps...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -3079,37 +3080,19 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename, typename, typename...> // REVISIT
-    struct t_is_greater_int_rank_help_;
-    template<typename...>
-    struct t_is_greater_int_rank_help1_;
-
-    template<typename T, typename... Ts>
-    struct t_is_greater_int_rank_help1_<t_true, T, Ts...>
-      : t_is_greater_int_rank_help_<T, Ts...> { };
-
-    template<typename... Ts>
-    struct t_is_greater_int_rank_help1_<t_false, Ts...> : t_rfalse { };
-
-    template<typename T>
-    struct t_is_greater_int_rank_help1_<t_true, T> : t_rtrue { };
-
-    template<typename T, typename T1, typename... Ts>
+    template<typename T, typename T1>
     struct t_is_greater_int_rank_help_
-      : t_is_greater_int_rank_help1_<
-          t_is_truth<(t_int_rank<T>::VALUE > t_int_rank<T1>::VALUE)>, T,
-          Ts...> { };
+      : t_set_result<(t_int_rank<T>::VALUE > t_int_rank<T1>::VALUE)> { };
 
-    template<typename T, typename T1, typename... Ts>
-    struct t_is_greater_int_rank_ : t_is_greater_int_rank_help_<T, T1, Ts...> {
-      static_assert(t_each_is_true<t_is_integral, T, T1, Ts...>::VALUE,
-                    "template parameter must be a integral type");
-    };
+    template<typename T, typename T1>
+    using t_is_greater_int_rank_
+      = t_result_of<t_is_greater_int_rank_help_<T, T1>>;
   }
 
   template<typename T, typename T1, typename... Ts>
   using t_is_greater_int_rank
-    = t_result_of<help_::t_is_greater_int_rank_<T, T1, Ts...>>;
+    = t_and<help_::t_is_greater_int_rank_<T, T1>,
+            help_::t_is_greater_int_rank_<T, Ts>...>;
 
   template<typename T, typename T1, typename... Ts>
   using t_is_not_greater_int_rank
@@ -3125,46 +3108,27 @@ namespace impl_
 
   template<typename T, typename T1, typename... Ts>
   using t_if_greater_int_rank
-    = t_opt_if_greater_int_rank<t_yes, T, T1, Ts...>;
+    = t_opt_if_greater_int_rank<t_opt, T, T1, Ts...>;
 
   template<typename T, typename T1, typename... Ts>
   using t_if_not_greater_int_rank
-    = t_opt_if_not_greater_int_rank<t_yes, T, T1, Ts...>;
+    = t_opt_if_not_greater_int_rank<t_opt, T, T1, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename, typename, typename...> // REVISIT
-    struct t_is_equal_int_rank_help_;
-    template<typename...>
-    struct t_is_equal_int_rank_help1_;
-
-    template<typename T, typename... Ts>
-    struct t_is_equal_int_rank_help1_<t_true, T, Ts...>
-      : t_is_equal_int_rank_help_<T, Ts...> { };
-
-    template<typename... Ts>
-    struct t_is_equal_int_rank_help1_<t_false, Ts...> : t_rfalse { };
-
-    template<typename T>
-    struct t_is_equal_int_rank_help1_<t_true, T> : t_rtrue { };
-
-    template<typename T, typename T1, typename... Ts>
+    template<typename T, typename T1>
     struct t_is_equal_int_rank_help_
-      : t_is_equal_int_rank_help1_<
-          t_is_truth<(t_int_rank<T>::VALUE == t_int_rank<T1>::VALUE)>, T,
-          Ts...> { };
+      : t_set_result<(t_int_rank<T>::VALUE == t_int_rank<T1>::VALUE)> { };
 
-    template<typename T, typename T1, typename... Ts>
-    struct t_is_equal_int_rank_ : t_is_equal_int_rank_help_<T, T1, Ts...> {
-      static_assert(t_each_is_true<t_is_integral, T, T1, Ts...>::VALUE,
-                    "template parameter must be a integral type");
-    };
+    template<typename T, typename T1>
+    using t_is_equal_int_rank_ = t_result_of<t_is_equal_int_rank_help_<T, T1>>;
   }
 
   template<typename T, typename T1, typename... Ts>
   using t_is_equal_int_rank
-    = t_result_of<help_::t_is_equal_int_rank_<T, T1, Ts...>>;
+    = t_and<help_::t_is_equal_int_rank_<T, T1>,
+            help_::t_is_equal_int_rank_<T, Ts>...>;
 
   template<typename T, typename T1, typename... Ts>
   using t_is_not_equal_int_rank
@@ -3180,11 +3144,11 @@ namespace impl_
 
   template<typename T, typename T1, typename... Ts>
   using t_if_equal_int_rank
-    = t_opt_if_equal_int_rank<t_yes, T, T1, Ts...>;
+    = t_opt_if_equal_int_rank<t_opt, T, T1, Ts...>;
 
   template<typename T, typename T1, typename... Ts>
   using t_if_not_equal_int_rank
-    = t_opt_if_not_equal_int_rank<t_yes, T, T1, Ts...>;
+    = t_opt_if_not_equal_int_rank<t_opt, T, T1, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -3206,62 +3170,32 @@ namespace impl_
 
   template<typename T, typename T1, typename... Ts>
   using t_if_greater_equal_int_rank
-    = t_opt_if_greater_equal_int_rank<t_yes, T, T1, Ts...>;
+    = t_opt_if_greater_equal_int_rank<t_opt, T, T1, Ts...>;
 
   template<typename T, typename T1, typename... Ts>
   using t_if_not_greater_equal_int_rank
-    = t_opt_if_not_greater_equal_int_rank<t_yes, T, T1, Ts...>;
+    = t_opt_if_not_greater_equal_int_rank<t_opt, T, T1, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  namespace help_ { // REVISIT
-    template<typename... Ts> struct t_is_same_integral_sign_help1_;
-    template<typename... Ts> struct t_is_same_integral_sign_help2_;
-    template<typename... Ts> struct t_is_same_integral_sign_help3_;
-
-    template<typename T, typename... Ts>
-    struct t_is_same_integral_sign_help3_<t_false, T, Ts...>
-      : t_is_same_integral_sign_help3_<t_is_signed<T>, Ts...> { };
-
-    template<typename... Ts>
-    struct t_is_same_integral_sign_help3_<t_true, Ts...> : t_rfalse { };
-
-    template<>
-    struct t_is_same_integral_sign_help3_<t_false> : t_rtrue { };
-
-    template<typename T, typename... Ts>
-    struct t_is_same_integral_sign_help2_<t_true, T, Ts...>
-      : t_is_same_integral_sign_help2_<t_is_signed<T>, Ts...> { };
-
-    template<typename... Ts>
-    struct t_is_same_integral_sign_help2_<t_false, Ts...> : t_rfalse { };
-
-    template<>
-    struct t_is_same_integral_sign_help2_<t_true> : t_rtrue { };
-
-    template<typename T, typename... Ts>
-    struct t_is_same_integral_sign_help1_<t_true, T, Ts...>
-      : t_is_same_integral_sign_help2_<t_is_signed<T>, Ts...> { };
-
-    template<typename T, typename... Ts>
-    struct t_is_same_integral_sign_help1_<t_false, T, Ts...>
-      : t_is_same_integral_sign_help3_<t_is_signed<T>, Ts...> { };
-
-    template<typename T, typename... Ts>
+  namespace help_ {
+    template<typename T, typename T1>
     struct t_is_same_integral_sign_help_
-      : t_is_same_integral_sign_help1_<t_is_signed<T>, Ts...> { };
-
-    template<typename T, typename T1, typename... Ts>
-    struct t_is_same_integral_sign_
-      : t_is_same_integral_sign_help_<T, T1, Ts...> {
-      static_assert(t_each_is_true<t_is_integral, T, T1, Ts...>::VALUE,
+      : t_add_result<t_or<t_is_signed_integral<T, T1>,
+                          t_is_unsigned_integral<T, T1>>> {
+      static_assert(t_each_is_true<t_is_integral, T, T1>::VALUE,
                     "template parameter must be a integral type");
     };
+
+    template<typename T, typename T1>
+    using t_is_same_integral_sign_
+      = t_result_of<t_is_same_integral_sign_help_<T, T1>>;
   }
 
   template<typename T, typename T1, typename... Ts>
   using t_is_same_integral_sign
-    = t_result_of<help_::t_is_same_integral_sign_<T, T1, Ts...>>;
+    = t_and<help_::t_is_same_integral_sign_<T, T1>,
+            help_::t_is_same_integral_sign_<T, Ts>...>;
 
   template<typename T, typename T1, typename... Ts>
   using t_is_not_same_integral_sign
@@ -3277,11 +3211,11 @@ namespace impl_
 
   template<typename T, typename T1, typename... Ts>
   using t_if_same_integral_sign
-    = t_opt_if_same_integral_sign<t_yes, T, T1, Ts...>;
+    = t_opt_if_same_integral_sign<t_opt, T, T1, Ts...>;
 
   template<typename T, typename T1, typename... Ts>
   using t_if_not_same_integral_sign
-    = t_opt_if_not_same_integral_sign<t_yes, T, T1, Ts...>;
+    = t_opt_if_not_same_integral_sign<t_opt, T, T1, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
