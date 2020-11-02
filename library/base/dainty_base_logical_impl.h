@@ -27,6 +27,7 @@
 #ifndef _DAINTY_BASE_LOGICAL_IMPL_H_
 #define _DAINTY_BASE_LOGICAL_IMPL_H_
 
+#include <stdio.h>
 #include "dainty_base_types.h"
 #include "dainty_base_traits.h"
 
@@ -45,10 +46,15 @@ namespace impl_
   using types::t_int;
   using types::t_pack;
   using types::t_empty_pack;
+  using types::t_64u_;
+  using types::t_64i_;
 
   using traits::t_opt1;
   using traits::t_opt2;
   using traits::t_opt3;
+  using traits::t_opt4;
+  using traits::t_opt5;
+  using traits::t_opt6;
   using traits::t_undef;
   using traits::t_and;
   using traits::t_or;
@@ -68,6 +74,11 @@ namespace impl_
   using traits::t_not;
   using traits::t_if_there;
   using traits::t_if;
+  using traits::t_opt_if_signed_integral;
+  using traits::t_opt_if_unsigned_integral;
+  using traits::t_opt_if_precision;
+  using traits::t_opt_if_bool;
+  using traits::t_opt_if;
   using traits::t_if_then_else;
   using traits::t_if_same;
   using traits::t_if_not_same;
@@ -80,6 +91,7 @@ namespace impl_
   using traits::t_is_ptr;
   using traits::t_is_signed;
   using traits::t_is_same;
+  using traits::t_is_bool;
   using traits::t_is_there;
   using traits::t_is_pack;
   using traits::t_is_in_pack;
@@ -87,6 +99,8 @@ namespace impl_
   using traits::t_is_same_integral_sign;
   using traits::t_is_greater_equal_int_rank;
   using traits::t_is_greater_int_rank;
+  using traits::t_is_signed_integral;
+  using traits::t_is_unsigned_integral;
   using traits::t_is_truth;
   using traits::t_property;
   using traits::uneval;
@@ -94,6 +108,15 @@ namespace impl_
   using traits::OPT1;
   using traits::OPT2;
   using traits::OPT3;
+  using traits::OPT4;
+  using traits::OPT5;
+  using traits::OPT6;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  t_void undef_func() noexcept {; // not constexpr and no definition
+    printf("yyyyyyyyyyyyyyyyyyyyyyyyyyyy\n");
+  }
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -110,19 +133,27 @@ namespace impl_
 
     template<typename L, typename... Ls>
     struct t_is_logical_
-      : t_add_result<
-          t_and<t_result_of<t_is_logical_help_<L>>,
-                t_result_of<t_is_logical_help_<Ls>>...>> { };
+      : t_add_result<t_and<t_result_of<t_is_logical_help_<L>>,
+                           t_result_of<t_is_logical_help_<Ls>>...>> { };
   }
 
   template<typename L, typename... Ls>
-  using t_is_logical = t_result_of<help_::t_is_logical_<L, Ls...>>;
+  using t_is_logical         = t_result_of<help_::t_is_logical_<L, Ls...>>;
+
   template<typename L, typename... Ls>
-  using t_is_not_logical = t_not<t_is_logical<L, Ls...>>;
+  using t_is_not_logical     = t_not<t_is_logical<L, Ls...>>;
+
+  template<typename O, typename L, typename... Ls>
+  using t_opt_if_logical     = t_opt_if<O, t_is_logical<L, Ls...>>;
+
+  template<typename O, typename L, typename... Ls>
+  using t_opt_if_not_logical = t_opt_if<O, t_is_not_logical<L, Ls...>>;
+
   template<typename L, typename... Ls>
-  using t_if_logical     = t_if<t_is_logical<L, Ls...>>;
+  using t_if_logical         = t_if<t_is_logical<L, Ls...>>;
+
   template<typename L, typename... Ls>
-  using t_if_not_logical = t_if<t_is_not_logical<L, Ls...>>;
+  using t_if_not_logical     = t_if<t_is_not_logical<L, Ls...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -151,8 +182,7 @@ namespace impl_
     struct t_logical_test_help_<t_true, L, Ls...>
       : t_add_result<t_is_logical<L, Ls...>> { };
 
-    template<>
-    struct t_logical_test_help_<t_false> : t_rtrue { };
+    template<> struct t_logical_test_help_<t_false> : t_rtrue  { };
 
     template<typename... Ls>
     struct t_logical_test_
@@ -164,25 +194,144 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
+  namespace help_ {
+    template<typename...>
+    struct t_is_logical_subset_of_help_;
+
+    template<typename... Ts, typename... T1s>
+    struct t_is_logical_subset_of_help_<t_pack<Ts...>, t_pack<T1s...>>
+      : t_add_result<t_is_subset_of_pack<t_pack<Ts...>, t_pack<T1s...>>> { };
+
+    template<typename... Ts, typename T, typename TAG, typename... Ls>
+    struct t_is_logical_subset_of_help_<t_pack<Ts...>,
+                                        t_logical<T, TAG, Ls...>>
+      : t_is_logical_subset_of_help_<t_pack<Ts...>,
+                                     t_tags_of<t_logical<T, TAG, Ls...>>> { };
+
+    template<typename T, typename TAG, typename... Ls, typename... Ts>
+    struct t_is_logical_subset_of_help_<t_logical<T, TAG, Ls...>,
+                                        t_pack<Ts...>>
+      : t_is_logical_subset_of_help_<t_tags_of<t_logical<T, TAG, Ls...>>,
+                                     t_pack<Ts...>> { };
+
+    template<typename T,  typename TAG,  typename... Ls,
+             typename T1, typename TAG1, typename... L1s>
+    struct t_is_logical_subset_of_help_<t_logical<T,  TAG,  Ls...>,
+                                        t_logical<T1, TAG1, L1s...>>
+      : t_is_logical_subset_of_help_
+          <t_tags_of<t_logical<T, TAG, Ls...>>,
+           t_tags_of<t_logical<T1, TAG1, L1s...>>> { };
+
+
+    template<typename T, typename L1>
+    using t_is_logical_subset_of_
+      = t_result_of<t_is_logical_subset_of_help_<T, L1>>;
+  }
+
+  template<typename T, typename L1, typename... Ls>
+  using t_is_logical_subset_of
+    = t_and<help_::t_is_logical_subset_of_<T, L1>,
+            help_::t_is_logical_subset_of_<T, Ls>...>;
+
+  template<typename T, typename L1, typename... Ls>
+  using t_is_not_logical_subset_of
+    = t_not<t_is_logical_subset_of<T, L1, Ls...>>;
+
+  template<typename O, typename T, typename L1, typename... Ls>
+  using t_opt_if_logical_subset_of
+    = t_opt_if<O, t_is_logical_subset_of<T, L1, Ls...>>;
+
+  template<typename O, typename T, typename L1, typename... Ls>
+  using t_opt_if_not_logical_subset_of
+    = t_opt_if<O, t_is_not_logical_subset_of<T, L1, Ls...>>;
+
+  template<typename T, typename L1, typename... Ls>
+  using t_if_logical_subset_of
+    = t_if<t_is_logical_subset_of<T, L1, Ls...>>;
+
+  template<typename T, typename L1, typename... Ls>
+  using t_if_not_logical_subset_of
+    = t_if<t_is_not_logical_subset_of<T, L1, Ls...>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename L, typename L1, typename... Ls>
+  using t_is_logical_related_to = t_or<t_is_logical_subset_of<L,  L1>,
+                                       t_is_logical_subset_of<L1, L>,
+                                     t_is_logical_subset_of<L,  Ls>...,
+                                     t_is_logical_subset_of<Ls, L>...>;
+
+  template<typename L, typename L1, typename... Ls>
+  using t_is_not_logical_related_to
+    = t_not<t_is_logical_related_to<L, L1, Ls...>>;
+
+  template<typename O, typename L, typename L1, typename... Ls>
+  using t_opt_if_logical_related_to
+    = t_opt_if<O, t_is_logical_related_to<L, L1, Ls...>>;
+
+  template<typename O, typename L, typename L1, typename... Ls>
+  using t_opt_if_not_logical_related_to
+    = t_opt_if<O, t_is_not_logical_related_to<L, L1, Ls...>>;
+
+  template<typename L, typename L1, typename... Ls>
+  using t_if_logical_related_to
+    = t_if<t_is_logical_related_to<L, L1, Ls...>>;
+
+  template<typename L, typename L1, typename... Ls>
+  using t_if_not_logical_related_to
+    = t_if<t_is_not_logical_related_to<L, L1, Ls...>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
   template<typename L, typename L1>
   using t_largest_ =
     t_if_then_else<t_is_same<t_largest_pack<t_tags_of<L>, t_tags_of<L1>>,
                              t_tags_of<L>>,
                    L, L1>;
 
-  template<typename T, typename T1>
-  using t_is_subset_of_ = t_is_subset_of_pack<T, T1>;
+  /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, typename T1>
-  using t_is_related_ = t_or<t_is_subset_of_<t_tags_of<T>,  t_tags_of<T1>>,
-                             t_is_subset_of_<t_tags_of<T1>, t_tags_of<T>>>;
+  namespace help_ {
+    template<typename, typename, typename... Ls> struct t_is_logical_op_help_;
 
-  template<typename O, typename T, typename T1 = t_dummy>
-  struct t_is_op_ : t_and<t_is_in_pack<O, t_ops_of<T>, t_ops_of<T1>>,
-                          t_is_related_<T, T1>> { };
+    template<typename OP, typename L, typename L1, typename... Ls>
+    struct t_is_logical_op_help_<OP, L, L1, Ls...>
+      : t_add_result<t_and<t_is_in_pack<OP, t_ops_of<L>, t_ops_of<L1>,
+                                            t_ops_of<Ls>...>,
+                           t_is_logical_related_to<L, L1, Ls...>>> { };
 
-  template<typename O, typename T>
-  struct t_is_op_<O, T, t_dummy> : t_is_in_pack<O, t_ops_of<T>> { };
+    template<typename OP, typename L>
+    struct t_is_logical_op_help_<OP, L>
+      : t_add_result<t_is_in_pack<OP, t_ops_of<L>>> { };
+
+    template<typename OP, typename L, typename... Ls>
+    using t_is_logical_op_
+      = t_result_of<help_::t_is_logical_op_help_<OP, L, Ls...>>;
+  }
+
+  template<typename OP, typename L, typename... Ls>
+  using t_is_logical_op
+    = help_::t_is_logical_op_<OP, L, Ls...>;
+
+  template<typename OP, typename L, typename... Ls>
+  using t_is_not_logical_op
+    = t_not<t_is_logical_op<OP, L, Ls...>>;
+
+  template<typename O, typename OP, typename L, typename... Ls>
+  using t_opt_if_logical_op
+    = t_opt_if<O, t_is_logical_op<OP, L, Ls...>>;
+
+  template<typename O, typename OP, typename L, typename... Ls>
+  using t_opt_if_not_logical_op
+    = t_opt_if<O, t_is_not_logical_op<OP, L, Ls...>>;
+
+  template<typename OP, typename L, typename... Ls>
+  using t_if_logical_op
+    = t_if<t_is_logical_op<OP, L, Ls...>>;
+
+  template<typename OP, typename L, typename... Ls>
+  using t_if_not_logical_op
+    = t_if<t_is_not_logical_op<OP, L, Ls...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -236,50 +385,120 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
-    template<typename...> struct t_is_logical_data_help_;
     template<typename...> struct t_is_logical_data_help1_;
     template<typename...> struct t_is_logical_data_help2_;
+    template<typename...> struct t_is_logical_data_help3_;
 
     template<typename T, typename T1>
-    struct t_is_logical_data_help2_<t_false, T, T1> : t_rfalse { };
+    struct t_is_logical_data_help3_<t_false, T, T1> : t_rfalse { };
 
     template<typename T, typename T1>
-    struct t_is_logical_data_help2_<t_true, T, T1>
+    struct t_is_logical_data_help3_<t_true, T, T1>
       : t_add_result<t_is_truth<(t_property<T> ::SIZEOF >=
                                  t_property<T1>::SIZEOF)>> { };
 
     template<typename T, typename T1>
+    struct t_is_logical_data_help2_<t_false, T, T1>
+      : t_is_logical_data_help3_<t_is_precision<T, T1>, T, T1> { };
+
+    template<typename T, typename T1>
+    struct t_is_logical_data_help2_<t_true, T, T1> : t_rtrue { };
+
+    template<typename T, typename T1>
     struct t_is_logical_data_help1_<t_false, T, T1>
-      : t_is_logical_data_help2_<t_is_precision<T, T1>, T, T1> { };
+      : t_is_logical_data_help2_<t_is_ptr<T, T1>, T, T1> { };
 
     template<typename T, typename T1>
-    struct t_is_logical_data_help1_<t_true, T, T1> : t_rtrue { };
-
-    template<typename T, typename T1>
-    struct t_is_logical_data_help_<t_false, T, T1>
-      : t_is_logical_data_help1_<t_is_ptr<T, T1>, T, T1> { };
-
-    template<typename T, typename T1>
-    struct t_is_logical_data_help_<t_true, T, T1>
-      : t_add_result<t_or<t_and<t_is_same_integral_sign<T, T1>,
+    struct t_is_logical_data_help1_<t_true, T, T1>
+      : t_add_result<t_or<t_is_bool<T, T1>,
+                          t_and<t_is_same_integral_sign<T, T1>,
                                 t_is_greater_equal_int_rank<T, T1>>,
                           t_and<t_is_signed<T>,
                                 t_is_greater_int_rank<T, T1>>>> { };
 
     template<typename T, typename T1>
-    struct t_is_logical_data_
-      : t_is_logical_data_help_<t_is_integral<T, T1>, T, T1> { };
+    struct t_is_logical_data_help_
+      : t_is_logical_data_help1_<t_is_integral<T, T1>, T, T1> { };
+
+    template<typename T, typename T1>
+    using t_is_logical_data = t_result_of<t_is_logical_data_help_<T, T1>>;
+
   }
 
-  template<typename T, typename T1>
-  using t_is_logical_data = t_result_of<help_::t_is_logical_data_<T, T1>>;
+  template<typename T, typename T1, typename... Ts>
+  using t_is_logical_data = t_and<help_::t_is_logical_data<T, T1>,
+                                  help_::t_is_logical_data<T, Ts>...>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_is_not_logical_data
+    = t_not<t_is_logical_data<T, T1, Ts...>>;
+
+  template<typename O, typename T, typename T1, typename... Ts>
+  using t_opt_if_logical_data
+    = t_opt_if<O, t_is_logical_data<T, T1, Ts...>>;
+
+  template<typename O, typename T, typename T1, typename... Ts>
+  using t_opt_if_not_logical_data
+    = t_opt_if<O, t_is_not_logical_data<T, T1, Ts...>>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_if_logical_data
+    = t_if<t_is_logical_data<T, T1, Ts...>>;
+
+  template<typename T, typename T1, typename... Ts>
+  using t_if_not_logical_data
+    = t_if<t_is_not_logical_data<T, T1, Ts...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, typename T1>
-  constexpr T mk_(T1 value) noexcept {
+  template<typename T, typename T1,
+           t_opt_if_signed_integral<t_opt1, T, T1> = OPT1>
+  constexpr T test_(T1 value) noexcept {
+    if (value > t_property<T>::MAX || value < t_property<T>::MIN)
+      undef_func();
     return (T)value;
   }
+
+  template<typename T, typename T1,
+           t_opt_if_unsigned_integral<t_opt2, T, T1> = OPT2>
+  constexpr T test_(T1 value) noexcept {
+    if (value > t_property<T>::MAX)
+      undef_func();
+    return (T)value;
+  }
+
+  template<typename T, typename T1,
+           t_opt_if<t_opt3, t_and<t_is_signed_integral<T>,
+                                  t_is_unsigned_integral<T1>>> = OPT3>
+  constexpr T test_(T1 value) noexcept {
+    if ((static_cast<t_64u_>(value) >
+         static_cast<t_64u_>(t_property<T>::MAX)))
+      undef_func();
+    return (T)value;
+  }
+
+  template<typename T, typename T1,
+           t_opt_if<t_opt4, t_and<t_is_unsigned_integral<T>,
+                                  t_is_signed_integral<T1>>> = OPT4>
+  constexpr T test_(T1 value) noexcept {
+    if (value < 0 || (static_cast<t_64u_>(value) >
+                      static_cast<t_64u_>(t_property<T>::MAX)))
+      undef_func();
+    return (T)value;
+  }
+
+  template<typename T, typename T1, t_opt_if_precision<t_opt5,T, T1> = OPT5>
+  constexpr T test_(T1 value) noexcept {
+    if (value > t_property<T>::MAX || value < t_property<T>::MIN)
+      undef_func();
+    return (T)value;
+  }
+
+  template<typename T, typename T1, t_opt_if_bool<t_opt6, T> = OPT6>
+  constexpr T test_(T1 value) noexcept {
+    return (T)value;
+  }
+
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
@@ -335,9 +554,9 @@ namespace impl_
   constexpr
   T get_(t_logical<T, TAG, Ls...>) noexcept;
 
-  template<typename T, typename TAG, typename... Ls>
+  template<typename T, typename TAG, typename... Ls, typename T1>
   constexpr
-  t_logical<T, TAG, Ls...>& set_(t_logical<T, TAG, Ls...>&, T) noexcept;
+  t_logical<T, TAG, Ls...>& set_(t_logical<T, TAG, Ls...>&, T1) noexcept;
 
   template<typename T,   typename TAG,  typename... Ls,
             typename T1, typename TAG1, typename... Ls1>
@@ -361,36 +580,43 @@ namespace impl_
     using t_ops   = t_get_ops_<TAG>;
     using t_tags  = t_get_tags_<TAG, Ls...>;
 
-    template<typename T1, t_if_same<T, T1> = YES>
+    template<typename T1, t_opt_if_logical_data<t_opt1, T, T1> = OPT1>
     constexpr
     explicit t_logical(T1 value) noexcept
       : value_{t_check_<t_tags>::call(value)} {
     }
 
-    template<typename T1, t_if_not_same<T, T1> = YES>
+    template<typename T1, t_opt_if_not_logical_data<t_opt2, T, T1> = OPT2>
     constexpr
     explicit t_logical(T1 value) noexcept
-      : value_{t_check_<t_tags>::call(mk_<T>(value))} {
-  //    static_assert(t_is_logical_data<T, T1>::VALUE,
-  //                  "cannot copy type. data too large or wrong sign");
+      : value_{t_check_<t_tags>::call(test_<T>(value))} {
     }
 
-    template<typename T1, typename TAG1, typename... L1s>
+    template<typename T1, typename TAG1, typename... L1s,
+             t_opt_if_logical_data<t_opt3, T, T1> = OPT3>
     constexpr
     t_logical(t_logical<T1, TAG1, L1s...> logical) noexcept
         : value_{logical.value_} {
-      static_assert(t_is_subset_of_<t_tags,
-                      t_tags_of<t_logical<T1, TAG1, L1s...>>>::VALUE,
+      static_assert(t_is_logical_subset_of
+                      <t_tags, t_logical<T1, TAG1, L1s...>>::VALUE,
                     "cannot copy type. types don't give permission.");
-      static_assert(t_is_logical_data<T, T1>::VALUE,
-                    "cannot copy type. data too large or wrong sign");
+    }
+
+    template<typename T1, typename TAG1, typename... L1s,
+             t_opt_if_not_logical_data<t_opt4, T, T1> = OPT4>
+    constexpr
+    t_logical(t_logical<T1, TAG1, L1s...> logical) noexcept
+        : value_{test_<T>(logical.value_)} {
+      static_assert(t_is_logical_subset_of
+                      <t_tags, t_logical<T1, TAG1, L1s...>>::VALUE,
+                    "cannot copy type. types don't give permission.");
     }
 
     template<typename T1, typename TAG1, typename... L1s>
     constexpr
     t_logical& operator=(t_logical<T1, TAG1, L1s...> logical) noexcept {
-      static_assert(t_is_subset_of_<t_tags,
-                      t_tags_of<t_logical<T1, TAG1, L1s...>>>::VALUE,
+      static_assert(t_is_logical_subset_of
+                      <t_tags, t_logical<T1, TAG1, L1s...>>::VALUE,
                      "cannot copy type. types don't give permission.");
       static_assert(t_is_logical_data<T, T1>::VALUE,
                     "cannot copy type. data too large or wrong sign");
@@ -412,10 +638,10 @@ namespace impl_
     friend constexpr
     T1 get_(t_logical<T1, TAG1, Ls1...>) noexcept;
 
-    template<typename T1, typename TAG1, typename... Ls1>
+    template<typename T1, typename TAG1, typename... Ls1, typename T2>
     friend constexpr
     t_logical<T1, TAG1, Ls1...>& set_(t_logical<T1, TAG1, Ls1...>&,
-                                      T1) noexcept;
+                                      T2) noexcept;
 
     template<typename T1, typename TAG1, typename... Ls1,
              typename T2, typename TAG2, typename... Ls2>
@@ -444,16 +670,16 @@ namespace impl_
     template<typename TAG1, typename... L1s>
     constexpr
     t_logical(t_logical<t_void, TAG1, L1s...>) noexcept {
-      static_assert(t_is_subset_of_<t_tags,
-                      t_tags_of<t_logical<t_void, TAG1, L1s...>>>::VALUE,
+      static_assert(t_is_logical_subset_of
+                      <t_tags, t_logical<t_void, TAG1, L1s...>>::VALUE,
                     "cannot copy type. types don't give permission.");
     }
 
     template<typename TAG1, typename... L1s>
     constexpr
     t_logical& operator=(t_logical<t_void, TAG1, L1s...>) noexcept {
-      static_assert(t_is_subset_of_<t_tags,
-                      t_tags_of<t_logical<t_void, TAG1, L1s...>>>::VALUE,
+      static_assert(t_is_logical_subset_of
+                      <t_tags, t_logical<t_void, TAG1, L1s...>>::VALUE,
                      "cannot copy type. types don't give permission.");
       return *this;
     }
@@ -470,11 +696,11 @@ namespace impl_
     return logical.value_;
   }
 
-  template<typename T, typename TAG, typename... Ls>
+  template<typename T, typename TAG, typename... Ls, typename T1>
   constexpr
   t_logical<T, TAG, Ls...>& set_(t_logical<T, TAG, Ls...>& logical,
-                                 T value) noexcept {
-    return (logical = t_logical<T, TAG, Ls...>{value});
+                                 T1 value) noexcept {
+    return (logical = t_logical<T, TAG, Ls...>{test_<T>(value)});
   }
 
   template<typename T,  typename TAG,  typename... Ls,
@@ -482,9 +708,9 @@ namespace impl_
   constexpr
   t_logical<T, TAG, Ls...>& set_(t_logical<T,  TAG,  Ls...>& logical,
                                  t_logical<T1, TAG1, Ls1...> value) noexcept {
-    static_assert(!t_is_subset_of_pack<
-                     t_tags_of<t_logical<T,  TAG,  Ls...>>,
-                     t_tags_of<t_logical<T1, TAG1, Ls1...>>>::VALUE,
+    static_assert(t_is_not_logical_subset_of
+                     <t_logical<T,  TAG,  Ls...>,
+                      t_logical<T1, TAG1, Ls1...>>::VALUE,
                   "Do not set, when you can just assign");
     static_assert(t_is_logical_data<T, T1>::VALUE,
                   "cannot copy type. data too large or wrong sign");
