@@ -40,62 +40,11 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
-  using impl_::t_pack;
   using impl_::t_bool;
   using impl_::t_dummy;
-  using impl_::t_undef;
-  using impl_::t_undef_value;
-  using impl_::t_yes;
-  using impl_::t_wellformed;
-  using impl_::t_empty_pack;
   using impl_::t_opt;
-  using impl_::t_opt1;
-  using impl_::t_opt2;
-  using impl_::t_opt3;
-  using impl_::t_opt4;
-  using impl_::t_opt5;
-  using impl_::t_opt6;
-  using impl_::t_opt7;
   using impl_::uneval;
-  using impl_::YES;
-  using impl_::OPT1;
-  using impl_::OPT2;
-  using impl_::OPT3;
-  using impl_::OPT4;
-  using impl_::OPT5;
-  using impl_::OPT6;
-  using impl_::OPT7;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T>      using t_add_identity = impl_::t_add_identity<T>;
-  template<typename T>      using t_identity_of  = impl_::t_identity_of<T>;
-
-  template<typename T>      using t_add_result   = impl_::t_add_result<T>;
-  template<typename T>      using t_result_of    = impl_::t_result_of<T>;
-
-  template<typename T>      using t_add_value    = impl_::t_add_value<T>;
-  template<typename T>      using t_value_of     = impl_::t_value_of<T>;
-
-  template<typename T, T V> using t_add_VALUE    = impl_::t_add_VALUE<T, V>;
-  template<typename T> constexpr auto VALUE_of   = impl_::VALUE_of<T>;
-
-  template<typename T, T V> using t_add_MAX      = impl_::t_add_MAX<T, V>;
-  template<typename T> constexpr auto MAX_of     = impl_::MAX_of<T>;
-
-  template<typename T, T V> using t_add_MIN      = impl_::t_add_MIN<T, V>;
-  template<typename T> constexpr auto MIN_of     = impl_::MIN_of<T>;
-
-  template<typename T>      using t_add_SIZEOF   = impl_::t_add_SIZEOF<T>;
-  template<typename T> constexpr auto SIZEOF_of  = impl_::SIZEOF_of<T>;
-
-  template<typename T>      using t_add_BITS     = impl_::t_add_BITS<T>;
-  template<typename T> constexpr auto BITS_of    = impl_::BITS_of<T>;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T, T V, typename H = t_dummy>
-  using t_constant = impl_::t_constant<T, V, H>;
+  using impl_::WELL_FORMED;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1378,6 +1327,9 @@ namespace traits
   using t_largest_pack   = impl_::t_largest_pack<P, Ps...>;
 
   template<typename P, typename... Ps>
+  using t_smallest_pack  = impl_::t_smallest_pack<P, Ps...>;
+
+  template<typename P, typename... Ps>
   using t_union_pack     = impl_::t_union_pack<P, Ps...>;
 
   template<typename P, typename... Ps>
@@ -1393,6 +1345,12 @@ namespace traits
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T> using t_int_rank = impl_::t_int_rank<T>;
+
+  template<typename T, typename... Ts>
+  using t_greatest_int_rank = impl_::t_greatest_int_rank<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_smallest_int_rank  = impl_::t_smallest_int_rank<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 

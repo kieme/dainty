@@ -24,18 +24,19 @@
 
 ******************************************************************************/
 
-#ifndef _DAINTY_BASE_UTILITY_H_
-#define _DAINTY_BASE_UTILITY_H_
+#ifndef _DAINTY_BASE_UTIL_H_
+#define _DAINTY_BASE_UTIL_H_
 
 #include "dainty_base_types.h"
 #include "dainty_base_traits.h"
 #include "dainty_base_specific.h"
+#include "dainty_base_logical.h"
 
 namespace dainty
 {
 namespace base
 {
-namespace utility
+namespace util
 {
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -76,8 +77,11 @@ namespace utility
     t_value       value;
     specific::t_n n = specific::t_n{0};
 
-    constexpr t_block() noexcept = default;
-    constexpr t_block(t_value _value, specific::t_n _n) noexcept
+    constexpr
+    t_block() noexcept = default;
+
+    constexpr
+    t_block(t_value _value, specific::t_n _n) noexcept
       : value{_value}, n{_n} {
     }
   };
@@ -90,20 +94,25 @@ namespace utility
     using t_value   = specific::t_specific<T, TAG>;
     using t_user_no = specific::t_specific<U, TAG>;
 
-    constexpr static t_user_no BAD_USER_NO{0};
+    constexpr
+    static t_user_no BAD_USER_NO{0};
 
-    constexpr t_id_pair() noexcept : value{INIT_VALUE}, user_no{BAD_USER_NO} {
+    constexpr
+    t_id_pair() noexcept : value{INIT_VALUE}, user_no{BAD_USER_NO} {
     }
 
-    constexpr explicit t_id_pair(t_value _value, t_user_no _user_no) noexcept
+    constexpr
+    explicit t_id_pair(t_value _value, t_user_no _user_no) noexcept
       : value{_value}, user_no{_user_no} {
     }
 
-    constexpr operator specific::t_validity() const noexcept {
+    constexpr
+    operator specific::t_validity() const noexcept {
       return user_no != BAD_USER_NO ? specific::VALID : specific::INVALID;
     }
 
-    constexpr t_id_pair release() {
+    constexpr
+    t_id_pair release() {
       t_id_pair tmp = *this;
       value    = t_value {INIT_VALUE};
       user_no  = BAD_USER_NO;
@@ -115,15 +124,17 @@ namespace utility
   };
 
   template<typename T, typename TAG, T BAD_VALUE>
-  constexpr types::t_bool operator==(const t_id_pair<T, TAG, BAD_VALUE> lh,
-                                     const t_id_pair<T, TAG, BAD_VALUE> rh) {
+  constexpr
+  types::t_bool operator==(const t_id_pair<T, TAG, BAD_VALUE> lh,
+                           const t_id_pair<T, TAG, BAD_VALUE> rh) {
     return get(lh.user_no) == get(rh.user_no) &&
            get(lh.value)   == get(rh.value);
   }
 
   template<typename T, typename TAG, T BAD_VALUE>
-  constexpr types::t_bool operator!=(const t_id_pair<T, TAG, BAD_VALUE> lh,
-                                     const t_id_pair<T, TAG, BAD_VALUE> rh) {
+  constexpr
+  types::t_bool operator!=(const t_id_pair<T, TAG, BAD_VALUE> lh,
+                           const t_id_pair<T, TAG, BAD_VALUE> rh) {
     return !(lh == rh);
   }
 
@@ -138,15 +149,18 @@ namespace utility
     using t_value = specific::t_specific<T, TAG, CHECK>;
     using T_value = typename types::t_prefix<t_value>::T_;
 
-    constexpr t_verifiable(t_value _value, specific::t_errn _errn) noexcept
+    constexpr
+    t_verifiable(t_value _value, specific::t_errn _errn) noexcept
       : value{_value}, errn{_errn} {
     }
 
-    constexpr operator specific::t_validity() const noexcept {
+    constexpr
+    operator specific::t_validity() const noexcept {
       return errn == specific::NO_ERRN ? specific::VALID : specific::INVALID;
     }
 
-    constexpr operator t_value () const noexcept {
+    constexpr
+    operator t_value () const noexcept {
       return value;
     }
 
@@ -155,7 +169,8 @@ namespace utility
   };
 
   template<typename T>
-  constexpr const T& get(const t_verifiable<T>& verifiable) noexcept {
+  constexpr
+  const T& get(const t_verifiable<T>& verifiable) noexcept {
     return verifiable.value;
   }
 
@@ -177,10 +192,13 @@ namespace utility
   template<types::t_n_ N, typename TAG>
   class t_multiple {
   public:
-    constexpr static specific::t_n of() noexcept {
+    constexpr
+    static specific::t_n of() noexcept {
       return specific::t_n{N};
     }
-    constexpr t_multiple(types::t_n_ _value) noexcept : value(_value) {
+
+    constexpr
+    t_multiple(types::t_n_ _value) noexcept : value(_value) {
     } // XXX
 
     specific::t_n value;
@@ -198,7 +216,8 @@ namespace utility
   public:
     using r_void_size_ptr = typename types::t_prefix<t_void_size_ptr<TAG>>::r_;
 
-    constexpr t_void_size_ptr() noexcept = default;
+    constexpr
+    t_void_size_ptr() noexcept = default;
 
     constexpr
     t_void_size_ptr(types::p_void _ptr, specific::t_n _n) noexcept
@@ -206,17 +225,20 @@ namespace utility
     }
 
     template<typename T>
-    constexpr t_void_size_ptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
+    constexpr
+    t_void_size_ptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
     }
 
     template<typename T>
-    constexpr r_void_size_ptr operator=(T* _ptr) noexcept {
+    constexpr
+    r_void_size_ptr operator=(T* _ptr) noexcept {
       ptr = _ptr;
       n   = specific::t_n{sizeof(T)};
       return *this;
     }
 
-    constexpr operator specific::t_validity() const noexcept {
+    constexpr
+    operator specific::t_validity() const noexcept {
       return ptr ? specific::VALID : specific::INVALID;
     }
 
@@ -242,7 +264,8 @@ namespace utility
     t_void_size_cptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
     }
 
-    constexpr t_void_size_cptr(R_void_size_ptr _ptr) noexcept
+    constexpr
+    t_void_size_cptr(R_void_size_ptr _ptr) noexcept
       : ptr{_ptr.ptr}, n{_ptr.n} {
     }
 
@@ -254,13 +277,15 @@ namespace utility
     }
 
     template<typename T>
-    constexpr r_void_size_cptr operator=(T* _ptr) noexcept {
+    constexpr
+    r_void_size_cptr operator=(T* _ptr) noexcept {
       ptr = _ptr;
       n   = specific::t_n{sizeof(T)};
       return *this;
     }
 
-    constexpr operator specific::t_validity() const noexcept {
+    constexpr
+    operator specific::t_validity() const noexcept {
       return ptr ? specific::VALID : specific::INVALID;
     }
 
@@ -270,29 +295,32 @@ namespace utility
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr types::t_bool reset(types::r_bool ref,
-                                types::t_bool value) noexcept {
+  constexpr
+  types::t_bool reset(types::r_bool ref, types::t_bool value) noexcept {
     types::t_bool tmp = ref;
     ref = value;
     return tmp;
   }
 
   template<class T>
-  constexpr T reset(T& ref, T value) noexcept {
+  constexpr
+  T reset(T& ref, T value) noexcept {
     T tmp = ref;
     ref = value;
     return tmp;
   }
 
   template<class T>
-  constexpr T* reset(T*& ref, T* value) noexcept {
+  constexpr
+  T* reset(T*& ref, T* value) noexcept {
     T* tmp = ref;
     ref = value;
     return tmp;
   }
 
   template<class T, class TAG>
-  constexpr specific::t_specific<T, TAG>
+  constexpr
+  specific::t_specific<T, TAG>
       reset(specific::t_specific<T, TAG>& ref, T value) noexcept {
     specific::t_specific<T, TAG> tmp{ref};
     ref = specific::t_specific<T, TAG>{value};
@@ -300,7 +328,8 @@ namespace utility
   }
 
   template<class T, class TAG>
-  constexpr specific::t_specific<T, TAG>
+  constexpr
+  specific::t_specific<T, TAG>
       reset(specific::t_specific<T, TAG>& ref,
             specific::t_specific<T, TAG>  value) noexcept {
     specific::t_specific<T, TAG> tmp{ref};
@@ -308,40 +337,75 @@ namespace utility
     return tmp;
   }
 
+  template<typename T, typename TAG, typename... Ls>
+  constexpr
+  logical::t_logical<T, TAG, Ls...>
+      reset(logical::t_logical<T, TAG, Ls...>& ref, T value) noexcept {
+    logical::t_logical<T, TAG, Ls...> tmp{ref};
+    logical::set(ref, value);
+    return tmp;
+  }
+
+  template<typename T, typename TAG, typename... Ls>
+  constexpr
+  logical::t_logical<T, TAG, Ls...>
+      reset(logical::t_logical<T, TAG, Ls...>& ref,
+            logical::t_logical<T, TAG, Ls...>  value) noexcept {
+    logical::t_logical<T, TAG, Ls...> tmp{ref};
+    ref = value;
+    return tmp;
+  }
+
+  template<typename T,  typename TAG,  typename... Ls,
+           typename T1, typename TAG1, typename... L1s>
+  constexpr
+  logical::t_logical<T, TAG, Ls...>
+      reset(logical::t_logical<T,  TAG,  Ls...>& ref,
+            logical::t_logical<T1, TAG1, L1s...> value) noexcept {
+    logical::t_logical<T, TAG, Ls...> tmp{ref};
+    set(ref, value);
+    return tmp;
+  }
+
   template<class TAG>
-  constexpr t_user<TAG> reset(t_user<TAG>& ref,
-                              types::t_int64 value) noexcept {
+  constexpr
+  t_user<TAG> reset(t_user<TAG>& ref, types::t_int64 value) noexcept {
     return t_user<TAG>{reset(ref.id, value)};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-  constexpr types::t_bool reset(types::r_bool ref) noexcept {
+  constexpr
+  types::t_bool reset(types::r_bool ref) noexcept {
     types::t_bool tmp = ref;
     ref = false;
     return tmp;
   }
 
   template<class T>
-  constexpr T reset(T& ref) noexcept {
+  constexpr
+  T reset(T& ref) noexcept {
     T tmp = ref;
     ref = 0;
     return tmp;
   }
 
   template<class T>
-  constexpr T* reset(T*& ref) noexcept {
+  constexpr
+  T* reset(T*& ref) noexcept {
     T* tmp = ref;
     ref = nullptr;
     return tmp;
   }
 
-  constexpr specific::t_fd reset(specific::r_fd fd) noexcept {
+  constexpr
+  specific::t_fd reset(specific::r_fd fd) noexcept {
     return reset(fd, specific::BAD_FD);
   }
 
   template<class T, class TAG>
-  constexpr specific::t_specific<T, TAG>
+  constexpr
+  specific::t_specific<T, TAG>
       reset(specific::t_specific<T, TAG>& ref) noexcept {
     specific::t_specific<T, TAG> tmp{ref};
     ref = specific::t_specific<T, TAG>{0};
@@ -349,7 +413,8 @@ namespace utility
   }
 
   template<class T, class TAG>
-  constexpr specific::t_specific<T*, TAG>
+  constexpr
+  specific::t_specific<T*, TAG>
       reset(specific::t_specific<T*, TAG>& ref) noexcept {
     specific::t_specific<T*, TAG> tmp{ref};
     ref = specific::t_specific<T*, TAG>{nullptr};
@@ -357,33 +422,65 @@ namespace utility
   }
 
   template<class TAG>
-  constexpr specific::t_specific<types::t_bool, TAG>
+  constexpr
+  specific::t_specific<types::t_bool, TAG>
       reset(specific::t_specific<types::t_bool, TAG>& ref) noexcept {
     specific::t_specific<types::t_bool, TAG> tmp{ref};
     ref = specific::t_specific<types::t_bool, TAG>{false};
     return tmp;
   }
 
+  template<typename T, typename TAG, typename... Ls>
+  constexpr
+  logical::t_logical<T, TAG, Ls...>
+      reset(logical::t_logical<T, TAG, Ls...>& ref) noexcept {
+    logical::t_logical<T, TAG, Ls...> tmp{ref};
+    ref = logical::t_logical<T, TAG, Ls...>{0};
+    return tmp;
+  }
+
+  template<typename T, typename TAG, typename... Ls>
+  constexpr
+  logical::t_logical<T*, TAG, Ls...>
+      reset(logical::t_logical<T*, TAG, Ls...>& ref) noexcept {
+    logical::t_logical<T*, TAG, Ls...> tmp{ref};
+    ref = logical::t_logical<T*, TAG, Ls...>{nullptr};
+    return tmp;
+  }
+
+  template<typename TAG, typename... Ls>
+  constexpr
+  logical::t_logical<types::t_bool, TAG, Ls...>
+      reset(logical::t_logical<types::t_bool, TAG, Ls...>& ref) noexcept {
+    logical::t_logical<types::t_bool, TAG, Ls...> tmp{ref};
+    ref = logical::t_logical<types::t_bool, TAG, Ls...>{false};
+    return tmp;
+  }
+
   template<class TAG>
-  constexpr t_user<TAG> reset(t_user<TAG>& ref) noexcept {
+  constexpr
+  t_user<TAG> reset(t_user<TAG>& ref) noexcept {
     return t_user<TAG>{reset(ref.id)};
   }
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  constexpr auto x_cast(T&& in)
-      -> typename traits::t_remove_ref<T>::t_result&& {
-    return static_cast<typename traits::t_remove_ref<T>::t_result&&>(in);
+  constexpr
+  auto x_cast(T&& in)
+      -> traits::t_remove_ref<T>&& {
+    return static_cast<traits::t_remove_ref<T>&&>(in);
   }
 
   template<typename T>
-  constexpr T&& preserve(typename traits::t_remove_ref<T>::t_result& in) {
+  constexpr
+  T&& preserve(traits::t_remove_ref<T>& in) {
     return static_cast<T&&>(in);
   }
 
   template<typename T>
-  constexpr T&& preserve(typename traits::t_remove_ref<T>::t_result&& in) {
+  constexpr
+  T&& preserve(traits::t_remove_ref<T>&& in) {
     return x_cast(in);
   }
 

@@ -110,9 +110,9 @@ namespace impl_
     t_ix last_ix = last_ix_(value);
     t_ix ix      = last_ix;
 
-    for (; ix && value.cref(ix) == BITS_ZERO_; --ix);
+    for (; ix > t_ix{0} && value.cref(ix) == BITS_ZERO_; --ix);
 
-    if (!ix && value.cref(0_ix) == BITS_ZERO_)
+    if (!ix && value.cref(t_ix{0}) == BITS_ZERO_)
       return {max};
 
     t_pvalue_ val = value.cref(ix);
@@ -148,7 +148,7 @@ namespace impl_
   t_bits on_bits_(R_store_ value) noexcept {
     t_ix end = mk<t_ix>(value.size);
     t_n_ n   = 0;
-    for (t_ix ix = 0_ix; ix < end; ++ix) {
+    for (t_ix ix = t_ix{0}; ix < end; ++ix) {
       t_pvalue_ val = value.cref(ix);
       for (; val; val>>=1)
         if (val & 1)
@@ -160,7 +160,7 @@ namespace impl_
   // IMPL_FUNC_1_5_
   t_pos lsb_on_(R_store_ value) noexcept {
     t_ix end = mk<t_ix>(value.size);
-    t_ix ix  = 0_ix;
+    t_ix ix  = t_ix{0};
     for (; ix < end && value.cref(ix) == BITS_ZERO_; ++ix);
     if (ix == end)
       return {};
@@ -174,8 +174,8 @@ namespace impl_
   // IMPL_FUNC_1_6_
   t_pos msb_on_(R_store_ value) noexcept {
     t_ix ix  = last_ix_(value);
-    for (; ix && value.cref(ix) == BITS_ZERO_; --ix);
-    if (!ix && value.cref(0_ix) == BITS_ZERO_)
+    for (; ix > t_ix{0} && value.cref(ix) == BITS_ZERO_; --ix);
+    if (!ix && value.cref(t_ix{0}) == BITS_ZERO_)
       return {};
     t_pvalue_ val = value.cref(ix);
     t_n_ p = 0;
@@ -187,8 +187,8 @@ namespace impl_
   // IMPL_FUNC_1_7_
   t_pos msb_off_(R_store_ value) noexcept {
     t_ix ix = last_ix_(value);
-    for (; ix && value.cref(ix) == BITS_ALL_; --ix);
-    if (!ix && value.cref(0_ix) == BITS_ALL_)
+    for (; ix > t_ix{0} && value.cref(ix) == BITS_ALL_; --ix);
+    if (!ix && value.cref(t_ix{0}) == BITS_ALL_)
       return {};
     t_pvalue_ val = value.cref(ix);
     t_n_ p = BITS_UNIT_;
@@ -200,7 +200,7 @@ namespace impl_
   // IMPL_FUNC_1_8_
   t_void ones_compl_(r_store_ value) noexcept {
     t_ix last = last_ix_(value);
-    for (t_ix ix = 0_ix; ix < last; ++ix) {
+    for (t_ix ix = t_ix{0}; ix < last; ++ix) {
       r_pvalue_ entry = value.ref(ix);
       entry = ~entry & BITS_MASK_;
     }
@@ -212,7 +212,7 @@ namespace impl_
   t_void twos_compl_(r_store_ value) noexcept {
     t_ix      last  = last_ix_(value);
     t_pvalue_ carry = BITS_ONE_;
-    for (t_ix ix = 0_ix; ix < last; ++ix) {
+    for (t_ix ix = t_ix{0}; ix < last; ++ix) {
       r_pvalue_ entry = value.ref(ix);
       entry = (~entry & BITS_MASK_) + carry;
       carry = entry >> BITS_UNIT_;
@@ -227,7 +227,7 @@ namespace impl_
     if (!is_(store, value)) {
       if (store.ensure(value.size)) {
         t_ix end = mk<t_ix>(value.size);
-        t_ix ix  = 0_ix;
+        t_ix ix  = t_ix{0};
         for (; ix < end; ++ix)
           store.ref(ix) = value.cref(ix);
         t_bool neg = is_neg_(value);
@@ -253,7 +253,7 @@ namespace impl_
     P_pvalue_ longer   = nullptr;
     P_pvalue_ shorter  = nullptr;
   };
-  using r_add_ctxt_ = types::t_prefix<t_add_ctxt_>::r_;
+  using r_add_ctxt_ = types::r_prefix_of<t_add_ctxt_>;
 
   inline
   t_add_ctxt_ add_ctxt_(R_store_ value, R_store_ value1) noexcept {
@@ -406,7 +406,7 @@ namespace impl_
   t_bool divide_(r_store_ store, R_store_ value) noexcept {
     // is_(store, value) TODO
     if (!is_zero_(store)) {
-      t_store_ var1{x_cast(store)};
+      t_store_ var1{util::x_cast(store)};
       t_store_ var2{value};
       assign_(store, BITS_ZERO_);
 
@@ -443,7 +443,7 @@ namespace impl_
   // IMPL_FUNC_1_15_
   t_bool and_(r_store_ store, R_store_ value) noexcept {
     if (!is_(store, value)) {
-      t_ix ix = 0_ix, min = mk<t_ix>(min_of(store.size, value.size));
+      t_ix ix = t_ix{0}, min = min_of<t_ix>(store.size, value.size);
       for (; ix < min; ++ix)
         store.ref(ix) &= value.cref(ix);
       if (get(store.size) > get(value.size)) {
@@ -463,7 +463,7 @@ namespace impl_
   // IMPL_FUNC_1_16_
   t_bool or_(r_store_ store, R_store_ value) noexcept {
     if (!is_(store, value)) {
-      t_ix ix = 0_ix, min = mk<t_ix>(min_of(store.size, value.size));
+      t_ix ix = t_ix{0}, min = min_of<t_ix>(store.size, value.size);
       for (; ix < min; ++ix)
         store.ref(ix) |= value.cref(ix);
       if (store.size < value.size) {
@@ -480,7 +480,7 @@ namespace impl_
   // IMPL_FUNC_1_17_
   t_bool xor_(r_store_ store, R_store_ value) noexcept {
     if (!is_(store, value)) {
-      t_ix ix = 0_ix, min = mk<t_ix>(min_of(store.size, value.size));
+      t_ix ix = t_ix{0}, min = min_of<t_ix>(store.size, value.size);
       for (; ix < min; ++ix)
         store.ref(ix) ^= value.cref(ix);
       if (get(store.size) < get(value.size)) {
@@ -544,12 +544,12 @@ namespace impl_
 
   // IMPL_FUNC_1_20_
   t_bits shift_next_(r_store_ value) noexcept {
-    t_ix ix = 0_ix;
+    t_ix ix = t_ix{0};
     if ((value.cref(ix) & BITS_BUT_ONE_) == BITS_ZERO_) {
       t_ix end = mk<t_ix>(value.size);
       for (++ix; ix < end && value.cref(ix) == BITS_ZERO_; ++ix);
       if (ix == end) {
-        value.ref(0_ix) = BITS_ZERO_;
+        value.ref(t_ix{0}) = BITS_ZERO_;
         return zero_bits;
       }
     }
@@ -591,7 +591,7 @@ namespace impl_
   // IMPL_FUNC_1_23_
   t_bool is_zero_(R_store_ store) noexcept {
     t_ix end = mk<t_ix>(store.size);
-    for (t_ix ix = 0_ix; ix < end; ++ix) {
+    for (t_ix ix = t_ix{0}; ix < end; ++ix) {
       if (store.cref(ix))
         return false;
     }
@@ -809,11 +809,11 @@ namespace impl_
   }
 
   t_buf_::t_buf_(x_buf_ value) noexcept {
-    ensure(x_cast(value));
+    ensure(util::x_cast(value));
   }
 
   t_buf_::t_buf_(t_n n, x_buf_ value) noexcept {
-    ensure(n, x_cast(value));
+    ensure(n, util::x_cast(value));
   }
 
   t_buf_::~t_buf_() noexcept {
@@ -829,15 +829,15 @@ namespace impl_
   }
 
   r_buf_ t_buf_::operator=(x_buf_ value) noexcept {
-    ensure(x_cast(value));
+    ensure(util::x_cast(value));
     return *this;
   }
 
 
   t_void t_buf_::steal(r_buf_ value) noexcept {
     reset();
-    ptr  = base::reset(value.ptr);
-    size = base::reset(value.size);
+    ptr  = util::reset(value.ptr);
+    size = util::reset(value.size);
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -871,7 +871,7 @@ namespace impl_
   }
 
   t_bool t_buf_::ensure(t_n need, R_buf_ value) noexcept {
-    need = max_of(need, value.size);
+    need = max_of<t_n>(need, value.size);
     if (size < need) {
       if (is_heap()) {
         ptr = realloc_(ptr, need);
@@ -913,7 +913,7 @@ namespace impl_
   t_bool t_buf_::reset(t_n need) noexcept {
     if (need != size) {
       if (is_heap()) {
-        if (get(need) <= t_n{2}) {
+        if (need <= t_n{2}) {
           size = t_n{2};
           sso_[0] = ptr[0];
           sso_[1] = ptr[1];
@@ -931,7 +931,7 @@ namespace impl_
           ptr = malloc_<t_pvalue_>(need);
           ptr[0] = sso_[0];
           ptr[1] = sso_[1];
-          clear(2_ix);
+          clear(t_ix{2});
         }
       }
     }
@@ -948,7 +948,7 @@ namespace impl_
 
   t_bool t_buf_::reset(t_n need, R_buf_ value) noexcept {
     if (reset(need)) {
-      copy_(ptr, value.ptr, min_of(value.size, need));
+      copy_(ptr, value.ptr, min_of<t_n>(value.size, need));
       return true;
     }
     return false;
@@ -963,7 +963,7 @@ namespace impl_
 
   t_bool t_buf_::reset(t_n need, x_buf_ value) noexcept {
     if (get(need) == get(value.size))
-      return reset(x_cast(value));
+      return reset(util::x_cast(value));
     return reset(need, value);
   }
 

@@ -108,8 +108,8 @@ namespace specific
   using types::BAD_FD_;
   using types::NO_ERRN_;
   using types::BAD_ERRN_;
+  using types::t_pack;
 
-  using traits::t_pack;
   using traits::t_if_then;
   using traits::t_is_one_of;
 
@@ -117,20 +117,19 @@ namespace specific
 
   template<typename T>
   struct t_specific_value {
-    using t_value = typename t_if_then<
-                      t_is_one_of<T, t_bool,
-                                     t_char,
-                                     t_uchar,
-                                     t_int,
-                                     t_uint,
-                                     t_short,
-                                     t_ushort,
-                                     t_long,
-                                     t_ulong,
-                                     t_llong,
-                                     t_ullong,
-                                     t_double,
-                                     t_void>, T>::t_value;
+    using t_value = t_if_then<t_is_one_of<T, t_bool,
+                                             t_char,
+                                             t_uchar,
+                                             t_int,
+                                             t_uint,
+                                             t_short,
+                                             t_ushort,
+                                             t_long,
+                                             t_ulong,
+                                             t_llong,
+                                             t_ullong,
+                                             t_double,
+                                             t_void>, T>;
   };
 
   template<typename T>
@@ -285,11 +284,11 @@ namespace specific
   /////////////////////////////////////////////////////////////////////////////
 
   template<class>
-  struct t_is_specific : traits::t_result_false {
+  struct t_is_specific : traits::t_rfalse {
   };
 
   template<class T, class TAG, class CHECK>
-  struct t_is_specific<t_specific<T, TAG, CHECK>> : traits::t_result_true {
+  struct t_is_specific<t_specific<T, TAG, CHECK>> : traits::t_rtrue {
   };
 
   template<class E, class T, class TAG, class CHECK>

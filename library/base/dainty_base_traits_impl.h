@@ -39,6 +39,10 @@ namespace impl_
 {
   /////////////////////////////////////////////////////////////////////////////
 
+  using types::t_well_formed;
+  using types::t_expr;
+  using types::t_dummy;
+  using types::t_opt;
   using types::t_bool;
   using types::t_char;
   using types::t_schar;
@@ -60,88 +64,19 @@ namespace impl_
   using types::t_ldouble;
   using types::t_n_;
   using types::t_size_;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  enum class t_dummy { DUMMY };
-  template<typename, typename...> struct t_undef;
-  template<typename T, T>         struct t_undef_value;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  enum t_yes  { YES };
-  template<typename...> using t_wellformed = t_yes;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  using t_opt = t_yes;
-  enum  t_opt1 { OPT1 };
-  enum  t_opt2 { OPT2 };
-  enum  t_opt3 { OPT3 };
-  enum  t_opt4 { OPT4 };
-  enum  t_opt5 { OPT5 };
-  enum  t_opt6 { OPT6 };
-  enum  t_opt7 { OPT7 };
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T> struct t_add_identity { using t_identity = T; };
-  template<typename T> struct t_add_result   { using t_result   = T; };
-  template<typename T> struct t_add_value    { using t_value    = T; };
-
-  template<typename T> using t_identity_of = typename T::t_identity;
-  template<typename T> using t_result_of   = typename T::t_result;
-  template<typename T> using t_value_of    = typename T::t_value;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T, T V> struct t_add_VALUE {
-    constexpr static T VALUE = V;
-  };
-
-  template<typename T> constexpr auto VALUE_of = T::VALUE;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T, T V> struct t_add_MAX {
-    constexpr static T MAX = V;
-  };
-
-  template<typename T> constexpr auto MAX_of = T::MAX;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T, T V> struct t_add_MIN {
-    constexpr static T MIN = V;
-  };
-
-  template<typename T> constexpr auto MIN_of = T::MIN;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T> struct t_add_SIZEOF {
-    constexpr static t_size_ SIZEOF = sizeof(T);
-  };
-
-  template<typename T> constexpr auto SIZEOF_of = T::SIZEOF;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T> struct t_add_BITS {
-    constexpr static t_size_ BITS = sizeof(T) * __CHAR_BIT__;
-  };
-
-  template<typename T> constexpr auto BITS_of = T::BITS;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<typename T, T V, typename H = t_dummy>
-  struct t_constant : t_add_value<T>,
-                      t_add_VALUE<T, V>,
-                      t_add_identity<H> {
-  };
-
-  // t_constant_sequence
+  using types::WELL_FORMED;
+  using types::t_add_result;
+  using types::t_add_value;
+  using types::t_add_VALUE;
+  using types::t_add_MAX;
+  using types::t_add_MIN;
+  using types::t_add_SIZEOF;
+  using types::t_add_BITS;
+  using types::t_constant;
+  using types::t_identity_of;
+  using types::t_result_of;
+  using types::t_value_of;
+  using types::MAX_of;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -149,11 +84,11 @@ namespace impl_
   struct t_false : t_constant<t_bool, false, t_false> { };
 
   namespace help_ {
-    template<t_bool> struct t_is_truth_       : t_add_value<t_false> { };
-    template<>       struct t_is_truth_<true> : t_add_value<t_true>  { };
+    template<t_bool> struct t_is_truth_       : t_add_result<t_false> { };
+    template<>       struct t_is_truth_<true> : t_add_result<t_true>  { };
   }
 
-  template<t_bool B> using t_is_truth = t_value_of<help_::t_is_truth_<B>>;
+  template<t_bool B> using t_is_truth = t_result_of<help_::t_is_truth_<B>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -262,34 +197,42 @@ namespace impl_
     struct t_is_there_ : t_add_value<U>, t_rfalse { };
 
     template<template<typename> class Op, typename T, typename U>
-    struct t_is_there_<Op, T, U, t_wellformed<Op<T>>>
+    struct t_is_there_<Op, T, U, t_expr<Op<T>>>
       : t_add_value<Op<T>>, t_rtrue {
     };
   }
 
   template<template<typename> class Op, typename T>
-  using t_expr_of      = t_value_of<help_::t_is_there_<Op, T, t_yes, t_yes>>;
+  using t_expr_of
+    = t_value_of<help_::t_is_there_<Op, T, t_well_formed, t_well_formed>>;
 
   template<template<typename> class Op, typename T, typename U>
-  using t_expr_of_or   = t_value_of<help_::t_is_there_<Op, T, U, t_yes>>;
+  using t_expr_of_or
+    = t_value_of<help_::t_is_there_<Op, T, U, t_well_formed>>;
 
   template<template<typename> class Op, typename T>
-  using t_is_there     = t_result_of<help_::t_is_there_<Op, T, t_yes, t_yes>>;
+  using t_is_there
+    = t_result_of<help_::t_is_there_<Op, T, t_well_formed, t_well_formed>>;
 
   template<template<typename> class Op, typename T>
-  using t_is_not_there = t_not<t_is_there<Op, T>>;
+  using t_is_not_there
+    = t_not<t_is_there<Op, T>>;
 
   template<typename O, template<typename> class Op, typename T>
-  using t_opt_if_there     = t_opt_if<O, t_is_there<Op, T>>;
+  using t_opt_if_there
+    = t_opt_if<O, t_is_there<Op, T>>;
 
   template<typename O, template<typename> class Op, typename T>
-  using t_opt_if_not_there = t_opt_if<O, t_is_not_there<Op, T>>;
+  using t_opt_if_not_there
+    = t_opt_if<O, t_is_not_there<Op, T>>;
 
   template<template<typename> class Op, typename T>
-  using t_if_there         = t_opt_if_there<t_opt, Op, T>;
+  using t_if_there
+    = t_opt_if_there<t_opt, Op, T>;
 
   template<template<typename> class Op, typename T>
-  using t_if_not_there     = t_opt_if_not_there<t_opt, Op, T>;
+  using t_if_not_there
+    = t_opt_if_not_there<t_opt, Op, T>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2904,6 +2847,37 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   namespace help_ {
+    template<typename...> struct t_smallest_pack_help_;
+    template<typename...> struct t_smallest_pack_help1_;
+
+    template<typename P, typename P1, typename... Ps>
+    struct t_smallest_pack_help1_<t_true, P, P1, Ps...>
+      : t_smallest_pack_help_<P, Ps...> { };
+
+    template<typename P, typename P1, typename... Ps>
+    struct t_smallest_pack_help1_<t_false, P, P1, Ps...>
+      : t_smallest_pack_help_<P1, Ps...> { };
+
+    template<typename P, typename P1, typename... Ps>
+    struct t_smallest_pack_help_<P, P1, Ps...>
+      : t_smallest_pack_help1_<t_is_truth<(P::N < P1::N)>, P, P1, Ps...> { };
+
+    template<typename P>
+    struct t_smallest_pack_help_<P> : t_add_value<P> { };
+
+    template<typename P, typename... Ps>
+    struct t_smallest_pack_ : t_smallest_pack_help_<P, Ps...> {
+      static_assert(t_is_pack<P, Ps...>::VALUE,
+                     "template parameters must be of t_pack<...> type");
+    };
+  }
+
+  template<typename P, typename... Ps>
+  using t_smallest_pack = t_value_of<help_::t_smallest_pack_<P, Ps...>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
     template<typename U, typename P, typename... Ps>
     struct t_union_pack_help_;
 
@@ -3081,12 +3055,8 @@ namespace impl_
 
   namespace help_ {
     template<typename T, typename T1>
-    struct t_is_greater_int_rank_help_
-      : t_set_result<(t_int_rank<T>::VALUE > t_int_rank<T1>::VALUE)> { };
-
-    template<typename T, typename T1>
     using t_is_greater_int_rank_
-      = t_result_of<t_is_greater_int_rank_help_<T, T1>>;
+      = t_is_truth<(t_int_rank<T>::VALUE > t_int_rank<T1>::VALUE)>;
   }
 
   template<typename T, typename T1, typename... Ts>
@@ -3118,11 +3088,8 @@ namespace impl_
 
   namespace help_ {
     template<typename T, typename T1>
-    struct t_is_equal_int_rank_help_
-      : t_set_result<(t_int_rank<T>::VALUE == t_int_rank<T1>::VALUE)> { };
-
-    template<typename T, typename T1>
-    using t_is_equal_int_rank_ = t_result_of<t_is_equal_int_rank_help_<T, T1>>;
+    using t_is_equal_int_rank_
+      = t_is_truth<(t_int_rank<T>::VALUE == t_int_rank<T1>::VALUE)>;
   }
 
   template<typename T, typename T1, typename... Ts>
@@ -3175,6 +3142,72 @@ namespace impl_
   template<typename T, typename T1, typename... Ts>
   using t_if_not_greater_equal_int_rank
     = t_opt_if_not_greater_equal_int_rank<t_opt, T, T1, Ts...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename...> struct t_greatest_int_rank_help_;
+    template<typename...> struct t_greatest_int_rank_help1_;
+
+    template<typename T, typename T1, typename... Ts>
+    struct t_greatest_int_rank_help1_<t_false, T, T1, Ts...>
+      : t_greatest_int_rank_help_<T1, Ts...> { };
+
+    template<typename T, typename T1, typename... Ts>
+    struct t_greatest_int_rank_help1_<t_true, T, T1, Ts...>
+      : t_greatest_int_rank_help_<T, Ts...> { };
+
+    template<typename T, typename T1, typename... Ts>
+    struct t_greatest_int_rank_help_<T, T1, Ts...>
+      : t_greatest_int_rank_help1_<t_is_greater_int_rank<T, T1>,
+                                   T, T1, Ts...> { };
+
+    template<typename T>
+    struct t_greatest_int_rank_help_<T> : t_add_value<T> { };
+
+    template<typename T, typename... Ts>
+    struct t_greatest_int_rank_ : t_greatest_int_rank_help_<T, Ts...> {
+      static_assert(t_is_integral<T, Ts...>::VALUE,
+                    "template parameters must be of integral type.");
+    };
+  }
+
+  template<typename T, typename... Ts>
+  using t_greatest_int_rank
+    = t_value_of<help_::t_greatest_int_rank_<T, Ts...>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  namespace help_ {
+    template<typename, typename...> struct t_smallest_int_rank_help_;
+    template<typename...> struct t_smallest_int_rank_help1_;
+
+    template<typename T, typename T1, typename... Ts>
+    struct t_smallest_int_rank_help1_<t_false, T, T1, Ts...>
+      : t_smallest_int_rank_help_<T1, Ts...> { };
+
+    template<typename T, typename T1, typename... Ts>
+    struct t_smallest_int_rank_help1_<t_true, T, T1, Ts...>
+      : t_smallest_int_rank_help_<T, Ts...> { };
+
+    template<typename T, typename T1, typename... Ts>
+    struct t_smallest_int_rank_help_<T, T1, Ts...>
+      : t_smallest_int_rank_help1_<t_is_not_greater_equal_int_rank<T, T1>,
+                                   T, T1, Ts...> { };
+
+    template<typename T>
+    struct t_smallest_int_rank_help_<T> : t_add_value<T> { };
+
+    template<typename T, typename... Ts>
+    struct t_smallest_int_rank_ : t_smallest_int_rank_help_<T, Ts...> {
+      static_assert(t_is_integral<T, Ts...>::VALUE,
+                    "template parameters must be of integral type.");
+    };
+  }
+
+  template<typename T, typename... Ts>
+  using t_smallest_int_rank
+    = t_value_of<help_::t_smallest_int_rank_<T, Ts...>>;
 
   /////////////////////////////////////////////////////////////////////////////
 

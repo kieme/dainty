@@ -28,6 +28,7 @@
 #define _DAINTY_BASE_NUMERIC_H_
 
 #include "dainty_base_numeric_impl.h"
+#include "dainty_base_util.h"
 
 namespace dainty
 {
@@ -53,9 +54,9 @@ namespace numeric
   /////////////////////////////////////////////////////////////////////////////
 
   class t_binary;
-  using r_binary = types::t_prefix<t_binary>::r_;
-  using x_binary = types::t_prefix<t_binary>::x_;
-  using R_binary = types::t_prefix<t_binary>::R_;
+  using r_binary = types::r_prefix_of<t_binary>;
+  using x_binary = types::x_prefix_of<t_binary>;
+  using R_binary = types::R_prefix_of<t_binary>;
 
   class t_binary {
   public:
@@ -67,14 +68,14 @@ namespace numeric
     t_binary(        x_binary) noexcept; // BIN_METHOD_1_5_
     t_binary(t_bits, x_binary) noexcept; // BIN_METHOD_1_6_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     t_binary(        T)        noexcept; // BIN_METHOD_1_7_
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     t_binary(t_bits, T)        noexcept; // BIN_METHOD_1_8_
 
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     t_binary(        T)        noexcept; // BIN_METHOD_1_9_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     t_binary(t_bits, T)        noexcept; // BIN_METHOD_1_10_
 
     ///////////////////////////////////////////////////////////////////////////
@@ -82,72 +83,72 @@ namespace numeric
     r_binary operator=(R_binary) noexcept; // BIN_METHOD_2_1_
     r_binary operator=(x_binary) noexcept; // BIN_METHOD_2_2_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     r_binary operator=(T)        noexcept; // BIN_METHOD_2_3_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     r_binary operator=(T)        noexcept; // BIN_METHOD_2_4_
 
     ///////////////////////////////////////////////////////////////////////////
 
     r_binary operator+=(R_binary) noexcept; // BIN_METHOD_3_1_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     r_binary operator+=(T)        noexcept; // BIN_METHOD_3_2_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     r_binary operator+=(T)        noexcept; // BIN_METHOD_3_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
     r_binary operator-=(R_binary) noexcept; // BIN_METHOD_4_1_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     r_binary operator-=(T)        noexcept; // BIN_METHOD_4_2_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     r_binary operator-=(T)        noexcept; // BIN_METHOD_4_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
     r_binary operator*=(R_binary) noexcept; // BIN_METHOD_5_1_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     r_binary operator*=(T)        noexcept; // BIN_METHOD_5_2_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     r_binary operator*=(T)        noexcept; // BIN_METHOD_5_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
     r_binary operator/=(R_binary) noexcept; // BIN_METHOD_6_1_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     r_binary operator/=(T)        noexcept; // BIN_METHOD_6_2_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     r_binary operator/=(T)        noexcept; // BIN_METHOD_6_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
     r_binary operator&=(R_binary) noexcept; // BIN_METHOD_7_1_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     r_binary operator&=(T)        noexcept; // BIN_METHOD_7_2_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     r_binary operator&=(T)        noexcept; // BIN_METHOD_7_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
     r_binary operator|=(R_binary) noexcept; // BIN_METHOD_8_1_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     r_binary operator|=(T)        noexcept; // BIN_METHOD_8_2_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     r_binary operator|=(T)        noexcept; // BIN_METHOD_8_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
     r_binary operator^=(R_binary) noexcept; // BIN_METHOD_9_1_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     r_binary operator^=(T)        noexcept; // BIN_METHOD_9_2_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     r_binary operator^=(T)        noexcept; // BIN_METHOD_9_3_
 
     ///////////////////////////////////////////////////////////////////////////
@@ -185,40 +186,40 @@ namespace numeric
     t_bool reset(        R_binary) noexcept; // BIN_METHOD_32_2_
     t_bool reset(t_bits, R_binary) noexcept; // BIN_METHOD_32_3_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     t_void reset(        T)        noexcept; // BIN_METHOD_32_4_
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     t_bool reset(t_bits, T)        noexcept; // BIN_METHOD_32_5_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     t_void reset(        T)        noexcept; // BIN_METHOD_32_6_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     t_bool reset(t_bits, T)        noexcept; // BIN_METHOD_32_7_
 
     ///////////////////////////////////////////////////////////////////////////
 
     t_bool is_equal(R_binary) const noexcept; // BIN_METHOD_33_1_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     t_bool is_equal(T)        const noexcept; // BIN_METHOD_33_2_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     t_bool is_equal(T)        const noexcept; // BIN_METHOD_33_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
     t_bool is_less(R_binary) const noexcept; // BIN_METHOD_34_1_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     t_bool is_less(T)        const noexcept; // BIN_METHOD_34_2_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     t_bool is_less(T)        const noexcept; // BIN_METHOD_34_3_
 
     ///////////////////////////////////////////////////////////////////////////
 
     t_bool is_less_equal(R_binary) const noexcept; // BIN_METHOD_35_1_
 
-    template<typename T, t_if_neg<T> = traits::YES>
+    template<typename T, t_if_neg<T> = traits::WELL_FORMED>
     t_bool is_less_equal(T)        const noexcept; // BIN_METHOD_35_2_
-    template<typename T, t_if_pos<T> = traits::YES>
+    template<typename T, t_if_pos<T> = traits::WELL_FORMED>
     t_bool is_less_equal(T)        const noexcept; // BIN_METHOD_35_3_
 
     ///////////////////////////////////////////////////////////////////////////
@@ -238,9 +239,9 @@ namespace numeric
   /////////////////////////////////////////////////////////////////////////////
 
   class t_integer;
-  using r_integer = types::t_prefix<t_integer>::r_;
-  using x_integer = types::t_prefix<t_integer>::x_;
-  using R_integer = types::t_prefix<t_integer>::R_;
+  using r_integer = types::r_prefix_of<t_integer>;
+  using x_integer = types::x_prefix_of<t_integer>;
+  using R_integer = types::R_prefix_of<t_integer>;
 
   class t_integer {
   public:
@@ -257,9 +258,9 @@ namespace numeric
     t_integer(          x_binary)  noexcept; // INT_METHOD_1_9_
     t_integer(t_digits, x_binary)  noexcept; // INT_METHOD_1_10_
 
-    template<typename T, t_if_int<T> = traits::YES>
+    template<typename T, t_if_int<T> = traits::WELL_FORMED>
     t_integer(          T)         noexcept; // INT_METHOD_1_11_
-    template<typename T, t_if_int<T> = traits::YES>
+    template<typename T, t_if_int<T> = traits::WELL_FORMED>
     t_integer(t_digits, T)         noexcept; // INT_METHOD_1_12_
 
     ///////////////////////////////////////////////////////////////////////////
@@ -270,7 +271,7 @@ namespace numeric
     r_integer operator=(R_binary)  noexcept; // INT_METHOD_2_3_
     r_integer operator=(x_binary)  noexcept; // INT_METHOD_2_4_
 
-    template<typename T, t_if_int<T> = traits::YES>
+    template<typename T, t_if_int<T> = traits::WELL_FORMED>
     r_integer operator=(T)         noexcept; // INT_METHOD_2_5_
 
     ///////////////////////////////////////////////////////////////////////////
@@ -278,7 +279,7 @@ namespace numeric
     r_integer operator+=(R_integer) noexcept; // INT_METHOD_3_1_
     r_integer operator+=(R_binary)  noexcept; // INT_METHOD_3_2_
 
-    template<typename T, t_if_int<T> = traits::YES>
+    template<typename T, t_if_int<T> = traits::WELL_FORMED>
     r_integer operator+=(T)         noexcept; // INT_METHOD_3_3_
 
     ///////////////////////////////////////////////////////////////////////////
@@ -286,7 +287,7 @@ namespace numeric
     r_integer operator-=(R_integer) noexcept; // INT_METHOD_4_1_
     r_integer operator-=(R_binary)  noexcept; // INT_METHOD_4_2_
 
-    template<typename T, t_if_int<T> = traits::YES>
+    template<typename T, t_if_int<T> = traits::WELL_FORMED>
     r_integer operator-=(T)         noexcept; // INT_METHOD_4_3_
 
     ///////////////////////////////////////////////////////////////////////////
@@ -294,7 +295,7 @@ namespace numeric
     r_integer operator*=(R_integer) noexcept; // INT_METHOD_5_1_
     r_integer operator*=(R_binary)  noexcept; // INT_METHOD_5_2_
 
-    template<typename T, t_if_int<T> = traits::YES>
+    template<typename T, t_if_int<T> = traits::WELL_FORMED>
     r_integer operator*=(T)         noexcept; // INT_METHOD_5_3_
 
     ///////////////////////////////////////////////////////////////////////////
@@ -302,7 +303,7 @@ namespace numeric
     r_integer operator/=(R_integer) noexcept; // INT_METHOD_6_1_
     r_integer operator/=(R_binary)  noexcept; // INT_METHOD_6_2_
 
-    template<typename T, t_if_int<T> = traits::YES>
+    template<typename T, t_if_int<T> = traits::WELL_FORMED>
     r_integer operator/=(T)         noexcept; // INT_METHOD_6_3_
 
     ///////////////////////////////////////////////////////////////////////////
@@ -326,9 +327,9 @@ namespace numeric
     t_bool reset(          R_binary)  noexcept; // INT_METHOD_12_4_
     t_bool reset(t_digits, R_binary)  noexcept; // INT_METHOD_12_5_
 
-    template<typename T, t_if_int<T> = traits::YES>
+    template<typename T, t_if_int<T> = traits::WELL_FORMED>
     t_void reset(          T)         noexcept; // INT_METHOD_12_6_
-    template<typename T, t_if_int<T> = traits::YES>
+    template<typename T, t_if_int<T> = traits::WELL_FORMED>
     t_bool reset(t_digits, T)         noexcept; // INT_METHOD_12_7_
 
     ///////////////////////////////////////////////////////////////////////////
@@ -336,7 +337,7 @@ namespace numeric
     t_bool is_equal(R_integer) const noexcept; // INT_METHOD_13_1_
     t_bool is_equal(R_binary)  const noexcept; // INT_METHOD_13_2_
 
-    template<typename T, t_if_int<T> = traits::YES>
+    template<typename T, t_if_int<T> = traits::WELL_FORMED>
     t_bool is_equal(T)         const noexcept; // INT_METHOD_13_3_
 
     ///////////////////////////////////////////////////////////////////////////
@@ -344,7 +345,7 @@ namespace numeric
     t_bool is_less(R_integer) const noexcept; // INT_METHOD_14_1_
     t_bool is_less(R_binary)  const noexcept; // INT_METHOD_14_2_
 
-    template<typename T, t_if_int<T> = traits::YES>
+    template<typename T, t_if_int<T> = traits::WELL_FORMED>
     t_bool is_less(T)         const noexcept; // INT_METHOD_14_3_
 
     ///////////////////////////////////////////////////////////////////////////
@@ -352,7 +353,7 @@ namespace numeric
     t_bool is_less_equal(R_integer) const noexcept; // INT_METHOD_15_1_
     t_bool is_less_equal(R_binary)  const noexcept; // INT_METHOD_15_2_
 
-    template<typename T, t_if_int<T> = traits::YES>
+    template<typename T, t_if_int<T> = traits::WELL_FORMED>
     t_bool is_less_equal(T)         const noexcept; // INT_METHOD_15_3_
 
   private:
@@ -380,13 +381,13 @@ namespace numeric
   t_binary operator+(R_binary, x_binary) noexcept; // BIN_FUNC_1_3_
   t_binary operator+(x_binary, x_binary) noexcept; // BIN_FUNC_1_4_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator+(R_binary, T)        noexcept; // BIN_FUNC_1_5_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator+(T, R_binary)        noexcept; // BIN_FUNC_1_6_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator+(x_binary, T)        noexcept; // BIN_FUNC_1_7_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator+(T, x_binary)        noexcept; // BIN_FUNC_1_8_
 
   /////////////////////////////////////////////////////////////////////////////
@@ -396,13 +397,13 @@ namespace numeric
   t_binary operator-(R_binary, x_binary) noexcept; // BIN_FUNC_2_3_
   t_binary operator-(x_binary, x_binary) noexcept; // BIN_FUNC_2_4_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator-(R_binary, T)        noexcept; // BIN_FUNC_2_5_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator-(T, R_binary)        noexcept; // BIN_FUNC_2_6_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator-(x_binary, T)        noexcept; // BIN_FUNC_2_7_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator-(T, x_binary)        noexcept; // BIN_FUNC_2_8_
 
   /////////////////////////////////////////////////////////////////////////////
@@ -412,13 +413,13 @@ namespace numeric
   t_binary operator*(R_binary, x_binary) noexcept; // BIN_FUNC_3_3_
   t_binary operator*(x_binary, x_binary) noexcept; // BIN_FUNC_3_4_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator*(R_binary, T)        noexcept; // BIN_FUNC_3_5_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator*(T, R_binary)        noexcept; // BIN_FUNC_3_6_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator*(x_binary, T)        noexcept; // BIN_FUNC_3_7_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator*(T, x_binary)        noexcept; // BIN_FUNC_3_8_
 
   /////////////////////////////////////////////////////////////////////////////
@@ -428,13 +429,13 @@ namespace numeric
   t_binary operator/(R_binary, x_binary) noexcept; // BIN_FUNC_4_3_
   t_binary operator/(x_binary, x_binary) noexcept; // BIN_FUNC_4_4_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator/(R_binary, T)        noexcept; // BIN_FUNC_4_5_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator/(T, R_binary)        noexcept; // BIN_FUNC_4_6_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator/(x_binary, T)        noexcept; // BIN_FUNC_4_7_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator/(T, x_binary)        noexcept; // BIN_FUNC_4_8_
 
   /////////////////////////////////////////////////////////////////////////////
@@ -444,13 +445,13 @@ namespace numeric
   t_binary operator|(R_binary, x_binary) noexcept; // BIN_FUNC_5_3_
   t_binary operator|(x_binary, x_binary) noexcept; // BIN_FUNC_5_4_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator|(R_binary, T)        noexcept; // BIN_FUNC_5_5_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator|(T, R_binary)        noexcept; // BIN_FUNC_5_6_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator|(x_binary, T)        noexcept; // BIN_FUNC_5_7_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator|(T, x_binary)        noexcept; // BIN_FUNC_5_8_
 
   /////////////////////////////////////////////////////////////////////////////
@@ -460,13 +461,13 @@ namespace numeric
   t_binary operator&(R_binary, x_binary) noexcept; // BIN_FUNC_6_3_
   t_binary operator&(x_binary, x_binary) noexcept; // BIN_FUNC_6_4_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator&(R_binary, T)        noexcept; // BIN_FUNC_6_5_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator&(T, R_binary)        noexcept; // BIN_FUNC_6_6_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator&(x_binary, T)        noexcept; // BIN_FUNC_6_7_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator&(T, x_binary)        noexcept; // BIN_FUNC_6_8_
 
   /////////////////////////////////////////////////////////////////////////////
@@ -476,13 +477,13 @@ namespace numeric
   t_binary operator^(R_binary, x_binary) noexcept; // BIN_FUNC_7_3_
   t_binary operator^(x_binary, x_binary) noexcept; // BIN_FUNC_7_4_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator^(R_binary, T)        noexcept; // BIN_FUNC_7_5_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator^(T, R_binary)        noexcept; // BIN_FUNC_7_6_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator^(x_binary, T)        noexcept; // BIN_FUNC_7_7_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_binary operator^(T, x_binary)        noexcept; // BIN_FUNC_7_8_
 
   /////////////////////////////////////////////////////////////////////////////
@@ -494,54 +495,54 @@ namespace numeric
 
   t_bool operator==(R_binary, R_binary) noexcept; // BIN_FUNC_10_1_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator==(R_binary, T)        noexcept; // BIN_FUNC_10_2_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator==(T, R_binary)        noexcept; // BIN_FUNC_10_3_
 
   /////////////////////////////////////////////////////////////////////////////
 
   t_bool operator!=(R_binary, R_binary) noexcept; // BIN_FUNC_11_1_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator!=(R_binary, T)        noexcept; // BIN_FUNC_11_2_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator!=(T, R_binary)        noexcept; // BIN_FUNC_11_3_
 
   /////////////////////////////////////////////////////////////////////////////
 
   t_bool operator<(R_binary, R_binary) noexcept; // BIN_FUNC_12_1_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator<(R_binary, T)        noexcept; // BIN_FUNC_12_2_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator<(T, R_binary)        noexcept; // BIN_FUNC_12_3_
 
   /////////////////////////////////////////////////////////////////////////////
 
   t_bool operator<=(R_binary, R_binary) noexcept; // BIN_FUNC_13_1_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator<=(R_binary, T)        noexcept; // BIN_FUNC_13_2_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator<=(T, R_binary)        noexcept; // BIN_FUNC_13_3_
 
   /////////////////////////////////////////////////////////////////////////////
 
   t_bool operator>(R_binary, R_binary) noexcept; // BIN_FUNC_14_1_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator>(R_binary, T)        noexcept; // BIN_FUNC_14_2_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator>(T, R_binary)        noexcept; // BIN_FUNC_14_3_
 
   /////////////////////////////////////////////////////////////////////////////
 
   t_bool operator>=(R_binary, R_binary) noexcept; // BIN_FUNC_15_1_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator>=(R_binary, T)        noexcept; // BIN_FUNC_15_2_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator>=(T, R_binary)        noexcept; // BIN_FUNC_15_3_
 
   /////////////////////////////////////////////////////////////////////////////
@@ -551,13 +552,13 @@ namespace numeric
   t_integer operator+(R_integer, x_integer) noexcept; // INT_FUNC_1_3_
   t_integer operator+(x_integer, x_integer) noexcept; // INT_FUNC_1_4_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator+(R_integer, T)         noexcept; // INT_FUNC_1_5_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator+(T, R_integer)         noexcept; // INT_FUNC_1_6_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator+(x_integer, T)         noexcept; // INT_FUNC_1_7_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator+(T, x_integer)         noexcept; // INT_FUNC_1_8_
 
   /////////////////////////////////////////////////////////////////////////////
@@ -567,13 +568,13 @@ namespace numeric
   t_integer operator-(R_integer, x_integer) noexcept; // INT_FUNC_2_3_
   t_integer operator-(x_integer, x_integer) noexcept; // INT_FUNC_2_4_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator-(R_integer, T)         noexcept; // INT_FUNC_2_5_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator-(T, R_integer)         noexcept; // INT_FUNC_2_6_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator-(x_integer, T)         noexcept; // INT_FUNC_2_7_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator-(T, x_integer)         noexcept; // INT_FUNC_2_8_
 
   /////////////////////////////////////////////////////////////////////////////
@@ -583,13 +584,13 @@ namespace numeric
   t_integer operator*(R_integer, x_integer) noexcept; // INT_FUNC_3_3_
   t_integer operator*(x_integer, x_integer) noexcept; // INT_FUNC_3_4_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator*(R_integer, T)         noexcept; // INT_FUNC_3_5_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator*(T, R_integer)         noexcept; // INT_FUNC_3_6_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator*(x_integer, T)         noexcept; // INT_FUNC_3_7_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator*(T, x_integer)         noexcept; // INT_FUNC_3_8_
 
   /////////////////////////////////////////////////////////////////////////////
@@ -599,67 +600,67 @@ namespace numeric
   t_integer operator/(R_integer, x_integer) noexcept; // INT_FUNC_4_3_
   t_integer operator/(x_integer, x_integer) noexcept; // INT_FUNC_4_4_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator/(R_integer, T)         noexcept; // INT_FUNC_4_5_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator/(T, R_integer)         noexcept; // INT_FUNC_4_6_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator/(x_integer, T)         noexcept; // INT_FUNC_4_7_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_integer operator/(T, x_integer)         noexcept; // INT_FUNC_4_8_
 
   /////////////////////////////////////////////////////////////////////////////
 
   t_bool operator==(R_integer, R_integer) noexcept; // INT_FUNC_5_1_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator==(R_integer, T)         noexcept; // INT_FUNC_5_2_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator==(T, R_integer)         noexcept; // INT_FUNC_5_3_
 
   /////////////////////////////////////////////////////////////////////////////
 
   t_bool operator!=(R_integer, R_integer) noexcept; // INT_FUNC_6_1_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator!=(R_integer, T)         noexcept; // INT_FUNC_6_2_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator!=(T, R_integer)         noexcept; // INT_FUNC_6_3_
 
   /////////////////////////////////////////////////////////////////////////////
 
   t_bool operator<(R_integer, R_integer) noexcept; // INT_FUNC_7_1_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator<(R_integer, T)         noexcept; // INT_FUNC_7_2_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator<(T, R_integer)         noexcept; // INT_FUNC_7_3_
 
   /////////////////////////////////////////////////////////////////////////////
 
   t_bool operator<=(R_integer, R_integer) noexcept; // INT_FUNC_8_1_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator<=(R_integer, T)         noexcept; // INT_FUNC_8_2_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator<=(T, R_integer)         noexcept; // INT_FUNC_8_3_
 
   /////////////////////////////////////////////////////////////////////////////
 
   t_bool operator>(R_integer, R_integer) noexcept; // INT_FUNC_9_1_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator>(R_integer, T)         noexcept; // INT_FUNC_9_2_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator>(T, R_integer)         noexcept; // INT_FUNC_9_3_
 
   /////////////////////////////////////////////////////////////////////////////
 
   t_bool operator>=(R_integer, R_integer) noexcept; // INT_FUNC_10_1_
 
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator>=(R_integer, T)         noexcept; // INT_FUNC_10_2_
-  template<typename T, t_if_int<T> = traits::YES>
+  template<typename T, t_if_int<T> = traits::WELL_FORMED>
   t_bool operator>=(T, R_integer)         noexcept; // INT_FUNC_10_3_
 
   /////////////////////////////////////////////////////////////////////////////
@@ -684,19 +685,20 @@ namespace numeric
   // BIN_METHOD_1_4_
   inline
   t_binary::t_binary(t_bits max, R_binary value) noexcept
-    : store_{max_of(impl_::calc_size_(max), value.store_.size)},
+    : store_{max_of<impl_::t_n>(impl_::calc_size_(max), value.store_.size)},
       impl_{store_, value.store_} {
   }
 
   // BIN_METHOD_1_5_
   inline
-  t_binary::t_binary(x_binary value) noexcept : store_{x_cast(value.store_)} {
+  t_binary::t_binary(x_binary value) noexcept
+    : store_{util::x_cast(value.store_)} {
   }
 
   // BIN_METHOD_1_6_
   inline
   t_binary::t_binary(t_bits max, x_binary value) noexcept
-    : store_{impl_::calc_size_(max), x_cast(value.store_)},
+    : store_{impl_::calc_size_(max), util::x_cast(value.store_)},
       impl_{store_, value.store_} {
   }
 
@@ -746,7 +748,7 @@ namespace numeric
   inline
   r_binary t_binary::operator=(x_binary value) noexcept {
     if (get(store_.size) <= get(value.store_.size))
-      store_.ensure(x_cast(value.store_));
+      store_.ensure(util::x_cast(value.store_));
     else
       impl_.ensure(store_, value.store_);
     return *this;
@@ -1228,14 +1230,14 @@ namespace numeric
   // INT_METHOD_1_5_
   inline
   t_integer::t_integer(x_integer value) noexcept
-    : bin_{static_cast<x_binary>(x_cast(value))} {
+    : bin_{static_cast<x_binary>(util::x_cast(value))} {
   }
 
   // INT_METHOD_1_6_
   inline
   t_integer::t_integer(t_digits max, x_integer value) noexcept
     : bin_{impl_::calc_bits_(max),
-           static_cast<x_binary>(x_cast(value))} {
+           static_cast<x_binary>(util::x_cast(value))} {
   }
 
   // INT_METHOD_1_7__
@@ -1252,13 +1254,13 @@ namespace numeric
   // INT_METHOD_1_9_
   inline
   t_integer::t_integer(x_binary value) noexcept
-    : bin_{x_cast(value)} {
+    : bin_{util::x_cast(value)} {
   }
 
   // INT_METHOD_1_10_
   inline
   t_integer::t_integer(t_digits max, x_binary value) noexcept
-    : bin_{impl_::calc_bits_(max), x_cast(value)} {
+    : bin_{impl_::calc_bits_(max), util::x_cast(value)} {
   }
 
   // INT_METHOD_1_11_
@@ -1286,7 +1288,7 @@ namespace numeric
   // INT_METHOD_2_2_
   inline
   r_integer t_integer::operator=(x_integer value) noexcept {
-    bin_ = static_cast<x_binary>(x_cast(value));
+    bin_ = static_cast<x_binary>(util::x_cast(value));
     return *this;
   }
 
@@ -1300,7 +1302,7 @@ namespace numeric
   // INT_METHOD_2_4_
   inline
   r_integer t_integer::operator=(x_binary value) noexcept {
-    bin_ = x_cast(value);
+    bin_ = util::x_cast(value);
     return *this;
   }
 
@@ -1439,7 +1441,7 @@ namespace numeric
   // INT_METHOD_11_1_
   inline
   t_integer::operator x_binary() && noexcept {
-    return x_cast(bin_);
+    return util::x_cast(bin_);
   }
 
   // INT_METHOD_11_2_
@@ -1572,7 +1574,7 @@ namespace numeric
 
   #define DAINTY_BASE_NUMERIC_OP_X_R_(op, lh, rh) \
       lh op rh; \
-      return x_cast(lh);
+      return util::x_cast(lh);
 
   #define DAINTY_BASE_NUMERIC_OP_R_X_(type, op, lh, rh) \
       type result(lh); \
@@ -1581,7 +1583,7 @@ namespace numeric
 
   #define DAINTY_BASE_NUMERIC_OP_R_X_COMMUTATIVE_(op, lh, rh) \
       rh op lh; \
-      return x_cast(rh);
+      return util::x_cast(rh);
 
   #define DAINTY_BASE_NUMERIC_OP_X_X_(op, lh, rh) \
       lh op rh; \
@@ -1590,10 +1592,10 @@ namespace numeric
   #define DAINTY_BASE_NUMERIC_OP_X_X_COMMUTATIVE_(op, lh_larger, lh, rh) \
       if (lh_larger) { \
         lh op rh; \
-        return x_cast(lh); \
+        return util::x_cast(lh); \
       } \
       rh op lh; \
-      return x_cast(rh);
+      return util::x_cast(rh);
 
   #define DAINTY_BASE_NUMERIC_OP_R_T_(type, op, lh, rh) \
       type result(lh); \
@@ -1607,16 +1609,16 @@ namespace numeric
 
   #define DAINTY_BASE_NUMERIC_OP_X_T_(op, lh, rh) \
       lh op rh; \
-      return x_cast(lh);
+      return util::x_cast(lh);
 
   #define DAINTY_BASE_NUMERIC_OP_T_X_(type, op, lh, rh) \
       type result(lh); \
       result op rh; \
-      return x_cast(rh);
+      return util::x_cast(rh);
 
   #define DAINTY_BASE_NUMERIC_OP_T_X_COMMUTATIVE_(op, lh, rh) \
       rh op lh; \
-      return x_cast(rh);
+      return util::x_cast(rh);
 
   /////////////////////////////////////////////////////////////////////////////
 

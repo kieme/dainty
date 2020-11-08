@@ -24,7 +24,6 @@
 
 ******************************************************************************/
 
-#include <utility>
 #include <cstring>
 #include "dainty_base_string_segmented.h"
 

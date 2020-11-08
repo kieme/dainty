@@ -29,9 +29,9 @@
 
 #include <stdlib.h>
 #include "dainty_base_types.h"
-#include "dainty_base_specific.h"
+#include "dainty_base_logical.h"
 #include "dainty_base_traits.h"
-#include "dainty_base.h"
+#include "dainty_base_util.h"
 
 namespace dainty
 {
@@ -43,29 +43,46 @@ namespace impl_
 {
   /////////////////////////////////////////////////////////////////////////////
 
+  using types::t_schar;
+  using types::t_uchar;
+  using types::t_llong;
+  using types::t_ullong;
   using types::t_double;
   using types::t_void;
   using types::t_bool;
-  using specific::mk;
-  using specific::max_of;
-  using specific::min_of;
-  using specific::t_n;
-  using specific::t_n_;
-  using specific::t_ix;
-  using specific::t_ix_;
-  using specific::operator""_n;
-  using specific::operator""_ix;
+  using types::x_prefix_of;
+  using types::R_prefix_of;
+  using types::r_prefix_of;
+  using types::p_prefix_of;
+  using types::P_prefix_of;
+  using types::t_opt1;
+  using types::OPT1;
+
+  using traits::t_if;
+  using traits::t_and;
+  using traits::t_or;
+  using traits::t_is_truth;
+  using traits::t_is_signed_integral;
+  using traits::t_is_unsigned_integral;
+
+  using logical::max_of;
+  using logical::min_of;
+  using logical::t_n;
+  using logical::t_n_;
+  using logical::t_ix;
+  using logical::t_ix_;
+  using logical::t_logical;
 
   /////////////////////////////////////////////////////////////////////////////
 
   enum  t_digits_tag_ { };
-  using t_digits = specific::t_specific<t_n_, t_digits_tag_>;
+  using t_digits = t_logical<t_n_, t_digits_tag_, t_n>;
 
   enum  t_bits_tag_ { };
-  using t_bits   = specific::t_specific<t_n_, t_bits_tag_>;
+  using t_bits   = t_logical<t_n_, t_bits_tag_, t_n>;
 
   enum  t_bit_tag_ { };
-  using t_bit    = specific::t_specific<t_ix_, t_bit_tag_>;
+  using t_bit    = t_logical<t_ix_, t_bit_tag_, t_ix>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -76,21 +93,21 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
 
-  using t_nvalue_ = types::t_schar;
-  using t_pvalue_ = types::t_uchar;
+  using t_nvalue_ = t_schar;
+  using t_pvalue_ = t_uchar;
 
   /*
-  using t_nvalue_ = types::t_short;
-  using t_pvalue_ = types::t_ushort;
+  using t_nvalue_ = t_short;
+  using t_pvalue_ = t_ushort;
 
-  using t_nvalue_ = types::t_llong;
-  using t_pvalue_ = types::t_ullong;
+  using t_nvalue_ = t_llong;
+  using t_pvalue_ = t_ullong;
   */
 
-  using p_pvalue_ = types::t_prefix<t_pvalue_>::p_;
-  using P_pvalue_ = types::t_prefix<t_pvalue_>::P_;
-  using r_pvalue_ = types::t_prefix<t_pvalue_>::r_;
-  using R_pvalue_ = types::t_prefix<t_pvalue_>::R_;
+  using p_pvalue_ = p_prefix_of<t_pvalue_>;
+  using P_pvalue_ = P_prefix_of<t_pvalue_>;
+  using r_pvalue_ = r_prefix_of<t_pvalue_>;
+  using R_pvalue_ = R_prefix_of<t_pvalue_>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -135,34 +152,30 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T>
-  using t_is_sz_ = traits::t_bool_result<sizeof(T) <= sizeof(impl_::t_pvalue_)>;
+  template<typename T> // TODO is_not_greate_int_rank
+  using t_is_sz_ = t_is_truth<sizeof(T) <= sizeof(impl_::t_pvalue_)>;
 
   template<typename T> using t_if_neg_ =
-    traits::t_if<
-      traits::t_and<traits::t_is_signed_integral<T>, t_is_sz_<T>>>;
+    t_if<t_and<t_is_signed_integral<T>, t_is_sz_<T>>>;
 
   template<typename T> using t_if_pos_ =
-    traits::t_if<
-      traits::t_and<traits::t_is_unsigned_integral<T>, t_is_sz_<T>>>;
+    t_if<t_and<t_is_unsigned_integral<T>, t_is_sz_<T>>>;
 
   template<typename T> using t_if_int_ =
-    traits::t_if<
-      traits::t_and<
-        traits::t_or<traits::t_is_signed_integral<T>,
-                     traits::t_is_unsigned_integral<T>>, t_is_sz_<T>>>;
+    t_if<t_and<t_or<t_is_signed_integral<T>, t_is_unsigned_integral<T>>,
+               t_is_sz_<T>>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_buf_;
-  using  r_buf_ = types::t_prefix<t_buf_>::r_;
-  using  x_buf_ = types::t_prefix<t_buf_>::x_;
-  using  p_buf_ = types::t_prefix<t_buf_>::p_;
-  using  R_buf_ = types::t_prefix<t_buf_>::R_;
+  using  r_buf_ = r_prefix_of<t_buf_>;
+  using  x_buf_ = x_prefix_of<t_buf_>;
+  using  p_buf_ = p_prefix_of<t_buf_>;
+  using  R_buf_ = R_prefix_of<t_buf_>;
 
   // t_buf_ is actually t_buf
   struct t_buf_ {
-    t_n       size    = 2_n; // support more than 64 bits - 127 bit
+    t_n       size    = t_n{2}; // support more than 64 bits - 127 bit
     t_pvalue_ sso_[2] = { 0, 0 };
     p_pvalue_ ptr     = sso_;
 
@@ -184,8 +197,8 @@ namespace impl_
 
     ///////////////////////////////////////////////////////////////////////////
 
-    t_bool clear(           t_ix = 0_ix) noexcept;
-    t_bool fill (t_pvalue_, t_ix = 0_ix) noexcept;
+    t_bool clear(           t_ix = t_ix{0}) noexcept;
+    t_bool fill (t_pvalue_, t_ix = t_ix{0}) noexcept;
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -247,11 +260,11 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_pos;
-  using  R_pos = types::t_prefix<t_pos>::R_;
-  using  r_pos = types::t_prefix<t_pos>::r_;
+  using  R_pos = R_prefix_of<t_pos>;
+  using  r_pos = r_prefix_of<t_pos>;
 
   struct t_pos {
-    t_ix  ix  = 0_ix;
+    t_ix  ix  = t_ix{0};
     t_bit bit = zero_bit;
 
     constexpr // IMPL_METHOD_2_1_1_
@@ -273,7 +286,7 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_info;
-  using  R_info = types::t_prefix<t_info>::R_;
+  using  R_info = R_prefix_of<t_info>;
 
   struct t_info {
     t_pos  msb_on   = {};
@@ -505,7 +518,7 @@ namespace impl_
   // IMPL_FUNC_2_6_
   constexpr
   t_bool lsb_(R_store_ store) noexcept {
-    return store.cref(0_ix) & BITS_ONE_;
+    return store.cref(t_ix{0}) & BITS_ONE_;
   }
 
   // IMPL_FUNC_2_7_
@@ -602,16 +615,30 @@ namespace impl_
   // IMPL_FUNC_4_1_
   inline
   t_void assign_(r_store_ store, t_pvalue_ value) noexcept {
-    store.ref(0_ix) = value & BITS_MASK_;
-    store.ref(1_ix) = value & BITS_MSB_ ? BITS_ONE_ : BITS_ZERO_;
-    store.fill(BITS_ZERO_, 2_ix);
+    store.ref(t_ix{0}) = value & BITS_MASK_;
+    store.ref(t_ix{1}) = value & BITS_MSB_ ? BITS_ONE_ : BITS_ZERO_;
+    store.fill(BITS_ZERO_, t_ix{0});
   }
 
   // IMPL_FUNC_4_2_
   inline
   t_void assign_(r_store_ store, t_nvalue_ value) noexcept {
-    store.ref(0_ix) = value & BITS_MASK_;
-    store.fill(value & BITS_MSB_ ? BITS_ALL_ : BITS_ZERO_, 1_ix);
+    store.ref(t_ix{0}) = value & BITS_MASK_;
+    store.fill(value & BITS_MSB_ ? BITS_ALL_ : BITS_ZERO_, t_ix{1});
+  }
+
+  // IMPL_FUNC_4_3_
+  constexpr
+  t_void assign_(r_store_ store, t_pvalue_ value, t_opt1) noexcept {
+    store.ref(t_ix{0}) = value & BITS_MASK_;
+    store.ref(t_ix{1}) = value & BITS_MSB_ ? BITS_ONE_ : BITS_ZERO_;
+  }
+
+  // IMPL_FUNC_4_4_
+  constexpr
+  t_void assign_(r_store_ store, t_nvalue_ value, t_opt1) noexcept {
+    store.ref(t_ix{0}) = value & BITS_MASK_;
+    store.ref(t_ix{1}) = value & BITS_MSB_ ? BITS_ALL_ : BITS_ZERO_;
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -737,19 +764,19 @@ namespace impl_
 
   // IMPL_METHOD_1_1_2_
   constexpr
-  t_impl_base_::t_impl_base_(r_store_ store) noexcept {
+  t_impl_base_::t_impl_base_(r_store_) noexcept {
   }
 
   // IMPL_METHOD_1_1_3_
   constexpr
   t_impl_base_::t_impl_base_(r_store_ store, t_nvalue_ value) noexcept {
-    assign_(store, value);
+    assign_(store, value, OPT1);
   }
 
   // IMPL_METHOD_1_1_4_
   constexpr
   t_impl_base_::t_impl_base_(r_store_ store, t_pvalue_ value) noexcept {
-    assign_(store, value);
+    assign_(store, value, OPT1);
   }
 
   // IMPL_METHOD_1_1_5_
@@ -1155,7 +1182,7 @@ namespace impl_
   constexpr
   t_pos::operator t_bool() const noexcept {
     return get(bit);
-  };
+  }
 
   // IMPL_METHOD_2_3_
   constexpr

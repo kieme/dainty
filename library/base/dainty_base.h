@@ -31,7 +31,7 @@
 #include "dainty_base_traits.h"
 #include "dainty_base_specific.h"
 #include "dainty_base_logical.h"
-#include "dainty_base_utility.h"
+#include "dainty_base_util.h"
 #include "dainty_base_assert.h"
 
 // base: 'give a name to'
@@ -161,29 +161,29 @@ namespace base
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  using utility::t_void_size_ptr;
-  using utility::t_void_size_cptr;
-  using utility::t_multiple;
-  using utility::multiple_of;
+  using util::t_void_size_ptr;
+  using util::t_void_size_cptr;
+  using util::t_multiple;
+  using util::multiple_of;
 
-  using utility::t_id_pair;
-  using utility::t_block;
-  using utility::t_verifiable;
-  using utility::operator==;
-  using utility::operator!=;
+  using util::t_id_pair;
+  using util::t_block;
+  using util::t_verifiable;
+  using util::operator==;
+  using util::operator!=;
 
-  using utility::t_emplace_it;
-  using utility::t_fmt;
-  using utility::t_fmt_va;
+  using util::t_emplace_it;
+  using util::t_fmt;
+  using util::t_fmt_va;
 
-  using utility::EMPLACE_IT;
-  using utility::FMT;         // XXX better to have a range for it
-  using utility::FMT_IT;
-  using utility::FMT_VA_IT;
+  using util::EMPLACE_IT;
+  using util::FMT;         // XXX better to have a range for it
+  using util::FMT_IT;
+  using util::FMT_VA_IT;
 
-  using utility::reset;
-  using utility::x_cast;
-  using utility::swap;
+  using util::reset;
+  using util::x_cast;
+  using util::swap;
 
 ///////////////////////////////////////////////////////////////////////////////
 }

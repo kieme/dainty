@@ -39,20 +39,21 @@ namespace logical
 
   using types::t_n_;
   using types::t_ix_;
-  using types::t_8u_;
-  using types::t_16u_;
-  using types::t_32u_;
-  using types::t_64u_;
+  using types::t_u8_;
+  using types::t_u16_;
+  using types::t_u32_;
+  using types::t_u64_;
   using types::t_u_;
-  using types::t_8i_;
-  using types::t_16i_;
-  using types::t_32i_;
-  using types::t_64i_;
+  using types::t_i8_;
+  using types::t_i16_;
+  using types::t_i32_;
+  using types::t_i64_;
   using types::t_i_;
   using types::t_int;
   using types::t_pack;
   using types::t_bool;
   using types::t_void;
+  using types::t_value_of;
 
   using types::t_op_less_tag;
   using types::t_op_less_equal_tag;
@@ -96,12 +97,25 @@ namespace logical
   using types::t_ops_value_tag;
 
   using impl_::t_property;
-  using impl_::undef_func;
 
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T, typename TAG, typename... Ls>
   using t_logical = impl_::t_logical<T, TAG, Ls...>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename L, typename T>
+  constexpr
+  L mk(T value) noexcept {
+    return impl_::mk_<L>(value);
+  }
+
+  template<typename L, typename T, typename TAG, typename... Ls>
+  constexpr
+  L mk(t_logical<T, TAG, Ls...> logical) noexcept {
+    return impl_::mk_<L>(logical);
+  }
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -125,6 +139,32 @@ namespace logical
                                 t_logical<T1, TAG1, Ls1...> value) noexcept {
     return impl_::set_(logical, value);
   }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename... Ts>
+  using t_is_logical_value
+    = impl_::t_is_logical_value<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_is_not_logical_value
+    = impl_::t_is_not_logical_value<T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_logical_value
+    = impl_::t_opt_if_logical_value<O, T, Ts...>;
+
+  template<typename O, typename T, typename... Ts>
+  using t_opt_if_not_logical_value
+    = impl_::t_opt_if_not_logical_value<O, T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_logical_value
+    = impl_::t_if_logical_value<T, Ts...>;
+
+  template<typename T, typename... Ts>
+  using t_if_not_logical_value
+    = impl_::t_if_not_logical_value<T, Ts...>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -220,237 +260,310 @@ namespace logical
   struct t_i_tag_ {
     using t_ops = t_ops_value_tag;
   };
-  using t_8i  = t_logical<t_8i_,  t_i_tag_, t_truth>;
-  using t_16i = t_logical<t_16i_, t_i_tag_, t_truth>;
-  using t_32i = t_logical<t_32i_, t_i_tag_, t_truth>;
-  using t_64i = t_logical<t_64i_, t_i_tag_, t_truth>;
+  using t_i8  = t_logical<t_i8_,  t_i_tag_, t_truth>;
+  using t_i16 = t_logical<t_i16_, t_i_tag_, t_truth>;
+  using t_i32 = t_logical<t_i32_, t_i_tag_, t_truth>;
+  using t_i64 = t_logical<t_i64_, t_i_tag_, t_truth>;
 
-  using t_i   = t_64i;
+  using t_i   = t_i64;
 
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_u_tag_ {
     using t_ops = t_ops_value_tag;
   };
-  using t_8u  = t_logical<t_8u_,  t_u_tag_, t_16i>;
-  using t_16u = t_logical<t_16u_, t_u_tag_, t_32i>;
-  using t_32u = t_logical<t_32u_, t_u_tag_, t_64i>;
-  using t_64u = t_logical<t_64u_, t_u_tag_, t_truth>;
+  using t_u8  = t_logical<t_u8_,  t_u_tag_, t_i16>;
+  using t_u16 = t_logical<t_u16_, t_u_tag_, t_i32>;
+  using t_u32 = t_logical<t_u32_, t_u_tag_, t_i64>;
+  using t_u64 = t_logical<t_u64_, t_u_tag_, t_truth>;
 
-  using t_u   = t_64u;
+  using t_u   = t_u64;
 
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_b_tag_ { // binary
     using t_ops = t_ops_value_tag;
   };
-  using t_8b  = t_logical<t_8u_,  t_b_tag_, t_8u>;
-  using t_16b = t_logical<t_16u_, t_b_tag_, t_16u>;
-  using t_32b = t_logical<t_32u_, t_b_tag_, t_32u>;
-  using t_64b = t_logical<t_64u_, t_b_tag_, t_64u>;
+  using t_u8_b  = t_logical<t_u8_,  t_b_tag_, t_u8>;
+  using t_u16_b = t_logical<t_u16_, t_b_tag_, t_u16>;
+  using t_u32_b = t_logical<t_u32_, t_b_tag_, t_u32>;
+  using t_u64_b = t_logical<t_u64_, t_b_tag_, t_u64>;
 
-  using t_b   = t_64b;
+  using t_b     = t_u64_b;
 
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_n_tag_ {
     using t_ops = t_ops_value_tag;
   };
-  using t_8u_n  = t_logical<t_8u_,  t_n_tag_, t_8u>;
-  using t_16u_n = t_logical<t_16u_, t_n_tag_, t_16u>;
-  using t_32u_n = t_logical<t_32u_, t_n_tag_, t_32u>;
-  using t_64u_n = t_logical<t_64u_, t_n_tag_, t_64u>;
+  using t_u8_n  = t_logical<t_u8_,  t_n_tag_, t_u8>;
+  using t_u16_n = t_logical<t_u16_, t_n_tag_, t_u16>;
+  using t_u32_n = t_logical<t_u32_, t_n_tag_, t_u32>;
+  using t_u64_n = t_logical<t_u64_, t_n_tag_, t_u64>;
 
-  using t_8i_n  = t_logical<t_8i_,  t_n_tag_, t_8i>;
-  using t_16i_n = t_logical<t_16i_, t_n_tag_, t_16i>;
-  using t_32i_n = t_logical<t_32i_, t_n_tag_, t_32i>;
-  using t_64i_n = t_logical<t_64i_, t_n_tag_, t_64i>;
+  using t_i8_n  = t_logical<t_i8_,  t_n_tag_, t_i8>;
+  using t_i16_n = t_logical<t_i16_, t_n_tag_, t_i16>;
+  using t_i32_n = t_logical<t_i32_, t_n_tag_, t_i32>;
+  using t_i64_n = t_logical<t_i64_, t_n_tag_, t_i64>;
 
-  using t_n     = t_64u_n;
+  using t_n     = t_u64_n;
 
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_n_max_tag_ {
     using t_ops = t_ops_value_tag;
   };
-  using t_8u_n_max  = t_logical<t_8u_,  t_n_max_tag_, t_8u_n>;
-  using t_16u_n_max = t_logical<t_16u_, t_n_max_tag_, t_16u_n>;
-  using t_32u_n_max = t_logical<t_32u_, t_n_max_tag_, t_32u_n>;
-  using t_64u_n_max = t_logical<t_64u_, t_n_max_tag_, t_64u_n>;
+  using t_u8_n_max  = t_logical<t_u8_,  t_n_max_tag_, t_u8_n>;
+  using t_u16_n_max = t_logical<t_u16_, t_n_max_tag_, t_u16_n>;
+  using t_u32_n_max = t_logical<t_u32_, t_n_max_tag_, t_u32_n>;
+  using t_u64_n_max = t_logical<t_u64_, t_n_max_tag_, t_u64_n>;
 
-  using t_8i_n_max  = t_logical<t_8i_,  t_n_max_tag_, t_8i_n>;
-  using t_16i_n_max = t_logical<t_16i_, t_n_max_tag_, t_16i_n>;
-  using t_32i_n_max = t_logical<t_32i_, t_n_max_tag_, t_32i_n>;
-  using t_64i_n_max = t_logical<t_64i_, t_n_max_tag_, t_64i_n>;
+  using t_i8_n_max  = t_logical<t_i8_,  t_n_max_tag_, t_i8_n>;
+  using t_i16_n_max = t_logical<t_i16_, t_n_max_tag_, t_i16_n>;
+  using t_i32_n_max = t_logical<t_i32_, t_n_max_tag_, t_i32_n>;
+  using t_i64_n_max = t_logical<t_i64_, t_n_max_tag_, t_i64_n>;
 
-  using t_n_max     = t_64u_n_max;
+  using t_n_max     = t_u64_n_max;
 
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_n_min_tag_ {
     using t_ops = t_ops_value_tag;
   };
-  using t_8u_n_min  = t_logical<t_8u_,  t_n_min_tag_, t_8u_n>;
-  using t_16u_n_min = t_logical<t_16u_, t_n_min_tag_, t_16u_n>;
-  using t_32u_n_min = t_logical<t_32u_, t_n_min_tag_, t_32u_n>;
-  using t_64u_n_min = t_logical<t_64u_, t_n_min_tag_, t_64u_n>;
+  using t_u8_n_min  = t_logical<t_u8_,  t_n_min_tag_, t_u8_n>;
+  using t_u16_n_min = t_logical<t_u16_, t_n_min_tag_, t_u16_n>;
+  using t_u32_n_min = t_logical<t_u32_, t_n_min_tag_, t_u32_n>;
+  using t_u64_n_min = t_logical<t_u64_, t_n_min_tag_, t_u64_n>;
 
-  using t_8i_n_min  = t_logical<t_8i_,  t_n_min_tag_, t_8i_n>;
-  using t_16i_n_min = t_logical<t_16i_, t_n_min_tag_, t_16i_n>;
-  using t_32i_n_min = t_logical<t_32i_, t_n_min_tag_, t_32i_n>;
-  using t_64i_n_min = t_logical<t_64i_, t_n_min_tag_, t_64i_n>;
+  using t_i8_n_min  = t_logical<t_i8_,  t_n_min_tag_, t_i8_n>;
+  using t_i16_n_min = t_logical<t_i16_, t_n_min_tag_, t_i16_n>;
+  using t_i32_n_min = t_logical<t_i32_, t_n_min_tag_, t_i32_n>;
+  using t_i64_n_min = t_logical<t_i64_, t_n_min_tag_, t_i64_n>;
 
-  using t_n_min     = t_64u_n_min;
+  using t_n_min     = t_u64_n_min;
 
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_ix_tag_ {
     using t_ops = t_ops_value_tag;
   };
-  using t_8u_ix  = t_logical<t_8u_,  t_ix_tag_, t_8u_n>;
-  using t_16u_ix = t_logical<t_16u_, t_ix_tag_, t_16u_n>;
-  using t_32u_ix = t_logical<t_32u_, t_ix_tag_, t_32u_n>;
-  using t_64u_ix = t_logical<t_64u_, t_ix_tag_, t_64u_n>;
+  using t_u8_ix  = t_logical<t_u8_,  t_ix_tag_, t_u8_n>;
+  using t_u16_ix = t_logical<t_u16_, t_ix_tag_, t_u16_n>;
+  using t_u32_ix = t_logical<t_u32_, t_ix_tag_, t_u32_n>;
+  using t_u64_ix = t_logical<t_u64_, t_ix_tag_, t_u64_n>;
 
-  using t_8i_ix  = t_logical<t_8i_,  t_ix_tag_, t_8i_n>;
-  using t_16i_ix = t_logical<t_16i_, t_ix_tag_, t_16i_n>;
-  using t_32i_ix = t_logical<t_32i_, t_ix_tag_, t_32i_n>;
-  using t_64i_ix = t_logical<t_64i_, t_ix_tag_, t_64i_n>;
+  using t_i8_ix  = t_logical<t_i8_,  t_ix_tag_, t_i8_n>;
+  using t_i16_ix = t_logical<t_i16_, t_ix_tag_, t_i16_n>;
+  using t_i32_ix = t_logical<t_i32_, t_ix_tag_, t_i32_n>;
+  using t_i64_ix = t_logical<t_i64_, t_ix_tag_, t_i64_n>;
 
-  using t_ix     = t_64u_ix;
+  using t_ix     = t_u64_ix;
 
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_ix_begin_tag_ {
     using t_ops = t_ops_value_tag;
   };
-  using t_8u_ix_begin  = t_logical<t_8u_,  t_ix_begin_tag_, t_8u_ix>;
-  using t_16u_ix_begin = t_logical<t_16u_, t_ix_begin_tag_, t_16u_ix>;
-  using t_32u_ix_begin = t_logical<t_32u_, t_ix_begin_tag_, t_32u_ix>;
-  using t_64u_ix_begin = t_logical<t_64u_, t_ix_begin_tag_, t_64u_ix>;
+  using t_u8_ix_begin  = t_logical<t_u8_,  t_ix_begin_tag_, t_u8_ix>;
+  using t_u16_ix_begin = t_logical<t_u16_, t_ix_begin_tag_, t_u16_ix>;
+  using t_u32_ix_begin = t_logical<t_u32_, t_ix_begin_tag_, t_u32_ix>;
+  using t_u64_ix_begin = t_logical<t_u64_, t_ix_begin_tag_, t_u64_ix>;
 
-  using t_8i_ix_begin  = t_logical<t_8i_,  t_ix_begin_tag_, t_8i_ix>;
-  using t_16i_ix_begin = t_logical<t_16i_, t_ix_begin_tag_, t_16i_ix>;
-  using t_32i_ix_begin = t_logical<t_32i_, t_ix_begin_tag_, t_32i_ix>;
-  using t_64i_ix_begin = t_logical<t_64i_, t_ix_begin_tag_, t_64i_ix>;
+  using t_i8_ix_begin  = t_logical<t_i8_,  t_ix_begin_tag_, t_i8_ix>;
+  using t_i16_ix_begin = t_logical<t_i16_, t_ix_begin_tag_, t_i16_ix>;
+  using t_i32_ix_begin = t_logical<t_i32_, t_ix_begin_tag_, t_i32_ix>;
+  using t_i64_ix_begin = t_logical<t_i64_, t_ix_begin_tag_, t_i64_ix>;
 
-  using t_ix_begin     = t_64u_ix_begin;
+  using t_ix_begin     = t_u64_ix_begin;
 
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_ix_end_tag_ {
     using t_ops = t_ops_value_tag;
   };
-  using t_8u_ix_end  = t_logical<t_8u_,  t_ix_end_tag_, t_8u_ix>;
-  using t_16u_ix_end = t_logical<t_16u_, t_ix_end_tag_, t_16u_ix>;
-  using t_32u_ix_end = t_logical<t_32u_, t_ix_end_tag_, t_32u_ix>;
-  using t_64u_ix_end = t_logical<t_64u_, t_ix_end_tag_, t_64u_ix>;
+  using t_u8_ix_end  = t_logical<t_u8_,  t_ix_end_tag_, t_u8_ix>;
+  using t_u16_ix_end = t_logical<t_u16_, t_ix_end_tag_, t_u16_ix>;
+  using t_u32_ix_end = t_logical<t_u32_, t_ix_end_tag_, t_u32_ix>;
+  using t_u64_ix_end = t_logical<t_u64_, t_ix_end_tag_, t_u64_ix>;
 
-  using t_8i_ix_end  = t_logical<t_8i_,  t_ix_end_tag_, t_8i_ix>;
-  using t_16i_ix_end = t_logical<t_16i_, t_ix_end_tag_, t_16i_ix>;
-  using t_32i_ix_end = t_logical<t_32i_, t_ix_end_tag_, t_32i_ix>;
-  using t_64i_ix_end = t_logical<t_64i_, t_ix_end_tag_, t_64i_ix>;
+  using t_i8_ix_end  = t_logical<t_i8_,  t_ix_end_tag_, t_i8_ix>;
+  using t_i16_ix_end = t_logical<t_i16_, t_ix_end_tag_, t_i16_ix>;
+  using t_i32_ix_end = t_logical<t_i32_, t_ix_end_tag_, t_i32_ix>;
+  using t_i64_ix_end = t_logical<t_i64_, t_ix_end_tag_, t_i64_ix>;
 
-  using t_ix_end     = t_64u_ix_end;
+  using t_ix_end     = t_u64_ix_end;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename L, typename... Ls>
+  template<typename L, typename L1, typename... Ls>
   constexpr
-  L max_of(L l, Ls... ls) noexcept {
-     auto max = max_of(ls...);
-     return get(max) > get(l) ? get(max) : get(l);
+  auto max_of(L1 l, Ls... ls) noexcept -> L {
+    return impl_::max_of_<L>(l, ls...);
   }
+
+  template<typename L, typename L1, typename... Ls>
+  constexpr
+  auto min_of(L1 l, Ls... ls) noexcept -> L {
+    return impl_::min_of_<L>(l, ls...);
+  }
+
+  template<typename L, typename L1, typename... Ls>
+  constexpr
+  auto sum_of(L1 l, Ls... ls) noexcept -> L {
+    return impl_::sum_of_<L>(l, ls...);
+  }
+
+  template<typename L, typename L1, typename... Ls>
+  constexpr
+  auto avg_of(L1 l, Ls... ls) noexcept -> L {
+    return impl_::avg_of_<L>(l, ls...);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
 
   template<typename L>
-  constexpr
-  L max_of(L l) noexcept { return l; }
-
-  template<typename L, typename... Ls>
-  constexpr
-  L min_of(L l, Ls... ls) noexcept {
-     auto min = max_of(ls...);
-     return get(min) < get(l) ? get(min) : get(l);
-  }
+  constexpr auto MIN_of_ = L{t_property<t_value_of<L>>::MIN};
 
   template<typename L>
-  constexpr
-  L min_of(L l) noexcept { return l; }
-
-  /*
-  /////////////////////////////////////////////////////////////////////////////
-
+  constexpr auto MAX_of_ = L{t_property<t_value_of<L>>::MAX};
 
   /////////////////////////////////////////////////////////////////////////////
 
-  constexpr
-  t_u operator""_u(unsigned long long value) noexcept {
-    return t_u{value};
-  }
+  constexpr auto U8_MIN  = MIN_of_<t_u8>;
+  constexpr auto U8_MAX  = MAX_of_<t_u8>;
 
-  constexpr
-  t_64u operator""_64u(unsigned long long value) noexcept {
-    return t_64u{value};
-  }
+  constexpr auto U16_MIN = MIN_of_<t_u16>;
+  constexpr auto U16_MAX = MAX_of_<t_u16>;
 
-  /////////////////////////////////////////////////////////////////////////////
+  constexpr auto U32_MIN = MIN_of_<t_u32>;
+  constexpr auto U32_MAX = MAX_of_<t_u32>;
 
-  constexpr
-  t_b operator""_b(unsigned long long value) noexcept {
-    return t_b{value};
-  }
+  constexpr auto U64_MIN = MIN_of_<t_u64>;
+  constexpr auto U64_MAX = MAX_of_<t_u64>;
 
-  constexpr
-  t_64b operator""_64b(unsigned long long value) noexcept {
-    return t_64b{value};
-  }
+  constexpr auto U_MIN   = MIN_of_<t_u>;
+  constexpr auto U_MAX   = MAX_of_<t_u>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  constexpr
-  t_n operator""_n(unsigned long long value) noexcept {
-    return t_n{value};
-  }
+  constexpr auto I8_MIN  = MIN_of_<t_i8>;
+  constexpr auto I8_MAX  = MAX_of_<t_i8>;
 
-  constexpr
-  t_n_min operator""_n_min(unsigned long long value) noexcept {
-    return t_n_min{value};
-  }
+  constexpr auto I16_MIN = MIN_of_<t_i16>;
+  constexpr auto I16_MAX = MAX_of_<t_i16>;
 
-  constexpr
-  t_n_max operator""_n_max(unsigned long long value) noexcept {
-    return t_n_max{value};
-  }
+  constexpr auto I32_MIN = MIN_of_<t_i32>;
+  constexpr auto I32_MAX = MAX_of_<t_i32>;
 
-  /////////////////////////////////////////////////////////////////////////////
+  constexpr auto I64_MIN = MIN_of_<t_i64>;
+  constexpr auto I64_MAX = MAX_of_<t_i64>;
 
-  constexpr
-  t_ix operator""_ix(unsigned long long value) noexcept {
-    return t_ix{value};
-  }
-
-  constexpr
-  t_ix_begin operator""_ix_begin(unsigned long long value) noexcept {
-    return t_ix_begin{value};
-  }
-
-  constexpr
-  t_ix_end operator""_ix_end(unsigned long long value) noexcept {
-    return t_ix_end{value};
-  }
+  constexpr auto I_MIN   = MIN_of_<t_i>;
+  constexpr auto I_MAX   = MAX_of_<t_i>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_n_min N_MIN   = t_n_min{t_property<t_n_min::t_value>::MIN};
-  constexpr t_n_max N_MAX   = t_n_max{t_property<t_n_max::t_value>::MAX};
+  constexpr auto U8_B_MIN  = MIN_of_<t_u8_b>;
+  constexpr auto U8_B_MAX  = MAX_of_<t_u8_b>;
 
-  constexpr t_n_min U8_N_MIN = t_n_min{t_property<t_8u_n_min::t_value>::MIN};
-  constexpr t_n_min U8_N_MAX = t_n_min{t_property<t_8u_n_min::t_value>::MIN};
+  constexpr auto U16_B_MIN = MIN_of_<t_u16_b>;
+  constexpr auto U16_B_MAX = MAX_of_<t_u16_b>;
 
-  constexpr t_ix_begin IX_BEGIN = t_ix_begin{t_property<t_ix_begin::t_value>::MIN};
-  constexpr t_ix_end   IX_END   = t_ix_end  {t_property<t_ix_end::t_value>::MAX};
+  constexpr auto U32_B_MIN = MIN_of_<t_u32_b>;
+  constexpr auto U32_B_MAX = MAX_of_<t_u32_b>;
 
-  */
+  constexpr auto U64_B_MIN = MIN_of_<t_u64_b>;
+  constexpr auto U64_B_MAX = MAX_of_<t_u64_b>;
+
+  constexpr auto U_B_MIN   = MIN_of_<t_b>;
+  constexpr auto U_B_MAX   = MAX_of_<t_b>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  constexpr auto U8_N_MIN  = MIN_of_<t_u8_n>;
+  constexpr auto U8_N_MAX  = MAX_of_<t_u8_n>;
+
+  constexpr auto U16_N_MIN = MIN_of_<t_u16_n>;
+  constexpr auto U16_N_MAX = MAX_of_<t_u16_n>;
+
+  constexpr auto U32_N_MIN = MIN_of_<t_u32_n>;
+  constexpr auto U32_N_MAX = MAX_of_<t_u32_n>;
+
+  constexpr auto U64_N_MIN = MIN_of_<t_u64_n>;
+  constexpr auto U64_N_MAX = MAX_of_<t_u64_n>;
+
+  constexpr auto I8_N_MIN  = MIN_of_<t_i8_n>;
+  constexpr auto I8_N_MAX  = MAX_of_<t_i8_n>;
+
+  constexpr auto I16_N_MIN = MIN_of_<t_i16_n>;
+  constexpr auto I16_N_MAX = MAX_of_<t_i16_n>;
+
+  constexpr auto I32_N_MIN = MIN_of_<t_i32_n>;
+  constexpr auto I32_N_MAX = MAX_of_<t_i32_n>;
+
+  constexpr auto I64_N_MIN = MIN_of_<t_i64_n>;
+  constexpr auto I64_N_MAX = MAX_of_<t_i64_n>;
+
+  constexpr auto N_MIN     = MIN_of_<t_n>;
+  constexpr auto N_MAX     = MAX_of_<t_n>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  constexpr auto U8_N_MIN_MIN  = MIN_of_<t_u8_n_min>;
+  constexpr auto U8_N_MIN_MAX  = MAX_of_<t_u8_n_min>;
+
+  constexpr auto U16_N_MIN_MIN = MIN_of_<t_u16_n_min>;
+  constexpr auto U16_N_MIN_MAX = MAX_of_<t_u16_n_min>;
+
+  constexpr auto U32_N_MIN_MIN = MIN_of_<t_u32_n_min>;
+  constexpr auto U32_N_MIN_MAX = MAX_of_<t_u32_n_min>;
+
+  constexpr auto U64_N_MIN_MIN = MIN_of_<t_u64_n_min>;
+  constexpr auto U64_N_MIN_MAX = MAX_of_<t_u64_n_min>;
+
+  constexpr auto I8_N_MIN_MIN  = MIN_of_<t_i8_n_min>;
+  constexpr auto I8_N_MIN_MAX  = MAX_of_<t_i8_n_min>;
+
+  constexpr auto I16_N_MIN_MIN = MIN_of_<t_i16_n_min>;
+  constexpr auto I16_N_MIN_MAX = MAX_of_<t_i16_n_min>;
+
+  constexpr auto I32_N_MIN_MIN = MIN_of_<t_i32_n_min>;
+  constexpr auto I32_N_MIN_MAX = MAX_of_<t_i32_n_min>;
+
+  constexpr auto I64_N_MIN_MIN = MIN_of_<t_i64_n_min>;
+  constexpr auto I64_N_MIN_MAX = MAX_of_<t_i64_n_min>;
+
+  constexpr auto N_MIN_MIN     = MIN_of_<t_n_min>;
+  constexpr auto N_MIN_MAX     = MAX_of_<t_n_min>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  constexpr auto U8_N_MAX_MIN  = MIN_of_<t_u8_n_max>;
+  constexpr auto U8_N_MAX_MAX  = MAX_of_<t_u8_n_max>;
+
+  constexpr auto U16_N_MAX_MIN = MIN_of_<t_u16_n_max>;
+  constexpr auto U16_N_MAX_MAX = MAX_of_<t_u16_n_max>;
+
+  constexpr auto U32_N_MAX_MIN = MIN_of_<t_u32_n_max>;
+  constexpr auto U32_N_MAX_MAX = MAX_of_<t_u32_n_max>;
+
+  constexpr auto U64_N_MAX_MIN = MIN_of_<t_u64_n_max>;
+  constexpr auto U64_N_MAX_MAX = MAX_of_<t_u64_n_max>;
+
+  constexpr auto I8_N_MAX_MIN  = MIN_of_<t_i8_n_max>;
+  constexpr auto I8_N_MAX_MAX  = MAX_of_<t_i8_n_max>;
+
+  constexpr auto I16_N_MAX_MIN = MIN_of_<t_i16_n_max>;
+  constexpr auto I16_N_MAX_MAX = MAX_of_<t_i16_n_max>;
+
+  constexpr auto I32_N_MAX_MIN = MIN_of_<t_i32_n_max>;
+  constexpr auto I32_N_MAX_MAX = MAX_of_<t_i32_n_max>;
+
+  constexpr auto I64_N_MAX_MIN = MIN_of_<t_i64_n_max>;
+  constexpr auto I64_N_MAX_MAX = MAX_of_<t_i64_n_max>;
+
+  constexpr auto N_MAX_MIN     = MIN_of_<t_n_max>;
+  constexpr auto N_MAX_MAX     = MAX_of_<t_n_max>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1276,7 +1389,67 @@ namespace logical
     return (lh = t_logical<T, TAG, Ls...>(get(lh) >> rh));
   }
 
+  /*
   /////////////////////////////////////////////////////////////////////////////
+
+  constexpr
+  t_u operator""_u(unsigned long long value) noexcept {
+    return t_u{value};
+  }
+
+  constexpr
+  t_u64 operator""_64u(unsigned long long value) noexcept {
+    return t_u64{value};
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  constexpr
+  t_b operator""_b(unsigned long long value) noexcept {
+    return t_b{value};
+  }
+
+  constexpr
+  t_64b operator""_64b(unsigned long long value) noexcept {
+    return t_64b{value};
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  constexpr
+  t_n operator""_n(unsigned long long value) noexcept {
+    return t_n{value};
+  }
+
+  constexpr
+  t_n_min operator""_n_min(unsigned long long value) noexcept {
+    return t_n_min{value};
+  }
+
+  constexpr
+  t_n_max operator""_n_max(unsigned long long value) noexcept {
+    return t_n_max{value};
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  constexpr
+  t_ix operator""_ix(unsigned long long value) noexcept {
+    return t_ix{value};
+  }
+
+  constexpr
+  t_ix_begin operator""_ix_begin(unsigned long long value) noexcept {
+    return t_ix_begin{value};
+  }
+
+  constexpr
+  t_ix_end operator""_ix_end(unsigned long long value) noexcept {
+    return t_ix_end{value};
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  */
 }
 }
 }
