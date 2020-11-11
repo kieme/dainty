@@ -28,7 +28,14 @@
 #define _DAINTY_BASE_H_
 
 #include "dainty_base_types.h"
+#include "dainty_base_buf.h"
+#include "dainty_base_valuestore.h"
+#include "dainty_base_ptr.h"
+#include "dainty_base_range.h"
 #include "dainty_base_traits.h"
+#include "dainty_base_string.h"
+#include "dainty_base_terminal.h"
+#include "dainty_base_numeric.h"
 #include "dainty_base_specific.h"
 #include "dainty_base_logical.h"
 #include "dainty_base_util.h"
@@ -172,14 +179,14 @@ namespace base
   using util::operator==;
   using util::operator!=;
 
-  using util::t_emplace_it;
-  using util::t_fmt;
-  using util::t_fmt_va;
+  using types::t_emplace_it;
+  using types::t_fmt;
+  using types::t_fmt_va;
 
-  using util::EMPLACE_IT;
-  using util::FMT;         // XXX better to have a range for it
-  using util::FMT_IT;
-  using util::FMT_VA_IT;
+  using types::EMPLACE_IT;
+  using types::FMT;         // XXX better to have a range for it
+  using types::FMT_IT;
+  using types::FMT_VA_IT;
 
   using util::reset;
   using util::x_cast;
