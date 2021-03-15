@@ -53,8 +53,8 @@ namespace specific
   using types::t_ullong;
   using types::t_double;
   using types::t_void;
-  using types::t_size_;
-  using types::t_size_tag_;
+  using types::t_s_;
+  using types::t_s_tag_;
   using types::t_result_of;
 
   using types::t_byte_;
@@ -65,26 +65,22 @@ namespace specific
   using types::t_cnt_tag_;
   using types::t_n_;
   using types::t_n_tag_;
-  using types::t_min_n_tag_;
-  using types::t_max_n_tag_;
+  using types::t_n_min_tag_;
+  using types::t_n_max_tag_;
   using types::t_ix_;
   using types::t_ix_tag_;
   using types::t_ix_;
-  using types::t_begin_ix_tag_;
+  using types::t_ix_begin_tag_;
   using types::t_ix_;
-  using types::t_end_ix_tag_;
+  using types::t_ix_end_tag_;
   using types::t_validity_;
   using types::t_validity_tag_;
   using types::t_errn_;
   using types::t_errn_tag_;
-  using types::t_cstr_ptr_;
-  using types::t_cstr_tag_;
-  using types::t_cstr_cptr_;
-  using types::t_cstr_tag_;
   using types::t_percentage_;
   using types::t_percentage_tag_;
-  using types::t_seq_no_;
-  using types::t_seq_no_tag_;
+  using types::t_seqno_;
+  using types::t_seqno_tag_;
   using types::t_nsec_;
   using types::t_nsec_tag_;
   using types::t_usec_;
@@ -97,15 +93,9 @@ namespace specific
   using types::t_min_tag_;
   using types::t_ticks_;
   using types::t_ticks_tag_;
-  using types::p_cstr_;
-  using types::t_cstr_tag_;
-  using types::P_cstr_;
-  using types::t_cstr_tag_;
 
   using types::VALID_;
   using types::INVALID_;
-  using types::NO_CSTR_PTR_;
-  using types::NO_CSTR_CPTR_;
   using types::BAD_FD_;
   using types::NO_ERRN_;
   using types::BAD_ERRN_;
@@ -308,7 +298,7 @@ namespace specific
 
   /////////////////////////////////////////////////////////////////////////////
 
-  using t_size  = t_specific<t_size_, t_size_tag_>;
+  using t_size  = t_specific<t_s_, t_s_tag_>;
   using T_size  = t_prefix<t_size>::T_;
   using r_size  = t_prefix<t_size>::r_;
   using R_size  = t_prefix<t_size>::R_;
@@ -343,19 +333,19 @@ namespace specific
   using p_n  = t_prefix<t_n>::p_;
   using P_n  = t_prefix<t_n>::P_;
 
-  using t_min_n  = t_specific<t_n_, t_min_n_tag_>;
-  using T_min_n  = t_prefix<t_min_n>::T_;
-  using r_min_n  = t_prefix<t_min_n>::r_;
-  using R_min_n  = t_prefix<t_min_n>::R_;
-  using p_min_n  = t_prefix<t_min_n>::p_;
-  using P_min_n  = t_prefix<t_min_n>::P_;
+  using t_n_min  = t_specific<t_n_, t_n_min_tag_>;
+  using T_n_min  = t_prefix<t_n_min>::T_;
+  using r_n_min  = t_prefix<t_n_min>::r_;
+  using R_n_min  = t_prefix<t_n_min>::R_;
+  using p_n_min  = t_prefix<t_n_min>::p_;
+  using P_n_min  = t_prefix<t_n_min>::P_;
 
-  using t_max_n  = t_specific<t_n_, t_max_n_tag_>;
-  using T_max_n  = t_prefix<t_max_n>::T_;
-  using r_max_n  = t_prefix<t_max_n>::r_;
-  using R_max_n  = t_prefix<t_max_n>::R_;
-  using p_max_n  = t_prefix<t_max_n>::p_;
-  using P_max_n  = t_prefix<t_max_n>::P_;
+  using t_n_max  = t_specific<t_n_, t_n_max_tag_>;
+  using T_n_max  = t_prefix<t_n_max>::T_;
+  using r_n_max  = t_prefix<t_n_max>::r_;
+  using R_n_max  = t_prefix<t_n_max>::R_;
+  using p_n_max  = t_prefix<t_n_max>::p_;
+  using P_n_max  = t_prefix<t_n_max>::P_;
 
   using t_ix  = t_specific<t_ix_, t_ix_tag_>;
   using T_ix  = t_prefix<t_ix>::T_;
@@ -364,19 +354,19 @@ namespace specific
   using p_ix  = t_prefix<t_ix>::p_;
   using P_ix  = t_prefix<t_ix>::P_;
 
-  using t_begin_ix = t_specific<t_ix_, t_begin_ix_tag_>;
-  using T_begin_ix = t_prefix<t_begin_ix>::T_;
-  using r_begin_ix = t_prefix<t_begin_ix>::r_;
-  using R_begin_ix = t_prefix<t_begin_ix>::R_;
-  using p_begin_ix = t_prefix<t_begin_ix>::p_;
-  using P_begin_ix = t_prefix<t_begin_ix>::P_;
+  using t_ix_begin = t_specific<t_ix_, t_ix_begin_tag_>;
+  using T_ix_begin = t_prefix<t_ix_begin>::T_;
+  using r_ix_begin = t_prefix<t_ix_begin>::r_;
+  using R_ix_begin = t_prefix<t_ix_begin>::R_;
+  using p_ix_begin = t_prefix<t_ix_begin>::p_;
+  using P_ix_begin = t_prefix<t_ix_begin>::P_;
 
-  using t_end_ix = t_specific<t_ix_, t_end_ix_tag_>;
-  using T_end_ix = t_prefix<t_end_ix>::T_;
-  using r_end_ix = t_prefix<t_end_ix>::r_;
-  using R_end_ix = t_prefix<t_end_ix>::R_;
-  using p_end_ix = t_prefix<t_end_ix>::p_;
-  using P_end_ix = t_prefix<t_end_ix>::P_;
+  using t_ix_end = t_specific<t_ix_, t_ix_end_tag_>;
+  using T_ix_end = t_prefix<t_ix_end>::T_;
+  using r_ix_end = t_prefix<t_ix_end>::r_;
+  using R_ix_end = t_prefix<t_ix_end>::R_;
+  using p_ix_end = t_prefix<t_ix_end>::p_;
+  using P_ix_end = t_prefix<t_ix_end>::P_;
 
   using t_validity  = t_specific<t_validity_, t_validity_tag_>;
   using T_validity  = t_prefix<t_validity>::T_;
@@ -392,20 +382,6 @@ namespace specific
   using p_errn  = t_prefix<t_errn>::p_;
   using P_errn  = t_prefix<t_errn>::P_;
 
-  using t_cstr_ptr  = t_specific<t_cstr_ptr_, t_cstr_tag_>;
-  using T_cstr_ptr  = t_prefix<t_cstr_ptr>::T_;
-  using r_cstr_ptr  = t_prefix<t_cstr_ptr>::r_;
-  using R_cstr_ptr  = t_prefix<t_cstr_ptr>::R_;
-  using p_cstr_ptr  = t_prefix<t_cstr_ptr>::p_;
-  using P_cstr_ptr  = t_prefix<t_cstr_ptr>::P_;
-
-  using t_cstr_cptr  = t_specific<t_cstr_cptr_, t_cstr_tag_>;
-  using T_cstr_cptr  = t_prefix<t_cstr_cptr>::T_;
-  using r_cstr_cptr  = t_prefix<t_cstr_cptr>::r_;
-  using R_cstr_cptr  = t_prefix<t_cstr_cptr>::R_;
-  using p_cstr_cptr  = t_prefix<t_cstr_cptr>::p_;
-  using P_cstr_cptr  = t_prefix<t_cstr_cptr>::P_;
-
   using t_percentage  = t_specific<t_percentage_, t_percentage_tag_>;
   using T_percentage  = t_prefix<t_percentage>::T_;
   using r_percentage  = t_prefix<t_percentage>::r_;
@@ -413,12 +389,12 @@ namespace specific
   using p_percentage  = t_prefix<t_percentage>::p_;
   using P_percentage  = t_prefix<t_percentage>::P_;
 
-  using t_seq_no  = t_specific<t_seq_no_, t_seq_no_tag_>;
-  using T_seq_no  = t_prefix<t_seq_no>::T_;
-  using r_seq_no  = t_prefix<t_seq_no>::r_;
-  using R_seq_no  = t_prefix<t_seq_no>::R_;
-  using p_seq_no  = t_prefix<t_seq_no>::p_;
-  using P_seq_no  = t_prefix<t_seq_no>::P_;
+  using t_seqno  = t_specific<t_seqno_, t_seqno_tag_>;
+  using T_seqno  = t_prefix<t_seqno>::T_;
+  using r_seqno  = t_prefix<t_seqno>::r_;
+  using R_seqno  = t_prefix<t_seqno>::R_;
+  using p_seqno  = t_prefix<t_seqno>::p_;
+  using P_seqno  = t_prefix<t_seqno>::P_;
 
   using t_nsec  = t_specific<t_nsec_, t_nsec_tag_>;
   using T_nsec  = t_prefix<t_nsec>::T_;
@@ -456,17 +432,10 @@ namespace specific
   using p_ticks = t_prefix<t_ticks>::p_;
   using P_ticks = t_prefix<t_ticks>::P_;
 
-  // deprecated - should remove overtime - P_cstr and p_cstr
-  using p_cstr = t_specific<p_cstr_, t_cstr_tag_>;
-  using P_cstr = t_specific<P_cstr_, t_cstr_tag_>; // XXX - not sure?
-
   /////////////////////////////////////////////////////////////////////////////
 
   constexpr t_validity    VALID{VALID_};
   constexpr t_validity  INVALID{INVALID_};
-
-  constexpr t_cstr_ptr  NO_CSTR_PTR {NO_CSTR_PTR_};
-  constexpr t_cstr_cptr NO_CSTR_CPTR{NO_CSTR_CPTR_};
 
   constexpr t_fd        BAD_FD {BAD_FD_};
 
@@ -652,73 +621,17 @@ namespace specific
 
   /////////////////////////////////////////////////////////////////////////////
 
-  constexpr t_n operator"" _n(t_ullong n) noexcept {
-    return t_n(n);
-  }
-
-  constexpr t_max_n operator"" _max_n(t_ullong n) noexcept {
-    return t_max_n(n);
-  }
-
-  constexpr t_min_n operator"" _min_n(t_ullong n) noexcept {
-    return t_min_n(n);
-  }
-
-  constexpr t_ix operator"" _ix(t_ullong ix) noexcept {
-    return t_ix(ix);
-  }
-
-  constexpr t_begin_ix operator"" _begin_ix(t_ullong ix) noexcept {
-    return t_begin_ix(ix);
-  }
-
-  constexpr t_end_ix operator"" _end_ix(t_ullong ix) noexcept {
-    return t_end_ix(ix);
-  }
-
-  /////////////////////////////////////////////////////////////////////////////
-
   constexpr
   t_bool operator==(R_validity lh, R_validity rh) noexcept {
     return get(lh) == get(rh);
   }
 
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<int N>
-  constexpr t_cstr_ptr mk_ptr(t_char (&str)[N]) noexcept {
-    return t_cstr_ptr{str};
+  constexpr
+  t_bool operator!=(R_validity lh, R_validity rh) noexcept {
+    return get(lh) != get(rh);
   }
 
-  constexpr t_cstr_ptr mk_ptr(p_cstr_ str) noexcept {
-    return t_cstr_ptr{str};
-  }
-
-  template<int N>
-  constexpr t_cstr_cptr mk_cptr(T_char (&cstr)[N]) noexcept {
-    return t_cstr_cptr{cstr};
-  }
-
-  constexpr t_cstr_cptr mk_cptr(P_cstr_ cstr) noexcept {
-    return t_cstr_cptr{cstr};
-  }
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  template<int N>
-  constexpr p_cstr mk_str(T_char (&str)[N]) noexcept { return p_cstr{str}; }
-  constexpr p_cstr mk_str(p_cstr_ str)      noexcept { return p_cstr{str}; }
-
-  template<int N>
-  constexpr P_cstr mk_cstr(T_char (&cstr)[N]) noexcept {
-    return P_cstr{cstr};
-  }
-
-  constexpr P_cstr mk_cstr(P_cstr_ cstr) noexcept {
-     return P_cstr{cstr};
-  }
-
-  /////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 }
 }
 }

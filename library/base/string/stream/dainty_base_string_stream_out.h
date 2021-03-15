@@ -27,7 +27,7 @@
 #ifndef _DAINTY_BASE_STRING_STREAM_OUT_H_
 #define _DAINTY_BASE_STRING_STREAM_OUT_H_
 
-#include "dainty_base_string_impl.h"
+#include "impl_/dainty_base_string_impl.h"
 
 // stream out types (<<)
 //

@@ -63,7 +63,6 @@ namespace impl_
   using types::t_double;
   using types::t_ldouble;
   using types::t_n_;
-  using types::t_size_;
   using types::WELL_FORMED;
   using types::t_add_result;
   using types::t_add_value;

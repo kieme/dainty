@@ -52,8 +52,8 @@ namespace impl_
   using types::t_add_result;
   using types::t_pack;
   using types::t_empty_pack;
-  using types::t_u64_;
-  using types::t_i64_;
+  using types::t_u8_;
+  using types::t_i8_;
   using types::t_opt;
   using types::t_opt1;
   using types::t_opt2;
@@ -562,8 +562,8 @@ namespace impl_
            t_opt_if<t_opt3, t_and<t_is_signed_integral<T>,
                                   t_is_unsigned_integral<T1>>> = OPT3>
   constexpr T test_(T1 value) noexcept {
-    if ((static_cast<t_u64_>(value) >
-         static_cast<t_u64_>(t_property<T>::MAX)))
+    if ((static_cast<t_u8_>(value) >
+         static_cast<t_u8_>(t_property<T>::MAX)))
       undef_func();
     return (T)value;
   }
@@ -572,8 +572,8 @@ namespace impl_
            t_opt_if<t_opt4, t_and<t_is_unsigned_integral<T>,
                                   t_is_signed_integral<T1>>> = OPT4>
   constexpr T test_(T1 value) noexcept {
-    if (value < 0 || (static_cast<t_u64_>(value) >
-                      static_cast<t_u64_>(t_property<T>::MAX)))
+    if (value < 0 || (static_cast<t_u8_>(value) >
+                      static_cast<t_u8_>(t_property<T>::MAX)))
       undef_func();
     return (T)value;
   }
@@ -802,7 +802,7 @@ namespace impl_
   template<typename TAG, typename... Ls>
   class t_logical<t_void, TAG, Ls...> {
   public:
-    static_assert(t_logical_test_<Ls...>::VALUE,
+    static_assert(t_logical_test_<Ls...>::VALUE, // TODO all must be void
                   "Ls... must be logical<...> types");
 
     using t_value = t_void;
@@ -832,6 +832,11 @@ namespace impl_
     t_logical(const t_logical&)            noexcept = default; // for clarity
     t_logical& operator=(const t_logical&) noexcept = default; // for clarity
   };
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename TAG, typename... Ls>
+  using t_logical_tag = t_logical<t_void, TAG, Ls...>;
 
   /////////////////////////////////////////////////////////////////////////////
 

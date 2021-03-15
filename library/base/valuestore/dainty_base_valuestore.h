@@ -220,6 +220,9 @@ namespace valuestore
     return destruct(get_ptr<T>(store));
   }
 
+  T& swap(:qa) noexcept;
+  T& swap(x_value) noexcept;
+
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
@@ -270,6 +273,9 @@ namespace valuestore
     r_value      emplace_construct (As&&...) noexcept;
 
     r_valuestore destruct() noexcept;
+
+    r_value      swap(r_value) noexcept;
+    r_value      swap(x_value) noexcept;
 
     constexpr p_value    ptr  ()       noexcept;
     constexpr P_value    ptr  () const noexcept;

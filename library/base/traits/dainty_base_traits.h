@@ -27,7 +27,7 @@
 #ifndef _DAINTY_BASE_TRAITS_H_
 #define _DAINTY_BASE_TRAITS_H_
 
-#include "dainty_base_traits_impl.h"
+#include "impl_/dainty_base_traits_impl.h"
 
 namespace dainty
 {

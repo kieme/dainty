@@ -28,8 +28,8 @@
 #define _DAINTY_BASE_ASSERT_H_
 
 #define DAINTY_BASE_INTERNAL_INCL_C_STDARG
-
 #include "dainty_base_internal_incl_.h"
+
 #include "dainty_base_types.h"
 #include "dainty_base_specific.h"
 
@@ -43,13 +43,10 @@ namespace assertion
 
   using types::t_bool;
   using types::t_void;
-  using types::P_cstr_;
-
-  using specific::P_cstr;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  t_void assert_now(P_cstr reason) noexcept;
+  t_void assert_now(P_char reason) noexcept;
 
   t_void assert_now(P_cstr_ fmt, ...) noexcept
     __attribute__((format(printf, 1, 2)));

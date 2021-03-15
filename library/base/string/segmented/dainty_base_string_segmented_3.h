@@ -27,7 +27,7 @@
 #ifndef _DAINTY_BASE_STRING_SEGMENTED_3_H_
 #define _DAINTY_BASE_STRING_SEGMENTED_3_H_
 
-#include "dainty_base_string_segmented_impl.h"
+#include "impl_/dainty_base_string_segmented_impl.h"
 
 namespace dainty
 {

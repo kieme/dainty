@@ -28,7 +28,7 @@
 #define _DAINTY_BASE_NUMERIC_H_
 
 #include "dainty_base_util.h"
-#include "dainty_base_numeric_impl.h"
+#include "impl_/dainty_base_numeric_impl.h"
 
 namespace dainty
 {

@@ -66,6 +66,8 @@ namespace types
   template<typename T> struct t_prefix<T&>;
   template<typename T> struct t_prefix<const T>;
 
+  /////////////////////////////////////////////////////////////////////////////
+
   template<typename T> using T_prefix_of = typename t_prefix<T>::T_;
   template<typename T> using t_prefix_of = typename t_prefix<T>::t_;
   template<typename T> using p_prefix_of = typename t_prefix<T>::p_;
@@ -77,382 +79,1185 @@ namespace types
 
   /////////////////////////////////////////////////////////////////////////////
 
-  using t_bool         = t_prefix_of<bool>;
-  using T_bool         = T_prefix_of<t_bool>;
-  using r_bool         = r_prefix_of<t_bool>;
-  using p_bool         = p_prefix_of<t_bool>;
-  using P_bool         = P_prefix_of<t_bool>;
-
-  using t_char         = t_prefix_of<char>;
-  using T_char         = T_prefix_of<t_char>;
-  using r_char         = r_prefix_of<t_char>;
-  using p_char         = p_prefix_of<t_char>;
-  using P_char         = P_prefix_of<t_char>;
-
-  using t_schar        = t_prefix_of<signed char>;
-  using T_schar        = T_prefix_of<t_schar>;
-  using r_schar        = r_prefix_of<t_schar>;
-  using p_schar        = p_prefix_of<t_schar>;
-  using P_schar        = P_prefix_of<t_schar>;
-
-  using t_uchar        = t_prefix_of<unsigned char>;
-  using T_uchar        = T_prefix_of<t_uchar>;
-  using r_uchar        = r_prefix_of<t_uchar>;
-  using p_uchar        = p_prefix_of<t_uchar>;
-  using P_uchar        = P_prefix_of<t_uchar>;
-
-  using t_int          = t_prefix_of<int>;
-  using T_int          = T_prefix_of<t_int>;
-  using r_int          = r_prefix_of<t_int>;
-  using p_int          = p_prefix_of<t_int>;
-  using P_int          = P_prefix_of<t_int>;
-
-  using t_uint         = t_prefix_of<unsigned int>;
-  using T_uint         = T_prefix_of<t_uint>;
-  using r_uint         = r_prefix_of<t_uint>;
-  using p_uint         = p_prefix_of<t_uint>;
-  using P_uint         = P_prefix_of<t_uint>;
-
-  using t_short        = t_prefix_of<short>;
-  using T_short        = T_prefix_of<t_short>;
-  using r_short        = r_prefix_of<t_short>;
-  using p_short        = p_prefix_of<t_short>;
-  using P_short        = P_prefix_of<t_short>;
-
-  using t_ushort       = t_prefix_of<unsigned short>;
-  using T_ushort       = T_prefix_of<t_ushort>;
-  using r_ushort       = r_prefix_of<t_ushort>;
-  using p_ushort       = p_prefix_of<t_ushort>;
-  using P_ushort       = P_prefix_of<t_ushort>;
-
-  using t_long         = t_prefix_of<long int>;
-  using T_long         = T_prefix_of<t_long>;
-  using r_long         = r_prefix_of<t_long>;
-  using p_long         = p_prefix_of<t_long>;
-  using P_long         = P_prefix_of<t_long>;
-
-  using t_ulong        = t_prefix_of<unsigned long int>;
-  using T_ulong        = T_prefix_of<t_ulong>;
-  using r_ulong        = r_prefix_of<t_ulong>;
-  using p_ulong        = p_prefix_of<t_ulong>;
-  using P_ulong        = P_prefix_of<t_ulong>;
-
-  using t_llong        = t_prefix_of<long long int>;
-  using T_llong        = T_prefix_of<t_llong>;
-  using r_llong        = r_prefix_of<t_llong>;
-  using p_llong        = p_prefix_of<t_llong>;
-  using P_llong        = P_prefix_of<t_llong>;
-
-  using t_ullong       = t_prefix_of<unsigned long long int>;
-  using T_ullong       = T_prefix_of<t_ullong>;
-  using r_ullong       = r_prefix_of<t_ullong>;
-  using p_ullong       = p_prefix_of<t_ullong>;
-  using P_ullong       = P_prefix_of<t_ullong>;
-
-  using t_float        = t_prefix_of<float>;
-  using T_float        = T_prefix_of<t_float>;
-  using r_float        = r_prefix_of<t_float>;
-  using p_float        = p_prefix_of<t_float>;
-  using P_float        = P_prefix_of<t_float>;
-
-  using t_double       = t_prefix_of<double>;
-  using T_double       = T_prefix_of<t_double>;
-  using r_double       = r_prefix_of<t_double>;
-  using p_double       = p_prefix_of<t_double>;
-  using P_double       = P_prefix_of<t_double>;
-
-  using t_ldouble      = t_prefix_of<long double>;
-  using T_ldouble      = T_prefix_of<t_ldouble>;
-  using r_ldouble      = r_prefix_of<t_ldouble>;
-  using p_ldouble      = p_prefix_of<t_ldouble>;
-  using P_ldouble      = P_prefix_of<t_ldouble>;
-
-  using t_void         = t_prefix_of<void>;
-  using p_void         = p_prefix_of<t_void>;
-  using P_void         = P_prefix_of<t_void>;
-
-  using t_int8         = t_prefix_of<std::int8_t>;
-  using T_int8         = T_prefix_of<t_int8>;
-  using r_int8         = r_prefix_of<t_int8>;
-  using p_int8         = p_prefix_of<t_int8>;
-  using P_int8         = P_prefix_of<t_int8>;
-
-  using t_int16        = t_prefix_of<std::int16_t>;
-  using T_int16        = T_prefix_of<t_int16>;
-  using r_int16        = r_prefix_of<t_int16>;
-  using p_int16        = p_prefix_of<t_int16>;
-  using P_int16        = P_prefix_of<t_int16>;
-
-  using t_int32        = t_prefix_of<std::int32_t>;
-  using T_int32        = T_prefix_of<t_int32>;
-  using r_int32        = r_prefix_of<t_int32>;
-  using p_int32        = p_prefix_of<t_int32>;
-  using P_int32        = P_prefix_of<t_int32>;
-
-  using t_int64        = t_prefix_of<std::int64_t>;
-  using T_int64        = T_prefix_of<t_int64>;
-  using r_int64        = r_prefix_of<t_int64>;
-  using p_int64        = p_prefix_of<t_int64>;
-  using P_int64        = P_prefix_of<t_int64>;
-
-  using t_uint8        = t_prefix_of<std::uint8_t>;
-  using T_uint8        = T_prefix_of<t_uint8>;
-  using r_uint8        = r_prefix_of<t_uint8>;
-  using p_uint8        = p_prefix_of<t_uint8>;
-  using P_uint8        = P_prefix_of<t_uint8>;
-
-  using t_uint16       = t_prefix_of<std::uint16_t>;
-  using T_uint16       = T_prefix_of<t_uint16>;
-  using r_uint16       = r_prefix_of<t_uint16>;
-  using p_uint16       = p_prefix_of<t_uint16>;
-  using P_uint16       = P_prefix_of<t_uint16>;
-
-  using t_uint32       = t_prefix_of<std::uint32_t>;
-  using T_uint32       = T_prefix_of<t_uint32>;
-  using r_uint32       = r_prefix_of<t_uint32>;
-  using p_uint32       = p_prefix_of<t_uint32>;
-  using P_uint32       = P_prefix_of<t_uint32>;
-
-  using t_uint64       = t_prefix_of<std::uint64_t>;
-  using T_uint64       = T_prefix_of<t_uint64>;
-  using r_uint64       = r_prefix_of<t_uint64>;
-  using p_uint64       = p_prefix_of<t_uint64>;
-  using P_uint64       = P_prefix_of<t_uint64>;
-
-  using t_least8       = t_prefix_of<std::int_least8_t>;
-  using T_least8       = T_prefix_of<t_least8>;
-  using r_least8       = r_prefix_of<t_least8>;
-  using p_least8       = p_prefix_of<t_least8>;
-  using P_least8       = P_prefix_of<t_least8>;
-
-  using t_least16      = t_prefix_of<std::int_least16_t>;
-  using T_least16      = T_prefix_of<t_least16>;
-  using r_least16      = r_prefix_of<t_least16>;
-  using p_least16      = p_prefix_of<t_least16>;
-  using P_least16      = P_prefix_of<t_least16>;
-
-  using t_least32      = t_prefix_of<std::int_least32_t>;
-  using T_least32      = T_prefix_of<t_least32>;
-  using r_least32      = r_prefix_of<t_least32>;
-  using p_least32      = p_prefix_of<t_least32>;
-  using P_least32      = P_prefix_of<t_least32>;
-
-  using t_least64      = t_prefix_of<std::int_least64_t>;
-  using T_least64      = T_prefix_of<t_least64>;
-  using r_least64      = r_prefix_of<t_least64>;
-  using p_least64      = p_prefix_of<t_least64>;
-  using P_least64      = P_prefix_of<t_least64>;
-
-  using t_uleast8      = t_prefix_of<std::uint_least8_t>;
-  using T_uleast8      = T_prefix_of<t_uleast8>;
-  using r_uleast8      = r_prefix_of<t_uleast8>;
-  using p_uleast8      = p_prefix_of<t_uleast8>;
-  using P_uleast8      = P_prefix_of<t_uleast8>;
-
-  using t_uleast16     = t_prefix_of<std::uint_least16_t>;
-  using T_uleast16     = T_prefix_of<t_uleast16>;
-  using r_uleast16     = r_prefix_of<t_uleast16>;
-  using p_uleast16     = p_prefix_of<t_uleast16>;
-  using P_uleast16     = P_prefix_of<t_uleast16>;
-
-  using t_uleast32     = t_prefix_of<std::uint_least32_t>;
-  using T_uleast32     = T_prefix_of<t_uleast32>;
-  using r_uleast32     = r_prefix_of<t_uleast32>;
-  using p_uleast32     = p_prefix_of<t_uleast32>;
-  using P_uleast32     = P_prefix_of<t_uleast32>;
-
-  using t_uleast64     = t_prefix_of<std::uint_least64_t>;
-  using T_uleast64     = T_prefix_of<t_uleast64>;
-  using r_uleast64     = r_prefix_of<t_uleast64>;
-  using p_uleast64     = p_prefix_of<t_uleast64>;
-  using P_uleast64     = P_prefix_of<t_uleast64>;
-
-  using t_fast8        = t_prefix_of<std::int_fast8_t>;
-  using T_fast8        = T_prefix_of<t_fast8>;
-  using r_fast8        = r_prefix_of<t_fast8>;
-  using p_fast8        = p_prefix_of<t_fast8>;
-  using P_fast8        = P_prefix_of<t_fast8>;
-
-  using t_fast16       = t_prefix_of<std::int_fast16_t>;
-  using T_fast16       = T_prefix_of<t_fast16>;
-  using r_fast16       = r_prefix_of<t_fast16>;
-  using p_fast16       = p_prefix_of<t_fast16>;
-  using P_fast16       = P_prefix_of<t_fast16>;
-
-  using t_fast32       = t_prefix_of<std::int_fast32_t>;
-  using T_fast32       = T_prefix_of<t_fast32>;
-  using r_fast32       = r_prefix_of<t_fast32>;
-  using p_fast32       = p_prefix_of<t_fast32>;
-  using P_fast32       = P_prefix_of<t_fast32>;
-
-  using t_fast64       = t_prefix_of<std::int_fast64_t>;
-  using T_fast64       = T_prefix_of<t_fast64>;
-  using r_fast64       = r_prefix_of<t_fast64>;
-  using p_fast64       = p_prefix_of<t_fast64>;
-  using P_fast64       = P_prefix_of<t_fast64>;
-
-  using t_ufast8       = t_prefix_of<std::uint_fast8_t>;
-  using T_ufast8       = T_prefix_of<t_ufast8>;
-  using r_ufast8       = r_prefix_of<t_ufast8>;
-  using p_ufast8       = p_prefix_of<t_ufast8>;
-  using P_ufast8       = P_prefix_of<t_ufast8>;
-
-  using t_ufast16      = t_prefix_of<std::uint_fast16_t>;
-  using T_ufast16      = T_prefix_of<t_ufast16>;
-  using r_ufast16      = r_prefix_of<t_ufast16>;
-  using p_ufast16      = p_prefix_of<t_ufast16>;
-  using P_ufast16      = P_prefix_of<t_ufast16>;
-
-  using t_ufast32      = t_prefix_of<std::uint_fast32_t>;
-  using T_ufast32      = T_prefix_of<t_ufast32>;
-  using r_ufast32      = r_prefix_of<t_ufast32>;
-  using p_ufast32      = p_prefix_of<t_ufast32>;
-  using P_ufast32      = P_prefix_of<t_ufast32>;
-
-  using t_ufast64      = t_prefix_of<std::uint_fast64_t>;
-  using T_ufast64      = T_prefix_of<t_ufast64>;
-  using r_ufast64      = r_prefix_of<t_ufast64>;
-  using p_ufast64      = p_prefix_of<t_ufast64>;
-  using P_ufast64      = P_prefix_of<t_ufast64>;
-
-  using t_uintptr      = t_prefix_of<std::uintptr_t>;
-  using T_uintptr      = T_prefix_of<t_uintptr>;
-  using r_uintptr      = r_prefix_of<t_uintptr>;
-  using p_uintptr      = p_prefix_of<t_uintptr>;
-  using P_uintptr      = P_prefix_of<t_uintptr>;
+  using t_bool = t_prefix_of<bool>;
+  using T_bool = T_prefix_of<t_bool>;
+  using r_bool = r_prefix_of<t_bool>;
+  using p_bool = p_prefix_of<t_bool>;
+  using P_bool = P_prefix_of<t_bool>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  using t_nullptr      = decltype(nullptr);
+  using t_char   = t_prefix_of<char>;
+  using T_char   = T_prefix_of<t_char>;
+  using r_char   = r_prefix_of<t_char>;
+  using p_char   = p_prefix_of<t_char>;
+  using P_char   = P_prefix_of<t_char>;
+
+  using t_schar  = t_prefix_of<signed char>;
+  using T_schar  = T_prefix_of<t_schar>;
+  using r_schar  = r_prefix_of<t_schar>;
+  using p_schar  = p_prefix_of<t_schar>;
+  using P_schar  = P_prefix_of<t_schar>;
+
+  using t_uchar  = t_prefix_of<unsigned char>;
+  using T_uchar  = T_prefix_of<t_uchar>;
+  using r_uchar  = r_prefix_of<t_uchar>;
+  using p_uchar  = p_prefix_of<t_uchar>;
+  using P_uchar  = P_prefix_of<t_uchar>;
+
+  using t_int    = t_prefix_of<int>;
+  using T_int    = T_prefix_of<t_int>;
+  using r_int    = r_prefix_of<t_int>;
+  using p_int    = p_prefix_of<t_int>;
+  using P_int    = P_prefix_of<t_int>;
+
+  using t_uint   = t_prefix_of<unsigned int>;
+  using T_uint   = T_prefix_of<t_uint>;
+  using r_uint   = r_prefix_of<t_uint>;
+  using p_uint   = p_prefix_of<t_uint>;
+  using P_uint   = P_prefix_of<t_uint>;
+
+  using t_short  = t_prefix_of<short>;
+  using T_short  = T_prefix_of<t_short>;
+  using r_short  = r_prefix_of<t_short>;
+  using p_short  = p_prefix_of<t_short>;
+  using P_short  = P_prefix_of<t_short>;
+
+  using t_ushort = t_prefix_of<unsigned short>;
+  using T_ushort = T_prefix_of<t_ushort>;
+  using r_ushort = r_prefix_of<t_ushort>;
+  using p_ushort = p_prefix_of<t_ushort>;
+  using P_ushort = P_prefix_of<t_ushort>;
+
+  using t_long   = t_prefix_of<long int>;
+  using T_long   = T_prefix_of<t_long>;
+  using r_long   = r_prefix_of<t_long>;
+  using p_long   = p_prefix_of<t_long>;
+  using P_long   = P_prefix_of<t_long>;
+
+  using t_ulong  = t_prefix_of<unsigned long int>;
+  using T_ulong  = T_prefix_of<t_ulong>;
+  using r_ulong  = r_prefix_of<t_ulong>;
+  using p_ulong  = p_prefix_of<t_ulong>;
+  using P_ulong  = P_prefix_of<t_ulong>;
+
+  using t_llong  = t_prefix_of<long long int>;
+  using T_llong  = T_prefix_of<t_llong>;
+  using r_llong  = r_prefix_of<t_llong>;
+  using p_llong  = p_prefix_of<t_llong>;
+  using P_llong  = P_prefix_of<t_llong>;
+
+  using t_ullong = t_prefix_of<unsigned long long int>;
+  using T_ullong = T_prefix_of<t_ullong>;
+  using r_ullong = r_prefix_of<t_ullong>;
+  using p_ullong = p_prefix_of<t_ullong>;
+  using P_ullong = P_prefix_of<t_ullong>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  using t_u8_          = t_prefix_of<t_uint8>;
-  using t_u16_         = t_prefix_of<t_uint16>;
-  using t_u32_         = t_prefix_of<t_uint32>;
-  using t_u64_         = t_prefix_of<t_uint64>;
-  using t_u_           = t_prefix_of<t_u64_>;
+  using t_float   = t_prefix_of<float>;
+  using T_float   = T_prefix_of<t_float>;
+  using r_float   = r_prefix_of<t_float>;
+  using p_float   = p_prefix_of<t_float>;
+  using P_float   = P_prefix_of<t_float>;
 
-  using t_i8_          = t_prefix_of<t_int8>;
-  using t_i16_         = t_prefix_of<t_int16>;
-  using t_i32_         = t_prefix_of<t_int32>;
-  using t_i64_         = t_prefix_of<t_int64>;
-  using t_i_           = t_prefix_of<t_i64_>;
+  using t_double  = t_prefix_of<double>;
+  using T_double  = T_prefix_of<t_double>;
+  using r_double  = r_prefix_of<t_double>;
+  using p_double  = p_prefix_of<t_double>;
+  using P_double  = P_prefix_of<t_double>;
 
-  /////////////////////////////////////////////////////////////////////////////
-
-  using t_size_        = t_prefix_of<__SIZE_TYPE__>;
-  using T_size_        = T_prefix_of<t_size_>;
-  using r_size_        = r_prefix_of<t_size_>;
-  using p_size_        = p_prefix_of<t_size_>;
-  using P_size_        = P_prefix_of<t_size_>;
-
-  using t_byte_        = t_prefix_of<t_uchar>;
-  using T_byte_        = T_prefix_of<t_byte_>;
-  using r_byte_        = r_prefix_of<t_byte_>;
-  using p_byte_        = p_prefix_of<t_byte_>;
-  using P_byte_        = P_prefix_of<t_byte_>;
-
-  using t_fd_          = t_prefix_of<t_int>;
-  using T_fd_          = T_prefix_of<t_fd_>;
-  using r_fd_          = r_prefix_of<t_fd_>;
-  using p_fd_          = p_prefix_of<t_fd_>;
-  using P_fd_          = P_prefix_of<t_fd_>;
-
-  using t_cnt_         = t_prefix_of<t_ulong>;
-  using T_cnt_         = T_prefix_of<t_cnt_>;
-  using r_cnt_         = r_prefix_of<t_cnt_>;
-  using p_cnt_         = p_prefix_of<t_cnt_>;
-  using P_cnt_         = P_prefix_of<t_cnt_>;
-
-  using t_n_           = t_prefix_of<t_ulong>;
-  using T_n_           = T_prefix_of<t_n_>;
-  using r_n_           = r_prefix_of<t_n_>;
-  using p_n_           = p_prefix_of<t_n_>;
-  using P_n_           = P_prefix_of<t_n_>;
-
-  using t_ix_          = t_prefix_of<t_n_>;
-  using T_ix_          = T_prefix_of<t_ix_>;
-  using r_ix_          = r_prefix_of<t_ix_>;
-  using p_ix_          = p_prefix_of<t_ix_>;
-  using P_ix_          = P_prefix_of<t_ix_>;
-
-  using t_validity_    = t_prefix_of<t_bool>;
-  using T_validity_    = T_prefix_of<t_validity_>;
-  using r_validity_    = r_prefix_of<t_validity_>;
-  using p_validity_    = p_prefix_of<t_validity_>;
-  using P_validity_    = P_prefix_of<t_validity_>;
-
-  using t_percentage_  = t_prefix_of<t_uchar>;
-  using T_percentage_  = T_prefix_of<t_percentage_>;
-  using r_percentage_  = r_prefix_of<t_percentage_>;
-  using p_percentage_  = p_prefix_of<t_percentage_>;
-  using P_percentage_  = P_prefix_of<t_percentage_>;
-
-  using t_seq_no_      = t_prefix_of<t_uint>;
-  using T_seq_no_      = T_prefix_of<t_seq_no_>;
-  using r_seq_no_      = r_prefix_of<t_seq_no_>;
-  using p_seq_no_      = p_prefix_of<t_seq_no_>;
-  using P_seq_no_      = P_prefix_of<t_seq_no_>;
-
-  using t_errn_        = t_prefix_of<t_int>;
-  using T_errn_        = T_prefix_of<t_errn_>;
-  using r_errn_        = r_prefix_of<t_errn_>;
-  using p_errn_        = p_prefix_of<t_errn_>;
-  using P_errn_        = P_prefix_of<t_errn_>;
-
-  using t_nsec_        = t_prefix_of<t_ullong>;
-  using T_nsec_        = T_prefix_of<t_nsec_>;
-  using r_nsec_        = r_prefix_of<t_nsec_>;
-  using p_nsec_        = p_prefix_of<t_nsec_>;
-  using P_nsec_        = P_prefix_of<t_nsec_>;
-
-  using t_usec_        = t_prefix_of<t_ulong>;
-  using T_usec_        = T_prefix_of<t_usec_>;
-  using r_usec_        = r_prefix_of<t_usec_>;
-  using p_usec_        = p_prefix_of<t_usec_>;
-  using P_usec_        = P_prefix_of<t_usec_>;
-
-  using t_msec_        = t_prefix_of<t_uint>;
-  using T_msec_        = T_prefix_of<t_msec_>;
-  using r_msec_        = r_prefix_of<t_msec_>;
-  using p_msec_        = p_prefix_of<t_msec_>;
-  using P_msec_        = P_prefix_of<t_msec_>;
-
-  using t_sec_         = t_prefix_of<t_uint>;
-  using T_sec_         = T_prefix_of<t_sec_>;
-  using r_sec_         = r_prefix_of<t_sec_>;
-  using p_sec_         = p_prefix_of<t_sec_>;
-  using P_sec_         = P_prefix_of<t_sec_>;
-
-  using t_min_         = t_prefix_of<t_ushort>;
-  using T_min_         = T_prefix_of<t_min_>;
-  using r_min_         = r_prefix_of<t_min_>;
-  using p_min_         = p_prefix_of<t_min_>;
-  using P_min_         = P_prefix_of<t_min_>;
-
-  using t_ticks_       = t_prefix_of<t_uint64>;
-  using T_ticks_       = T_prefix_of<t_ticks_>;
-  using r_ticks_       = r_prefix_of<t_ticks_>;
-  using p_ticks_       = p_prefix_of<t_ticks_>;
-  using P_ticks_       = P_prefix_of<t_ticks_>;
+  using t_ldouble = t_prefix_of<long double>;
+  using T_ldouble = T_prefix_of<t_ldouble>;
+  using r_ldouble = r_prefix_of<t_ldouble>;
+  using p_ldouble = p_prefix_of<t_ldouble>;
+  using P_ldouble = P_prefix_of<t_ldouble>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  using p_cstr_        = p_char;
-  using P_cstr_        = P_char;
-  using t_cstr_ptr_    = p_cstr_;
-  using t_cstr_cptr_   = P_cstr_;
+  using t_void = t_prefix_of<void>;
+  using p_void = p_prefix_of<t_void>;
+  using P_void = P_prefix_of<t_void>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_int8   = t_prefix_of<std::int8_t>;
+  using T_int8   = T_prefix_of<t_int8>;
+  using r_int8   = r_prefix_of<t_int8>;
+  using p_int8   = p_prefix_of<t_int8>;
+  using P_int8   = P_prefix_of<t_int8>;
+
+  using t_int16  = t_prefix_of<std::int16_t>;
+  using T_int16  = T_prefix_of<t_int16>;
+  using r_int16  = r_prefix_of<t_int16>;
+  using p_int16  = p_prefix_of<t_int16>;
+  using P_int16  = P_prefix_of<t_int16>;
+
+  using t_int32  = t_prefix_of<std::int32_t>;
+  using T_int32  = T_prefix_of<t_int32>;
+  using r_int32  = r_prefix_of<t_int32>;
+  using p_int32  = p_prefix_of<t_int32>;
+  using P_int32  = P_prefix_of<t_int32>;
+
+  using t_int64  = t_prefix_of<std::int64_t>;
+  using T_int64  = T_prefix_of<t_int64>;
+  using r_int64  = r_prefix_of<t_int64>;
+  using p_int64  = p_prefix_of<t_int64>;
+  using P_int64  = P_prefix_of<t_int64>;
+
+  using t_uint8  = t_prefix_of<std::uint8_t>;
+  using T_uint8  = T_prefix_of<t_uint8>;
+  using r_uint8  = r_prefix_of<t_uint8>;
+  using p_uint8  = p_prefix_of<t_uint8>;
+  using P_uint8  = P_prefix_of<t_uint8>;
+
+  using t_uint16 = t_prefix_of<std::uint16_t>;
+  using T_uint16 = T_prefix_of<t_uint16>;
+  using r_uint16 = r_prefix_of<t_uint16>;
+  using p_uint16 = p_prefix_of<t_uint16>;
+  using P_uint16 = P_prefix_of<t_uint16>;
+
+  using t_uint32 = t_prefix_of<std::uint32_t>;
+  using T_uint32 = T_prefix_of<t_uint32>;
+  using r_uint32 = r_prefix_of<t_uint32>;
+  using p_uint32 = p_prefix_of<t_uint32>;
+  using P_uint32 = P_prefix_of<t_uint32>;
+
+  using t_uint64 = t_prefix_of<std::uint64_t>;
+  using T_uint64 = T_prefix_of<t_uint64>;
+  using r_uint64 = r_prefix_of<t_uint64>;
+  using p_uint64 = p_prefix_of<t_uint64>;
+  using P_uint64 = P_prefix_of<t_uint64>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_least8   = t_prefix_of<std::int_least8_t>;
+  using T_least8   = T_prefix_of<t_least8>;
+  using r_least8   = r_prefix_of<t_least8>;
+  using p_least8   = p_prefix_of<t_least8>;
+  using P_least8   = P_prefix_of<t_least8>;
+
+  using t_least16  = t_prefix_of<std::int_least16_t>;
+  using T_least16  = T_prefix_of<t_least16>;
+  using r_least16  = r_prefix_of<t_least16>;
+  using p_least16  = p_prefix_of<t_least16>;
+  using P_least16  = P_prefix_of<t_least16>;
+
+  using t_least32  = t_prefix_of<std::int_least32_t>;
+  using T_least32  = T_prefix_of<t_least32>;
+  using r_least32  = r_prefix_of<t_least32>;
+  using p_least32  = p_prefix_of<t_least32>;
+  using P_least32  = P_prefix_of<t_least32>;
+
+  using t_least64  = t_prefix_of<std::int_least64_t>;
+  using T_least64  = T_prefix_of<t_least64>;
+  using r_least64  = r_prefix_of<t_least64>;
+  using p_least64  = p_prefix_of<t_least64>;
+  using P_least64  = P_prefix_of<t_least64>;
+
+  using t_uleast8  = t_prefix_of<std::uint_least8_t>;
+  using T_uleast8  = T_prefix_of<t_uleast8>;
+  using r_uleast8  = r_prefix_of<t_uleast8>;
+  using p_uleast8  = p_prefix_of<t_uleast8>;
+  using P_uleast8  = P_prefix_of<t_uleast8>;
+
+  using t_uleast16 = t_prefix_of<std::uint_least16_t>;
+  using T_uleast16 = T_prefix_of<t_uleast16>;
+  using r_uleast16 = r_prefix_of<t_uleast16>;
+  using p_uleast16 = p_prefix_of<t_uleast16>;
+  using P_uleast16 = P_prefix_of<t_uleast16>;
+
+  using t_uleast32 = t_prefix_of<std::uint_least32_t>;
+  using T_uleast32 = T_prefix_of<t_uleast32>;
+  using r_uleast32 = r_prefix_of<t_uleast32>;
+  using p_uleast32 = p_prefix_of<t_uleast32>;
+  using P_uleast32 = P_prefix_of<t_uleast32>;
+
+  using t_uleast64 = t_prefix_of<std::uint_least64_t>;
+  using T_uleast64 = T_prefix_of<t_uleast64>;
+  using r_uleast64 = r_prefix_of<t_uleast64>;
+  using p_uleast64 = p_prefix_of<t_uleast64>;
+  using P_uleast64 = P_prefix_of<t_uleast64>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_fast8   = t_prefix_of<std::int_fast8_t>;
+  using T_fast8   = T_prefix_of<t_fast8>;
+  using r_fast8   = r_prefix_of<t_fast8>;
+  using p_fast8   = p_prefix_of<t_fast8>;
+  using P_fast8   = P_prefix_of<t_fast8>;
+
+  using t_fast16  = t_prefix_of<std::int_fast16_t>;
+  using T_fast16  = T_prefix_of<t_fast16>;
+  using r_fast16  = r_prefix_of<t_fast16>;
+  using p_fast16  = p_prefix_of<t_fast16>;
+  using P_fast16  = P_prefix_of<t_fast16>;
+
+  using t_fast32  = t_prefix_of<std::int_fast32_t>;
+  using T_fast32  = T_prefix_of<t_fast32>;
+  using r_fast32  = r_prefix_of<t_fast32>;
+  using p_fast32  = p_prefix_of<t_fast32>;
+  using P_fast32  = P_prefix_of<t_fast32>;
+
+  using t_fast64  = t_prefix_of<std::int_fast64_t>;
+  using T_fast64  = T_prefix_of<t_fast64>;
+  using r_fast64  = r_prefix_of<t_fast64>;
+  using p_fast64  = p_prefix_of<t_fast64>;
+  using P_fast64  = P_prefix_of<t_fast64>;
+
+  using t_ufast8  = t_prefix_of<std::uint_fast8_t>;
+  using T_ufast8  = T_prefix_of<t_ufast8>;
+  using r_ufast8  = r_prefix_of<t_ufast8>;
+  using p_ufast8  = p_prefix_of<t_ufast8>;
+  using P_ufast8  = P_prefix_of<t_ufast8>;
+
+  using t_ufast16 = t_prefix_of<std::uint_fast16_t>;
+  using T_ufast16 = T_prefix_of<t_ufast16>;
+  using r_ufast16 = r_prefix_of<t_ufast16>;
+  using p_ufast16 = p_prefix_of<t_ufast16>;
+  using P_ufast16 = P_prefix_of<t_ufast16>;
+
+  using t_ufast32 = t_prefix_of<std::uint_fast32_t>;
+  using T_ufast32 = T_prefix_of<t_ufast32>;
+  using r_ufast32 = r_prefix_of<t_ufast32>;
+  using p_ufast32 = p_prefix_of<t_ufast32>;
+  using P_ufast32 = P_prefix_of<t_ufast32>;
+
+  using t_ufast64 = t_prefix_of<std::uint_fast64_t>;
+  using T_ufast64 = T_prefix_of<t_ufast64>;
+  using r_ufast64 = r_prefix_of<t_ufast64>;
+  using p_ufast64 = p_prefix_of<t_ufast64>;
+  using P_ufast64 = P_prefix_of<t_ufast64>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_uintptr = t_prefix_of<std::uintptr_t>;
+  using T_uintptr = T_prefix_of<t_uintptr>;
+  using r_uintptr = r_prefix_of<t_uintptr>;
+  using p_uintptr = p_prefix_of<t_uintptr>;
+  using P_uintptr = P_prefix_of<t_uintptr>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_nullptr = decltype(nullptr);
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_truth_ = t_prefix_of<t_bool>;
+  using T_truth_ = T_prefix_of<t_truth_>;
+  using r_truth_ = r_prefix_of<t_truth_>;
+  using R_truth_ = R_prefix_of<t_truth_>;
+  using p_truth_ = p_prefix_of<t_truth_>;
+  using P_truth_ = P_prefix_of<t_truth_>;
+
+  constexpr t_truth_ TRUTHY_ = true;
+  constexpr t_truth_ FALSEY_ = false;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_validity_ = t_prefix_of<t_bool>;
+  using T_validity_ = T_prefix_of<t_validity_>;
+  using r_validity_ = r_prefix_of<t_validity_>;
+  using p_validity_ = p_prefix_of<t_validity_>;
+  using P_validity_ = P_prefix_of<t_validity_>;
+
+  constexpr t_validity_   VALID_ = true;
+  constexpr t_validity_ INVALID_ = false;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  /* _i_ -> native signed integer */
+  using t_i1_ = t_prefix_of<t_int8>;
+  using T_i1_ = T_prefix_of<t_i1_>;
+  using r_i1_ = r_prefix_of<t_i1_>;
+  using R_i1_ = R_prefix_of<t_i1_>;
+  using p_i1_ = p_prefix_of<t_i1_>;
+  using P_i1_ = P_prefix_of<t_i1_>;
+
+  using t_i2_ = t_prefix_of<t_int16>;
+  using T_i2_ = T_prefix_of<t_i2_>;
+  using r_i2_ = r_prefix_of<t_i2_>;
+  using R_i2_ = R_prefix_of<t_i2_>;
+  using p_i2_ = p_prefix_of<t_i2_>;
+  using P_i2_ = P_prefix_of<t_i2_>;
+
+  using t_i4_ = t_prefix_of<t_int32>;
+  using T_i4_ = T_prefix_of<t_i4_>;
+  using r_i4_ = r_prefix_of<t_i4_>;
+  using R_i4_ = R_prefix_of<t_i4_>;
+  using p_i4_ = p_prefix_of<t_i4_>;
+  using P_i4_ = P_prefix_of<t_i4_>;
+
+  using t_i8_ = t_prefix_of<t_int64>;
+  using T_i8_ = T_prefix_of<t_i8_>;
+  using r_i8_ = r_prefix_of<t_i8_>;
+  using R_i8_ = R_prefix_of<t_i8_>;
+  using p_i8_ = p_prefix_of<t_i8_>;
+  using P_i8_ = P_prefix_of<t_i8_>;
+
+  using t_i_  = t_prefix_of<t_i8_>;
+  using T_i_  = T_prefix_of<t_i_>;
+  using r_i_  = r_prefix_of<t_i_>;
+  using R_i_  = R_prefix_of<t_i_>;
+  using p_i_  = p_prefix_of<t_i_>;
+  using P_i_  = P_prefix_of<t_i_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  /* _u_ -> native unsigned integer */
+  using t_u1_ = t_prefix_of<t_uint8>;
+  using T_u1_ = T_prefix_of<t_u1_>;
+  using r_u1_ = r_prefix_of<t_u1_>;
+  using R_u1_ = R_prefix_of<t_u1_>;
+  using p_u1_ = p_prefix_of<t_u1_>;
+  using P_u1_ = P_prefix_of<t_u1_>;
+
+  using t_u2_ = t_prefix_of<t_uint16>;
+  using T_u2_ = T_prefix_of<t_u2_>;
+  using r_u2_ = r_prefix_of<t_u2_>;
+  using R_u2_ = R_prefix_of<t_u2_>;
+  using p_u2_ = p_prefix_of<t_u2_>;
+  using P_u2_ = P_prefix_of<t_u2_>;
+
+  using t_u4_ = t_prefix_of<t_uint32>;
+  using T_u4_ = T_prefix_of<t_u4_>;
+  using r_u4_ = r_prefix_of<t_u4_>;
+  using R_u4_ = R_prefix_of<t_u4_>;
+  using p_u4_ = p_prefix_of<t_u4_>;
+  using P_u4_ = P_prefix_of<t_u4_>;
+
+  using t_u8_ = t_prefix_of<t_uint64>;
+  using T_u8_ = T_prefix_of<t_u8_>;
+  using r_u8_ = r_prefix_of<t_u8_>;
+  using R_u8_ = R_prefix_of<t_u8_>;
+  using p_u8_ = p_prefix_of<t_u8_>;
+  using P_u8_ = P_prefix_of<t_u8_>;
+
+  using t_u_  = t_prefix_of<t_u8_>;
+  using T_u_  = T_prefix_of<t_u_>;
+  using r_u_  = r_prefix_of<t_u_>;
+  using R_u_  = R_prefix_of<t_u_>;
+  using p_u_  = p_prefix_of<t_u_>;
+  using P_u_  = P_prefix_of<t_u_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  /* _h_ -> unsigned hexadecimal integer */
+  using t_h_    = t_prefix_of<t_u_>;
+  using T_h_    = T_prefix_of<t_h_>;
+  using r_h_    = r_prefix_of<t_h_>;
+  using R_h_    = R_prefix_of<t_h_>;
+  using p_h_    = p_prefix_of<t_h_>;
+  using P_h_    = P_prefix_of<t_h_>;
+
+  using t_u1_h_ = t_prefix_of<t_u1_>;
+  using T_u1_h_ = T_prefix_of<t_u1_h_>;
+  using r_u1_h_ = r_prefix_of<t_u1_h_>;
+  using R_u1_h_ = R_prefix_of<t_u1_h_>;
+  using p_u1_h_ = p_prefix_of<t_u1_h_>;
+  using P_u1_h_ = P_prefix_of<t_u1_h_>;
+
+  using t_u2_h_ = t_prefix_of<t_u2_>;
+  using T_u2_h_ = T_prefix_of<t_u2_h_>;
+  using r_u2_h_ = r_prefix_of<t_u2_h_>;
+  using R_u2_h_ = R_prefix_of<t_u2_h_>;
+  using p_u2_h_ = p_prefix_of<t_u2_h_>;
+  using P_u2_h_ = P_prefix_of<t_u2_h_>;
+
+  using t_u4_h_ = t_prefix_of<t_u4_>;
+  using T_u4_h_ = T_prefix_of<t_u4_h_>;
+  using r_u4_h_ = r_prefix_of<t_u4_h_>;
+  using R_u4_h_ = R_prefix_of<t_u4_h_>;
+  using p_u4_h_ = p_prefix_of<t_u4_h_>;
+  using P_u4_h_ = P_prefix_of<t_u4_h_>;
+
+  using t_u8_h_ = t_prefix_of<t_u8_>;
+  using T_u8_h_ = T_prefix_of<t_u8_h_>;
+  using r_u8_h_ = r_prefix_of<t_u8_h_>;
+  using R_u8_h_ = R_prefix_of<t_u8_h_>;
+  using p_u8_h_ = p_prefix_of<t_u8_h_>;
+  using P_u8_h_ = P_prefix_of<t_u8_h_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  /* _b_ -> unsigned binary integer */
+  using t_b_    = t_prefix_of<t_u_>;
+  using T_b_    = T_prefix_of<t_b_>;
+  using r_b_    = r_prefix_of<t_b_>;
+  using R_b_    = R_prefix_of<t_b_>;
+  using p_b_    = p_prefix_of<t_b_>;
+  using P_b_    = P_prefix_of<t_b_>;
+
+  using t_u1_b_ = t_prefix_of<t_u1_>;
+  using T_u1_b_ = T_prefix_of<t_u1_b_>;
+  using r_u1_b_ = r_prefix_of<t_u1_b_>;
+  using R_u1_b_ = R_prefix_of<t_u1_b_>;
+  using p_u1_b_ = p_prefix_of<t_u1_b_>;
+  using P_u1_b_ = P_prefix_of<t_u1_b_>;
+
+  using t_u2_b_ = t_prefix_of<t_u2_>;
+  using T_u2_b_ = T_prefix_of<t_u2_b_>;
+  using r_u2_b_ = r_prefix_of<t_u2_b_>;
+  using R_u2_b_ = R_prefix_of<t_u2_b_>;
+  using p_u2_b_ = p_prefix_of<t_u2_b_>;
+  using P_u2_b_ = P_prefix_of<t_u2_b_>;
+
+  using t_u4_b_ = t_prefix_of<t_u4_>;
+  using T_u4_b_ = T_prefix_of<t_u4_b_>;
+  using r_u4_b_ = r_prefix_of<t_u4_b_>;
+  using R_u4_b_ = R_prefix_of<t_u4_b_>;
+  using p_u4_b_ = p_prefix_of<t_u4_b_>;
+  using P_u4_b_ = P_prefix_of<t_u4_b_>;
+
+  using t_u8_b_ = t_prefix_of<t_u8_>;
+  using T_u8_b_ = T_prefix_of<t_u8_b_>;
+  using r_u8_b_ = r_prefix_of<t_u8_b_>;
+  using R_u8_b_ = R_prefix_of<t_u8_b_>;
+  using p_u8_b_ = p_prefix_of<t_u8_b_>;
+  using P_u8_b_ = P_prefix_of<t_u8_b_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  /* _id_ -> id integer */
+  using t_id_    = t_prefix_of<t_i_>;
+  using T_id_    = T_prefix_of<t_id_>;
+  using r_id_    = r_prefix_of<t_id_>;
+  using R_id_    = R_prefix_of<t_id_>;
+  using p_id_    = p_prefix_of<t_id_>;
+  using P_id_    = P_prefix_of<t_id_>;
+
+  using t_i_id_  = t_prefix_of<t_i_>;
+  using T_i_id_  = T_prefix_of<t_i_id_>;
+  using r_i_id_  = r_prefix_of<t_i_id_>;
+  using R_i_id_  = R_prefix_of<t_i_id_>;
+  using p_i_id_  = p_prefix_of<t_i_id_>;
+  using P_i_id_  = P_prefix_of<t_i_id_>;
+
+  using t_u_id_  = t_prefix_of<t_u_>;
+  using T_u_id_  = T_prefix_of<t_u_id_>;
+  using r_u_id_  = r_prefix_of<t_u_id_>;
+  using R_u_id_  = R_prefix_of<t_u_id_>;
+  using p_u_id_  = p_prefix_of<t_u_id_>;
+  using P_u_id_  = P_prefix_of<t_u_id_>;
+
+  using t_i1_id_ = t_prefix_of<t_i1_>;
+  using T_i1_id_ = T_prefix_of<t_i1_id_>;
+  using r_i1_id_ = r_prefix_of<t_i1_id_>;
+  using R_i1_id_ = R_prefix_of<t_i1_id_>;
+  using p_i1_id_ = p_prefix_of<t_i1_id_>;
+  using P_i1_id_ = P_prefix_of<t_i1_id_>;
+
+  using t_i2_id_ = t_prefix_of<t_i2_>;
+  using T_i2_id_ = T_prefix_of<t_i2_id_>;
+  using r_i2_id_ = r_prefix_of<t_i2_id_>;
+  using R_i2_id_ = R_prefix_of<t_i2_id_>;
+  using p_i2_id_ = p_prefix_of<t_i2_id_>;
+  using P_i2_id_ = P_prefix_of<t_i2_id_>;
+
+  using t_i4_id_ = t_prefix_of<t_i4_>;
+  using T_i4_id_ = T_prefix_of<t_i4_id_>;
+  using r_i4_id_ = r_prefix_of<t_i4_id_>;
+  using R_i4_id_ = R_prefix_of<t_i4_id_>;
+  using p_i4_id_ = p_prefix_of<t_i4_id_>;
+  using P_i4_id_ = P_prefix_of<t_i4_id_>;
+
+  using t_i8_id_ = t_prefix_of<t_i8_>;
+  using T_i8_id_ = T_prefix_of<t_i8_id_>;
+  using r_i8_id_ = r_prefix_of<t_i8_id_>;
+  using R_i8_id_ = R_prefix_of<t_i8_id_>;
+  using p_i8_id_ = p_prefix_of<t_i8_id_>;
+  using P_i8_id_ = P_prefix_of<t_i8_id_>;
+
+  using t_u1_id_ = t_prefix_of<t_u1_>;
+  using T_u1_id_ = T_prefix_of<t_u1_id_>;
+  using r_u1_id_ = r_prefix_of<t_u1_id_>;
+  using R_u1_id_ = R_prefix_of<t_u1_id_>;
+  using p_u1_id_ = p_prefix_of<t_u1_id_>;
+  using P_u1_id_ = P_prefix_of<t_u1_id_>;
+
+  using t_u2_id_ = t_prefix_of<t_u2_>;
+  using T_u2_id_ = T_prefix_of<t_u2_id_>;
+  using r_u2_id_ = r_prefix_of<t_u2_id_>;
+  using R_u2_id_ = R_prefix_of<t_u2_id_>;
+  using p_u2_id_ = p_prefix_of<t_u2_id_>;
+  using P_u2_id_ = P_prefix_of<t_u2_id_>;
+
+  using t_u4_id_ = t_prefix_of<t_u4_>;
+  using T_u4_id_ = T_prefix_of<t_u4_id_>;
+  using r_u4_id_ = r_prefix_of<t_u4_id_>;
+  using R_u4_id_ = R_prefix_of<t_u4_id_>;
+  using p_u4_id_ = p_prefix_of<t_u4_id_>;
+  using P_u4_id_ = P_prefix_of<t_u4_id_>;
+
+  using t_u8_id_ = t_prefix_of<t_u8_>;
+  using T_u8_id_ = T_prefix_of<t_u8_id_>;
+  using r_u8_id_ = r_prefix_of<t_u8_id_>;
+  using R_u8_id_ = R_prefix_of<t_u8_id_>;
+  using p_u8_id_ = p_prefix_of<t_u8_id_>;
+  using P_u8_id_ = P_prefix_of<t_u8_id_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  /* _n_ -> number (quantity) integer */
+  using t_n_    = t_prefix_of<t_u_>;
+  using T_n_    = T_prefix_of<t_n_>;
+  using r_n_    = r_prefix_of<t_n_>;
+  using R_n_    = R_prefix_of<t_n_>;
+  using p_n_    = p_prefix_of<t_n_>;
+  using P_n_    = P_prefix_of<t_n_>;
+
+  using t_i_n_  = t_prefix_of<t_i_>;
+  using T_i_n_  = T_prefix_of<t_i_n_>;
+  using r_i_n_  = r_prefix_of<t_i_n_>;
+  using R_i_n_  = R_prefix_of<t_i_n_>;
+  using p_i_n_  = p_prefix_of<t_i_n_>;
+  using P_i_n_  = P_prefix_of<t_i_n_>;
+
+  using t_u_n_  = t_prefix_of<t_u_>;
+  using T_u_n_  = T_prefix_of<t_u_n_>;
+  using r_u_n_  = r_prefix_of<t_u_n_>;
+  using R_u_n_  = R_prefix_of<t_u_n_>;
+  using p_u_n_  = p_prefix_of<t_u_n_>;
+  using P_u_n_  = P_prefix_of<t_u_n_>;
+
+  using t_i1_n_ = t_prefix_of<t_i1_>;
+  using T_i1_n_ = T_prefix_of<t_i1_n_>;
+  using r_i1_n_ = r_prefix_of<t_i1_n_>;
+  using R_i1_n_ = R_prefix_of<t_i1_n_>;
+  using p_i1_n_ = p_prefix_of<t_i1_n_>;
+  using P_i1_n_ = P_prefix_of<t_i1_n_>;
+
+  using t_i2_n_ = t_prefix_of<t_i2_>;
+  using T_i2_n_ = T_prefix_of<t_i2_n_>;
+  using r_i2_n_ = r_prefix_of<t_i2_n_>;
+  using R_i2_n_ = R_prefix_of<t_i2_n_>;
+  using p_i2_n_ = p_prefix_of<t_i2_n_>;
+  using P_i2_n_ = P_prefix_of<t_i2_n_>;
+
+  using t_i4_n_ = t_prefix_of<t_i4_>;
+  using T_i4_n_ = T_prefix_of<t_i4_n_>;
+  using r_i4_n_ = r_prefix_of<t_i4_n_>;
+  using R_i4_n_ = R_prefix_of<t_i4_n_>;
+  using p_i4_n_ = p_prefix_of<t_i4_n_>;
+  using P_i4_n_ = P_prefix_of<t_i4_n_>;
+
+  using t_i8_n_ = t_prefix_of<t_i8_>;
+  using T_i8_n_ = T_prefix_of<t_i8_n_>;
+  using r_i8_n_ = r_prefix_of<t_i8_n_>;
+  using R_i8_n_ = R_prefix_of<t_i8_n_>;
+  using p_i8_n_ = p_prefix_of<t_i8_n_>;
+  using P_i8_n_ = P_prefix_of<t_i8_n_>;
+
+  using t_u1_n_ = t_prefix_of<t_u1_>;
+  using T_u1_n_ = T_prefix_of<t_u1_n_>;
+  using r_u1_n_ = r_prefix_of<t_u1_n_>;
+  using R_u1_n_ = R_prefix_of<t_u1_n_>;
+  using p_u1_n_ = p_prefix_of<t_u1_n_>;
+  using P_u1_n_ = P_prefix_of<t_u1_n_>;
+
+  using t_u2_n_ = t_prefix_of<t_u2_>;
+  using T_u2_n_ = T_prefix_of<t_u2_n_>;
+  using r_u2_n_ = r_prefix_of<t_u2_n_>;
+  using R_u2_n_ = R_prefix_of<t_u2_n_>;
+  using p_u2_n_ = p_prefix_of<t_u2_n_>;
+  using P_u2_n_ = P_prefix_of<t_u2_n_>;
+
+  using t_u4_n_ = t_prefix_of<t_u4_>;
+  using T_u4_n_ = T_prefix_of<t_u4_n_>;
+  using r_u4_n_ = r_prefix_of<t_u4_n_>;
+  using R_u4_n_ = R_prefix_of<t_u4_n_>;
+  using p_u4_n_ = p_prefix_of<t_u4_n_>;
+  using P_u4_n_ = P_prefix_of<t_u4_n_>;
+
+  using t_u8_n_ = t_prefix_of<t_u8_>;
+  using T_u8_n_ = T_prefix_of<t_u8_n_>;
+  using r_u8_n_ = r_prefix_of<t_u8_n_>;
+  using R_u8_n_ = R_prefix_of<t_u8_n_>;
+  using p_u8_n_ = p_prefix_of<t_u8_n_>;
+  using P_u8_n_ = P_prefix_of<t_u8_n_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  /* _n_min_ -> minimal numbered integer */
+  using t_n_min_   = t_prefix_of<t_n_>;
+  using T_n_min_   = T_prefix_of<t_n_min_>;
+  using r_n_min_   = r_prefix_of<t_n_min_>;
+  using R_n_min_   = R_prefix_of<t_n_min_>;
+  using p_n_min_   = p_prefix_of<t_n_min_>;
+  using P_n_min_   = P_prefix_of<t_n_min_>;
+
+  using t_i_n_min_ = t_prefix_of<t_i_n_>;
+  using T_i_n_min_ = T_prefix_of<t_i_n_min_>;
+  using r_i_n_min_ = r_prefix_of<t_i_n_min_>;
+  using R_i_n_min_ = R_prefix_of<t_i_n_min_>;
+  using p_i_n_min_ = p_prefix_of<t_i_n_min_>;
+  using P_i_n_min_ = P_prefix_of<t_i_n_min_>;
+
+  using t_u_n_min_ = t_prefix_of<t_u_n_>;
+  using T_u_n_min_ = T_prefix_of<t_u_n_min_>;
+  using r_u_n_min_ = r_prefix_of<t_u_n_min_>;
+  using R_u_n_min_ = R_prefix_of<t_u_n_min_>;
+  using p_u_n_min_ = p_prefix_of<t_u_n_min_>;
+  using P_u_n_min_ = P_prefix_of<t_u_n_min_>;
+
+  using t_i1_n_min_ = t_prefix_of<t_i1_n_>;
+  using T_i1_n_min_ = T_prefix_of<t_i1_n_min_>;
+  using r_i1_n_min_ = r_prefix_of<t_i1_n_min_>;
+  using R_i1_n_min_ = R_prefix_of<t_i1_n_min_>;
+  using p_i1_n_min_ = p_prefix_of<t_i1_n_min_>;
+  using P_i1_n_min_ = P_prefix_of<t_i1_n_min_>;
+
+  using t_i2_n_min_ = t_prefix_of<t_i2_n_>;
+  using T_i2_n_min_ = T_prefix_of<t_i2_n_min_>;
+  using r_i2_n_min_ = r_prefix_of<t_i2_n_min_>;
+  using R_i2_n_min_ = R_prefix_of<t_i2_n_min_>;
+  using p_i2_n_min_ = p_prefix_of<t_i2_n_min_>;
+  using P_i2_n_min_ = P_prefix_of<t_i2_n_min_>;
+
+  using t_i4_n_min_ = t_prefix_of<t_i4_n_>;
+  using T_i4_n_min_ = T_prefix_of<t_i4_n_min_>;
+  using r_i4_n_min_ = r_prefix_of<t_i4_n_min_>;
+  using R_i4_n_min_ = R_prefix_of<t_i4_n_min_>;
+  using p_i4_n_min_ = p_prefix_of<t_i4_n_min_>;
+  using P_i4_n_min_ = P_prefix_of<t_i4_n_min_>;
+
+  using t_i8_n_min_ = t_prefix_of<t_i8_n_>;
+  using T_i8_n_min_ = T_prefix_of<t_i8_n_min_>;
+  using r_i8_n_min_ = r_prefix_of<t_i8_n_min_>;
+  using R_i8_n_min_ = R_prefix_of<t_i8_n_min_>;
+  using p_i8_n_min_ = p_prefix_of<t_i8_n_min_>;
+  using P_i8_n_min_ = P_prefix_of<t_i8_n_min_>;
+
+  using t_u1_n_min_ = t_prefix_of<t_u1_n_>;
+  using T_u1_n_min_ = T_prefix_of<t_u1_n_min_>;
+  using r_u1_n_min_ = r_prefix_of<t_u1_n_min_>;
+  using R_u1_n_min_ = R_prefix_of<t_u1_n_min_>;
+  using p_u1_n_min_ = p_prefix_of<t_u1_n_min_>;
+  using P_u1_n_min_ = P_prefix_of<t_u1_n_min_>;
+
+  using t_u2_n_min_ = t_prefix_of<t_u2_n_>;
+  using T_u2_n_min_ = T_prefix_of<t_u2_n_min_>;
+  using r_u2_n_min_ = r_prefix_of<t_u2_n_min_>;
+  using R_u2_n_min_ = R_prefix_of<t_u2_n_min_>;
+  using p_u2_n_min_ = p_prefix_of<t_u2_n_min_>;
+  using P_u2_n_min_ = P_prefix_of<t_u2_n_min_>;
+
+  using t_u4_n_min_ = t_prefix_of<t_u4_n_>;
+  using T_u4_n_min_ = T_prefix_of<t_u4_n_min_>;
+  using r_u4_n_min_ = r_prefix_of<t_u4_n_min_>;
+  using R_u4_n_min_ = R_prefix_of<t_u4_n_min_>;
+  using p_u4_n_min_ = p_prefix_of<t_u4_n_min_>;
+  using P_u4_n_min_ = P_prefix_of<t_u4_n_min_>;
+
+  using t_u8_n_min_ = t_prefix_of<t_u8_n_>;
+  using T_u8_n_min_ = T_prefix_of<t_u8_n_min_>;
+  using r_u8_n_min_ = r_prefix_of<t_u8_n_min_>;
+  using R_u8_n_min_ = R_prefix_of<t_u8_n_min_>;
+  using p_u8_n_min_ = p_prefix_of<t_u8_n_min_>;
+  using P_u8_n_min_ = P_prefix_of<t_u8_n_min_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  /* _n_max_ -> maximal numbered integer */
+  using t_n_max_   = t_prefix_of<t_n_>;
+  using T_n_max_   = T_prefix_of<t_n_max_>;
+  using r_n_max_   = r_prefix_of<t_n_max_>;
+  using R_n_max_   = R_prefix_of<t_n_max_>;
+  using p_n_max_   = p_prefix_of<t_n_max_>;
+  using P_n_max_   = P_prefix_of<t_n_max_>;
+
+  using t_i_n_max_ = t_prefix_of<t_i_n_>;
+  using T_i_n_max_ = T_prefix_of<t_i_n_max_>;
+  using r_i_n_max_ = r_prefix_of<t_i_n_max_>;
+  using R_i_n_max_ = R_prefix_of<t_i_n_max_>;
+  using p_i_n_max_ = p_prefix_of<t_i_n_max_>;
+  using P_i_n_max_ = P_prefix_of<t_i_n_max_>;
+
+  using t_u_n_max_ = t_prefix_of<t_u_n_>;
+  using T_u_n_max_ = T_prefix_of<t_u_n_max_>;
+  using r_u_n_max_ = r_prefix_of<t_u_n_max_>;
+  using R_u_n_max_ = R_prefix_of<t_u_n_max_>;
+  using p_u_n_max_ = p_prefix_of<t_u_n_max_>;
+  using P_u_n_max_ = P_prefix_of<t_u_n_max_>;
+
+  using t_i1_n_max_ = t_prefix_of<t_i1_n_>;
+  using T_i1_n_max_ = T_prefix_of<t_i1_n_max_>;
+  using r_i1_n_max_ = r_prefix_of<t_i1_n_max_>;
+  using R_i1_n_max_ = R_prefix_of<t_i1_n_max_>;
+  using p_i1_n_max_ = p_prefix_of<t_i1_n_max_>;
+  using P_i1_n_max_ = P_prefix_of<t_i1_n_max_>;
+
+  using t_i2_n_max_ = t_prefix_of<t_i2_n_>;
+  using T_i2_n_max_ = T_prefix_of<t_i2_n_max_>;
+  using r_i2_n_max_ = r_prefix_of<t_i2_n_max_>;
+  using R_i2_n_max_ = R_prefix_of<t_i2_n_max_>;
+  using p_i2_n_max_ = p_prefix_of<t_i2_n_max_>;
+  using P_i2_n_max_ = P_prefix_of<t_i2_n_max_>;
+
+  using t_i4_n_max_ = t_prefix_of<t_i4_n_>;
+  using T_i4_n_max_ = T_prefix_of<t_i4_n_max_>;
+  using r_i4_n_max_ = r_prefix_of<t_i4_n_max_>;
+  using R_i4_n_max_ = R_prefix_of<t_i4_n_max_>;
+  using p_i4_n_max_ = p_prefix_of<t_i4_n_max_>;
+  using P_i4_n_max_ = P_prefix_of<t_i4_n_max_>;
+
+  using t_i8_n_max_ = t_prefix_of<t_i8_n_>;
+  using T_i8_n_max_ = T_prefix_of<t_i8_n_max_>;
+  using r_i8_n_max_ = r_prefix_of<t_i8_n_max_>;
+  using R_i8_n_max_ = R_prefix_of<t_i8_n_max_>;
+  using p_i8_n_max_ = p_prefix_of<t_i8_n_max_>;
+  using P_i8_n_max_ = P_prefix_of<t_i8_n_max_>;
+
+  using t_u1_n_max_ = t_prefix_of<t_u1_n_>;
+  using T_u1_n_max_ = T_prefix_of<t_u1_n_max_>;
+  using r_u1_n_max_ = r_prefix_of<t_u1_n_max_>;
+  using R_u1_n_max_ = R_prefix_of<t_u1_n_max_>;
+  using p_u1_n_max_ = p_prefix_of<t_u1_n_max_>;
+  using P_u1_n_max_ = P_prefix_of<t_u1_n_max_>;
+
+  using t_u2_n_max_ = t_prefix_of<t_u2_n_>;
+  using T_u2_n_max_ = T_prefix_of<t_u2_n_max_>;
+  using r_u2_n_max_ = r_prefix_of<t_u2_n_max_>;
+  using R_u2_n_max_ = R_prefix_of<t_u2_n_max_>;
+  using p_u2_n_max_ = p_prefix_of<t_u2_n_max_>;
+  using P_u2_n_max_ = P_prefix_of<t_u2_n_max_>;
+
+  using t_u4_n_max_ = t_prefix_of<t_u4_n_>;
+  using T_u4_n_max_ = T_prefix_of<t_u4_n_max_>;
+  using r_u4_n_max_ = r_prefix_of<t_u4_n_max_>;
+  using R_u4_n_max_ = R_prefix_of<t_u4_n_max_>;
+  using p_u4_n_max_ = p_prefix_of<t_u4_n_max_>;
+  using P_u4_n_max_ = P_prefix_of<t_u4_n_max_>;
+
+  using t_u8_n_max_ = t_prefix_of<t_u8_n_>;
+  using T_u8_n_max_ = T_prefix_of<t_u8_n_max_>;
+  using r_u8_n_max_ = r_prefix_of<t_u8_n_max_>;
+  using R_u8_n_max_ = R_prefix_of<t_u8_n_max_>;
+  using p_u8_n_max_ = p_prefix_of<t_u8_n_max_>;
+  using P_u8_n_max_ = P_prefix_of<t_u8_n_max_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  /* _ix_ ->  integer index */
+  using t_ix_    = t_prefix_of<t_id_>;
+  using T_ix_    = T_prefix_of<t_ix_>;
+  using r_ix_    = r_prefix_of<t_ix_>;
+  using R_ix_    = R_prefix_of<t_ix_>;
+  using p_ix_    = p_prefix_of<t_ix_>;
+  using P_ix_    = P_prefix_of<t_ix_>;
+
+  using t_i_ix_  = t_prefix_of<t_i_id_>;
+  using T_i_ix_  = T_prefix_of<t_i_ix_>;
+  using r_i_ix_  = r_prefix_of<t_i_ix_>;
+  using R_i_ix_  = R_prefix_of<t_i_ix_>;
+  using p_i_ix_  = p_prefix_of<t_i_ix_>;
+  using P_i_ix_  = P_prefix_of<t_i_ix_>;
+
+  using t_u_ix_  = t_prefix_of<t_u_id_>;
+  using T_u_ix_  = T_prefix_of<t_u_ix_>;
+  using r_u_ix_  = r_prefix_of<t_u_ix_>;
+  using R_u_ix_  = R_prefix_of<t_u_ix_>;
+  using p_u_ix_  = p_prefix_of<t_u_ix_>;
+  using P_u_ix_  = P_prefix_of<t_u_ix_>;
+
+  using t_i1_ix_ = t_prefix_of<t_i1_id_>;
+  using T_i1_ix_ = T_prefix_of<t_i1_ix_>;
+  using r_i1_ix_ = r_prefix_of<t_i1_ix_>;
+  using R_i1_ix_ = R_prefix_of<t_i1_ix_>;
+  using p_i1_ix_ = p_prefix_of<t_i1_ix_>;
+  using P_i1_ix_ = P_prefix_of<t_i1_ix_>;
+
+  using t_i2_ix_ = t_prefix_of<t_i2_id_>;
+  using T_i2_ix_ = T_prefix_of<t_i2_ix_>;
+  using r_i2_ix_ = r_prefix_of<t_i2_ix_>;
+  using R_i2_ix_ = R_prefix_of<t_i2_ix_>;
+  using p_i2_ix_ = p_prefix_of<t_i2_ix_>;
+  using P_i2_ix_ = P_prefix_of<t_i2_ix_>;
+
+  using t_i4_ix_ = t_prefix_of<t_i4_id_>;
+  using T_i4_ix_ = T_prefix_of<t_i4_ix_>;
+  using r_i4_ix_ = r_prefix_of<t_i4_ix_>;
+  using R_i4_ix_ = R_prefix_of<t_i4_ix_>;
+  using p_i4_ix_ = p_prefix_of<t_i4_ix_>;
+  using P_i4_ix_ = P_prefix_of<t_i4_ix_>;
+
+  using t_i8_ix_ = t_prefix_of<t_i8_id_>;
+  using T_i8_ix_ = T_prefix_of<t_i8_ix_>;
+  using r_i8_ix_ = r_prefix_of<t_i8_ix_>;
+  using R_i8_ix_ = R_prefix_of<t_i8_ix_>;
+  using p_i8_ix_ = p_prefix_of<t_i8_ix_>;
+  using P_i8_ix_ = P_prefix_of<t_i8_ix_>;
+
+  using t_u1_ix_ = t_prefix_of<t_u1_id_>;
+  using T_u1_ix_ = T_prefix_of<t_u1_ix_>;
+  using r_u1_ix_ = r_prefix_of<t_u1_ix_>;
+  using R_u1_ix_ = R_prefix_of<t_u1_ix_>;
+  using p_u1_ix_ = p_prefix_of<t_u1_ix_>;
+  using P_u1_ix_ = P_prefix_of<t_u1_ix_>;
+
+  using t_u2_ix_ = t_prefix_of<t_u2_id_>;
+  using T_u2_ix_ = T_prefix_of<t_u2_ix_>;
+  using r_u2_ix_ = r_prefix_of<t_u2_ix_>;
+  using R_u2_ix_ = R_prefix_of<t_u2_ix_>;
+  using p_u2_ix_ = p_prefix_of<t_u2_ix_>;
+  using P_u2_ix_ = P_prefix_of<t_u2_ix_>;
+
+  using t_u4_ix_ = t_prefix_of<t_u4_id_>;
+  using T_u4_ix_ = T_prefix_of<t_u4_ix_>;
+  using r_u4_ix_ = r_prefix_of<t_u4_ix_>;
+  using R_u4_ix_ = R_prefix_of<t_u4_ix_>;
+  using p_u4_ix_ = p_prefix_of<t_u4_ix_>;
+  using P_u4_ix_ = P_prefix_of<t_u4_ix_>;
+
+  using t_u8_ix_ = t_prefix_of<t_u8_id_>;
+  using T_u8_ix_ = T_prefix_of<t_u8_ix_>;
+  using r_u8_ix_ = r_prefix_of<t_u8_ix_>;
+  using R_u8_ix_ = R_prefix_of<t_u8_ix_>;
+  using p_u8_ix_ = p_prefix_of<t_u8_ix_>;
+  using P_u8_ix_ = P_prefix_of<t_u8_ix_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  /* _ix_begin_ ->  begin integer index */
+  using t_ix_begin_    = t_prefix_of<t_ix_>;
+  using T_ix_begin_    = T_prefix_of<t_ix_begin_>;
+  using r_ix_begin_    = r_prefix_of<t_ix_begin_>;
+  using R_ix_begin_    = R_prefix_of<t_ix_begin_>;
+  using p_ix_begin_    = p_prefix_of<t_ix_begin_>;
+  using P_ix_begin_    = P_prefix_of<t_ix_begin_>;
+
+  using t_i_ix_begin_  = t_prefix_of<t_i_ix_>;
+  using T_i_ix_begin_  = T_prefix_of<t_i_ix_begin_>;
+  using r_i_ix_begin_  = r_prefix_of<t_i_ix_begin_>;
+  using R_i_ix_begin_  = R_prefix_of<t_i_ix_begin_>;
+  using p_i_ix_begin_  = p_prefix_of<t_i_ix_begin_>;
+  using P_i_ix_begin_  = P_prefix_of<t_i_ix_begin_>;
+
+  using t_u_ix_begin_  = t_prefix_of<t_u_ix_>;
+  using T_u_ix_begin_  = T_prefix_of<t_u_ix_begin_>;
+  using r_u_ix_begin_  = r_prefix_of<t_u_ix_begin_>;
+  using R_u_ix_begin_  = R_prefix_of<t_u_ix_begin_>;
+  using p_u_ix_begin_  = p_prefix_of<t_u_ix_begin_>;
+  using P_u_ix_begin_  = P_prefix_of<t_u_ix_begin_>;
+
+  using t_i1_ix_begin_ = t_prefix_of<t_i1_ix_>;
+  using T_i1_ix_begin_ = T_prefix_of<t_i1_ix_begin_>;
+  using r_i1_ix_begin_ = r_prefix_of<t_i1_ix_begin_>;
+  using R_i1_ix_begin_ = R_prefix_of<t_i1_ix_begin_>;
+  using p_i1_ix_begin_ = p_prefix_of<t_i1_ix_begin_>;
+  using P_i1_ix_begin_ = P_prefix_of<t_i1_ix_begin_>;
+
+  using t_i2_ix_begin_ = t_prefix_of<t_i2_ix_>;
+  using T_i2_ix_begin_ = T_prefix_of<t_i2_ix_begin_>;
+  using r_i2_ix_begin_ = r_prefix_of<t_i2_ix_begin_>;
+  using R_i2_ix_begin_ = R_prefix_of<t_i2_ix_begin_>;
+  using p_i2_ix_begin_ = p_prefix_of<t_i2_ix_begin_>;
+  using P_i2_ix_begin_ = P_prefix_of<t_i2_ix_begin_>;
+
+  using t_i4_ix_begin_ = t_prefix_of<t_i4_ix_>;
+  using T_i4_ix_begin_ = T_prefix_of<t_i4_ix_begin_>;
+  using r_i4_ix_begin_ = r_prefix_of<t_i4_ix_begin_>;
+  using R_i4_ix_begin_ = R_prefix_of<t_i4_ix_begin_>;
+  using p_i4_ix_begin_ = p_prefix_of<t_i4_ix_begin_>;
+  using P_i4_ix_begin_ = P_prefix_of<t_i4_ix_begin_>;
+
+  using t_i8_ix_begin_ = t_prefix_of<t_i8_ix_>;
+  using T_i8_ix_begin_ = T_prefix_of<t_i8_ix_begin_>;
+  using r_i8_ix_begin_ = r_prefix_of<t_i8_ix_begin_>;
+  using R_i8_ix_begin_ = R_prefix_of<t_i8_ix_begin_>;
+  using p_i8_ix_begin_ = p_prefix_of<t_i8_ix_begin_>;
+  using P_i8_ix_begin_ = P_prefix_of<t_i8_ix_begin_>;
+
+  using t_u1_ix_begin_ = t_prefix_of<t_u1_ix_>;
+  using T_u1_ix_begin_ = T_prefix_of<t_u1_ix_begin_>;
+  using r_u1_ix_begin_ = r_prefix_of<t_u1_ix_begin_>;
+  using R_u1_ix_begin_ = R_prefix_of<t_u1_ix_begin_>;
+  using p_u1_ix_begin_ = p_prefix_of<t_u1_ix_begin_>;
+  using P_u1_ix_begin_ = P_prefix_of<t_u1_ix_begin_>;
+
+  using t_u2_ix_begin_ = t_prefix_of<t_u2_ix_>;
+  using T_u2_ix_begin_ = T_prefix_of<t_u2_ix_begin_>;
+  using r_u2_ix_begin_ = r_prefix_of<t_u2_ix_begin_>;
+  using R_u2_ix_begin_ = R_prefix_of<t_u2_ix_begin_>;
+  using p_u2_ix_begin_ = p_prefix_of<t_u2_ix_begin_>;
+  using P_u2_ix_begin_ = P_prefix_of<t_u2_ix_begin_>;
+
+  using t_u4_ix_begin_ = t_prefix_of<t_u4_ix_>;
+  using T_u4_ix_begin_ = T_prefix_of<t_u4_ix_begin_>;
+  using r_u4_ix_begin_ = r_prefix_of<t_u4_ix_begin_>;
+  using R_u4_ix_begin_ = R_prefix_of<t_u4_ix_begin_>;
+  using p_u4_ix_begin_ = p_prefix_of<t_u4_ix_begin_>;
+  using P_u4_ix_begin_ = P_prefix_of<t_u4_ix_begin_>;
+
+  using t_u8_ix_begin_ = t_prefix_of<t_u8_ix_>;
+  using T_u8_ix_begin_ = T_prefix_of<t_u8_ix_begin_>;
+  using r_u8_ix_begin_ = r_prefix_of<t_u8_ix_begin_>;
+  using R_u8_ix_begin_ = R_prefix_of<t_u8_ix_begin_>;
+  using p_u8_ix_begin_ = p_prefix_of<t_u8_ix_begin_>;
+  using P_u8_ix_begin_ = P_prefix_of<t_u8_ix_begin_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  /* _ix_end_ ->  begin integer index */
+  using t_ix_end_    = t_prefix_of<t_ix_>;
+  using T_ix_end_    = T_prefix_of<t_ix_end_>;
+  using r_ix_end_    = r_prefix_of<t_ix_end_>;
+  using R_ix_end_    = R_prefix_of<t_ix_end_>;
+  using p_ix_end_    = p_prefix_of<t_ix_end_>;
+  using P_ix_end_    = P_prefix_of<t_ix_end_>;
+
+  using t_i_ix_end_  = t_prefix_of<t_i_ix_>;
+  using T_i_ix_end_  = T_prefix_of<t_i_ix_end_>;
+  using r_i_ix_end_  = r_prefix_of<t_i_ix_end_>;
+  using R_i_ix_end_  = R_prefix_of<t_i_ix_end_>;
+  using p_i_ix_end_  = p_prefix_of<t_i_ix_end_>;
+  using P_i_ix_end_  = P_prefix_of<t_i_ix_end_>;
+
+  using t_u_ix_end_  = t_prefix_of<t_u_ix_>;
+  using T_u_ix_end_  = T_prefix_of<t_u_ix_end_>;
+  using r_u_ix_end_  = r_prefix_of<t_u_ix_end_>;
+  using R_u_ix_end_  = R_prefix_of<t_u_ix_end_>;
+  using p_u_ix_end_  = p_prefix_of<t_u_ix_end_>;
+  using P_u_ix_end_  = P_prefix_of<t_u_ix_end_>;
+
+  using t_i1_ix_end_ = t_prefix_of<t_i1_ix_>;
+  using T_i1_ix_end_ = T_prefix_of<t_i1_ix_end_>;
+  using r_i1_ix_end_ = r_prefix_of<t_i1_ix_end_>;
+  using R_i1_ix_end_ = R_prefix_of<t_i1_ix_end_>;
+  using p_i1_ix_end_ = p_prefix_of<t_i1_ix_end_>;
+  using P_i1_ix_end_ = P_prefix_of<t_i1_ix_end_>;
+
+  using t_i2_ix_end_ = t_prefix_of<t_i2_ix_>;
+  using T_i2_ix_end_ = T_prefix_of<t_i2_ix_end_>;
+  using r_i2_ix_end_ = r_prefix_of<t_i2_ix_end_>;
+  using R_i2_ix_end_ = R_prefix_of<t_i2_ix_end_>;
+  using p_i2_ix_end_ = p_prefix_of<t_i2_ix_end_>;
+  using P_i2_ix_end_ = P_prefix_of<t_i2_ix_end_>;
+
+  using t_i4_ix_end_ = t_prefix_of<t_i4_ix_>;
+  using T_i4_ix_end_ = T_prefix_of<t_i4_ix_end_>;
+  using r_i4_ix_end_ = r_prefix_of<t_i4_ix_end_>;
+  using R_i4_ix_end_ = R_prefix_of<t_i4_ix_end_>;
+  using p_i4_ix_end_ = p_prefix_of<t_i4_ix_end_>;
+  using P_i4_ix_end_ = P_prefix_of<t_i4_ix_end_>;
+
+  using t_i8_ix_end_ = t_prefix_of<t_i8_ix_>;
+  using T_i8_ix_end_ = T_prefix_of<t_i8_ix_end_>;
+  using r_i8_ix_end_ = r_prefix_of<t_i8_ix_end_>;
+  using R_i8_ix_end_ = R_prefix_of<t_i8_ix_end_>;
+  using p_i8_ix_end_ = p_prefix_of<t_i8_ix_end_>;
+  using P_i8_ix_end_ = P_prefix_of<t_i8_ix_end_>;
+
+  using t_u1_ix_end_ = t_prefix_of<t_u1_ix_>;
+  using T_u1_ix_end_ = T_prefix_of<t_u1_ix_end_>;
+  using r_u1_ix_end_ = r_prefix_of<t_u1_ix_end_>;
+  using R_u1_ix_end_ = R_prefix_of<t_u1_ix_end_>;
+  using p_u1_ix_end_ = p_prefix_of<t_u1_ix_end_>;
+  using P_u1_ix_end_ = P_prefix_of<t_u1_ix_end_>;
+
+  using t_u2_ix_end_ = t_prefix_of<t_u2_ix_>;
+  using T_u2_ix_end_ = T_prefix_of<t_u2_ix_end_>;
+  using r_u2_ix_end_ = r_prefix_of<t_u2_ix_end_>;
+  using R_u2_ix_end_ = R_prefix_of<t_u2_ix_end_>;
+  using p_u2_ix_end_ = p_prefix_of<t_u2_ix_end_>;
+  using P_u2_ix_end_ = P_prefix_of<t_u2_ix_end_>;
+
+  using t_u4_ix_end_ = t_prefix_of<t_u4_ix_>;
+  using T_u4_ix_end_ = T_prefix_of<t_u4_ix_end_>;
+  using r_u4_ix_end_ = r_prefix_of<t_u4_ix_end_>;
+  using R_u4_ix_end_ = R_prefix_of<t_u4_ix_end_>;
+  using p_u4_ix_end_ = p_prefix_of<t_u4_ix_end_>;
+  using P_u4_ix_end_ = P_prefix_of<t_u4_ix_end_>;
+
+  using t_u8_ix_end_ = t_prefix_of<t_u8_ix_>;
+  using T_u8_ix_end_ = T_prefix_of<t_u8_ix_end_>;
+  using r_u8_ix_end_ = r_prefix_of<t_u8_ix_end_>;
+  using R_u8_ix_end_ = R_prefix_of<t_u8_ix_end_>;
+  using p_u8_ix_end_ = p_prefix_of<t_u8_ix_end_>;
+  using P_u8_ix_end_ = P_prefix_of<t_u8_ix_end_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_s_ = t_prefix_of<__SIZE_TYPE__>;
+  using T_s_ = T_prefix_of<t_s_>;
+  using r_s_ = r_prefix_of<t_s_>;
+  using R_s_ = R_prefix_of<t_s_>;
+  using p_s_ = p_prefix_of<t_s_>;
+  using P_s_ = P_prefix_of<t_s_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_s_min_ = t_prefix_of<t_s_>;
+  using T_s_min_ = T_prefix_of<t_s_min_>;
+  using r_s_min_ = r_prefix_of<t_s_min_>;
+  using R_s_min_ = R_prefix_of<t_s_min_>;
+  using p_s_min_ = p_prefix_of<t_s_min_>;
+  using P_s_min_ = P_prefix_of<t_s_min_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_s_max_ = t_prefix_of<t_s_>;
+  using T_s_max_ = T_prefix_of<t_s_max_>;
+  using r_s_max_ = r_prefix_of<t_s_max_>;
+  using R_s_max_ = R_prefix_of<t_s_max_>;
+  using p_s_max_ = p_prefix_of<t_s_max_>;
+  using P_s_max_ = P_prefix_of<t_s_max_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_cnt_    = t_prefix_of<t_n_>;
+  using T_cnt_    = T_prefix_of<t_cnt_>;
+  using r_cnt_    = r_prefix_of<t_cnt_>;
+  using p_cnt_    = p_prefix_of<t_cnt_>;
+  using P_cnt_    = P_prefix_of<t_cnt_>;
+
+  using t_u1_cnt_ = t_prefix_of<t_u1_n_>;
+  using T_u1_cnt_ = T_prefix_of<t_u1_cnt_>;
+  using r_u1_cnt_ = r_prefix_of<t_u1_cnt_>;
+  using p_u1_cnt_ = p_prefix_of<t_u1_cnt_>;
+  using P_u1_cnt_ = P_prefix_of<t_u1_cnt_>;
+
+  using t_u2_cnt_ = t_prefix_of<t_u2_n_>;
+  using T_u2_cnt_ = T_prefix_of<t_u2_cnt_>;
+  using r_u2_cnt_ = r_prefix_of<t_u2_cnt_>;
+  using p_u2_cnt_ = p_prefix_of<t_u2_cnt_>;
+  using P_u2_cnt_ = P_prefix_of<t_u2_cnt_>;
+
+  using t_u4_cnt_ = t_prefix_of<t_u4_n_>;
+  using T_u4_cnt_ = T_prefix_of<t_u4_cnt_>;
+  using r_u4_cnt_ = r_prefix_of<t_u4_cnt_>;
+  using p_u4_cnt_ = p_prefix_of<t_u4_cnt_>;
+  using P_u4_cnt_ = P_prefix_of<t_u4_cnt_>;
+
+  using t_u8_cnt_ = t_prefix_of<t_u8_n_>;
+  using T_u8_cnt_ = T_prefix_of<t_u8_cnt_>;
+  using r_u8_cnt_ = r_prefix_of<t_u8_cnt_>;
+  using p_u8_cnt_ = p_prefix_of<t_u8_cnt_>;
+  using P_u8_cnt_ = P_prefix_of<t_u8_cnt_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_bytes_ = t_prefix_of<t_u_>;
+  using T_bytes_ = T_prefix_of<t_bytes_>;
+  using r_bytes_ = r_prefix_of<t_bytes_>;
+  using p_bytes_ = p_prefix_of<t_bytes_>;
+  using P_bytes_ = P_prefix_of<t_bytes_>;
+
+  using t_u1_bytes_ = t_prefix_of<t_u1_>;
+  using T_u1_bytes_ = T_prefix_of<t_u1_bytes_>;
+  using r_u1_bytes_ = r_prefix_of<t_u1_bytes_>;
+  using p_u1_bytes_ = p_prefix_of<t_u1_bytes_>;
+  using P_u1_bytes_ = P_prefix_of<t_u1_bytes_>;
+
+  using t_u2_bytes_ = t_prefix_of<t_u2_>;
+  using T_u2_bytes_ = T_prefix_of<t_u2_bytes_>;
+  using r_u2_bytes_ = r_prefix_of<t_u2_bytes_>;
+  using p_u2_bytes_ = p_prefix_of<t_u2_bytes_>;
+  using P_u2_bytes_ = P_prefix_of<t_u2_bytes_>;
+
+  using t_u4_bytes_ = t_prefix_of<t_u4_>;
+  using T_u4_bytes_ = T_prefix_of<t_u4_bytes_>;
+  using r_u4_bytes_ = r_prefix_of<t_u4_bytes_>;
+  using p_u4_bytes_ = p_prefix_of<t_u4_bytes_>;
+  using P_u4_bytes_ = P_prefix_of<t_u4_bytes_>;
+
+  using t_u8_bytes_ = t_prefix_of<t_u8_>;
+  using T_u8_bytes_ = T_prefix_of<t_u8_bytes_>;
+  using r_u8_bytes_ = r_prefix_of<t_u8_bytes_>;
+  using p_u8_bytes_ = p_prefix_of<t_u8_bytes_>;
+  using P_u8_bytes_ = P_prefix_of<t_u8_bytes_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_byte_ = t_prefix_of<t_uchar>;
+  using T_byte_ = T_prefix_of<t_byte_>;
+  using r_byte_ = r_prefix_of<t_byte_>;
+  using p_byte_ = p_prefix_of<t_byte_>;
+  using P_byte_ = P_prefix_of<t_byte_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_fd_ = t_prefix_of<t_i4_>;
+  using T_fd_ = T_prefix_of<t_fd_>;
+  using r_fd_ = r_prefix_of<t_fd_>;
+  using p_fd_ = p_prefix_of<t_fd_>;
+  using P_fd_ = P_prefix_of<t_fd_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_percentage_ = t_prefix_of<t_u1_>;
+  using T_percentage_ = T_prefix_of<t_percentage_>;
+  using r_percentage_ = r_prefix_of<t_percentage_>;
+  using p_percentage_ = p_prefix_of<t_percentage_>;
+  using P_percentage_ = P_prefix_of<t_percentage_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_seqno_ = t_prefix_of<t_u_>;
+  using T_seqno_ = T_prefix_of<t_seqno_>;
+  using r_seqno_ = r_prefix_of<t_seqno_>;
+  using p_seqno_ = p_prefix_of<t_seqno_>;
+  using P_seqno_ = P_prefix_of<t_seqno_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_errn_ = t_prefix_of<t_i_>;
+  using T_errn_ = T_prefix_of<t_errn_>;
+  using r_errn_ = r_prefix_of<t_errn_>;
+  using p_errn_ = p_prefix_of<t_errn_>;
+  using P_errn_ = P_prefix_of<t_errn_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_nsec_ = t_prefix_of<t_u8_>;
+  using T_nsec_ = T_prefix_of<t_nsec_>;
+  using r_nsec_ = r_prefix_of<t_nsec_>;
+  using p_nsec_ = p_prefix_of<t_nsec_>;
+  using P_nsec_ = P_prefix_of<t_nsec_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_usec_ = t_prefix_of<t_u8_>;
+  using T_usec_ = T_prefix_of<t_usec_>;
+  using r_usec_ = r_prefix_of<t_usec_>;
+  using p_usec_ = p_prefix_of<t_usec_>;
+  using P_usec_ = P_prefix_of<t_usec_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_msec_ = t_prefix_of<t_u8_>;
+  using T_msec_ = T_prefix_of<t_msec_>;
+  using r_msec_ = r_prefix_of<t_msec_>;
+  using p_msec_ = p_prefix_of<t_msec_>;
+  using P_msec_ = P_prefix_of<t_msec_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_sec_ = t_prefix_of<t_u4_>;
+  using T_sec_ = T_prefix_of<t_sec_>;
+  using r_sec_ = r_prefix_of<t_sec_>;
+  using p_sec_ = p_prefix_of<t_sec_>;
+  using P_sec_ = P_prefix_of<t_sec_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_min_ = t_prefix_of<t_u4_>;
+  using T_min_ = T_prefix_of<t_min_>;
+  using r_min_ = r_prefix_of<t_min_>;
+  using p_min_ = p_prefix_of<t_min_>;
+  using P_min_ = P_prefix_of<t_min_>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  using t_ticks_ = t_prefix_of<t_u8_>;
+  using T_ticks_ = T_prefix_of<t_ticks_>;
+  using r_ticks_ = r_prefix_of<t_ticks_>;
+  using p_ticks_ = p_prefix_of<t_ticks_>;
+  using P_ticks_ = P_prefix_of<t_ticks_>;
 
   /////////////////////////////////////////////////////////////////////////////
 
   constexpr t_nullptr     NULLPTR = nullptr;
-
-  constexpr t_validity_    VALID_ = true;
-  constexpr t_validity_  INVALID_ = false;
-
-  constexpr t_cstr_ptr_  NO_CSTR_PTR_  = nullptr;
-  constexpr t_cstr_cptr_ NO_CSTR_CPTR_ = nullptr;
 
   constexpr t_fd_        BAD_FD_   = -1;
   constexpr t_errn_      NO_ERRN_  =  0;
@@ -484,6 +1289,13 @@ namespace types
 
   /////////////////////////////////////////////////////////////////////////////
 
+  enum t_emplace    { EMPLACE     }; // XXX TRY_EMPLACE ?
+  enum t_emplace_it { EMPLACE_IT  }; // XXX TRY_EMPLACE ?
+  enum t_fmt        { FMT, FMT_IT }; // XXX FMT is deprecated
+  enum t_fmt_va     { FMT_VA_IT   };
+
+  /////////////////////////////////////////////////////////////////////////////
+
   using t_opt = t_well_formed;
 
   enum  t_opt1 { OPT1 };
@@ -503,32 +1315,6 @@ namespace types
   enum t_hidden2 { HIDDEN2 };
   enum t_hidden3 { HIDDEN3 };
   enum t_hidden4 { HIDDEN4 };
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  enum  t_size_tag_       { };
-  enum  t_min_size_tag_   { };
-  enum  t_max_size_tag_   { };
-  enum  t_byte_tag_       { };
-  enum  t_fd_tag_         { };
-  enum  t_cnt_tag_        { };
-  enum  t_n_tag_          { };
-  enum  t_min_n_tag_      { };
-  enum  t_max_n_tag_      { };
-  enum  t_ix_tag_         { };
-  enum  t_begin_ix_tag_   { };
-  enum  t_end_ix_tag_     { };
-  enum  t_validity_tag_   { };
-  enum  t_cstr_tag_       { };
-  enum  t_percentage_tag_ { };
-  enum  t_seq_no_tag_     { };
-  enum  t_nsec_tag_       { };
-  enum  t_usec_tag_       { };
-  enum  t_msec_tag_       { };
-  enum  t_sec_tag_        { };
-  enum  t_min_tag_        { };
-  enum  t_ticks_tag_      { };
-  enum  t_errn_tag_       { };
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -614,6 +1400,85 @@ namespace types
 
   /////////////////////////////////////////////////////////////////////////////
 
+  enum t_byte_tag_       { };
+  enum t_fd_tag_         { };
+  enum t_cnt_tag_        { };
+  enum t_validity_tag_   { };
+  enum t_bytes_tag_      { };
+  enum t_percentage_tag_ { };
+  enum t_seqno_tag_      { };
+  enum t_nsec_tag_       { };
+  enum t_usec_tag_       { };
+  enum t_msec_tag_       { };
+  enum t_sec_tag_        { };
+  enum t_min_tag_        { };
+  enum t_ticks_tag_      { };
+  enum t_errn_tag_       { };
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  struct t_truth_tag_ {
+    using t_ops = t_pack<t_op_equal_tag, t_op_not_equal_tag>;
+  };
+
+  struct t_i_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_u_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_b_tag_ { // binary
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_h_tag_ { // hexadecimal
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_n_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_n_max_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_n_min_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_id_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_ix_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_ix_begin_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_ix_end_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_s_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_s_max_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+
+  struct t_s_min_tag_ {
+    using t_ops = t_ops_value_tag;
+  };
+
+  /////////////////////////////////////////////////////////////////////////////
+
   template<typename T> struct t_add_identity { using t_identity = T; };
   template<typename T> struct t_add_result   { using t_result   = T; };
   template<typename T> struct t_add_value    { using t_value    = T; };
@@ -649,7 +1514,7 @@ namespace types
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T> struct t_add_SIZEOF {
-    constexpr static t_size_ SIZEOF = sizeof(T);
+    constexpr static t_s_ SIZEOF = sizeof(T);
   };
 
   template<typename T> constexpr auto SIZEOF_of = T::SIZEOF;
@@ -657,7 +1522,7 @@ namespace types
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T> struct t_add_BITS {
-    constexpr static t_size_ BITS = sizeof(T) * __CHAR_BIT__;
+    constexpr static t_n_ BITS = sizeof(T) * __CHAR_BIT__;
   };
 
   template<typename T> constexpr auto BITS_of = T::BITS;
@@ -670,15 +1535,7 @@ namespace types
                       t_add_identity<H> {
   };
 
-  /////////////////////////////////////////////////////////////////////////////
-
-  enum t_emplace    { EMPLACE     }; // XXX TRY_EMPLACE ?
-  enum t_emplace_it { EMPLACE_IT  }; // XXX TRY_EMPLACE ?
-  enum t_fmt        { FMT, FMT_IT }; // XXX FMT is deprecated
-  enum t_fmt_va     { FMT_VA_IT   };
-
-  /////////////////////////////////////////////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////
 }
 }
 }

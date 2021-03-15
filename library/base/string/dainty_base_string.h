@@ -31,8 +31,8 @@
 #include "dainty_base_string_2.h"
 #include "dainty_base_string_3.h"
 #include "dainty_base_string_4.h"
-#include "dainty_base_string_stream_in.h"
-#include "dainty_base_string_stream_out.h"
+#include "stream/dainty_base_string_stream_in.h"
+#include "stream/dainty_base_string_stream_out.h"
 
 namespace dainty
 {

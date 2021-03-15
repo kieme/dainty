@@ -27,7 +27,7 @@
 #ifndef _DAINTY_BASE_BUF_1_H_
 #define _DAINTY_BASE_BUF_1_H_
 
-#include "dainty_base_buf_impl.h"
+#include "impl_/dainty_base_buf_impl.h"
 
 namespace dainty
 {
