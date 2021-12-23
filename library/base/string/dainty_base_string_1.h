@@ -166,14 +166,14 @@ namespace string
     template<typename F>
     inline
     r_string custom_assign_(F&& func) noexcept {
-      impl_.custom_assign(store_, util::preserve<F>(func));
+      impl_.custom_assign(store_, util::f_cast<F>(func));
       return *this;
     }
 
     template<typename F>
     inline
     r_string custom_append_(F&& func) noexcept {
-      impl_.custom_append(store_, util::preserve<F>(func));
+      impl_.custom_append(store_, util::f_cast<F>(func));
       return *this;
     }
 
@@ -473,21 +473,21 @@ namespace string
   template<class F>
   inline
   t_void t_string<TAG, N, O>::each(F&& func) noexcept {
-    impl_.each(store_, util::preserve<F>(func));
+    impl_.each(store_, util::f_cast<F>(func));
   }
 
   template<class TAG, t_n_ N, typename O>
   template<class F>
   inline
   t_void t_string<TAG, N, O>::each(F&& func) const noexcept {
-    impl_.each(store_, util::preserve<F>(func));
+    impl_.each(store_, util::f_cast<F>(func));
   }
 
   template<class TAG, t_n_ N, typename O>
   template<class F>
   inline
   t_void t_string<TAG, N, O>::ceach(F&& func) const noexcept {
-    impl_.each(store_, util::preserve<F>(func));
+    impl_.each(store_, util::f_cast<F>(func));
   }
 
   template<class TAG, t_n_ N, typename O>

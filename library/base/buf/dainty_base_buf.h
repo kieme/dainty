@@ -51,6 +51,16 @@ namespace buf
   // template<typename T, t_n_ N, typename A> class t_buf<T, N, A>
   // template<typename T, typename A>         class t_buf<T, 0, A>
 
+  // type
+  // tag
+  // sso - stack
+  // grow_heap
+  // fixed_heap
+  // fixed_stack
+  // custom allocator
+  t_buf<tag_, int, 10, t_heap_grow>
+  t_buf<tag_, int, 10, t_heap_fixed>
+
   /////////////////////////////////////////////////////////////////////////////
 }
 }

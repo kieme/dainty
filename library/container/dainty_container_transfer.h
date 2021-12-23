@@ -146,7 +146,7 @@ namespace transfer
   template<typename... Args>
   inline
   t_transfer<T>::t_transfer(t_emplace_it, Args&&... args)
-    : maybe_{EMPLACE_IT, base::preserve<Args>(args)...} {
+    : maybe_{EMPLACE_IT, base::f_cast<Args>(args)...} {
   }
 
   template<typename T>
@@ -184,7 +184,7 @@ namespace transfer
   template<typename... Args>
   inline
   t_errn_transfer<T>::t_errn_transfer(t_emplace_it, Args&&... args)
-    : maybe_{EMPLACE_IT, base::preserve<Args>(args)...}, errn_{NO_ERRN} {
+    : maybe_{EMPLACE_IT, base::f_cast<Args>(args)...}, errn_{NO_ERRN} {
   }
 
   template<typename T>

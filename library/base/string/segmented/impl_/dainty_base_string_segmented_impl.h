@@ -53,7 +53,7 @@ namespace impl_
   using types::t_ix_;
   using types::t_uint16;
 
-  using util::preserve;
+  using util::f_cast;
 
   using specific::t_specific;
   using specific::t_n;
@@ -542,7 +542,7 @@ namespace impl_
     P_char ptr = store.ptr, end = store.ptr + size_;
     while (ptr < end) {
       t_seg_hdr_ hdr{ptr[0], ptr[1]};
-      by(preserve<TO>(to), {ptr + HDR_MAX_, t_n{hdr.hdr.len}}, hdr.hdr.usr);
+      by(f_cast<TO>(to), {ptr + HDR_MAX_, t_n{hdr.hdr.len}}, hdr.hdr.usr);
       ptr += HDR_MAX_ + hdr.hdr.len;
     }
   }

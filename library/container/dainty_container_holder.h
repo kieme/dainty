@@ -64,7 +64,7 @@ namespace holder
     T value_;
 
     template<class... Args> t_store_(Args&&... args)
-      : value_(base::preserve<Args>(args)...) {
+      : value_(base::f_cast<Args>(args)...) {
     }
 
     t_store_()                   = delete;
@@ -116,7 +116,7 @@ namespace holder
   template<typename T, typename... Args>
   inline
   t_holder t_holder::construct(Args&&... args) {
-    return {static_cast<p_it_>(new t_store_<T>(base::preserve<Args>(args)...))};
+    return {static_cast<p_it_>(new t_store_<T>(base::f_cast<Args>(args)...))};
   }
 
   inline
@@ -130,7 +130,7 @@ namespace holder
   template<typename T>
   inline
   t_holder::t_holder(T&& value)
-    : store_{new t_store_<T>(base::preserve<T>(value))} {
+    : store_{new t_store_<T>(base::f_cast<T>(value))} {
   }
 
   inline
@@ -147,7 +147,7 @@ namespace holder
   template<typename T, typename... Args>
   inline
   T& t_holder::emplace(Args&&... args) {
-    store_ = new t_store_<T>(base::preserve<Args>(args)...);
+    store_ = new t_store_<T>(base::f_cast<Args>(args)...);
     return ref<T>();
   }
 

@@ -1,0 +1,31 @@
+
+dainty's type naming convention:
+
+type synatx:
+
+  <prefix_><l>ogical_name
+
+  Whereas, the prefix can be:
+
+  t_ : type
+  T_ : const type
+  r_ : type&
+  R_ : const type&
+  p_ : type*
+  P_ : const type*
+  x_ : type&&
+
+  The logical name can be constructed if there is a hierarchical structure to
+  it.
+
+  t_i8_n_bytes_max
+
+  // is a modifiable type
+  // a signed integer of 8 bytes
+  // a number that represents a quantity
+  // this quantity represent bytes
+  // its the maxinum number of bytes. The upper limit.
+
+  The first letter of the logical name indicate the constantness of the
+  content within the logical type.
+

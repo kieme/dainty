@@ -1,0 +1,24 @@
+
+dainty's nameing convention:
+
+  packages
+  package subpackages
+
+  types:
+    prefix "x_"
+
+    R_ 
+
+    t_i1_n_max_bytes
+    T_i1_n_max_bytes
+
+    t_Ptr_string_name_vlan;
+    t_ptr_string_name_vlan;
+    T_Ptr_string_name_vlan;
+    t_ref
+    t_Ref
+    t_range
+    t_Range
+
+
+

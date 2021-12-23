@@ -60,7 +60,7 @@ namespace link_map
 
     t_entry_() = default;
     template<typename T1>
-    t_entry_(T1&& value) : value_{base::preserve<T1>(value)} { }
+    t_entry_(T1&& value) : value_{base::f_cast<T1>(value)} { }
 
     t_value  value_;
     P_key    key_  = nullptr;
@@ -206,7 +206,7 @@ namespace link_map
         else
           return nullptr;
       }
-      itr = lk_.insert(itr, t_lk_value_{base::preserve<K1>(key), t_entry_{}});
+      itr = lk_.insert(itr, t_lk_value_{base::f_cast<K1>(key), t_entry_{}});
       if (itr != lk_.end()) {
         entry       = &itr->second;
         entry->key_ = &itr->first;
@@ -233,7 +233,7 @@ namespace link_map
     template<typename K1>
     t_itr insert(t_err err, K1&& key) {
       ERR_GUARD(err) {
-         auto itr = insert(base::preserve<K1>(key));
+         auto itr = insert(base::f_cast<K1>(key));
          if (itr != VALID)
            err = err::E_NOT_UNIQUE;
          return itr;
@@ -251,8 +251,8 @@ namespace link_map
         else
           return nullptr;
       }
-      itr = lk_.insert(itr, t_lk_value_{base::preserve<K1>(key),
-                                        t_entry_{base::preserve<T1>(value)}});
+      itr = lk_.insert(itr, t_lk_value_{base::f_cast<K1>(key),
+                                        t_entry_{base::f_cast<T1>(value)}});
       if (itr != lk_.end()) {
         entry       = &itr->second;
         entry->key_ = &itr->first;
@@ -279,7 +279,7 @@ namespace link_map
     template<typename K1, typename T1>
     t_itr insert(t_err err, K1&& key, T1&& value) {
       ERR_GUARD(err) {
-         auto itr = insert(base::preserve<K1>(key), base::preserve<T1>(value));
+         auto itr = insert(base::f_cast<K1>(key), base::f_cast<T1>(value));
          if (itr != VALID)
            err = err::E_NOT_UNIQUE;
          return itr;

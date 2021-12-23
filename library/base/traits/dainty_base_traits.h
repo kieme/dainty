@@ -40,8 +40,6 @@ namespace traits
 
   /////////////////////////////////////////////////////////////////////////////
 
-  using impl_::t_bool;
-  using impl_::t_dummy;
   using impl_::t_opt;
   using impl_::uneval;
   using impl_::WELL_FORMED;
@@ -51,11 +49,11 @@ namespace traits
   using impl_::t_true;
   using impl_::t_false;
 
-  template<t_bool B> using t_is_truth = impl_::t_is_truth<B>;
+  template<impl_::t_bool B> using t_is_truth = impl_::t_is_truth<B>;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<t_bool B> using t_set_result = impl_::t_set_result<B>;
+  template<impl_::t_bool B> using t_set_result = impl_::t_set_result<B>;
 
   using t_rtrue  = impl_::t_rtrue;
   using t_rfalse = impl_::t_rfalse;

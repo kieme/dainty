@@ -67,7 +67,7 @@ namespace valuestore
   template<typename T, typename... Args>
   inline
   T* emplace_construct_(T* ptr, Args&&... args) {
-    return new (ptr) T(base::preserve<Args>(args)...);
+    return new (ptr) T(base::f_cast<Args>(args)...);
   }
 
   template<typename T>
@@ -116,7 +116,7 @@ namespace valuestore
     template<typename... Args>
     inline
     p_value emplace_construct(Args&&... args) {
-      return emplace_construct_(ptr(), base::preserve<Args>(args)...);
+      return emplace_construct_(ptr(), base::f_cast<Args>(args)...);
     }
 
     inline

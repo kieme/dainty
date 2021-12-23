@@ -43,28 +43,35 @@ namespace assertion
 
   using types::t_bool;
   using types::t_void;
+  using types::P_char;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  t_void assert_now(P_char reason) noexcept;
-
-  t_void assert_now(P_cstr_ fmt, ...) noexcept
+  t_void assert_now(P_char fmt, ...) noexcept
     __attribute__((format(printf, 1, 2)));
 
-  t_void assert_now(P_cstr_ fmt, va_list) noexcept;
+  t_void assert_now(P_char fmt, va_list) noexcept;
 
   /////////////////////////////////////////////////////////////////////////////
 
   inline
-  t_void assert_when_true(t_bool cond, P_cstr reason) noexcept {
-    if (cond)
-      assert_now(reason);
+  t_void assert_when_true(t_bool cond, P_char fmt, ...) noexcept {
+    if (cond) {
+      va_list vars;
+      va_start(vars, fmt);
+      assert_now(fmt, vars);
+      va_end(vars);
+    }
   }
 
   inline
-  t_void assert_when_false(t_bool cond, P_cstr reason) noexcept {
-    if (!cond)
-      assert_now(reason);
+  t_void assert_when_false(t_bool cond, P_char fmt, ...) noexcept {
+    if (!cond) {
+      va_list vars;
+      va_start(vars, fmt);
+      assert_now(fmt, vars);
+      va_end(vars);
+    }
   }
 
   /////////////////////////////////////////////////////////////////////////////

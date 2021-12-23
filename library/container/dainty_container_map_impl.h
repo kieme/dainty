@@ -94,13 +94,13 @@ namespace map
 
     template<typename K1>
     constexpr
-    t_keyvalue(K1&& _key) : key(base::preserve<K1>(_key)) {
+    t_keyvalue(K1&& _key) : key(base::f_cast<K1>(_key)) {
     }
 
     template<typename K1, typename V1>
     constexpr
     t_keyvalue(K1&& _key, V1&& _value)
-      : key(base::preserve<K1>(_key)), value(base::preserve<V1>(_value)) {
+      : key(base::f_cast<K1>(_key)), value(base::f_cast<V1>(_value)) {
     }
 
     t_keyvalue& operator=(const t_keyvalue&) = delete;

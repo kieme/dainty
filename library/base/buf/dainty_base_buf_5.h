@@ -251,7 +251,7 @@ namespace buf
       t_buf<T, N, A>
         ::construct(t_emplace_it, t_ix ix, Args&&... args) noexcept {
     if (is_valid_(ix))
-      return ptr_[ix].emplace_construct(util::preserve<Args>(args)...);
+      return ptr_[ix].emplace_construct(util::f_cast<Args>(args)...);
     return nullptr;
   }
 

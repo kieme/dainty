@@ -3,7 +3,7 @@
 
 using namespace dainty::base::terminal;
 using dainty::base::x_cast;
-using dainty::base::preserve;
+using dainty::base::f_cast;
 
 struct A {
   A()                     { t_out{"A()"}; }
@@ -31,7 +31,7 @@ struct B_1 {
 
 struct B_2 {
   template<typename...Args>
-  B_2(Args&&... args) : a_{preserve<Args>(args)...} {
+  B_2(Args&&... args) : a_{f_cast<Args>(args)...} {
   }
   A a_;
 };
@@ -51,7 +51,7 @@ void check_1(T&& value) {
 
 template<typename T>
 void check_2(T&& value) {
-  check(preserve<T>(value));
+  check(f_cast<T>(value));
 }
 
 int main() {
@@ -105,7 +105,7 @@ int main() {
     check_2(i);
 
     check(std::forward<int&>(i));
-    check(preserve<int&>(i));
+    check(f_cast<int&>(i));
   }
 
   return 0;

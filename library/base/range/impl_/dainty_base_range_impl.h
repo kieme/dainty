@@ -42,7 +42,6 @@ namespace impl_
 {
 ///////////////////////////////////////////////////////////////////////////////
 
-  using types::t_prefix;
   using types::t_bool;
   using types::t_void;
   using types::t_n_;
@@ -51,49 +50,46 @@ namespace impl_
   using types::t_char;
   using types::P_void;
 
-  using specific::P_cstr;
   using specific::t_n;
   using specific::T_n;
   using specific::t_ix;
-  using specific::t_begin_ix;
-  using specific::t_end_ix;
+  using specific::t_ix_begin;
+  using specific::t_ix_end;
   using specific::t_validity;
   using specific::VALID;
   using specific::INVALID;
-  using specific::operator""_begin_ix;
-  using specific::operator""_end_ix;
 
   using assertion::assert_now;
 
 ///////////////////////////////////////////////////////////////////////////////
 
   template<typename TAG>
-  using t_block = util::t_block<t_char, TAG>; // FIXME belong in types - or in logical
+  using t_block = util::t_block<t_char, TAG>; // FIXME belong in types - o
 
 ///////////////////////////////////////////////////////////////////////////////
 
   constexpr
   t_void check_valid_(P_void item, t_n_) noexcept {
     if (!item)
-      assert_now(P_cstr{"range: init error"});
+      assert_now("range: init error");
   }
 
   constexpr
   t_void check_range_(t_n_ n, t_ix_ begin) noexcept {
     if (begin >= n)
-      assert_now(P_cstr{"range: overflow 1"});
+      assert_now("range: overflow 1");
   }
 
   constexpr
   t_void check_range_(t_n_ n, t_ix_ begin, t_ix_ end) noexcept {
     if (end > n || begin >= end)
-      assert_now(P_cstr{"range: overflow 2"});
+      assert_now("range: overflow 2");
   }
 
   constexpr
   t_void check_equal_(t_n_ n1, t_n_ n2) noexcept {
     if (n1 != n2)
-      assert_now(P_cstr{"range: valid comparison"});
+      assert_now("range: valid comparison");
   }
 
 ///////////////////////////////////////////////////////////////////////////////

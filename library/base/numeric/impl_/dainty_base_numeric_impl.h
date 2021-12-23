@@ -52,11 +52,11 @@ namespace impl_
   using types::t_double;
   using types::t_void;
   using types::t_bool;
-  using types::x_prefix_of;
-  using types::R_prefix_of;
-  using types::r_prefix_of;
-  using types::p_prefix_of;
-  using types::P_prefix_of;
+  using types::x_of;
+  using types::R_of;
+  using types::r_of;
+  using types::p_of;
+  using types::P_of;
   using types::t_opt1;
   using types::OPT1;
 
@@ -106,10 +106,10 @@ namespace impl_
   using t_pvalue_ = t_ullong;
   */
 
-  using p_pvalue_ = p_prefix_of<t_pvalue_>;
-  using P_pvalue_ = P_prefix_of<t_pvalue_>;
-  using r_pvalue_ = r_prefix_of<t_pvalue_>;
-  using R_pvalue_ = R_prefix_of<t_pvalue_>;
+  using p_pvalue_ = p_of<t_pvalue_>;
+  using P_pvalue_ = P_of<t_pvalue_>;
+  using r_pvalue_ = r_of<t_pvalue_>;
+  using R_pvalue_ = R_of<t_pvalue_>;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -170,10 +170,10 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_buf_;
-  using  r_buf_ = r_prefix_of<t_buf_>;
-  using  x_buf_ = x_prefix_of<t_buf_>;
-  using  p_buf_ = p_prefix_of<t_buf_>;
-  using  R_buf_ = R_prefix_of<t_buf_>;
+  using  r_buf_ = r_of<t_buf_>;
+  using  x_buf_ = x_of<t_buf_>;
+  using  p_buf_ = p_of<t_buf_>;
+  using  R_buf_ = R_of<t_buf_>;
 
   // t_buf_ is actually t_buf
   struct t_buf_ {
@@ -262,8 +262,8 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_pos;
-  using  R_pos = R_prefix_of<t_pos>;
-  using  r_pos = r_prefix_of<t_pos>;
+  using  R_pos = R_of<t_pos>;
+  using  r_pos = r_of<t_pos>;
 
   struct t_pos {
     t_ix  ix  = t_ix{0};
@@ -288,7 +288,7 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   struct t_info;
-  using  R_info = R_prefix_of<t_info>;
+  using  R_info = R_of<t_info>;
 
   struct t_info {
     t_pos  msb_on   = {};
@@ -478,27 +478,28 @@ namespace impl_
   // IMPL_FUNC_2_1_
   constexpr
   t_n calc_size_(t_bits bits) noexcept {
-    return t_n((get(bits)/BITS_UNIT_) + ((get(bits) % BITS_UNIT_) != 0));
+    return t_n( (logical::get(bits)/BITS_UNIT_) +
+               ((logical::get(bits) % BITS_UNIT_) != 0));
   }
 
   // IMPL_FUNC_2_2_
   constexpr
   t_bits calc_bits_(t_digits digits) noexcept {
-    t_double bits = get(digits) / 0.301029995;
+    t_double bits = logical::get(digits) / 0.301029995;
     return t_bits{static_cast<t_n_>(bits) + 1};
   }
 
   // IMPL_FUNC_2_3_
   constexpr
   t_digits calc_digits_(t_bits bits) noexcept {
-    t_double digits = get(bits) * 0.301029995;
+    t_double digits = logical::get(bits) * 0.301029995;
     return t_digits{static_cast<t_n_>(digits)};
   }
 
   // IMPL_FUNC_2_4_
   constexpr
   t_ix last_ix_(R_store_ store) noexcept {
-    return t_ix{get(store.size) - 1};
+    return t_ix{logical::get(store.size) - 1};
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -538,7 +539,7 @@ namespace impl_
   // IMPL_FUNC_2_9_
   constexpr
   t_bits max_bits_(R_store_ value) noexcept {
-    return t_bits{(get(value.size) * BITS_UNIT_) + 1};
+    return t_bits{(logical::get(value.size) * BITS_UNIT_) + 1};
   }
 
   // IMPL_FUNC_2_10_
@@ -556,19 +557,21 @@ namespace impl_
   // IMPL_FUNC_3_1_
   constexpr
   t_bool operator==(R_pos lh, R_pos rh) noexcept {
-    return (lh.ix == rh.ix) && (get(lh.bit) == get(rh.bit));
+    return (lh.ix == rh.ix) && (logical::get(lh.bit) == logical::get(rh.bit));
   }
 
   // IMPL_FUNC_3_2_
   constexpr
   t_bool operator<(R_pos lh, R_pos rh) noexcept {
-    return lh.ix < rh.ix || (lh.ix == rh.ix && get(lh.bit) < get(rh.bit));
+    return lh.ix < rh.ix || (lh.ix == rh.ix &&
+                             logical::get(lh.bit) < logical::get(rh.bit));
   }
 
   // IMPL_FUNC_3_3_
   constexpr
   t_bool operator<=(R_pos lh, R_pos rh) noexcept {
-    return  lh.ix < rh.ix || (lh.ix == rh.ix && get(lh.bit) <= get(rh.bit));
+    return  lh.ix < rh.ix || (lh.ix == rh.ix &&
+                              logical::get(lh.bit) <= logical::get(rh.bit));
   }
 
   // IMPL_FUNC_3_4_
@@ -604,8 +607,9 @@ namespace impl_
   // IMPL_METHOD_3_7_
   constexpr
   t_pos operator+(R_pos pos, t_bits n) noexcept {
-    if (pos && 0 < get(n)) {
-      t_n_ max = (get(pos.ix)*BITS_UNIT_) + get(pos.bit) + get(n) - 1;
+    if (pos && 0 < logical::get(n)) {
+      t_n_ max = (logical::get(pos.ix)*BITS_UNIT_) +
+                  logical::get(pos.bit) + logical::get(n) - 1;
       t_divmod<t_n_> dm = divmod(max, BITS_UNIT_);
       return {t_ix{dm.div}, t_bit{dm.mod}};
     }
@@ -1183,19 +1187,19 @@ namespace impl_
   // IMPL_METHOD_2_2_
   constexpr
   t_pos::operator t_bool() const noexcept {
-    return get(bit);
+    return logical::get(bit);
   }
 
   // IMPL_METHOD_2_3_
   constexpr
   t_bits t_pos::bits() const noexcept {
-    return t_bits{(BITS_UNIT_ * get(ix)) + get(bit)};
+    return t_bits{(BITS_UNIT_ * logical::get(ix)) + logical::get(bit)};
   }
 
   // IMPL_METHOD_2_4_
   constexpr
   t_bit t_pos::bit_ix() const noexcept {
-    return t_bit{get(bits()) - 1};
+    return t_bit{logical::get(bits()) - 1};
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -1216,31 +1220,32 @@ namespace impl_
   // IMPL_METHOD_3_2_
   constexpr
   t_info::operator t_bool() const noexcept {
-    return get(on_bits);
+    return logical::get(on_bits);
   }
 
   // IMPL_METHOD_3_3_
   constexpr
   t_bits t_info::free_bits() const noexcept {
-    return t_bits{get(max_bits) - get(msb_on.bits())};
+    return t_bits{logical::get(max_bits) - logical::get(msb_on.bits())};
   }
 
   // IMPL_METHOD_3_4_
   constexpr
   t_bool t_info::is_neg() const noexcept {
-    return get(max_bits) == ((get(msb_on.ix)*BITS_UNIT_) + get(msb_on.bit));
+    return logical::get(max_bits) ==
+             ((logical::get(msb_on.ix)*BITS_UNIT_) + logical::get(msb_on.bit));
   }
 
   /////////////////////////////////////////////////////////////////////////////
 
   constexpr
   R_pvalue_ t_buf_::cref(t_ix ix) const noexcept {
-    return ptr[get(ix)];
+    return ptr[logical::get(ix)];
   }
 
   constexpr
   r_pvalue_ t_buf_::ref(t_ix ix) noexcept {
-    return ptr[get(ix)];
+    return ptr[logical::get(ix)];
   }
 
   ///////////////////////////////////////////////////////////////////////////

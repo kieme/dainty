@@ -66,8 +66,8 @@ namespace tuple
     }
     template<typename Arg, typename... Args>
     t_tuple_(r_store_ store, Arg&& arg, Args&&... args)
-      : tuple_ {store, base::preserve<Arg> (arg)},
-        tuples_{store, base::preserve<Args>(args)...} {
+      : tuple_ {store, base::f_cast<Arg> (arg)},
+        tuples_{store, base::f_cast<Args>(args)...} {
     }
   };
 
@@ -78,10 +78,11 @@ namespace tuple
     t_tuple_(r_store_ store) {
       (store.push_back())->template emplace<T>(t_user{0L});
     }
+
     template<typename Arg>
     t_tuple_(r_store_ store, Arg&& arg) {
       (store.push_back())->template emplace<T>(t_user{0L},
-                                               base::preserve<Arg>(arg));
+                                               base::f_cast<Arg>(arg));
     }
   };
 
@@ -93,7 +94,7 @@ namespace tuple
     }
 
     template<typename... Args>
-    t_tuple(Args&&... args) : tuple_{store_, base::preserve<Args>(args)...} {
+    t_tuple(Args&&... args) : tuple_{store_, base::f_cast<Args>(args)...} {
     }
 
     inline

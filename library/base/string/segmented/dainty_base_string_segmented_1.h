@@ -352,14 +352,13 @@ namespace segmented
   template<typename F>
   inline
   t_void t_segmented<TAG, N, O>::each(F&& func) const noexcept {
-    return impl_.each(store_, util::preserve<F>(func));
+    return impl_.each(store_, util::f_cast<F>(func));
   }
 
   template<class TAG, t_n_ N, typename O>
   template<typename BY, typename TO>
   t_void t_segmented<TAG, N, O>::generate(BY&& by, TO&& to) const noexcept {
-    return impl_.generate(store_, util::preserve<BY>(by),
-                                  util::preserve<TO>(to));
+    return impl_.generate(store_, util::f_cast<BY>(by), util::f_cast<TO>(to));
   }
 
   template<class TAG,  t_n_ N,  typename O>

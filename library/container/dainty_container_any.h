@@ -78,7 +78,7 @@ namespace any
     T value_;
 
     template<typename... Args> t_store_(Args&&... args)
-      : value_(base::preserve<Args>(args)...) {
+      : value_(base::f_cast<Args>(args)...) {
     }
 
     t_store_(R_store_)           = delete;
@@ -158,7 +158,7 @@ namespace any
   inline
   t_any t_any::construct(t_user user, Args&&... args) {
     return {user,
-            static_cast<p_type_>(new t_store_<T>(base::preserve<Args>(args)...))};
+            static_cast<p_type_>(new t_store_<T>(base::f_cast<Args>(args)...))};
   }
 
   inline
@@ -172,7 +172,7 @@ namespace any
   template<typename T>
   inline
   t_any::t_any(t_user user, T&& value)
-    : user_{user}, store_{new t_store_<T>(base::preserve<T>(value))} {
+    : user_{user}, store_{new t_store_<T>(base::f_cast<T>(value))} {
   }
 
   inline
@@ -200,7 +200,7 @@ namespace any
   inline
   T& t_any::emplace(t_user user, Args&&... args) {
     user_  = user;
-    store_ = new t_store_<T>(base::preserve<Args>(args)...);
+    store_ = new t_store_<T>(base::f_cast<Args>(args)...);
     return ref<T>();
   }
 

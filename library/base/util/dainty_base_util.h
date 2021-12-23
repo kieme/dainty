@@ -38,20 +38,40 @@ namespace base
 {
 namespace util
 {
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  constexpr
+  auto x_cast(T&& in) noexcept -> traits::t_remove_ref<T>&& {
+    return static_cast<traits::t_remove_ref<T>&&>(in);
+  }
+
+  template<typename T>
+  constexpr
+  T&& f_cast(traits::t_remove_ref<T>& in) noexcept {
+    return static_cast<T&&>(in);
+  }
+
+  template<typename T>
+  constexpr
+  T&& f_cast(traits::t_remove_ref<T>&& in) noexcept {
+    return x_cast(in);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
 
   template<typename TAG>
   struct t_user {
     union {
       types::t_int64 id;
       types::p_void  ptr;
-      types::P_void  cptr;
-      types::t_char  buf[sizeof(types::t_int64)]; // 8 bytes
+      types::P_void  Ptr;
+      types::t_char  buf[sizeof(types::t_i8_)]; // 8 bytes
     };
-    constexpr t_user()                    noexcept : id  {0L}    { }
-    constexpr t_user(types::t_int64  _id) noexcept : id  {_id}   { }
-    constexpr t_user(types::p_void  _ptr) noexcept : ptr {_ptr}  { }
-    constexpr t_user(types::P_void _cptr) noexcept : cptr{_cptr} { }
+    constexpr t_user()                   noexcept : id {0L}   { }
+    constexpr t_user(types::t_i8_  _id)  noexcept : id {_id}  { }
+    constexpr t_user(types::p_void _ptr) noexcept : ptr{_ptr} { }
+    constexpr t_user(types::P_void _Ptr) noexcept : Ptr{_Ptr} { }
   };
 
   template<typename TAG>
@@ -68,7 +88,7 @@ namespace util
     return lh.id != rh.id;
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<typename T, typename TAG>
   struct t_block {
@@ -86,10 +106,9 @@ namespace util
     }
   };
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, typename TAG, T INIT_VALUE,
-                       typename U = types::t_uint>
+  template<typename T, typename TAG, T INIT_VALUE, typename U = types::t_u_>
   struct t_id_pair {
     using t_value   = specific::t_specific<T, TAG>;
     using t_user_no = specific::t_specific<U, TAG>;
@@ -114,7 +133,7 @@ namespace util
     constexpr
     t_id_pair release() {
       t_id_pair tmp = *this;
-      value    = t_value {INIT_VALUE};
+      value    = t_value{INIT_VALUE};
       user_no  = BAD_USER_NO;
       return tmp;
     }
@@ -122,6 +141,8 @@ namespace util
     t_value   value;
     t_user_no user_no;
   };
+
+  /////////////////////////////////////////////////////////////////////////////
 
   template<typename T, typename TAG, T BAD_VALUE>
   constexpr
@@ -138,7 +159,7 @@ namespace util
     return !(lh == rh);
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
   class t_verifiable;
@@ -181,7 +202,7 @@ namespace util
     return get(verifiable.value);
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<types::t_n_ N, typename TAG>
   class t_multiple {
@@ -192,8 +213,7 @@ namespace util
     }
 
     constexpr
-    t_multiple(types::t_n_ _value) noexcept : value(_value) {
-    } // XXX
+    t_multiple(types::t_n_ _value) noexcept : value(_value) { }
 
     specific::t_n value;
   };
@@ -203,24 +223,24 @@ namespace util
     return specific::t_n{N*get(multiple.value)};
   }
 
-///////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
 
   template<typename TAG>
-  class t_void_size_ptr {
+  class t_ptr_voidsize {
   public:
-    using r_void_size_ptr = typename types::t_prefix<t_void_size_ptr<TAG>>::r_;
+    using r_void_size_ptr = typename types::t_prefix<t_ptr_voidsize<TAG>>::r_;
 
     constexpr
-    t_void_size_ptr() noexcept = default;
+    t_ptr_voidsize() noexcept = default;
 
     constexpr
-    t_void_size_ptr(types::p_void _ptr, specific::t_n _n) noexcept
+    t_ptr_voidsize(types::p_void _ptr, specific::t_n _n) noexcept
       : ptr{_ptr}, n{_n} {
     }
 
     template<typename T>
     constexpr
-    t_void_size_ptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
+    t_ptr_voidsize(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
     }
 
     template<typename T>
@@ -240,31 +260,33 @@ namespace util
     specific::t_n n   = specific::t_n{0};
   };
 
-  template<typename TAG>
-  class t_void_size_cptr { // t_void_sized_ptr ?
-  public:
-    using r_void_size_cptr = typename types::t_prefix<t_void_size_cptr<TAG>>::r_;
-    using R_void_size_ptr  = typename types::t_prefix<t_void_size_ptr<TAG>>::R_;
+  /////////////////////////////////////////////////////////////////////////////
 
-    constexpr t_void_size_cptr() noexcept = default;
+  template<typename TAG>
+  class t_Ptr_voidsize {
+  public:
+    using r_Ptr_voidsize = typename types::t_prefix<t_Ptr_voidsize<TAG>>::r_;
+    using R_ptr_voidsize = typename types::t_prefix<t_ptr_voidsize<TAG>>::R_;
+
+    constexpr t_Ptr_voidsize() noexcept = default;
 
     constexpr
-    t_void_size_cptr(types::P_void _ptr, specific::t_n _n) noexcept
+    t_Ptr_voidsize(types::P_void _ptr, specific::t_n _n) noexcept
       : ptr{_ptr}, n{_n} {
     }
 
     template<typename T>
     constexpr
-    t_void_size_cptr(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
+    t_Ptr_voidsize(T* _ptr) noexcept : ptr{_ptr}, n{sizeof(T)} {
     }
 
     constexpr
-    t_void_size_cptr(R_void_size_ptr _ptr) noexcept
+    t_Ptr_voidsize(R_ptr_voidsize _ptr) noexcept
       : ptr{_ptr.ptr}, n{_ptr.n} {
     }
 
     constexpr
-    r_void_size_cptr operator=(R_void_size_ptr _ptr) noexcept {
+    r_Ptr_voidsize operator=(R_ptr_voidsize _ptr) noexcept {
       ptr = _ptr.ptr;
       n   = _ptr.n;
       return *this;
@@ -272,7 +294,7 @@ namespace util
 
     template<typename T>
     constexpr
-    r_void_size_cptr operator=(T* _ptr) noexcept {
+    r_Ptr_voidsize operator=(T* _ptr) noexcept {
       ptr = _ptr;
       n   = specific::t_n{sizeof(T)};
       return *this;
@@ -461,53 +483,11 @@ namespace util
 
   template<typename T>
   constexpr
-  auto x_cast(T&& in)
-      -> traits::t_remove_ref<T>&& {
-    return static_cast<traits::t_remove_ref<T>&&>(in);
-  }
-
-  template<typename T>
-  constexpr
-  T&& preserve(traits::t_remove_ref<T>& in) {
-    return static_cast<T&&>(in);
-  }
-
-  template<typename T>
-  constexpr
-  T&& preserve(traits::t_remove_ref<T>&& in) {
-    return x_cast(in);
-  }
-
-///////////////////////////////////////////////////////////////////////////////
-
-  template<typename T>
-  inline
   types::t_void swap(T& lh, T& rh) {
     T tmp {x_cast(lh)};
     lh = x_cast(rh);
     rh = x_cast(tmp);
   }
-
-///////////////////////////////////////////////////////////////////////////////
-
-  /* Not sure why it does work when using it with literal arguments
-  template<typename T, typename T1>
-  constexpr
-  auto py_or(T&& first, T1&& second) noexcept {
-    if constexpr (first != 0)
-      return preserve<T>(first);
-    else
-      return preserve<T1>(second);
-  }
-
-  template<typename T>
-  constexpr
-  auto py_or(T&& first, T&& second) noexcept {
-    if (first)
-      return preserve<T>(first);
-    return preserve<T>(second);
-  }
-  */
 
 ///////////////////////////////////////////////////////////////////////////////
 }
