@@ -37,6 +37,7 @@ namespace array
 
   using types::t_void;
   using types::t_bool;
+  using types::t_n_max_;
 
   using t_n_max = impl_::t_n_max;
 
@@ -50,21 +51,24 @@ namespace array
 
   template<int N, typename T>
   class t_array {
-    using r_array_ = t_array&;
-    using R_array_ = const t_array&;
+    using r_array_ = types::r_of<t_array>;
+    using R_array_ = types::R_of<t_array>;
+
+    using t_value_ = types::t_of<T>;
+    using r_value_ = types::r_of<t_value_>;
+    using R_value_ = types::R_of<t_value_>;
+    using p_value_ = types::p_of<t_value_>;
+    using P_value_ = types::P_of<t_value_>;
+
+    using t_arr_   = t_value_[N];
+    using p_arr_   = types::p_of<t_arr_>;
+    using P_arr_   = types::P_of<t_arr_>;
+    using r_arr_   = types::r_of<t_arr_>;
+    using R_arr_   = types::R_of<t_arr_>;
 
   public:
-    typedef T             t_value;
-    typedef T&            r_value_;
-    typedef const T&      R_value_;
-    typedef T*            p_value_;
-    typedef const T*      P_value_;
-
-    typedef t_value       t_arr[N];
-    typedef t_arr*        p_arr_;
-    typedef const t_arr*  P_arr_;
-    typedef t_arr&        r_arr_;
-    typedef const t_arr&  R_arr_;
+    using t_value  = t_value_;
+    using t_arr    = t_arr_;
 
     constexpr
     static int capacity();                                 // ARRAY_1_1
@@ -156,21 +160,24 @@ namespace array
 
   template<typename T>
   class t_array<0, T> {
-    using r_array_ = t_array&;
-    using R_array_ = const t_array&;
+    using r_array_ = types::r_of<t_array>;
+    using R_array_ = types::R_of<t_array>;
+
+    using t_value_ = types::t_of<T>;
+    using r_value_ = types::r_of<t_value_>;
+    using R_value_ = types::R_of<t_value_>;
+    using p_value_ = types::p_of<t_value_>;
+    using P_value_ = types::P_of<t_value_>;
+
+    using t_arr_   = t_value_[];
+    using p_arr_   = types::p_of<t_arr_>;
+    using P_arr_   = types::P_of<t_arr_>;
+    using r_arr_   = types::r_of<t_arr_>;
+    using R_arr_   = types::R_of<t_arr_>;
 
   public:
-    typedef T             t_value;
-    typedef T&            r_value_;
-    typedef const T&      R_value_;
-    typedef T*            p_value_;
-    typedef const T*      P_value_;
-
-    typedef t_value       t_arr[];
-    typedef t_arr*        p_arr_;
-    typedef const t_arr*  P_arr_;
-    typedef t_arr&        r_arr_;
-    typedef const t_arr&  R_arr_;
+    using t_value  = t_value_;
+    using t_arr    = t_arr_;
 
     int capacity();                                            // ARRAY_2_1
 
@@ -371,7 +378,7 @@ namespace array
   template<int N, typename T>
   inline
   t_array<N, T>::~t_array() {
-    impl_::destruct(N, ptr());
+    impl_::destruct(t_n_max{N}, ptr());
   }
 
   // ARRAY_1_5_1
@@ -413,7 +420,7 @@ namespace array
   template<int N, typename T>
   inline
   typename t_array<N, T>::r_array_ t_array<N, T>::destruct() {
-    impl_::destruct(N, ptr());
+    impl_::destruct(t_n_max{N}, ptr());
     return *this;
   }
 
@@ -421,28 +428,28 @@ namespace array
   template<int N, typename T>
   inline
   typename t_array<N, T>::p_value_ t_array<N, T>::ptr(int ix) {
-    return impl_::cast_<p_value_, t_value>(store_, ix);
+    return store_[ix].ptr();
   }
 
   // ARRAY_1_8
   template<int N, typename T>
   inline
   typename t_array<N, T>::P_value_ t_array<N, T>::Ptr(int ix) const {
-    return impl_::cast_<P_value_, t_value>(store_, ix);
+    return store_[ix].Ptr();
   }
 
   // ARRAY_1_9
   template<int N, typename T>
   inline
   typename t_array<N, T>::r_value_ t_array<N, T>::set(int ix) {
-    return *ptr(ix);
+    return store_[ix].ref();
   }
 
   // ARRAY_1_10
   template<int N, typename T>
   inline
   typename t_array<N, T>::R_value_ t_array<N, T>::Get(int ix) const {
-    return *Ptr(ix);
+    return store_[ix].Ref();
   }
 
   // ARRAY_1_11_1
@@ -699,7 +706,7 @@ namespace array
   template<typename T>
   inline
   t_array<0, T>::~t_array() {
-    impl_::destruct(max_, store_);
+    impl_::destruct(t_n_max{max_}, store_);
   }
 
   // ARRAY_2_5_1
@@ -778,7 +785,7 @@ namespace array
   template<typename T>
   inline
   typename t_array<0, T>::r_array_ t_array<0, T>::destruct() {
-    impl_::destruct(max_, store_);
+    impl_::destruct(t_n_max{max_}, store_);
   }
 
   // ARRAY_2_7

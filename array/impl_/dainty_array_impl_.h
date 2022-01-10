@@ -52,7 +52,7 @@ namespace impl_
   using valuestore::destruct;
   using valuestore::t_valuestore;
 
-  using t_u1_     = types::t_u1_;
+  using t_u1_     = types::t_u1_; //TODO
   using t_n       = types::t_i4_;
   using t_n_max   = t_n;
   using t_n_bytes = t_n;
@@ -90,68 +90,6 @@ namespace impl_
   U cast_(P store, int ix) {
     return reinterpret_cast<U>(store + (ix * sizeof(T)));
   }
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  /*
-  template<typename T,
-           traits::t_opt_if_scalar<types::t_opt1, T> = types::OPT1>
-  constexpr
-  t_void construct_(T* value) {
-    *value = T();
-  }
-
-  template<typename T, typename Arg,
-           traits::t_opt_if_scalar<types::t_opt1, T> = types::OPT1>
-  constexpr
-  t_void construct_(T* value, Arg&& arg) {
-    *value = arg;
-  }
-
-  template<typename T,
-           traits::t_opt_if_not_scalar<types::t_opt2, T> = types::OPT2>
-  inline
-  t_void construct_(T* value) {
-    new (value) T;
-  }
-
-  template<typename T, typename Arg,
-           traits::t_opt_if_not_scalar<types::t_opt2, T> = types::OPT2>
-  inline
-  t_void construct_(T* value, Arg&& arg) {
-    new (value) T(f_cast<Arg>(arg));
-  }
-  */
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  /*
-  template<typename T, traits::t_opt_if_scalar<types::t_opt1, T> = types::OPT1>
-  constexpr
-  t_void destruct_(t_n_max, T*) {
-  }
-
-  template<int N, typename T,
-           traits::t_opt_if_scalar<types::t_opt1, T> = types::OPT1>
-  constexpr
-  t_void destruct_(T (&ref)[N]) {
-  }
-
-  template<typename T, traits::t_opt_if_not_scalar<types::t_opt2, T> = types::OPT2>
-  inline
-  t_void destruct_(t_n_max max, T* arr) {
-    for (int ix = max - 1; ix; --ix)
-      arr[ix].~T();
-    arr[0].~T();
-  }
-
-  template<int N, typename T,
-           traits::t_opt_if_not_scalar<types::t_opt2, T> = types::OPT2>
-  inline
-  t_void destruct_(T (&arr)[N]) {
-    destruct_(N, &arr[0]);
-  }
-  */
 
   /////////////////////////////////////////////////////////////////////////////
 

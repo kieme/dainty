@@ -35,6 +35,7 @@ namespace valuestore
 {
   /////////////////////////////////////////////////////////////////////////////
 
+  using impl_::t_store;
   using impl_::t_fargs;
   using impl_::FARGS;
 
@@ -52,7 +53,7 @@ namespace valuestore
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T>
+  template<typename T, typename... Ts>
   class t_valuestore {
   //  static_assert(traits::t_all_is_true<T, traits::t_is_not_ptr,
   //                                         traits::t_is_not_ref>::VALUE,
@@ -77,12 +78,12 @@ namespace valuestore
   public:
     using t_value = t_value_;
 
-    constexpr static auto SIZEOF    = t_store_::t_traits::SIZEOF;
-    constexpr static auto ALIGNMENT = t_store_::t_traits::ALIGNMENT;
+    constexpr static auto SIZEOF    = t_store_::SIZEOF;
+    constexpr static auto ALIGNMENT = t_store_::ALIGNMENT;
 
     constexpr
     t_valuestore() noexcept     = default;
-    t_valuestore(R_valuestore_) = delete;
+    t_valuestore(R_valuestore_) = delete;  // TODO. raw copy
     t_valuestore(x_valuestore_) = delete;
 
     t_valuestore(R_value_)         noexcept;
@@ -125,127 +126,226 @@ namespace valuestore
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T>
+  template<typename T, typename... Ts>
   inline
-  t_valuestore<T>::t_valuestore(R_value_ value) noexcept {
+  t_valuestore<T, Ts...>::t_valuestore(R_value_ value) noexcept {
     impl_::copy_construct<T>(store_, value);
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   inline
-  t_valuestore<T>::t_valuestore(x_value_ value) noexcept {
+  t_valuestore<T, Ts...>::t_valuestore(x_value_ value) noexcept {
     impl_::move_construct<T>(store_, util::x_cast(value));
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   template<typename... As>
   inline
-  t_valuestore<T>::t_valuestore(t_fargs, As&&... as) noexcept {
+  t_valuestore<T, Ts...>::t_valuestore(t_fargs, As&&... as) noexcept {
     impl_::fargs_construct<T>(store_, util::f_cast<As>(as)...);
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   inline
-  typename t_valuestore<T>::r_value_
-      t_valuestore<T>::operator=(R_value_ value) noexcept {
+  typename t_valuestore<T, Ts...>::r_value_
+      t_valuestore<T, Ts...>::operator=(R_value_ value) noexcept {
     return (ref() = value);
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   inline
-  typename t_valuestore<T>::r_value_
-      t_valuestore<T>::operator=(x_value_ value) noexcept {
+  typename t_valuestore<T, Ts...>::r_value_
+      t_valuestore<T, Ts...>::operator=(x_value_ value) noexcept {
     return (ref() = util::x_cast(value));
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   inline
-  typename t_valuestore<T>::r_value_
-      t_valuestore<T>::default_construct() noexcept {
+  typename t_valuestore<T, Ts...>::r_value_
+      t_valuestore<T, Ts...>::default_construct() noexcept {
     return impl_::default_construct<T>(store_);
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   inline
-  typename t_valuestore<T>::r_value_
-      t_valuestore<T>::copy_construct(R_value_ value) noexcept {
+  typename t_valuestore<T, Ts...>::r_value_
+      t_valuestore<T, Ts...>::copy_construct(R_value_ value) noexcept {
     return impl_::copy_construct<T>(store_, value);
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   inline
-  typename t_valuestore<T>::r_value_
-      t_valuestore<T>::move_construct(x_value_ value) noexcept {
+  typename t_valuestore<T, Ts...>::r_value_
+      t_valuestore<T, Ts...>::move_construct(x_value_ value) noexcept {
     return impl_::move_construct<T>(store_, util::x_cast(value));
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   template<typename... As>
   inline
-  typename t_valuestore<T>::r_value_
-      t_valuestore<T>::fargs_construct(As&&... as) noexcept {
+  typename t_valuestore<T, Ts...>::r_value_
+      t_valuestore<T, Ts...>::fargs_construct(As&&... as) noexcept {
     return impl_::fargs_construct<T>(store_, util::f_cast<As>(as)...);
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   inline
-  typename t_valuestore<T>::r_valuestore_ t_valuestore<T>::destruct() noexcept {
+  typename t_valuestore<T, Ts...>::r_valuestore_
+       t_valuestore<T, Ts...>::destruct() noexcept {
     impl_::destruct<T>(store_);
     return *this;
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   constexpr
-  typename t_valuestore<T>::p_value_ t_valuestore<T>::ptr() noexcept {
+  typename t_valuestore<T, Ts...>::p_value_ t_valuestore<T, Ts...>::ptr() noexcept {
     return impl_::ptr<T>(store_);
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   constexpr
-  typename t_valuestore<T>::P_value_ t_valuestore<T>::ptr() const noexcept {
+  typename t_valuestore<T, Ts...>::P_value_ t_valuestore<T, Ts...>::ptr() const noexcept {
     return impl_::Ptr<T>(store_);
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   constexpr
-  typename t_valuestore<T>::P_value_ t_valuestore<T>::Ptr() const noexcept {
+  typename t_valuestore<T, Ts...>::P_value_ t_valuestore<T, Ts...>::Ptr() const noexcept {
     return impl_::Ptr<T>(store_);
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   constexpr
-  typename t_valuestore<T>::r_value_ t_valuestore<T>::ref() noexcept {
+  typename t_valuestore<T, Ts...>::r_value_ t_valuestore<T, Ts...>::ref() noexcept {
     return impl_::ref<T>(store_);
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   constexpr
-  typename t_valuestore<T>::R_value_ t_valuestore<T>::ref() const noexcept {
+  typename t_valuestore<T, Ts...>::R_value_ t_valuestore<T, Ts...>::ref() const noexcept {
     return impl_::Ref<T>(store_);
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   constexpr
-  typename t_valuestore<T>::R_value_ t_valuestore<T>::Ref() const noexcept {
+  typename t_valuestore<T, Ts...>::R_value_ t_valuestore<T, Ts...>::Ref() const noexcept {
     return impl_::Ref<T>(store_);
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   constexpr
-  typename t_valuestore<T>::r_store_ t_valuestore<T>::store() noexcept {
+  typename t_valuestore<T, Ts...>::r_store_ t_valuestore<T, Ts...>::store() noexcept {
     return store_;
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   constexpr
-  typename t_valuestore<T>::R_store_ t_valuestore<T>::store() const noexcept {
+  typename t_valuestore<T, Ts...>::R_store_ t_valuestore<T, Ts...>::store() const noexcept {
     return store_;
   }
 
-  template<typename T>
+  template<typename T, typename... Ts>
   constexpr
-  typename t_valuestore<T>::R_store_ t_valuestore<T>::Store() const noexcept {
+  typename t_valuestore<T, Ts...>::R_store_ t_valuestore<T, Ts...>::Store() const noexcept {
     return store_;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T, typename... Ts>
+  inline
+  T& default_construct(t_valuestore<T, Ts...>& store) noexcept {
+    return store.default_construct();
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  T& copy_construct(t_valuestore<T, Ts...>& store, const T& value) noexcept {
+    return store.copy_construct(value);
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  T& move_construct(t_valuestore<T, Ts...>& store, T&& value) noexcept {
+    return store.move_construct(util::x_cast(value));
+  }
+
+  template<typename T, typename... Ts, typename... As>
+  inline
+  T& fargs_construct(t_valuestore<T, Ts...>& store, As&&... as) noexcept {
+    return store.fargs_construct(util::f_cast<As>(as)...);
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  t_valuestore<T, Ts...>& destruct(t_valuestore<T, Ts...>& store) noexcept {
+    return store.destruct();
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  T& swap(t_valuestore<T, Ts...>& store, T& value) noexcept {
+    return store.swap(value);
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  T& swap(t_valuestore<T, Ts...>& store, T&& value) noexcept {
+    return store.swap(util::x_cast(value));
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  T* ptr(t_valuestore<T, Ts...>& store) noexcept {
+    return store.ptr();
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  T* ptr(const t_valuestore<T, Ts...>& store) noexcept {
+    return store.Ptr();
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  T* Ptr(const t_valuestore<T, Ts...>& store) noexcept {
+    return store.Ptr();
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  T& ref(t_valuestore<T, Ts...>& store) noexcept {
+    return store.ref();
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  T& ref(const t_valuestore<T, Ts...>& store) noexcept {
+    return store.ref();
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  T& Ref(const t_valuestore<T, Ts...>& store) noexcept {
+    return store.Ref();
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  t_store<T>& store(t_valuestore<T, Ts...>& store) noexcept {
+    return store.store();
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  t_store<T>& store(const t_valuestore<T, Ts...>& store) noexcept {
+    return store.store();
+  }
+
+  template<typename T, typename... Ts>
+  inline
+  t_store<T>& Store(const t_valuestore<T, Ts...>& store) noexcept {
+    return store.Store();
   }
 
   /////////////////////////////////////////////////////////////////////////////

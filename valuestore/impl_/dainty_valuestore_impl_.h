@@ -59,8 +59,11 @@ namespace impl_
   using util::x_cast;
   using util::f_cast;
 
-  using specific::t_n; // FIXME should be size
-  using specific::t_n_max; // FIXME should be size
+  //using specific::t_n;     // FIXME should be size
+  //using specific::t_n_max; // FIXME should be size
+
+  using t_n     = types::t_n_;
+  using t_n_max = types::t_n_max_;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -77,26 +80,16 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  using t_alignment = t_int;
-
-  template<t_n_ N, t_alignment A>
-  struct t_valuestore_traits {
-    constexpr static t_n_        SIZEOF    = N;
-    constexpr static t_alignment ALIGNMENT = A;
-
-    using t_bytes = alignas(ALIGNMENT) t_byte_[N];
-
-    t_valuestore_traits() = delete;
-  };
-
-  /////////////////////////////////////////////////////////////////////////////
-
   template<typename T, typename... Ts>
   struct t_store {
-     using t_traits = t_valuestore_traits<traits::t_union<T, Ts...>::SIZEOF,
-                                          traits::t_union<T, Ts...>::ALIGNMENT>;
+    using t_union = traits::t_union<T, Ts...>;
 
-     typename t_traits::t_bytes bytes;
+    constexpr static t_n_  SIZEOF    = t_union::SIZEOF;
+    constexpr static t_int ALIGNMENT = t_union::ALIGNMENT; // TODO
+
+    using t_bytes = alignas(ALIGNMENT) t_byte_[SIZEOF];
+
+    t_bytes bytes;
   };
 
   /////////////////////////////////////////////////////////////////////////////
