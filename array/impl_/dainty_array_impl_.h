@@ -47,10 +47,14 @@ namespace impl_
   using types::t_bool;
   using types::FARGS;
 
+  using valuestore::t_if_builtin;
+  using valuestore::t_if_not_builtin;
+  using valuestore::t_valuestore;
+  using valuestore::default_construct;
   using valuestore::default_construct;
   using valuestore::fargs_construct;
   using valuestore::destruct;
-  using valuestore::t_valuestore;
+  using valuestore::WELL_FORMED;
 
   using t_u1_     = types::t_u1_; //TODO
   using t_n       = types::t_i4_;
@@ -89,6 +93,23 @@ namespace impl_
   constexpr
   U cast_(P store, int ix) {
     return reinterpret_cast<U>(store + (ix * sizeof(T)));
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_DESTRUCT_1_3_
+  template<typename T, t_if_builtin<T> = WELL_FORMED>
+  constexpr
+  t_void destruct(t_n_max, T*) {
+  }
+
+  // IMPL_DESTRUCT_1_4_
+  template<typename T, t_if_not_builtin<T> = WELL_FORMED>
+  inline
+  t_void destruct(t_n_max max, T* arr) {
+    for (int ix = max - 1; ix; --ix)
+      arr[ix].~T();
+    arr[0].~T();
   }
 
   /////////////////////////////////////////////////////////////////////////////

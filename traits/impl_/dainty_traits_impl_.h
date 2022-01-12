@@ -406,7 +406,7 @@ namespace impl_
   using t_is_true     = t_each_is_true<help_::t_is_true_, T, Ts...>;
 
   template<typename O, typename T, typename... Ts>
-  using t_opt_if_true = t_opt_if<O, t_is_true<T>>;
+  using t_opt_if_true = t_opt_if<O, t_is_true<T, Ts...>>;
 
   template<typename T, typename... Ts>
   using t_if_true     = t_opt_if_true<t_opt, T, Ts...>;
@@ -2101,7 +2101,9 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T> t_add_rvalue_ref<T> uneval() noexcept; // declval
+  template<typename T> t_add_rvalue_ref<T> uneval       () noexcept; // declval
+  template<typename T> t_add_rvalue_ref<T> uneval_rvalue() noexcept;
+  template<typename T> t_add_lvalue_ref<T> uneval_lvalue() noexcept;
 
   /////////////////////////////////////////////////////////////////////////////
 

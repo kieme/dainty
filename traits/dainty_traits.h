@@ -40,6 +40,8 @@ namespace traits
 
   using impl_::t_opt;
   using impl_::uneval;
+  using impl_::uneval_lvalue;
+  using impl_::uneval_rvalue;
   using impl_::WELL_FORMED;
 
   /////////////////////////////////////////////////////////////////////////////

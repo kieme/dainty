@@ -1550,7 +1550,7 @@ namespace types
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T> struct t_add_BITS {
-    constexpr static t_n_ BITS = sizeof(T) * __CHAR_BIT__;
+    constexpr static t_n_ BITS = SIZEOF<T> * __CHAR_BIT__;
   };
 
   template<typename T> constexpr auto BITS_of = T::BITS;
@@ -1562,6 +1562,15 @@ namespace types
                       t_add_VALUE<T, V>,
                       t_add_identity<H> {
   };
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  struct t_pass { };
+
+  template<typename T>
+  constexpr
+  t_pass<T> pass() { return t_pass<T>(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 }

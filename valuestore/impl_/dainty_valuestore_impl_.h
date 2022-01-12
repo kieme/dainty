@@ -54,10 +54,28 @@ namespace impl_
   using types::t_n_;
   using types::t_byte_;
   using types::t_fargs;
+  using types::t_pass;
   using types::FARGS;
+  using types::pass;
 
   using util::x_cast;
   using util::f_cast;
+
+  using traits::t_if;
+  using traits::t_union;
+  using traits::t_if_true;
+  using traits::t_not;
+  using traits::t_is_not_same;
+  using traits::t_is_one_of;
+  using traits::t_is_there;
+  using traits::t_is_not_there;
+  using traits::t_remove_ref;
+  using traits::t_least_one_is_true;
+  using traits::t_is_arithmetic;
+  using traits::t_is_enum;
+  using traits::uneval;
+  using traits::uneval_lvalue;
+  using traits::WELL_FORMED;
 
   //using specific::t_n;     // FIXME should be size
   //using specific::t_n_max; // FIXME should be size
@@ -68,56 +86,81 @@ namespace impl_
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  using t_is_builtin_ =
-    traits::t_least_one_is_true<T, traits::t_is_arithmetic,
-                                   traits::t_is_enum,
-                                   logical::t_is_logical>;
+  using t_is_builtin      = t_least_one_is_true<T, t_is_arithmetic,
+                                                   t_is_enum,
+                                                   logical::t_is_logical>;
+  template<typename T>
+  using t_is_not_builtin  = t_not<t_is_builtin<T>>;
 
   template<typename T>
-  using t_if_builtin_     = traits::t_if    <t_is_builtin_<T>>;
+  using t_if_builtin      = t_if<t_is_builtin<T>>;
   template<typename T>
-  using t_if_not_builtin_ = traits::t_if_not<t_is_builtin_<T>>;
+  using t_if_not_builtin  = t_if<t_is_not_builtin<T>>;
 
   /////////////////////////////////////////////////////////////////////////////
 
+  template<typename U, typename T, typename...Ts>
+  using t_if_other_ = t_if_true<t_is_not_same<t_remove_ref<U>, T>,
+                                t_is_not_same<t_remove_ref<U>, t_pass<U>>,
+                                t_is_not_same<t_remove_ref<U>, t_fargs>,
+                                t_is_one_of<U, Ts...>>;
+
+  template<typename T>
+  using t_test_swap_ = decltype(uneval<T>().swap(uneval_lvalue<T>()));
+
+  template<typename T>
+  using t_if_swap_ = t_if_true<t_is_not_builtin<T>,
+                               t_is_there<t_test_swap_, T>>;
+
+  template<typename T>
+  using t_if_no_swap_  = t_if_true<t_is_not_builtin<T>,
+                                   t_is_not_there<t_test_swap_, T>>;
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_STORE_1_
   template<typename T, typename... Ts>
   struct t_store {
-    using t_union = traits::t_union<T, Ts...>;
+    using t_union_ = t_union<T, Ts...>;
 
-    constexpr static t_n_  SIZEOF    = t_union::SIZEOF;
-    constexpr static t_int ALIGNMENT = t_union::ALIGNMENT; // TODO
+    constexpr static t_n_  SIZEOF    = t_union_::SIZEOF;
+    constexpr static t_int ALIGNMENT = t_union_::ALIGNMENT; // TODO
 
-    using t_bytes = alignas(ALIGNMENT) t_byte_[SIZEOF];
+    using t_bytes = t_byte_[SIZEOF];
 
-    t_bytes bytes;
+    alignas(ALIGNMENT) t_bytes bytes;
   };
 
   /////////////////////////////////////////////////////////////////////////////
 
+  // IMPL_PTR_1_
   template<typename T, typename T1, typename... Ts>
   constexpr
   T* ptr(t_store<T1, Ts...>& store) noexcept {
-    static_assert(traits::t_is_one_of<T, T1, Ts...>::VALUE,
+    static_assert(t_is_one_of<T, T1, Ts...>::VALUE,
                   "T not in the union (T1, Ts)");
     return reinterpret_cast<T*>(store.bytes);
   }
 
+  // IMPL_PTR_2_
   template<typename T, typename T1, typename... Ts>
   constexpr
   const T* Ptr(const t_store<T1, Ts...>& store) noexcept {
-    static_assert(traits::t_is_one_of<T, T1, Ts...>::VALUE,
+    static_assert(t_is_one_of<T, T1, Ts...>::VALUE,
                   "T not in the union (T1, Ts)");
     return reinterpret_cast<const T*>(store.bytes);
   }
 
   /////////////////////////////////////////////////////////////////////////////
 
+  // IMPL_REF_1_
   template<typename T, typename T1, typename... Ts>
   constexpr
   T& ref(t_store<T1, Ts...>& store) noexcept {
     return *ptr<T>(store);
   }
 
+  // IMPL_REF_2_
   template<typename T, typename T1, typename... Ts>
   constexpr
   const T& Ref(const t_store<T1, Ts...>& store) noexcept {
@@ -126,13 +169,15 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, t_if_builtin_<T> = traits::WELL_FORMED>
+  // IMPL_DEFAULT_CONSTRUCT_1_1_
+  template<typename T, t_if_builtin<T> = WELL_FORMED>
   constexpr
   T& default_construct(T* obj) noexcept {
     return (*obj = T{});
   }
 
-  template<typename T, t_if_not_builtin_<T> = traits::WELL_FORMED>
+  // IMPL_DEFAULT_CONSTRUCT_1_2_
+  template<typename T, t_if_not_builtin<T> = WELL_FORMED>
   inline
   T& default_construct(T* obj) noexcept {
     return *new (obj) T{};
@@ -140,13 +185,15 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, t_if_builtin_<T> = traits::WELL_FORMED>
+  // IMPL_COPY_CONSTRUCT_1_1_
+  template<typename T, t_if_builtin<T> = WELL_FORMED>
   constexpr
   T& copy_construct(T* obj, const T& value) noexcept {
     return (*obj = value);
   }
 
-  template<typename T, t_if_not_builtin_<T> = traits::WELL_FORMED>
+  // IMPL_COPY_CONSTRUCT_1_2_
+  template<typename T, t_if_not_builtin<T> = WELL_FORMED>
   inline
   T& copy_construct(T* obj, const T& value) noexcept {
     return *new (obj) T{value};
@@ -154,14 +201,15 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, t_if_builtin_<T> = traits::WELL_FORMED>
+  // IMPL_MOVE_CONSTRUCT_1_1_
+  template<typename T, t_if_builtin<T> = WELL_FORMED>
   constexpr
   T& move_construct(T* obj, T&& value) noexcept {
-    *obj = value;
-    return *obj;
+    return (*obj = value);
   }
 
-  template<typename T, t_if_not_builtin_<T> = traits::WELL_FORMED>
+  // IMPL_MOVE_CONSTRUCT_1_2_
+  template<typename T, t_if_not_builtin<T> = WELL_FORMED>
   inline
   T& move_construct(T* obj, T&& value) noexcept {
     return *new (obj) T{x_cast(value)};
@@ -169,15 +217,15 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, typename A, t_if_builtin_<T> = traits::WELL_FORMED>
+  // IMPL_FARGS_CONSTRUCT_1_1_
+  template<typename T, typename A, t_if_builtin<T> = WELL_FORMED>
   constexpr
   T& fargs_construct(T* obj, A&& a) noexcept {
-    *obj = T{a};
-    return *obj;
+    return (*obj = a);
   }
 
-  template<typename T, typename... As,
-           t_if_not_builtin_<T> = traits::WELL_FORMED>
+  // IMPL_FARGS_CONSTRUCT_1_2_
+  template<typename T, typename... As, t_if_not_builtin<T> = WELL_FORMED>
   inline
   T& fargs_construct(T* obj, As&&... as) noexcept {
     return *new (obj) T{f_cast<As>(as)...};
@@ -185,82 +233,112 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
+  // IMPL_CONSTRUCT_1_1_
   template<typename T>
   inline
   T& construct(T* obj) {
     return default_construct(obj);
   }
 
+  // IMPL_CONSTRUCT_1_2_
   template<typename T>
   inline
   T& construct(T* obj, const T& value) {
     return copy_construct(obj, value);
   }
 
+  // IMPL_CONSTRUCT_1_3_
   template<typename T>
   inline
   T& construct(T* obj, T&& value) {
     return move_construct(obj, x_cast(value));
   }
 
-  template<typename T, typename A, typename... As>
+  // IMPL_CONSTRUCT_1_4_
+  template<typename T, typename... As>
   inline
-  T& construct(T* obj, t_fargs, A&& a, As&&... as) {
-    return fargs_construct(obj, f_cast<A>(a), f_cast<As>(as)...);
+  T& construct(T* obj, t_fargs, As&&... as) {
+    return fargs_construct(obj, f_cast<As>(as)...);
   }
 
   /////////////////////////////////////////////////////////////////////////////
 
-  template<typename T, t_if_builtin_<T> = traits::WELL_FORMED>
+  // IMPL_DESTRUCT_1_1_
+  template<typename T, t_if_builtin<T> = WELL_FORMED>
   constexpr
   t_void destruct(T*) noexcept {
   }
 
-  template<typename T, t_if_not_builtin_<T> = traits::WELL_FORMED>
+  // IMPL_DESTRUCT_1_2_
+  template<typename T, t_if_not_builtin<T> = WELL_FORMED>
   inline
   t_void destruct(T* obj) noexcept {
     obj->~T();
   }
 
-  template<typename T, t_if_builtin_<T> = traits::WELL_FORMED>
-  constexpr
-  t_void destruct(t_n_max, T*) {
-  }
-
-  template<typename T, t_if_not_builtin_<T> = traits::WELL_FORMED>
-  inline
-  t_void destruct(t_n_max max, T* arr) {
-    for (int ix = max - 1; ix; --ix) // TODO
-      arr[ix].~T();
-    arr[0].~T();
-  }
-
   /////////////////////////////////////////////////////////////////////////////
 
+  // IMPL_DEFAULT_CONSTRUCT_2_1_
   template<typename T, typename T1, typename... Ts>
   inline
   T& default_construct(t_store<T1, Ts...>& store) noexcept {
     return default_construct(ptr<T>(store));
   }
 
+  // IMPL_COPY_CONSTRUCT_2_1_
   template<typename T, typename T1, typename... Ts>
   inline
   T& copy_construct(t_store<T1, Ts...>& store, const T& value) noexcept {
     return copy_construct(ptr<T>(store), value);
   }
 
+  // IMPL_MOVE_CONSTRUCT_2_1_
   template<typename T, typename T1, typename... Ts>
   inline
   T& move_construct(t_store<T1, Ts...>& store, T&& value) noexcept {
     return move_construct(ptr<T>(store), x_cast(value));
   }
 
+  // IMPL_FARGS_CONSTRUCT_2_1_
   template<typename T, typename T1, typename... Ts, typename... As>
   inline
   T& fargs_construct(t_store<T1, Ts...>& store, As&&... as) noexcept {
-    return frags_construct(ptr<T>(store), f_cast<As>(as)...);
+    return fargs_construct(ptr<T>(store), f_cast<As>(as)...);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_CONSTRUCT_2_1_
+  template<typename T, typename T1, typename... Ts>
+  inline
+  T& construct(t_store<T1, Ts...>& store) {
+    return default_construct<T>(store);
+  }
+
+  // IMPL_CONSTRUCT_2_2_
+  template<typename T, typename T1, typename... Ts>
+  inline
+  T& construct(t_store<T1, Ts...>& store, const T& value) {
+    return copy_construct<T>(store, value);
+  }
+
+  // IMPL_CONSTRUCT_2_3_
+  template<typename T, typename T1, typename... Ts>
+  inline
+  T& construct(t_store<T1, Ts...>& store, T&& value) {
+    return move_construct<T>(store, x_cast(value));
+  }
+
+  // IMPL_CONSTRUCT_2_4_
+  template<typename T, typename T1, typename... Ts, typename... As>
+  inline
+  T& construct(t_store<T1, Ts...>& store, t_fargs, As&&... as) {
+    return fargs_construct(store, f_cast<As>(as)...);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_DESTRUCT_2_1_
   template<typename T, typename T1, typename... Ts>
   inline
   t_void destruct(t_store<T1, Ts...>& store) noexcept {
@@ -269,6 +347,41 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
+  // IMPL_SWAP_1_1_
+  template<typename T, t_if_builtin<T> = WELL_FORMED>
+  constexpr
+  T& swap(T& ref, T& ref1) {
+    T tmp = ref1;
+    ref1 = ref;
+    return (ref = tmp);
+  }
+
+  // IMPL_SWAP_1_2_
+  template<typename T, t_if_swap_<T> = WELL_FORMED>
+  T& swap(T& ref, T& ref1) {
+    ref.swap(ref1);
+    return ref;
+  }
+
+  // IMPL_SWAP_1_3_
+  template<typename T, t_if_no_swap_<T> = WELL_FORMED>
+  constexpr
+  T& swap(T& ref, T& ref1) {
+    T tmp = ref1;
+    ref1 = ref;
+    return (ref = tmp);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // IMPL_SWAP_2_1_
+  template<typename T, typename T1, typename... Ts>
+  inline
+  T& swap(t_store<T1, Ts...>& store, T& value) {
+    return impl_::swap(ref<T>(store), value);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
 }
 }
 }
