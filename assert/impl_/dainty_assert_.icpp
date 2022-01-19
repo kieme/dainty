@@ -24,34 +24,36 @@
 
 ******************************************************************************/
 
-#ifndef _DAINTY_ALLOC_IMPL_H_
-#define _DAINTY_ALLOC_IMPL_H_
-
-#include "dainty_types.h"
+#ifndef _DAINTY_ASSERT_ICPP_
+#define _DAINTY_ASSERT_ICPP_
 
 namespace dainty
 {
-namespace alloc
-{
-namespace impl_
+namespace assertion
 {
   /////////////////////////////////////////////////////////////////////////////
 
-  using types::t_void;
-  using types::p_void;
+  inline
+  t_void assert_when_true(t_bool cond, P_char fmt, ...) noexcept {
+    if (cond) {
+      va_list vars;
+      va_start(vars, fmt);
+      assert_now(fmt, vars);
+      va_end(vars);
+    }
+  }
 
-  using t_n       = types::t_n_;    // TODO
-  using t_u1      = types::t_u1_;
-  using t_n_bytes = t_n;
+  inline
+  t_void assert_when_false(t_bool cond, P_char fmt, ...) noexcept {
+    if (!cond) {
+      va_list vars;
+      va_start(vars, fmt);
+      assert_now(fmt, vars);
+      va_end(vars);
+    }
+  }
 
   /////////////////////////////////////////////////////////////////////////////
-
-  p_void alloc_     (t_n_bytes);
-  p_void alloc_fill_(t_n_bytes, t_u1 = 0);
-  t_void dealloc_   (p_void);
-
-  /////////////////////////////////////////////////////////////////////////////
-}
 }
 }
 

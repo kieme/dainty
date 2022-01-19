@@ -24,31 +24,27 @@
 
 ******************************************************************************/
 
-#ifndef _DAINTY_ALLOC_IMPL_H_
-#define _DAINTY_ALLOC_IMPL_H_
+#ifndef _DAINTY_TEST_IMPL_H_
+#define _DAINTY_TEST_IMPL_H_
 
-#include "dainty_types.h"
+#include "../dainty_test_types.h"
 
 namespace dainty
 {
-namespace alloc
+namespace test
 {
 namespace impl_
 {
   /////////////////////////////////////////////////////////////////////////////
 
-  using types::t_void;
-  using types::p_void;
-
-  using t_n       = types::t_n_;    // TODO
-  using t_u1      = types::t_u1_;
-  using t_n_bytes = t_n;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  p_void alloc_     (t_n_bytes);
-  p_void alloc_fill_(t_n_bytes, t_u1 = 0);
-  t_void dealloc_   (p_void);
+  t_void invoke_default_construct_(t_class_info*, P_addr);
+  t_void invoke_copy_construct_   (t_class_info*, P_addr, P_addr);
+  t_void invoke_move_construct_   (t_class_info*, P_addr, P_addr);
+  t_void invoke_destruct_         (t_class_info*, P_addr);
+  t_void invoke_copy_assignment_  (t_class_info*, P_addr, P_addr);
+  t_void invoke_move_assignment_  (t_class_info*, P_addr, P_addr);
+  t_void invoke_set_              (t_class_info*, P_addr);
+  t_void invoke_Get_              (t_class_info*, P_addr);
 
   /////////////////////////////////////////////////////////////////////////////
 }

@@ -24,34 +24,65 @@
 
 ******************************************************************************/
 
-#ifndef _DAINTY_ALLOC_IMPL_H_
-#define _DAINTY_ALLOC_IMPL_H_
+#ifndef _DAINTY_TEST_IMPL_TYPES_H_
+#define _DAINTY_TEST_IMPL_TYPES_H_
 
 #include "dainty_types.h"
 
 namespace dainty
 {
-namespace alloc
+namespace test
 {
-namespace impl_
-{
-  /////////////////////////////////////////////////////////////////////////////
-
   using types::t_void;
-  using types::p_void;
-
-  using t_n       = types::t_n_;    // TODO
-  using t_u1      = types::t_u1_;
-  using t_n_bytes = t_n;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  p_void alloc_     (t_n_bytes);
-  p_void alloc_fill_(t_n_bytes, t_u1 = 0);
-  t_void dealloc_   (p_void);
+  using P_addr  = types::P_void;
+
+  enum t_class_method {
+    METHOD_DEFAULT_CONSTRUCT,
+    METHOD_COPY_CONSTRUCT,
+    METHOD_MOVE_CONSTRUCT,
+    METHOD_COPY_ASSIGNMENT,
+    METHOD_MOVE_ASSIGNMENT,
+    METHOD_DESTRUCT,
+    METHOD_SET,
+    METHOD_GET
+  };
+
+  struct t_class_sequence {
+    struct t_entry {
+      P_addr         self  = nullptr;
+      P_addr         other = nullptr;
+      t_class_method method;
+    };
+    int     ix = 0;
+    t_entry history[100];
+  };
+
+  struct t_class_counters {
+    int default_construct = 0;
+    int move_construct    = 0;
+    int copy_construct    = 0;
+    int destruct          = 0;
+    int copy_assign       = 0;
+    int move_assign       = 0;
+    int set               = 0;
+    int Get               = 0;
+  };
+
+  struct t_class_info {
+    int size_of  = 0;
+    int align_of = 0;
+
+    t_class_counters counters;
+    t_class_sequence sequence;
+
+    t_void reset  ();
+    t_void display() const;
+  };
 
   /////////////////////////////////////////////////////////////////////////////
-}
 }
 }
 

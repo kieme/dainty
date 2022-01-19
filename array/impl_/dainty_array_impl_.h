@@ -45,7 +45,13 @@ namespace impl_
 
   using types::t_void;
   using types::t_bool;
+  using types::t_init_fargs;
+  using types::t_init_none;
+  using types::t_init_custom;
   using types::FARGS;
+  using types::INIT_FARGS;
+  using types::INIT_NONE;
+  using types::INIT_CUSTOM;
 
   using valuestore::t_if_builtin;
   using valuestore::t_if_not_builtin;
@@ -65,12 +71,6 @@ namespace impl_
 
   using alloc::alloc;
   using alloc::dealloc;
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  enum t_init_list_   { INIT_LIST };
-  enum t_init_none_   { INIT_NONE };
-  enum t_init_custom_ { INIT_CUSTOM };
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -144,14 +144,14 @@ namespace impl_
 
   template<typename T, typename U, typename... Us>
   inline
-  t_void init_(t_n_max max, T* arr, t_init_list_, U&& u, Us&&... us) {
+  t_void init_(t_n_max max, T* arr, t_init_fargs, U&& u, Us&&... us) {
     int ix = help_::init_(0, arr, f_cast<U>(u), f_cast<Us>(us)...);
     for (; ix < max; ix = init_val_(ix, arr));
   }
 
   template<typename T, typename C>
   inline
-  t_void init_(t_n_max max, T* arr, t_init_custom_, C&& custom) {
+  t_void init_(t_n_max max, T* arr, t_init_custom, C&& custom) {
     for (int ix = 0; ix < max; ++ix)
       custom(ix, arr + ix);
   }

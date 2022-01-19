@@ -24,35 +24,39 @@
 
 ******************************************************************************/
 
-#ifndef _DAINTY_ALLOC_IMPL_H_
-#define _DAINTY_ALLOC_IMPL_H_
+#include "dainty_valuestore.h"
+#include "dainty_test.h"
 
-#include "dainty_types.h"
+using namespace dainty::valuestore;
+using namespace dainty::test;
 
-namespace dainty
-{
-namespace alloc
-{
-namespace impl_
-{
-  /////////////////////////////////////////////////////////////////////////////
+int main() {
+  t_class_info class_info;
+  t_class<>::set_monitor(class_info);
 
-  using types::t_void;
-  using types::p_void;
+  {
+    t_class<> t1;
+    t_class<> t2(dainty::util::x_cast(t1));
+    t_class<> t3(t2);
 
-  using t_n       = types::t_n_;    // TODO
-  using t_u1      = types::t_u1_;
-  using t_n_bytes = t_n;
+    t_class<> t4;
+    t3 = t4;
 
-  /////////////////////////////////////////////////////////////////////////////
+    t_class<> t5;
+    t3 = dainty::util::x_cast(t5);
+  }
 
-  p_void alloc_     (t_n_bytes);
-  p_void alloc_fill_(t_n_bytes, t_u1 = 0);
-  t_void dealloc_   (p_void);
+  class_info.display();
+  class_info.reset();
 
-  /////////////////////////////////////////////////////////////////////////////
+  t_class<int>::set_monitor(class_info);
+  {
+    t_class<int> t1;
+
+    set(t1) = 1;
+    Get(t1);
+  }
+
+  class_info.display();
+  return 0;
 }
-}
-}
-
-#endif

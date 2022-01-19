@@ -51,28 +51,13 @@ namespace assertion
 
   /////////////////////////////////////////////////////////////////////////////
 
-  inline
-  t_void assert_when_true(t_bool cond, P_char fmt, ...) noexcept {
-    if (cond) {
-      va_list vars;
-      va_start(vars, fmt);
-      assert_now(fmt, vars);
-      va_end(vars);
-    }
-  }
-
-  inline
-  t_void assert_when_false(t_bool cond, P_char fmt, ...) noexcept {
-    if (!cond) {
-      va_list vars;
-      va_start(vars, fmt);
-      assert_now(fmt, vars);
-      va_end(vars);
-    }
-  }
+  t_void assert_when_true (t_bool, P_char fmt, ...) noexcept;
+  t_void assert_when_false(t_bool, P_char fmt, ...) noexcept;
 
   /////////////////////////////////////////////////////////////////////////////
 }
 }
+
+#include "impl_/dainty_assert_.icpp"
 
 #endif

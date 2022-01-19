@@ -27,7 +27,7 @@
 #define  DAINTY_INTERNAL_INCLUDE_C_STDLIB
 #define  DAINTY_INTERNAL_INCLUDE_C_STRING
 #include "dainty_internal_.h"
-#include "dainty_alloc.h"
+#include "dainty_alloc_impl_.h"
 
 namespace dainty
 {
@@ -35,8 +35,6 @@ namespace alloc
 {
 namespace impl_
 {
-  t_alloc global_;
-
   /////////////////////////////////////////////////////////////////////////////
 
   p_void alloc_(t_n_bytes bytes) {

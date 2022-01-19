@@ -6,9 +6,9 @@
 #define DAINTY_INTERNAL_INCLUDE_C_STDLIB
 #define DAINTY_INTERNAL_INCLUDE_C_STRING
 #include "dainty_internal_.h"
-#include "dainty_types.h"
 #include "dainty_alloc.h"
 #include "dainty_util.h"
+#include "../dainty_hashbuf_types.h"
 
 // NOTE-1 only key is taken care off and value is just memory
 // NOTE-2 value memcopied. It does not know values as types.
@@ -33,9 +33,6 @@ namespace impl_
 {
   /////////////////////////////////////////////////////////////////////////////
 
-  using types::t_bool;
-  using types::t_void;
-  using types::t_double;
   using types::t_of;
   using types::T_of;
   using types::r_of;
@@ -53,24 +50,7 @@ namespace impl_
 
   using alloc::t_alloc;
 
-  using t_reuse      = t_bool;
-  using t_must_add   = t_bool;
-
-  using t_hash_id    = types::t_u4_; // TODO
-  using t_u1         = types::t_u1_;
-  using t_n          = types::t_n_;
-  using r_n          = types::r_n_;
-  using t_ix         = t_n;
-  using t_n_max      = t_n;
-  using t_n_bytes    = t_n;
-
   /////////////////////////////////////////////////////////////////////////////
-
-  constexpr t_reuse    REUSE       = true;
-  constexpr t_reuse    NO_REUSE    = false;
-
-  constexpr t_must_add MUST_ADD    = true;
-  constexpr t_must_add FIND_OR_ADD = false;
 
   constexpr t_hash_id HASH_USE_    = 1 << ((sizeof(t_hash_id) * 8) - 1);
   constexpr t_hash_id HASH_MASK_   = ~HASH_USE_;
@@ -85,44 +65,6 @@ namespace impl_
 
   /////////////////////////////////////////////////////////////////////////////
 
-  /*
-  template<typename T>
-  constexpr
-  T reset(T& obj, const T& value = T()) {
-    T tmp = obj;
-    obj = value;
-    return tmp;
-  }
-
-  template<typename T>
-  constexpr
-  T* reset(T*& obj, T* value) {
-    T* tmp = obj;
-    obj = value;
-    return tmp;
-  }
-
-  template<typename T>
-  constexpr
-  const T* reset(const T*& obj, T* value) {
-    const T* tmp = obj;
-    obj = value;
-    return tmp;
-  }
-  */
-
-  /*
-  template<typename T>
-  constexpr
-  T* reset(T*& obj, nullptr_t) {
-    T* tmp = obj;
-    obj = nullptr;
-    return tmp;
-  }
-  */
-
-  /////////////////////////////////////////////////////////////////////////////
-
   constexpr
   t_n next_prime(t_n value) {
     for (value += !(value & 1); true; value += 2) {
@@ -133,32 +75,6 @@ namespace impl_
     }
     return 1;
   }
-
-  /////////////////////////////////////////////////////////////////////////////
-
-  struct t_hash_stats {
-    t_n_bytes  memory                 = 0;
-    t_n_bytes  active_use             = 0;
-    t_n_bytes  overhead               = 0;
-    t_n_bytes  minimum                = 0;
-    t_n_bytes  cached                 = 0;
-    t_n        entries                = 0;
-    t_n_max    slots                  = 0;
-    t_n        slots_in_use           = 0;
-    t_n_max    node_entries           = 0;
-    t_n        cached_nodes           = 0;
-    t_n        nodes                  = 0;
-    t_n        node_avg_entries       = 0;
-    t_n        slot_node_max_depth    = 0;
-    t_n        slot_node_avg_depth    = 0;
-    t_n        slot_entries_max_depth = 0;
-    t_n        slot_entries_avg_depth = 0;
-    t_n        entries_in_first       = 0;
-    t_n        entries_in_second      = 0;
-    t_n        entries_in_third       = 0;
-    t_n        entries_in_fourth      = 0;
-    t_n        entries_in_rest        = 0;
-  };
 
   /////////////////////////////////////////////////////////////////////////////
 

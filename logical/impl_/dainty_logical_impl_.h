@@ -27,7 +27,7 @@
 #ifndef _DAINTY_LOGICAL_IMPL_H_
 #define _DAINTY_LOGICAL_IMPL_H_
 
-#define DAINTY_BASE_INTERNAL_INCLUDE_C_STDIO
+#define DAINTY_INTERNAL_INCLUDE_C_STDIO
 #include "dainty_internal_.h"
 #include "dainty_types.h"
 #include "dainty_traits.h"

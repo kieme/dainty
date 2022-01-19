@@ -24,34 +24,60 @@
 
 ******************************************************************************/
 
-#ifndef _DAINTY_ALLOC_IMPL_H_
-#define _DAINTY_ALLOC_IMPL_H_
-
-#include "dainty_types.h"
+#ifndef _DAINTY_ALLOC_ICPP_
+#define _DAINTY_ALLOC_ICPP_
 
 namespace dainty
 {
 namespace alloc
 {
-namespace impl_
-{
   /////////////////////////////////////////////////////////////////////////////
 
-  using types::t_void;
-  using types::p_void;
+  template<typename T>
+  inline
+  T* alloc(t_n n) {
+    return static_cast<T*>(impl_::alloc_(t_alloc::bytes<T>(n)));
+  }
 
-  using t_n       = types::t_n_;    // TODO
-  using t_u1      = types::t_u1_;
-  using t_n_bytes = t_n;
+  template<typename T>
+  inline
+  T* alloc_fill(t_n n, t_u1 ch) {
+    return static_cast<T*>(impl_::alloc_fill_(t_alloc::bytes<T>(n), ch));
+  }
+
+  template<typename T>
+  inline
+  t_void dealloc(T* mem) {
+    impl_::dealloc_(mem);
+  }
 
   /////////////////////////////////////////////////////////////////////////////
 
-  p_void alloc_     (t_n_bytes);
-  p_void alloc_fill_(t_n_bytes, t_u1 = 0);
-  t_void dealloc_   (p_void);
+  template<typename T>
+  constexpr
+  t_n_bytes t_alloc::bytes(t_n n) {
+      return types::SIZEOF<T> * n;
+  }
+
+  template<typename T>
+  inline
+  T* t_alloc::acquire(t_n n) {
+    return alloc::alloc<T>(n);
+  }
+
+  template<typename T>
+  inline
+  T* t_alloc::acquire_fill(t_n n, t_u1 ch) {
+    return alloc::alloc_fill<T>(n, ch);
+  }
+
+  template<typename T>
+  inline
+  t_void t_alloc::release(T* mem) {
+    return alloc::dealloc(mem);
+  }
 
   /////////////////////////////////////////////////////////////////////////////
-}
 }
 }
 

@@ -54,7 +54,7 @@ void __attribute__((noinline)) foo(int (&ref)[5], int (&ref1)[5]) {
 }
 
 void __attribute__((noinline)) foo1(int (&ref)[5], int (&ref1)[5]) {
-  answer(make_array(INIT_LIST, ref[0] + ref1[0],
+  answer(make_array(INIT_FARGS, ref[0] + ref1[0],
                                ref[1] + ref1[1],
                                ref[2] + ref1[2],
                                ref[3] + ref1[3],
@@ -65,8 +65,8 @@ int main()
 {
 
   auto arr0 = make_array<6, int>();
-  auto arr  = make_array<6>(INIT_LIST, 1,2,3);
-  auto arr1 = make_array(INIT_LIST, 1.1,2,3.1);
+  auto arr  = make_array<6>(INIT_FARGS, 1,2,3);
+  auto arr1 = make_array(INIT_FARGS, 1.1,2,3.1);
 
   arr1[2] = 3.3;
 
@@ -89,7 +89,7 @@ int main()
     std::cout << "i = " << *i << std::endl;
   }
 
-  arr1 = make_array(INIT_LIST, 1, 2, 3);
+  arr1 = make_array(INIT_FARGS, 1, 2, 3);
 
   for (auto i = arr1.Begin(); i != arr1.End(); ++i) {
     std::cout << "i = " << *i << std::endl;
@@ -104,7 +104,7 @@ int main()
 
   auto arr8 = make_array<3, int*>();
 
-  arr8.init(INIT_LIST, arr.ptr(0), arr.ptr(1), arr.ptr(2));
+  arr8.init(INIT_FARGS, arr.ptr(0), arr.ptr(1), arr.ptr(2));
 
   for (auto i = arr8.Begin(); i != arr8.End(); ++i) {
     std::cout << "i = " << *i << std::endl;
@@ -141,7 +141,7 @@ int main()
   arr13 = arr11;
 
   arr11.destruct();
-  arr11.init(INIT_LIST, 1, 2, 3, 4);
+  arr11.init(INIT_FARGS, 1, 2, 3, 4);
 
   int i[5] = { 0, 1, 2, 3, 4};
 

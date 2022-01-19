@@ -39,30 +39,39 @@ namespace alloc
   using impl_::t_n;
   using impl_::t_u1;
   using impl_::t_n_bytes;
-  using impl_::t_alloc;
 
   /////////////////////////////////////////////////////////////////////////////
 
   template<typename T>
-  inline
-  T* alloc(t_n n = 1) {
-    return impl_::global_.acquire<T>(n);
-  }
+  T* alloc(t_n n = 1);
 
   template<typename T>
-  inline
-  T* alloc_fill(t_n n = 1, t_u1 ch = 0) {
-    return impl_::global_.acquire_fill<T>(n, ch);
-  }
+  T* alloc_fill(t_n n = 1, t_u1 ch = 0);
 
   template<typename T>
-  inline
-  t_void dealloc(T* mem) {
-    return impl_::global_.release(mem);
-  }
+  t_void dealloc(T* mem);
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  struct t_alloc {
+    template<typename T>
+    constexpr
+    static t_n_bytes bytes(t_n n = 1);
+
+    template<typename T>
+    T* acquire(t_n n = 1);
+
+    template<typename T>
+    T* acquire_fill(t_n n = 1, t_u1 ch = 0);
+
+    template<typename T>
+    t_void release(T* mem);
+  };
 
   /////////////////////////////////////////////////////////////////////////////
 }
 }
+
+#include "impl_/dainty_alloc_.icpp"
 
 #endif

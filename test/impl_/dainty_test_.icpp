@@ -1,0 +1,185 @@
+/******************************************************************************
+
+ MIT License
+
+ Copyright (c) 2018 kieme, frits.germs@gmx.net
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+******************************************************************************/
+
+#ifndef _DAINTY_TEST_ICPP_
+#define _DAINTY_TEST_ICPP_
+
+// HOW many constructed
+// HOW many constructed how
+// HOW to read out data
+// SEQUENCE - buildin
+//
+
+namespace dainty
+{
+namespace test
+{
+  ///////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  inline
+  t_class<T>::t_class() {
+    value_.default_construct();
+    impl_::invoke_default_construct_(instance_, this);
+  }
+
+  template<typename T>
+  inline
+  t_class<T>::t_class(R_class_ value) {
+    value_.copy_construct(value.value_);
+    impl_::invoke_copy_construct_(instance_, this, &value);
+  }
+
+  template<typename T>
+  inline
+  t_class<T>::t_class(x_class_ value) {
+    value_.move_construct(util::x_cast(value.value_));
+    impl_::invoke_move_construct_(instance_, this, &value);
+  }
+
+  template<typename T>
+  inline
+  t_class<T>::~t_class() {
+    value_.destruct();
+    impl_::invoke_destruct_(instance_, this);
+  }
+
+  template<typename T>
+  inline
+  typename t_class<T>::r_class_ t_class<T>::operator=(R_class_ value) {
+    value_ = value.value_;
+    impl_::invoke_copy_assignment_(instance_, this, &value);
+    return *this;
+  }
+
+  template<typename T>
+  inline
+  typename t_class<T>::r_class_ t_class<T>::operator=(x_class_ value) {
+    value_ = util::x_cast(value.value_);
+    impl_::invoke_move_assignment_(instance_, this, &value);
+    return *this;
+  }
+
+  template<typename T>
+  inline
+  t_void t_class<T>::set_monitor(t_class_info& info) {
+    info.size_of  = sizeof(t_class<T>);
+    info.align_of = alignof(t_class<T>);
+    instance_     = &info;
+  }
+
+  template<typename T>
+  inline
+  T& t_class<T>::set() {
+    impl_::invoke_set_(instance_, this);
+    return value_.ref();
+  }
+
+  template<typename T>
+  inline
+  const T& t_class<T>::Get() const {
+    impl_::invoke_Get_(instance_, this);
+    return value_.Ref();
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+
+  inline
+  t_class<t_void>::t_class() {
+    impl_::invoke_default_construct_(instance_, this);
+  }
+
+  inline
+  t_class<t_void>::t_class(R_class_ value) {
+    impl_::invoke_copy_construct_(instance_, this, &value);
+  }
+
+  inline
+  t_class<t_void>::t_class(x_class_ value) {
+    impl_::invoke_move_construct_(instance_, this, &value);
+  }
+
+  inline
+  t_class<t_void>::~t_class() {
+    impl_::invoke_destruct_(instance_, this);
+  }
+
+  inline
+  typename t_class<t_void>::r_class_ t_class<t_void>::operator=(R_class_ value) {
+    impl_::invoke_copy_assignment_(instance_, this, &value);
+    return *this;
+  }
+
+  inline
+  typename t_class<t_void>::r_class_ t_class<t_void>::operator=(x_class_ value) {
+    impl_::invoke_move_assignment_(instance_, this, &value);
+    return *this;
+  }
+
+  inline
+  t_void t_class<t_void>::set_monitor(t_class_info& info) {
+    info.size_of  = sizeof(t_class<t_void>);
+    info.align_of = alignof(t_class<t_void>);
+    instance_     = &info;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  inline
+  T& set(T& value) {
+    return value;
+  }
+
+  template<typename T>
+  inline
+  T& set(t_class<T>& value) {
+    return value.set();
+  }
+
+  template<typename T>
+  inline
+  const T& Get(const T& value) {
+    return value;
+  }
+
+  template<typename T>
+  inline
+  const T& Get(const t_class<T>& value) {
+    return value.Get();
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+
+  template<typename T>
+  t_class_info* t_class<T>::instance_      = nullptr;
+  t_class_info* t_class<t_void>::instance_ = nullptr;
+
+  ///////////////////////////////////////////////////////////////////////////
+}
+}
+
+#endif

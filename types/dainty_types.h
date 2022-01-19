@@ -1313,11 +1313,15 @@ namespace types
 
   /////////////////////////////////////////////////////////////////////////////
 
-  enum t_emplace    { EMPLACE     }; // XXX TRY_EMPLACE ?
-  enum t_emplace_it { EMPLACE_IT  }; // XXX TRY_EMPLACE ?
-  enum t_fmt        { FMT, FMT_IT }; // XXX FMT is deprecated
-  enum t_fmt_va     { FMT_VA_IT   };
-  enum t_fargs      { FARGS };
+  enum t_emplace    { EMPLACE      };  // XXX TRY_EMPLACE
+  enum t_emplace_it { EMPLACE_IT   };  // XXX TRY_EMPLACE
+  enum t_fmt        { FMT, FMT_IT  };  // XXX FMT is deprecated
+  enum t_fmt_va     { FMT_VA_IT    };
+  enum t_fargs      { FARGS        };  // PASSING forwarding arguments
+
+  enum t_init_fargs  { INIT_FARGS  };  // HOW TO INIT OBJECT
+  enum t_init_none   { INIT_NONE   };
+  enum t_init_custom { INIT_CUSTOM };
 
   /////////////////////////////////////////////////////////////////////////////
 
